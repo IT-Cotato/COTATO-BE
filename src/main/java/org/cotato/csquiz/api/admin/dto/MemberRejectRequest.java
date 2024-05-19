@@ -1,8 +1,8 @@
-package org.cotato.csquiz.api.member.dto;
+package org.cotato.csquiz.api.admin.dto;
 
 import jakarta.validation.constraints.NotNull;
 
-public record UpdateOldMemberRoleRequest(
+public record MemberRejectRequest(
         @NotNull
         Long memberId
 ) {

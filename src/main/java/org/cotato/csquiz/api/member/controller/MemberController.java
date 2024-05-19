@@ -2,7 +2,7 @@ package org.cotato.csquiz.api.member.controller;
 
 import org.cotato.csquiz.domain.auth.service.MemberService;
 import org.cotato.csquiz.common.config.jwt.JwtTokenProvider;
-import org.cotato.csquiz.api.auth.dto.MemberInfoResponse;
+import org.cotato.csquiz.api.admin.dto.MemberInfoResponse;
 import org.cotato.csquiz.api.member.dto.CheckPasswordRequest;
 import org.cotato.csquiz.api.member.dto.MemberMyPageInfoResponse;
 import org.cotato.csquiz.api.member.dto.UpdatePasswordRequest;

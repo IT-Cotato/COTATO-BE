@@ -1,12 +1,12 @@
 package org.cotato.csquiz.api.admin.controller;
 
-import org.cotato.csquiz.api.auth.dto.ApplyMemberInfoResponse;
-import org.cotato.csquiz.api.member.dto.MemberApproveRequest;
-import org.cotato.csquiz.api.member.dto.MemberEnrollInfoResponse;
-import org.cotato.csquiz.api.member.dto.MemberRejectRequest;
-import org.cotato.csquiz.api.member.dto.UpdateActiveMemberRoleRequest;
-import org.cotato.csquiz.api.member.dto.UpdateActiveMemberToOldMemberRequest;
-import org.cotato.csquiz.api.member.dto.UpdateOldMemberRoleRequest;
+import org.cotato.csquiz.api.admin.dto.ApplyMemberInfoResponse;
+import org.cotato.csquiz.api.admin.dto.MemberApproveRequest;
+import org.cotato.csquiz.api.admin.dto.MemberEnrollInfoResponse;
+import org.cotato.csquiz.api.admin.dto.MemberRejectRequest;
+import org.cotato.csquiz.api.admin.dto.UpdateActiveMemberRoleRequest;
+import org.cotato.csquiz.api.admin.dto.UpdateActiveMemberToOldMemberRequest;
+import org.cotato.csquiz.api.admin.dto.UpdateOldMemberRoleRequest;
 import org.cotato.csquiz.domain.auth.service.AdminService;
 import jakarta.validation.Valid;
 import java.util.List;
