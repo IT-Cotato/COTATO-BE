@@ -47,9 +47,6 @@ public class Quiz extends BaseTimeEntity {
     @Column(name = "quiz_question", nullable = false, length = 500)
     private String question;
 
-    @Column(name = "quiz_photo_url")
-    private String photoUrl;
-
     @Embedded
     private S3Info s3Info;
 

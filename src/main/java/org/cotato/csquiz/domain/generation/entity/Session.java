@@ -38,9 +38,6 @@ public class Session extends BaseTimeEntity {
     @Column(name = "session_number")
     private Integer number;
 
-    @Column(name = "session_photo_url")
-    private String photoUrl;
-
     @Embedded
     private S3Info photoS3Info;
 

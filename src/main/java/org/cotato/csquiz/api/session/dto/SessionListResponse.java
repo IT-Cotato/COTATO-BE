@@ -19,7 +19,7 @@ public record SessionListResponse(
         return new SessionListResponse(
                 session.getId(),
                 session.getNumber(),
-                session.getPhotoUrl(),
+                session.getPhotoS3Info().getUploadUrl(),
                 session.getDescription(),
                 session.getGeneration().getId(),
                 session.getItIssue(),

@@ -23,7 +23,7 @@ public class ShortQuizResponse {
                 quiz.getId(),
                 quiz.getNumber(),
                 quiz.getQuestion(),
-                quiz.getPhotoUrl(),
+                quiz.getS3Info().getUploadUrl(),
                 shortAnswers
         );
     }
