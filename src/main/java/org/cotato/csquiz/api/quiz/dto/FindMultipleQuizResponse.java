@@ -27,7 +27,7 @@ public class FindMultipleQuizResponse extends QuizResponse {
                 quiz.getId(),
                 quiz.getNumber(),
                 quiz.getQuestion(),
-                quiz.getS3Info().getUploadUrl(),
+                (quiz.getS3Info() != null) ? quiz.getS3Info().getUploadUrl() : null,
                 choices
         );
     }
