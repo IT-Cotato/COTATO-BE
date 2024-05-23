@@ -2,7 +2,9 @@ package org.cotato.csquiz.domain.education.entity;
 
 import static jakarta.persistence.FetchType.LAZY;
 
+import jakarta.persistence.Embedded;
 import org.cotato.csquiz.common.entity.BaseTimeEntity;
+import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.domain.education.enums.QuizStatus;
 import org.cotato.csquiz.domain.education.enums.QuizType;
 import jakarta.persistence.Column;
@@ -48,6 +50,9 @@ public class Quiz extends BaseTimeEntity {
     @Column(name = "quiz_photo_url")
     private String photoUrl;
 
+    @Embedded
+    private S3Info s3Info;
+
     @Column(name = "quiz_status")
     @Enumerated(EnumType.STRING)
     @ColumnDefault(value = "'QUIZ_OFF'")
@@ -68,10 +73,10 @@ public class Quiz extends BaseTimeEntity {
     @OneToMany(mappedBy = "quiz", orphanRemoval = true)
     private List<Record> records = new ArrayList<>();
 
-    public Quiz(Integer number, String question, String photoUrl, Education education, int appearSecond) {
+    public Quiz(Integer number, String question, S3Info s3Info, Education education, int appearSecond) {
         this.number = number;
         this.question = question;
-        this.photoUrl = photoUrl;
+        this.s3Info = s3Info;
         this.education = education;
         this.appearSecond = appearSecond;
     }

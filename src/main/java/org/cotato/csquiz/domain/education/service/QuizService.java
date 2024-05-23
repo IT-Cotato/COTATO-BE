@@ -26,6 +26,7 @@ import org.cotato.csquiz.api.quiz.dto.QuizResponse;
 import org.cotato.csquiz.api.quiz.dto.QuizResultInfo;
 import org.cotato.csquiz.api.quiz.dto.ShortAnswerResponse;
 import org.cotato.csquiz.api.quiz.dto.ShortQuizResponse;
+import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.domain.education.entity.Choice;
 import org.cotato.csquiz.domain.education.entity.Education;
 import org.cotato.csquiz.domain.education.entity.MultipleQuiz;
@@ -107,6 +108,8 @@ public class QuizService {
                 .map(Quiz::getId)
                 .toList();
 
+        //여기에
+
         choiceRepository.deleteAllByQuizIdsInQuery(quizIds);
         shortAnswerRepository.deleteAllByQuizIdsInQuery(quizIds);
         quizRepository.deleteAllByQuizIdsInQuery(quizIds);
@@ -114,19 +117,19 @@ public class QuizService {
 
     private void createShortQuiz(Education findEducation, CreateShortQuizRequest request)
             throws ImageException {
-        String imageUrl = null;
+        S3Info s3Info = null;
         if (request.getImage() != null && !request.getImage().isEmpty()) {
-            imageUrl = s3Uploader.uploadFiles(request.getImage(), QUIZ_BUCKET_DIRECTORY);
+            s3Info = s3Uploader.uploadFiles(request.getImage(), QUIZ_BUCKET_DIRECTORY);
         }
 
         ShortQuiz createdShortQuiz = ShortQuiz.builder()
                 .education(findEducation)
                 .question(request.getQuestion())
                 .number(request.getNumber())
-                .photoUrl(imageUrl)
+                .s3Info(s3Info)
                 .appearSecond(generateRandomTime())
                 .build();
-        log.info("주관식 문제 생성 완료: 사진 url {}", imageUrl);
+        log.info("주관식 문제 생성 완료: 사진 정보 {}", s3Info);
         quizRepository.save(createdShortQuiz);
 
         List<ShortAnswer> shortAnswers = request.getShortAnswers().stream()
@@ -142,20 +145,20 @@ public class QuizService {
 
     private void createMultipleQuiz(Education findEducation, CreateMultipleQuizRequest request)
             throws ImageException {
-        String imageUrl = null;
+        S3Info s3Info = null;
         if (request.getImage() != null && !request.getImage().isEmpty()) {
-            imageUrl = s3Uploader.uploadFiles(request.getImage(), QUIZ_BUCKET_DIRECTORY);
+            s3Info = s3Uploader.uploadFiles(request.getImage(), QUIZ_BUCKET_DIRECTORY);
         }
 
         MultipleQuiz createdMultipleQuiz = MultipleQuiz.builder()
                 .education(findEducation)
                 .number(request.getNumber())
                 .question(request.getQuestion())
-                .photoUrl(imageUrl)
+                .s3Info(s3Info)
                 .appearSecond(generateRandomTime())
                 .build();
 
-        log.info("객관식 문제 생성, 사진 url {}", imageUrl);
+        log.info("객관식 문제 생성, 사진 정보 {}", s3Info);
         quizRepository.save(createdMultipleQuiz);
 
         List<Integer> choiceNumbers = request.getChoices().stream().map(CreateChoiceRequest::getNumber).toList();
