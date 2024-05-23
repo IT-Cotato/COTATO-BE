@@ -44,14 +44,14 @@ public class S3Uploader {
                 .build();
     }
 
-    public void deleteFile(S3Info s3Info) throws ImageException {
+    public void deleteFile(S3Info s3Info) {
         String fileName = s3Info.getFolderName() + "/" + s3Info.getFileName();
 
         log.info("deleteFile fileName = {}", fileName);
         try {
             amazonS3.deleteObject(bucket, fileName);
         } catch (SdkClientException e) {
-            throw new ImageException(ErrorCode.IMAGE_DELETE_FAIL);
+            log.error("Failed to delete file: {}", s3Info.getUploadUrl(), e);
         }
     }
 

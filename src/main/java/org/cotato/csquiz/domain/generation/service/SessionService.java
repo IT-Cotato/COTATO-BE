@@ -114,7 +114,7 @@ public class SessionService {
         }
     }
 
-    private void deleteOldImage(Session session) throws ImageException {
+    private void deleteOldImage(Session session) {
         if (session.getPhotoS3Info() != null) {
             s3Uploader.deleteFile(session.getPhotoS3Info());
         }
