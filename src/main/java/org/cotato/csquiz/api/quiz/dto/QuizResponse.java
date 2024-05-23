@@ -23,7 +23,7 @@ public class QuizResponse {
                 shortQuiz.getNumber(),
                 QuizType.SHORT_QUIZ,
                 shortQuiz.getQuestion(),
-                shortQuiz.getS3Info().getUploadUrl()
+                (shortQuiz.getS3Info() != null) ? shortQuiz.getS3Info().getUploadUrl() : null
         );
     }
 }
