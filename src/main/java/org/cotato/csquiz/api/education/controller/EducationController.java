@@ -13,6 +13,7 @@ import org.cotato.csquiz.api.education.dto.UpdateEducationRequest;
 import org.cotato.csquiz.api.education.dto.WinnerInfoResponse;
 import org.cotato.csquiz.api.quiz.dto.KingMemberInfo;
 import org.cotato.csquiz.domain.education.service.EducationService;
+import org.cotato.csquiz.domain.education.service.KingMemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class EducationController {
 
     private final EducationService educationService;
+    private final KingMemberService kingMemberService;
 
     @GetMapping
     public ResponseEntity<List<AllEducationResponse>> findEducationListByGeneration(
@@ -64,6 +66,22 @@ public class EducationController {
     public ResponseEntity<List<KingMemberInfo>> findFinalKingMembers(@RequestParam("educationId") Long educationId) {
         log.info("[{} 교육 결승진출자 조회 컨트롤러]", educationId);
         return ResponseEntity.ok().body(educationService.findKingMemberInfo(educationId));
+    }
+
+    @PostMapping("/result/kings")
+    public ResponseEntity<Void> calculateKingMembers(@RequestParam("educationId") Long educationId) {
+        log.info("[{} 교육 결승진출자 계산하기]", educationId);
+        kingMemberService.saveKingMember(educationId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/send/kings")
+    public ResponseEntity<Void> sendKingCommand(@RequestParam("educationId") Long educationId) {
+        log.info("[{} 교육 결승진출자 재전송하기]", educationId);
+        kingMemberService.sendKingCommand(educationId);
+
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/result/winner")

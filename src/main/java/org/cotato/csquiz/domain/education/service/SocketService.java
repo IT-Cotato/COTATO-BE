@@ -106,12 +106,7 @@ public class SocketService {
         checkEducationOpen(quiz.getEducation());
 
         quiz.updateStart(QuizStatus.QUIZ_OFF);
-        if (quiz.getNumber() == 9) {
-            List<KingMember> kingMembers = kingMemberService.calculateKingMember(quiz.getEducation());
-            kingMemberService.saveKingMembers(kingMembers);
-            kingMemberService.saveWinnerIfKingMemberIsOne(quiz.getEducation());
-            webSocketHandler.stopQuiz(quiz);
-        }
+
         if (quiz.getNumber() == 10) {
             kingMemberService.saveWinnerIfNoWinnerExist(quiz);
             webSocketHandler.stopQuiz(quiz);
