@@ -72,7 +72,6 @@ public class EducationController {
     public ResponseEntity<Void> calculateKingMembers(@RequestParam("educationId") Long educationId) {
         log.info("[{} 교육 결승진출자 계산하기]", educationId);
         kingMemberService.saveKingMember(educationId);
-
         return ResponseEntity.noContent().build();
     }
 
@@ -80,7 +79,6 @@ public class EducationController {
     public ResponseEntity<Void> sendKingCommand(@RequestParam("educationId") Long educationId) {
         log.info("[{} 교육 결승진출자 재전송하기]", educationId);
         kingMemberService.sendKingCommand(educationId);
-
         return ResponseEntity.noContent().build();
     }
 
