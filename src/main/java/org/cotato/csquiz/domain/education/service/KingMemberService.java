@@ -96,14 +96,16 @@ public class KingMemberService {
     @Transactional
     public void calculateWinner(Long educationId) {
         Education education = findEducationById(educationId);
-        if (!isWinnerExist(education)) {
-            Quiz quiz = quizRepository.findFirstByEducationOrderByNumberDesc(education)
-                    .orElseThrow(() -> new EntityNotFoundException("마지막 문제가 없습니다"));
-            Scorer lastQuizScorer = scorerRepository.findByQuizId(quiz.getId())
-                    .orElseThrow(() -> new EntityNotFoundException("마지막 퀴즈 득점자가 존재하지 않습니다."));
-
-            saveWinner(lastQuizScorer.getMemberId(), education);
+        if (isWinnerExist(education)) {
+            throw new AppException(ErrorCode.WINNER_EXIST);
         }
+
+        Quiz quiz = quizRepository.findFirstByEducationOrderByNumberDesc(education)
+                .orElseThrow(() -> new EntityNotFoundException("마지막 문제가 없습니다"));
+        Scorer lastQuizScorer = scorerRepository.findByQuizId(quiz.getId())
+                .orElseThrow(() -> new EntityNotFoundException("마지막 퀴즈 득점자가 존재하지 않습니다."));
+
+        saveWinner(lastQuizScorer.getMemberId(), education);
     }
 
     public void sendWinnerCommand(Long educationId) {

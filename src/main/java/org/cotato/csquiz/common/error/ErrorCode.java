@@ -56,12 +56,12 @@ public enum ErrorCode {
 
     SUBJECT_INVALID(HttpStatus.BAD_REQUEST, "E-000", "교육 주제는 NULL이거나 비어있을 수 없습니다."),
 
-    KING_MEMBER_EXIST(HttpStatus.CONFLICT, "K-301", "이미 킹킹 멤버가 정해졌습니다"),
+    KING_MEMBER_EXIST(HttpStatus.CONFLICT, "K-301", "이미 킹킹 멤버가 존재합니다"),
 
     ALREADY_REPLY_CORRECT(HttpStatus.BAD_REQUEST, "R-301", "해당 사용자는 이미 정답 처리되었습니다."),
 
     LAST_QUIZ_SCORER_NOT_EXIST(HttpStatus.CONFLICT, "W-201", "아직 마지막 문제 득점자가 없습니다"),
-
+    WINNER_EXIST(HttpStatus.CONFLICT, "W-301", "이미 우승자가 존재합니다"),
     // 500 오류 -> 서버측에서 처리가 실패한 부분들
     WEBSOCKET_SEND_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "S-001", "소캣 메세지 전송 실패"),
     IMAGE_PROCESSING_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S-002", "이미지 처리에 실패했습니다."),
