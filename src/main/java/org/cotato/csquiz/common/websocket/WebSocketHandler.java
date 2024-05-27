@@ -122,21 +122,22 @@ public class WebSocketHandler extends TextWebSocketHandler {
     }
 
     public void stopQuiz(Quiz quiz) {
-        String command = "";
-        if (quiz.getNumber() == 9) {
-            command = KING_COMMAND;
-        }
-        if (quiz.getNumber() == 10) {
-            command = WINNER_COMMAND;
-        }
-        QuizStopResponse response = QuizStopResponse.from(command, quiz.getId());
+        QuizStopResponse response = QuizStopResponse.from(quiz.getId());
         for (WebSocketSession clientSession : CLIENTS.values()) {
             sendMessage(clientSession, response);
         }
     }
 
-    public void sendKingMemberCommand(Education education) {
-        EducationResultResponse response = EducationResultResponse.of(KING_COMMAND, education);
+    public void sendKingMemberCommand(Long educationId) {
+        EducationResultResponse response = EducationResultResponse.of(KING_COMMAND, educationId);
+
+        for (WebSocketSession clientSession : CLIENTS.values()) {
+            sendMessage(clientSession, response);
+        }
+    }
+
+    public void sendWinnerCommand(Long educationId) {
+        EducationResultResponse response = EducationResultResponse.of(WINNER_COMMAND, educationId);
 
         for (WebSocketSession clientSession : CLIENTS.values()) {
             sendMessage(clientSession, response);

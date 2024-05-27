@@ -46,14 +46,14 @@ public class KingMemberService {
     public void saveKingMember(Long educationId) {
         Education education = findEducationById(educationId);
 
+        checkKingMemberExist(education);
+
         List<KingMember> kingMembers = findKingMembersFromEducation(education).stream()
                 .map(member -> KingMember.of(member, education))
                 .toList();
 
         saveKingMembers(kingMembers);
         saveWinnerIfKingMemberIsOne(education);
-
-        webSocketHandler.sendKingMemberCommand(education);
     }
 
     private List<Member> findKingMembersFromEducation(Education education) {
@@ -90,19 +90,24 @@ public class KingMemberService {
     }
 
     public void sendKingCommand(Long educationId) {
-        Education education = findEducationById(educationId);
-
-        webSocketHandler.sendKingMemberCommand(education);
+        webSocketHandler.sendKingMemberCommand(educationId);
     }
 
     @Transactional
-    public void saveWinnerIfNoWinnerExist(Quiz quiz) {
-        Education education = quiz.getEducation();
-        if (isWinnerExist(education)) {
-            Scorer findScorer = scorerRepository.findByQuizId(quiz.getId())
-                    .orElseThrow(() -> new EntityNotFoundException("해당 퀴즈엔 득점자가 존재하지 않습니다."));
-            saveWinner(findScorer.getMemberId(), education);
+    public void calculateWinner(Long educationId) {
+        Education education = findEducationById(educationId);
+        if (!isWinnerExist(education)) {
+            Quiz quiz = quizRepository.findFirstByEducationOrderByNumberDesc(education)
+                    .orElseThrow(() -> new EntityNotFoundException("마지막 문제가 없습니다"));
+            Scorer lastQuizScorer = scorerRepository.findByQuizId(quiz.getId())
+                    .orElseThrow(() -> new EntityNotFoundException("마지막 퀴즈 득점자가 존재하지 않습니다."));
+
+            saveWinner(lastQuizScorer.getMemberId(), education);
         }
+    }
+
+    public void sendWinnerCommand(Long educationId) {
+        webSocketHandler.sendWinnerCommand(educationId);
     }
 
     @Transactional
@@ -112,11 +117,17 @@ public class KingMemberService {
     }
 
     public boolean isWinnerExist(Education education) {
-        return winnerRepository.findByEducation(education).isPresent();
+        return winnerRepository.existsByEducation(education);
     }
 
     private Education findEducationById(Long educationId) {
         return educationRepository.findById(educationId)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
+    }
+
+    private void checkKingMemberExist(Education education) {
+        if (kingMemberRepository.existsByEducation(education)) {
+            throw new AppException(ErrorCode.KING_MEMBER_EXIST);
+        }
     }
 }

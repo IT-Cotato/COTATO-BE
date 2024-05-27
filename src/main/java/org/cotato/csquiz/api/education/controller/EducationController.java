@@ -87,4 +87,18 @@ public class EducationController {
         log.info("[{} 교육 우승자 조회 컨트롤러]", educationId);
         return ResponseEntity.ok().body(educationService.findWinner(educationId));
     }
+
+    @PostMapping("/result/winner")
+    public ResponseEntity<Void> calculateWinner(@RequestParam("educationId") Long educationId) {
+        log.info("[{} 교육 우승자 계산]", educationId);
+        kingMemberService.calculateWinner(educationId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/send/winner")
+    public ResponseEntity<Void> sendWinnerCommand(@RequestParam("educationId") Long educationId) {
+        log.info("[{} 교육 결승진출자 재전송하기]", educationId);
+        kingMemberService.sendWinnerCommand(educationId);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -107,10 +107,7 @@ public class SocketService {
 
         quiz.updateStart(QuizStatus.QUIZ_OFF);
 
-        if (quiz.getNumber() == 10) {
-            kingMemberService.saveWinnerIfNoWinnerExist(quiz);
-            webSocketHandler.stopQuiz(quiz);
-        }
+        webSocketHandler.stopQuiz(quiz);
     }
 
     @Transactional
