@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Git이 디렉토리를 안전한 디렉토리로 인식하도록 설정
+git config --global --add safe.directory /home/ubuntu/backend/CS-Quiz-BE
+
 # .git repo가 존재하는 곳으로 이동
 cd /home/ubuntu/backend/CS-Quiz-BE || { echo "Failed to change directory to git root"; exit 1; }
 
