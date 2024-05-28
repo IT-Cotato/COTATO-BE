@@ -39,7 +39,7 @@ jobs:
           spring.mail.username: ${{ secrets.SENDER_EMAIL }}
           spring.mail.password: ${{ secrets.SENDER_PASSWORD }}
 
-        # application-yml을 세팅한다.
+        # application.yml을 세팅한다.
       - name: Set up Base Yaml File
         uses: microsoft/variable-substitution@v1
         with:

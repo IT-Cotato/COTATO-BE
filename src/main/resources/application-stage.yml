@@ -6,7 +6,7 @@ server:
 spring:
   jpa:
     hibernate:
-      ddl-auto: ${TEST_DDL_AUTO}
+      ddl-auto: jdbc:mysql://${TEST_DDL_AUTO}
     show_sql: true
     properties:
       hibernate:
