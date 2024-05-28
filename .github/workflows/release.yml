@@ -10,7 +10,7 @@ env:
   CODE_DEPLOY_APP_NAME: cotato-deploy
   DEPLOYMENT_GROUP_NAME: cotato-deploy-group-test
   RESOURCE_PATH: ./src/main/resources/application-stage.yml
-  BASE_RESOURCE_PATH: ./src/main/resource/application.yml
+  BASE_RESOURCE_PATH: ./src/main/resources/application.yml
 
 jobs:
   build:
