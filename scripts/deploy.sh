@@ -29,7 +29,7 @@ else
   exit 1
 fi
 
-JAR_PATH="/home/ubuntu/backend/$PROJECT_NAME/build/libs/*$PROFILE.jar"
+JAR_PATH="/home/ubuntu/backend/$PROJECT_NAME/build/libs/*$PROFILE*.jar"
 DEPLOY_PATH=/home/ubuntu/backend/$DIRECTORY/$PROJECT_NAME/ #jar 파일이 복사되고 실행될 경로
 DEPLOY_LOG_PATH="/home/ubuntu/backend/$DIRECTORY/log/deploy/$PROJECT_NAME/deploy_$(date +%Y%m%d).log"
 DEPLOY_ERR_LOG_PATH="/home/ubuntu/backend/$DIRECTORY/log/deploy/$PROJECT_NAME/deploy_err_$(date +%Y%m%d).log"
