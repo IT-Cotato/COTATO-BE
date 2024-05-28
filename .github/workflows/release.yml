@@ -10,6 +10,7 @@ env:
   CODE_DEPLOY_APP_NAME: cotato-deploy
   DEPLOYMENT_GROUP_NAME: cotato-deploy-group-test
   RESOURCE_PATH: ./src/main/resources/application-stage.yml
+  BASE_RESOURCE_PATH: ./src/main/resource/application.yml
 
 jobs:
   build:
@@ -25,6 +26,7 @@ jobs:
           distribution: 'zulu'
 
       # [1] Set up Yaml File
+        # application-stage.yml을 세팅한다.
       - name: Set up Yaml File
         uses: microsoft/variable-substitution@v1
         with:
@@ -36,7 +38,14 @@ jobs:
           spring.jpa.hibernate.ddl-auto: ${{ secrets.TEST_DDL_AUTO }}
           spring.mail.username: ${{ secrets.SENDER_EMAIL }}
           spring.mail.password: ${{ secrets.SENDER_PASSWORD }}
-          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY}}
+
+        # application-yml을 세팅한다.
+      - name: Set up Base Yaml File
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: ${{ env.BASE_RESOURCE_PATH }}
+        env:
+          jwt.secretKey: ${{ secrets.JWT_SECRET_KEY}}
           cloud.aws.s3.bucket: ${{ secrets.S3_BUCKET_NAME }}
           cloud.aws.credentials.accessKey: ${{ secrets.S3_ACCESS_KEY }}
           cloud.aws.credentials.secretKey: ${{ secrets.S3_ACCESS_PASSWORD }}
