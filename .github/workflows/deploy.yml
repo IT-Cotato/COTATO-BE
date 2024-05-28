@@ -51,7 +51,12 @@ jobs:
 
       # [3] 프로젝트 빌드
       - name: Build with Gradle Wrapper
-        run: ./gradlew prodJar
+        run: ./gradlew build
+
+      # [3] - 1 생성된 jar 파일 이름 변경
+      - name: Rename JAR file
+        run: mv build/libs/*.jar build/libs/csquiz-prod-0.0.1-SNAPSHOT.jar
+        shell: bash
 
       # [4] Zip 파일 만들기
       - name: Make Zip File
