@@ -1,0 +1,19 @@
+server:
+  port: 8080
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: ${DDL_AUTO}
+    show_sql: true
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${DB_PATH}
+    username: ${DB_USERNAME}
+    password: ${DB_PWD}
+
+
+springdoc:
+  swagger-ui:
+    enabled: false

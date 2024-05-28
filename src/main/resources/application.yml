@@ -1,17 +1,8 @@
 spring:
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${DB_PATH}/cotato
-    username: ${DB_USERNAME}
-    password: ${DB_PWD}
+  profiles:
+    active: local
 
-  jpa:
-    hibernate:
-      ddl-auto: ${DDL_AUTO}
-    properties:
-      hibernate:
-        format_sql: true
-    show_sql: true
+# 로컬, 개발, 운영 환경의 공통된 설정
 
   data:
     redis:
@@ -61,7 +52,6 @@ cloud:
 
 springdoc:
   show-login-endpoint: true
-
 
 server:
   servlet:

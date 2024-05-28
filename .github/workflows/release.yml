@@ -1,15 +1,15 @@
-name: CI
+name: TEST-CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "release" ]
 
 env:
-  PROJECT_NAME: CS-Quiz-BE
-  BUCKET_NAME: cotato-ci-cd-bucket
-  CODE_DEPLOY_APP_NAME: cotato-deploy
-  DEPLOYMENT_GROUP_NAME: cotato-deploy-group
-  RESOURCE_PATH: ./src/main/resources/application-prod.yml
+  PROJECT_NAME: COTATO-BE-TEST
+  BUCKET_NAME: cotato-ci-cd-bucket-test
+  CODE_DEPLOY_APP_NAME: cotato-deploy-test
+  DEPLOYMENT_GROUP_NAME: cotato-deploy-group-test
+  RESOURCE_PATH: ./src/main/resources/application-stage.yml
 
 jobs:
   build:
@@ -30,10 +30,10 @@ jobs:
         with:
           files: ${{ env.RESOURCE_PATH }}
         env:
-          spring.datasource.url: ${{ secrets.DB_PATH }}
-          spring.datasource.username: ${{ secrets.DB_USERNAME }}
-          spring.datasource.password: ${{ secrets.DB_PWD }}
-          spring.jpa.hibernate.ddl-auto: ${{ secrets.DDL_AUTO }}
+          spring.datasource.url: ${{ secrets.TEST_DB_PATH }}
+          spring.datasource.username: ${{ secrets.TEST_DB_USERNAME }}
+          spring.datasource.password: ${{ secrets.TEST_DB_PWD }}
+          spring.jpa.hibernate.ddl-auto: ${{ secrets.TEST_DDL_AUTO }}
           spring.mail.username: ${{ secrets.SENDER_EMAIL }}
           spring.mail.password: ${{ secrets.SENDER_PASSWORD }}
           jwt.secretKey: ${{ secrets.JWT_SECRET_KEY}}
@@ -51,7 +51,7 @@ jobs:
 
       # [3] 프로젝트 빌드
       - name: Build with Gradle Wrapper
-        run: ./gradlew prodJar
+        run: ./gradlew stageJar
 
       # [4] Zip 파일 만들기
       - name: Make Zip File
