@@ -78,11 +78,8 @@ public class S3Uploader {
     }
 
     private Optional<File> convert(MultipartFile file) throws ImageException {
-        // LocalDateTime을 "yyyyMMddHHmmss" 포맷으로 변경
-        String formattedDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-
-        File convertFile = new File(System.getProperty("user.dir") + "/" + formattedDateTime + "-" + file.getOriginalFilename());
-        log.info("original file name: {}", convertFile.getName());
+        File convertFile = new File(System.getProperty("user.dir") + "/" + UUID.randomUUID());
+        log.info("converted file name: {}", convertFile.getName());
 
         try {
             log.info("convert try start");
