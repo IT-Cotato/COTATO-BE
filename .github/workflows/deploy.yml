@@ -51,7 +51,7 @@ jobs:
 
       # [3] 프로젝트 빌드
       - name: Build with Gradle Wrapper
-        run: ./gradlew build
+        run: ./gradlew prodJar
 
       # [4] Zip 파일 만들기
       - name: Make Zip File

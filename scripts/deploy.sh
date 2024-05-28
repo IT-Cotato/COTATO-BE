@@ -5,7 +5,6 @@ CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
 # 기본 환경 변수 세팅
 PROJECT_NAME="CS-Quiz-BE"
-JAR_PATH="/home/ubuntu/backend/$PROJECT_NAME/build/libs/*.jar" # 빌드된 jar파일이 있는 경로
 
 # 브랜치에 따른 설정 값 분리
 if [ "$CURRENT_BRANCH" == "main" ]; then
@@ -21,6 +20,7 @@ else
   exit 1
 fi
 
+JAR_PATH="/home/ubuntu/backend/$PROJECT_NAME/build/libs/*$PROFILE.jar"
 DEPLOY_PATH=/home/ubuntu/backend/$DIRECTORY/$PROJECT_NAME/ #jar 파일이 복사되고 실행될 경로
 DEPLOY_LOG_PATH="/home/ubuntu/backend/$DIRECTORY/log/deploy/$PROJECT_NAME/deploy_$(date +%Y%m%d).log"
 DEPLOY_ERR_LOG_PATH="/home/ubuntu/backend/$DIRECTORY/log/deploy/$PROJECT_NAME/deploy_err_$(date +%Y%m%d).log"
