@@ -7,7 +7,7 @@ on:
 env:
   PROJECT_NAME: COTATO-BE-TEST
   BUCKET_NAME: cotato-ci-cd-bucket-test
-  CODE_DEPLOY_APP_NAME: cotato-deploy-test
+  CODE_DEPLOY_APP_NAME: cotato-deploy
   DEPLOYMENT_GROUP_NAME: cotato-deploy-group-test
   RESOURCE_PATH: ./src/main/resources/application-stage.yml
 
