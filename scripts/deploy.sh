@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# .git repo가 존재하는 곳으로 이동
+cd /home/ubuntu/backend/CS-Quiz-BE || { echo "Failed to change directory to git root"; exit 1; }
+
 # 현재 브랜치 이름 가져오기
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
