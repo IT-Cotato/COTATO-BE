@@ -55,11 +55,13 @@ jar {
 }
 
 task stageJar(type: Jar) {
+    dependsOn 'build'
     archiveBaseName.set("${project.name}-stage")
     from sourceSets.main.output
 }
 
 task prodJar(type: Jar) {
+    dependsOn 'build'
     archiveBaseName.set("${project.name}-prod")
     from sourceSets.main.output
 }
