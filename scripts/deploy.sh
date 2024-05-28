@@ -11,11 +11,14 @@ if [ "$CURRENT_BRANCH" == "main" ]; then
   PROFILE="prod"
   DIRECTORY="production"
   PORT=8080
+  echo "현재 브랜치: '$CURRENT_BRANCH'"
 elif [ "$CURRENT_BRANCH" == "release" ]; then
   PROFILE="stage"
   DIRECTORY="release"
   PORT=8082
+  echo "현재 브랜치: '$CURRENT_BRANCH'"
 else
+  echo "현재 브랜치: '$CURRENT_BRANCH'"
   echo "지원되지 않는 브랜치입니다: $CURRENT_BRANCH" >&2
   exit 1
 fi
