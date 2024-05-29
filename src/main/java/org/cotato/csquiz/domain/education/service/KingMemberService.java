@@ -52,7 +52,7 @@ public class KingMemberService {
                 .map(member -> KingMember.of(member, education))
                 .toList();
 
-        saveKingMembers(kingMembers);
+        kingMemberRepository.saveAll(kingMembers);
         saveWinnerIfKingMemberIsOne(education);
     }
 
@@ -76,10 +76,6 @@ public class KingMemberService {
                 .toList();
     }
 
-    private void saveKingMembers(List<KingMember> kingMembers) {
-        kingMemberRepository.saveAll(kingMembers);
-    }
-
     private void saveWinnerIfKingMemberIsOne(Education education) {
         List<KingMember> kingMembers = kingMemberRepository.findAllByEducation(education);
         if (kingMembers.size() == 1) {
@@ -96,7 +92,7 @@ public class KingMemberService {
     @Transactional
     public void calculateWinner(Long educationId) {
         Education education = findEducationById(educationId);
-        if (isWinnerExist(education)) {
+        if (winnerRepository.existsByEducation(education)) {
             throw new AppException(ErrorCode.WINNER_EXIST);
         }
 
@@ -118,13 +114,9 @@ public class KingMemberService {
         winnerRepository.save(winner);
     }
 
-    public boolean isWinnerExist(Education education) {
-        return winnerRepository.existsByEducation(education);
-    }
-
     private Education findEducationById(Long educationId) {
         return educationRepository.findById(educationId)
-                .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
+                .orElseThrow(() -> new EntityNotFoundException("해당 교육 id:" + educationId + " 찾다가 에러 발생했습니다."));
     }
 
     private void checkKingMemberExist(Education education) {

@@ -6,7 +6,6 @@ import org.cotato.csquiz.api.socket.dto.EducationResultResponse;
 import org.cotato.csquiz.api.socket.dto.QuizStartResponse;
 import org.cotato.csquiz.api.socket.dto.QuizStatusResponse;
 import org.cotato.csquiz.api.socket.dto.QuizStopResponse;
-import org.cotato.csquiz.domain.education.entity.Education;
 import org.cotato.csquiz.domain.education.entity.Quiz;
 import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.cotato.csquiz.domain.auth.enums.MemberRoleGroup;
@@ -19,7 +18,6 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.cotato.csquiz.domain.education.service.EducationService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -42,7 +40,6 @@ public class WebSocketHandler extends TextWebSocketHandler {
     private static final String ROLE_KEY = "role";
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final QuizRepository quizRepository;
-    private final EducationService educationService;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
