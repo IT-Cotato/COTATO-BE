@@ -8,9 +8,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.cotato.csquiz.api.education.dto.WinnerInfoResponse;
+import org.cotato.csquiz.api.quiz.dto.KingMemberInfo;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
-import org.cotato.csquiz.common.websocket.WebSocketHandler;
 import org.cotato.csquiz.domain.education.entity.Education;
 import org.cotato.csquiz.domain.education.entity.KingMember;
 import org.cotato.csquiz.domain.education.entity.Quiz;
@@ -34,7 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class KingMemberService {
 
     private final MemberService memberService;
-    private final WebSocketHandler webSocketHandler;
     private final MemberRepository memberRepository;
     private final QuizRepository quizRepository;
     private final KingMemberRepository kingMemberRepository;
@@ -85,10 +85,6 @@ public class KingMemberService {
         }
     }
 
-    public void sendKingCommand(Long educationId) {
-        webSocketHandler.sendKingMemberCommand(educationId);
-    }
-
     @Transactional
     public void calculateWinner(Long educationId) {
         Education education = findEducationById(educationId);
@@ -104,14 +100,36 @@ public class KingMemberService {
         saveWinner(lastQuizScorer.getMemberId(), education);
     }
 
-    public void sendWinnerCommand(Long educationId) {
-        webSocketHandler.sendWinnerCommand(educationId);
-    }
-
     @Transactional
     public void saveWinner(final Long memberId, final Education education) {
         Winner winner = Winner.of(memberId, education);
         winnerRepository.save(winner);
+    }
+
+    public List<KingMemberInfo> findKingMemberInfo(Long educationId) {
+        Education findEducation = educationRepository.findById(educationId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 교육을 찾을 수 없습니다."));
+        List<KingMember> kingMembers = kingMemberRepository.findAllByEducation(findEducation);
+        validateIsEmpty(kingMembers);
+        return kingMembers.stream()
+                .map(kingMember -> memberService.findById(kingMember.getMemberId()))
+                .map(member -> KingMemberInfo.from(member, memberService.findBackFourNumber(member)))
+                .toList();
+    }
+
+    private void validateIsEmpty(List<KingMember> kingMembers) {
+        if (kingMembers.isEmpty()) {
+            throw new EntityNotFoundException("아직 결승 진출자가 결정되지 않았습니다.");
+        }
+    }
+
+    public WinnerInfoResponse findWinner(Long educationId) {
+        Education findEducation = educationRepository.findById(educationId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 교육을 찾을 수 없습니다."));
+        Winner findWinner = winnerRepository.findByEducation(findEducation)
+                .orElseThrow(() -> new EntityNotFoundException("해당 교육의 우승자를 찾을 수 없습니다."));
+        Member findMember = memberService.findById(findWinner.getMemberId());
+        return WinnerInfoResponse.of(findWinner, findMember, memberService.findBackFourNumber(findMember));
     }
 
     private Education findEducationById(Long educationId) {
