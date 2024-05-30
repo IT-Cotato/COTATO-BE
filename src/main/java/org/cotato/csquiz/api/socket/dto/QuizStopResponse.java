@@ -4,9 +4,11 @@ public record QuizStopResponse(
         String command,
         Long quizId
 ) {
-    public static QuizStopResponse from(String command, Long quizId) {
+    public static final String STOP_COMMAND = "stop";
+
+    public static QuizStopResponse from(Long quizId) {
         return new QuizStopResponse(
-                command,
+                STOP_COMMAND,
                 quizId
         );
     }
