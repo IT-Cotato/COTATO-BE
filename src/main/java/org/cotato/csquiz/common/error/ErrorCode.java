@@ -31,7 +31,6 @@ public enum ErrorCode {
 
     //회원 관련
     ROLE_IS_NOT_MATCH(HttpStatus.BAD_REQUEST, "M-101", "해당 ROLE은 변경할 수 없습니다."),
-    PASSWORD_NOT_MATCH(HttpStatus.BAD_REQUEST, "M-102", "비밀번호가 일치하지 않습니다."),
     ROLE_IS_NOT_OLD_MEMBER(HttpStatus.BAD_REQUEST, "M-103", "해당 회원의 ROLE은 OLD_MEMBER가 아닙니다."),
     SAME_PASSWORD(HttpStatus.CONFLICT, "M-301", "이전과 같은 비밀번호로 변경할 수 없습니다."),
 
