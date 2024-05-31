@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -67,5 +68,20 @@ public class SocketController {
     @PostMapping("/token")
     public ResponseEntity<SocketTokenDto> makeSocketToken(@RequestHeader("Authorization") String authorizationHeader) {
         return ResponseEntity.ok(socketService.createSocketToken(authorizationHeader));
+    }
+
+
+    @PostMapping("/kings")
+    public ResponseEntity<Void> sendKingCommand(@RequestParam("educationId") Long educationId) {
+        log.info("[{} 교육 결승진출자 재전송하기]", educationId);
+        socketService.sendKingCommand(educationId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/winner")
+    public ResponseEntity<Void> sendWinnerCommand(@RequestParam("educationId") Long educationId) {
+        log.info("[{} 교육 결승진출자 재전송하기]", educationId);
+        socketService.sendWinnerCommand(educationId);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface KingMemberRepository extends JpaRepository<KingMember, Long> {
     List<KingMember> findAllByEducation(Education education);
+
+    boolean existsByEducation(Education education);
 }
