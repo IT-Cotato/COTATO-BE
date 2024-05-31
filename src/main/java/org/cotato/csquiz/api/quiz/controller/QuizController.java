@@ -64,14 +64,6 @@ public class QuizController {
         return ResponseEntity.ok(quizService.findQuizForAdminCsQuiz(quizId));
     }
 
-    @PostMapping("/cs-admin/answer/add")
-    public ResponseEntity<Void> addAnswer(@RequestBody @Valid AddAdditionalAnswerRequest request) {
-        quizService.addAdditionalAnswer(request);
-        recordService.addAdditionalAnswerToRedis(request);
-
-        return ResponseEntity.noContent().build();
-    }
-
     @GetMapping("/cs-admin/results")
     public ResponseEntity<List<QuizResultInfo>> quizResults(@RequestParam("educationId") Long educationId) {
         return ResponseEntity.ok(quizService.createQuizResults(educationId));

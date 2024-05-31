@@ -286,45 +286,6 @@ public class QuizService {
                 .toList();
     }
 
-    @Transactional
-    public void addAdditionalAnswer(AddAdditionalAnswerRequest request) {
-        Quiz quiz = findQuizById(request.quizId());
-        if (quiz instanceof ShortQuiz) {
-            addShortAnswer((ShortQuiz) quiz, request.answer());
-        }
-        if (quiz instanceof MultipleQuiz) {
-            addCorrectChoice((MultipleQuiz) quiz, request.answer());
-        }
-    }
-
-    private void addShortAnswer(ShortQuiz shortQuiz, String answer) {
-        checkAnswerAlreadyExist(shortQuiz, answer);
-
-        String cleanedAnswer = answer.toLowerCase()
-                .trim();
-        ShortAnswer shortAnswer = ShortAnswer.of(cleanedAnswer, shortQuiz);
-
-        shortAnswerRepository.save(shortAnswer);
-    }
-
-    private void checkAnswerAlreadyExist(ShortQuiz shortQuiz, String answer) {
-        shortAnswerRepository.findByShortQuizAndContent(shortQuiz, answer)
-                .ifPresent(existingAnswer -> {
-                    throw new AppException(ErrorCode.CONTENT_IS_ALREADY_ANSWER);
-                });
-    }
-
-    private void addCorrectChoice(MultipleQuiz multipleQuiz, String answer) {
-        try {
-            int choiceNumber = Integer.parseInt(answer);
-            Choice choice = choiceRepository.findByMultipleQuizAndChoiceNumber(multipleQuiz, choiceNumber)
-                    .orElseThrow(() -> new EntityNotFoundException("해당 번호의 선지를 찾을 수 없습니다."));
-            choice.updateCorrect(ChoiceCorrect.ANSWER);
-        } catch (NumberFormatException e) {
-            throw new AppException(ErrorCode.INVALID_ANSWER);
-        }
-    }
-
     private Quiz findQuizById(Long quizId) {
         return quizRepository.findById(quizId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 퀴즈를 찾을 수 없습니다."));

@@ -37,36 +37,6 @@ public class QuizAnswerRedisRepository {
         allQuizzes.forEach(this::saveQuizAnswer);
     }
 
-    public void saveAdditionalQuizAnswer(Quiz quiz, String answer) {
-        if (quiz instanceof ShortQuiz) {
-            ShortAnswer shortAnswer = shortAnswerRepository.findByShortQuizAndContent((ShortQuiz) quiz, answer)
-                    .orElseThrow(() -> new AppException(ErrorCode.CONTENT_IS_NOT_ANSWER));
-
-            saveAdditionalShortQuizAnswer(quiz, shortAnswer.getContent());
-        }
-
-        if (quiz instanceof MultipleQuiz) {
-            Choice choice = choiceRepository.findByMultipleQuizAndChoiceNumber((MultipleQuiz) quiz,
-                            Integer.parseInt(answer))
-                    .orElseThrow(() -> new AppException(ErrorCode.CONTENT_IS_NOT_ANSWER));
-            saveAdditionalMultipleQuizAnswer(quiz, choice.getChoiceNumber());
-        }
-    }
-
-    private void saveAdditionalMultipleQuizAnswer(Quiz quiz, Integer answerNumber) {
-        String quizKey = KEY_PREFIX + quiz.getId();
-
-        redisTemplate.opsForList().rightPush(quizKey, answerNumber);
-        redisTemplate.expire(quizKey, QUIZ_ANSWER_EXPIRATION_TIME, TimeUnit.MINUTES);
-    }
-
-    private void saveAdditionalShortQuizAnswer(Quiz quiz, String answer) {
-        String quizKey = KEY_PREFIX + quiz.getId();
-
-        redisTemplate.opsForList().rightPush(quizKey, answer);
-        redisTemplate.expire(quizKey, QUIZ_ANSWER_EXPIRATION_TIME, TimeUnit.MINUTES);
-    }
-
     public void saveQuizAnswer(Quiz quiz) {
         if (quiz instanceof ShortQuiz) {
             saveShortAnswer(quiz);
