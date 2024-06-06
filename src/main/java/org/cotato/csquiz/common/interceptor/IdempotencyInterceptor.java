@@ -55,6 +55,9 @@ public class IdempotencyInterceptor implements HandlerInterceptor {
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
                            ModelAndView modelAndView) throws Exception {
         String idempotencyKey = request.getHeader(IDEMPOTENCY_HEADER);
+        if (idempotencyKey == null) {
+            return;
+        }
         ObjectMapper objectMapper = new ObjectMapper();
 
         final ContentCachingResponseWrapper responseWrapper = (ContentCachingResponseWrapper) response;
