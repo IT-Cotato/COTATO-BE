@@ -40,9 +40,10 @@ public class IdempotencyInterceptor implements HandlerInterceptor {
 
         if (idempotencyRedisRepository.isProcessing(idempotencyKey)) {
             response.setStatus(HttpStatus.CONFLICT.value());
+            response.setContentType("application/json; charset=UTF-8");
             response.getWriter()
                     .write(objectMapper.writeValueAsString(ErrorResponse.of(ErrorCode.PROCESSING, request)));
-            log.info("[요청은 왔지만 아직 처리 중]");
+            log.warn("[요청은 왔지만 아직 처리 중]");
             return false;
         }
 
