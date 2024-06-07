@@ -30,6 +30,7 @@ import org.cotato.csquiz.domain.auth.service.MemberService;
 import org.cotato.csquiz.domain.education.cache.QuizAnswerRedisRepository;
 import org.cotato.csquiz.domain.education.cache.ScorerExistRedisRepository;
 import org.cotato.csquiz.domain.education.cache.TicketCountRedisRepository;
+import org.cotato.csquiz.domain.education.util.AnswerUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,8 +60,7 @@ public class RecordService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다."));
         checkMemberAlreadyCorrect(findQuiz, findMember);
         List<String> inputs = request.inputs().stream()
-                .map(String::toLowerCase)
-                .map(String::trim)
+                .map(AnswerUtil::processAnswer)
                 .sorted()
                 .toList();
 
