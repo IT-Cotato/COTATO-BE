@@ -134,8 +134,7 @@ public class QuizService {
 
         List<ShortAnswer> shortAnswers = request.getShortAnswers().stream()
                 .map(CreateShortAnswerRequest::getAnswer)
-                .map(String::toLowerCase)
-                .map(String::trim)
+                .map(AnswerUtil::processAnswer)
                 .map(answer -> ShortAnswer.of(answer, createdShortQuiz))
                 .toList();
         shortAnswerRepository.saveAll(shortAnswers);
