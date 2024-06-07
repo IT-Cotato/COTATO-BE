@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.cotato.csquiz.api.quiz.dto.AddAdditionalAnswerRequest;
 import org.cotato.csquiz.api.record.dto.RecordResponse;
 import org.cotato.csquiz.api.record.dto.RecordsAndScorerResponse;
 import org.cotato.csquiz.api.record.dto.RegradeRequest;
@@ -104,10 +103,11 @@ public class RecordService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 문제를 찾을 수 없습니다."));
     }
 
-    @Transactional
-    public void saveAnswers(QuizOpenRequest request) {
-        scorerExistRedisRepository.saveAllScorerNone(request.educationId());
-        quizAnswerRedisRepository.saveAllQuizAnswers(request.educationId());
+    public void saveAnswersToCache(QuizOpenRequest request) {
+        List<Quiz> quizzes = quizRepository.findAllByEducationId(request.educationId());
+
+        scorerExistRedisRepository.saveAllScorerNone(quizzes);
+        quizAnswerRedisRepository.saveAllQuizAnswers(quizzes);
     }
 
     @Transactional
