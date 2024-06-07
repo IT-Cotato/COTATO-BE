@@ -26,6 +26,7 @@ import org.cotato.csquiz.api.quiz.dto.QuizResponse;
 import org.cotato.csquiz.api.quiz.dto.QuizResultInfo;
 import org.cotato.csquiz.api.quiz.dto.ShortAnswerResponse;
 import org.cotato.csquiz.api.quiz.dto.ShortQuizResponse;
+import org.cotato.csquiz.domain.education.cache.QuizAnswerRedisRepository;
 import org.cotato.csquiz.domain.education.entity.Choice;
 import org.cotato.csquiz.domain.education.entity.Education;
 import org.cotato.csquiz.domain.education.entity.MultipleQuiz;
@@ -63,6 +64,7 @@ public class QuizService {
     private final ScorerRepository scorerRepository;
     private final ShortAnswerRepository shortAnswerRepository;
     private final ChoiceRepository choiceRepository;
+    private final QuizAnswerRedisRepository quizAnswerRedisRepository;
     private final S3Uploader s3Uploader;
 
     @Transactional
@@ -297,16 +299,18 @@ public class QuizService {
         if (quiz instanceof MultipleQuiz) {
             addCorrectChoice((MultipleQuiz) quiz, processedAnswer);
         }
+
+        quizAnswerRedisRepository.saveAdditionalQuizAnswer(quiz, processedAnswer);
     }
 
     private void addShortAnswer(ShortQuiz shortQuiz, String answer) {
-        checkAnswerAlreadyExist(shortQuiz, answer);
+        checkAlreadyAnswerExist(shortQuiz, answer);
 
         ShortAnswer shortAnswer = ShortAnswer.of(answer, shortQuiz);
         shortAnswerRepository.save(shortAnswer);
     }
 
-    private void checkAnswerAlreadyExist(ShortQuiz shortQuiz, String answer) {
+    private void checkAlreadyAnswerExist(ShortQuiz shortQuiz, String answer) {
         shortAnswerRepository.findByShortQuizAndContent(shortQuiz, answer)
                 .ifPresent(existingAnswer -> {
                     throw new AppException(ErrorCode.CONTENT_IS_ALREADY_ANSWER);
