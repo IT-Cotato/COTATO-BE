@@ -46,8 +46,10 @@ public enum ErrorCode {
     MEMBER_CANT_ACCESS(HttpStatus.BAD_REQUEST, "E-403", "해당 멤버의 ROLE로 접근할 수 없습니다"),
 
     INVALID_ANSWER(HttpStatus.BAD_REQUEST, "Q-101", "객관식 문제는 숫자 형식의 값만 정답으로 추가할 수 있습니다."),
+    CONTENT_IS_NOT_ANSWER(HttpStatus.BAD_REQUEST, "Q-201", "추가되지 않은 정답을 추가할 수 없습니다."),
     QUIZ_NUMBER_DUPLICATED(HttpStatus.CONFLICT, "Q-301", "퀴즈 번호는 중복될 수 없습니다."),
     CHOICE_NUMBER_DUPLICATED(HttpStatus.CONFLICT, "Q-302", "선지 번호는 중복될 수 없습니다"),
+    CONTENT_IS_ALREADY_ANSWER(HttpStatus.BAD_REQUEST, "Q-303", "이미 정답인 답을 추가했습니다"),
     QUIZ_ACCESS_DENIED(HttpStatus.BAD_REQUEST, "Q-401", "해당 퀴즈는 아직 접근할 수 없습니다."),
     QUIZ_TYPE_NOT_MATCH(HttpStatus.BAD_REQUEST, "Q-402", "주관식 정답만 추가 가능합니다."),
 

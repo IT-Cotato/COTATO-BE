@@ -99,6 +99,17 @@ public class RecordService {
         }
     }
 
+    @Transactional
+    public void addAdditionalAnswerToRedis(AddAdditionalAnswerRequest request) {
+        Quiz quiz = findQuizById(request.quizId());
+
+        String cleanedAnswer = request.answer()
+                .toLowerCase()
+                .trim();
+
+        quizAnswerRedisRepository.saveAdditionalQuizAnswer(quiz, cleanedAnswer);
+    }
+
     private Quiz findQuizById(Long quizId) {
         return quizRepository.findById(quizId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 문제를 찾을 수 없습니다."));
