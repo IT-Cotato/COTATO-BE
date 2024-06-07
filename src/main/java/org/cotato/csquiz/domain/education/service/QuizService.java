@@ -46,6 +46,7 @@ import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.ImageException;
 import org.cotato.csquiz.common.S3.S3Uploader;
 import org.cotato.csquiz.domain.auth.service.MemberService;
+import org.cotato.csquiz.domain.education.util.AnswerUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -289,21 +290,19 @@ public class QuizService {
     @Transactional
     public void addAdditionalAnswer(AddAdditionalAnswerRequest request) {
         Quiz quiz = findQuizById(request.quizId());
+        String processedAnswer = AnswerUtil.processAnswer(request.answer());
         if (quiz instanceof ShortQuiz) {
-            addShortAnswer((ShortQuiz) quiz, request.answer());
+            addShortAnswer((ShortQuiz) quiz, processedAnswer);
         }
         if (quiz instanceof MultipleQuiz) {
-            addCorrectChoice((MultipleQuiz) quiz, request.answer());
+            addCorrectChoice((MultipleQuiz) quiz, processedAnswer);
         }
     }
 
     private void addShortAnswer(ShortQuiz shortQuiz, String answer) {
         checkAnswerAlreadyExist(shortQuiz, answer);
 
-        String cleanedAnswer = answer.toLowerCase()
-                .trim();
-        ShortAnswer shortAnswer = ShortAnswer.of(cleanedAnswer, shortQuiz);
-
+        ShortAnswer shortAnswer = ShortAnswer.of(answer, shortQuiz);
         shortAnswerRepository.save(shortAnswer);
     }
 
