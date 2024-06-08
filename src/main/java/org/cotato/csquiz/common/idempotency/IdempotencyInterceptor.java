@@ -1,4 +1,4 @@
-package org.cotato.csquiz.common.interceptor;
+package org.cotato.csquiz.common.idempotency;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;

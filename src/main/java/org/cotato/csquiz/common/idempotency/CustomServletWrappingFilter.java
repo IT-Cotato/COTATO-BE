@@ -1,4 +1,4 @@
-package org.cotato.csquiz.common.interceptor;
+package org.cotato.csquiz.common.idempotency;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

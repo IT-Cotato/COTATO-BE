@@ -1,4 +1,4 @@
-package org.cotato.csquiz.common.interceptor;
+package org.cotato.csquiz.common.idempotency;
 
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;

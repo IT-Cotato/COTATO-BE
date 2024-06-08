@@ -1,4 +1,4 @@
-package org.cotato.csquiz.common.interceptor;
+package org.cotato.csquiz.common.idempotency;
 
 import lombok.AllArgsConstructor;
 import org.cotato.csquiz.common.error.ErrorCode;
