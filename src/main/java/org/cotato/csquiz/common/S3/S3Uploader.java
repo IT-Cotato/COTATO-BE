@@ -44,12 +44,6 @@ public class S3Uploader {
                 .build();
     }
 
-    public List<S3Info> findNotNullS3Infos(List<S3Info> s3Infos) {
-        return s3Infos.stream()
-                .filter(Objects::nonNull)
-                .toList();
-    }
-
     public void deleteFile(S3Info s3Info) {
         String fileName = s3Info.getFolderName() + "/" + s3Info.getFileName();
 

@@ -3,6 +3,7 @@ package org.cotato.csquiz.domain.education.service;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
@@ -114,10 +115,9 @@ public class QuizService {
 
         List<S3Info> s3Infos = quizzes.stream()
                 .map(Quiz::getS3Info)
+                .filter(Objects::nonNull)
                 .toList();
-
-        s3Uploader.findNotNullS3Infos(s3Infos)
-                .forEach(s3Uploader::deleteFile);
+        s3Infos.forEach(s3Uploader::deleteFile);
 
         choiceRepository.deleteAllByQuizIdsInQuery(quizIds);
         shortAnswerRepository.deleteAllByQuizIdsInQuery(quizIds);
