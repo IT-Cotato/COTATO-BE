@@ -12,11 +12,11 @@ import lombok.NoArgsConstructor;
 public class S3Info {
     private String folderName;
     private String fileName;
-    private String uploadUrl;
+    private String url;
 
     @Builder
-    public S3Info(String s3Url, String fileName, String folderName) {
-        this.uploadUrl = s3Url;
+    public S3Info(String url, String fileName, String folderName) {
+        this.url = url;
         this.fileName = fileName;
         this.folderName = folderName;
     }

@@ -23,7 +23,7 @@ public class MultipleQuizResponse {
                 quiz.getId(),
                 quiz.getNumber(),
                 quiz.getQuestion(),
-                (quiz.getS3Info() != null) ? quiz.getS3Info().getUploadUrl() : null,
+                (quiz.getS3Info() != null) ? quiz.getS3Info().getUrl() : null,
                 choices
         );
     }

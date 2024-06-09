@@ -4,8 +4,6 @@ import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.ImageException;
@@ -40,7 +38,7 @@ public class S3Uploader {
         return S3Info.builder()
                 .folderName(folderName)
                 .fileName(uploadFile.getName())
-                .s3Url(uploadUrl)
+                .url(uploadUrl)
                 .build();
     }
 
@@ -51,7 +49,7 @@ public class S3Uploader {
         try {
             amazonS3.deleteObject(bucket, fileName);
         } catch (SdkClientException e) {
-            log.error("Failed to delete file: {}", s3Info.getUploadUrl(), e);
+            log.error("Failed to delete file: {}", s3Info.getUrl(), e);
         }
     }
 
