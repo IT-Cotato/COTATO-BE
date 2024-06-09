@@ -108,23 +108,20 @@ public class QuizService {
     }
 
     private void deleteAllQuizByEducation(Long educationId) {
-        List<Quiz> quizList = quizRepository.findAllByEducationId(educationId);
-        List<Long> quizIds = quizList.stream()
+        List<Quiz> quizzes = quizRepository.findAllByEducationId(educationId);
+        List<Long> quizIds = quizzes.stream()
                 .map(Quiz::getId)
                 .toList();
 
-        getNotNullS3Infos(quizList).forEach(s3Uploader::deleteFile);
+        List<S3Info> s3Infos = quizzes.stream()
+                .map(Quiz::getS3Info)
+                .filter(Objects::nonNull)
+                .toList();
+        s3Infos.forEach(s3Uploader::deleteFile);
 
         choiceRepository.deleteAllByQuizIdsInQuery(quizIds);
         shortAnswerRepository.deleteAllByQuizIdsInQuery(quizIds);
         quizRepository.deleteAllByQuizIdsInQuery(quizIds);
-    }
-
-    private static List<S3Info> getNotNullS3Infos(List<Quiz> quizList) {
-        return quizList.stream()
-                .map(Quiz::getS3Info)
-                .filter(Objects::nonNull)
-                .toList();
     }
 
     private void createShortQuiz(Education findEducation, CreateShortQuizRequest request)
