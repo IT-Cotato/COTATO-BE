@@ -4,6 +4,8 @@ import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import java.util.List;
+import java.util.Objects;
 import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.ImageException;
@@ -40,6 +42,12 @@ public class S3Uploader {
                 .fileName(uploadFile.getName())
                 .url(uploadUrl)
                 .build();
+    }
+
+    public List<S3Info> findNotNullS3Infos(List<S3Info> s3Infos) {
+        return s3Infos.stream()
+                .filter(Objects::nonNull)
+                .toList();
     }
 
     public void deleteFile(S3Info s3Info) {
