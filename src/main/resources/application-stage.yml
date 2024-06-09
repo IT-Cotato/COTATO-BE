@@ -1,0 +1,24 @@
+# test - server
+
+server:
+  port: 8082
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: jdbc:mysql://${TEST_DDL_AUTO}
+    show_sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${TEST_DB_PATH}
+    username: ${TEST_DB_USERNAME}
+    password: ${TEST_DB_PWD}
+
+springdoc:
+  swagger-ui:
+    enabled: true

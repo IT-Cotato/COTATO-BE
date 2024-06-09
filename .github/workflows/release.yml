@@ -1,15 +1,15 @@
-name: CI
+name: TEST-CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "release" ]
 
 env:
-  PROJECT_NAME: CS-Quiz-BE
-  BUCKET_NAME: cotato-ci-cd-bucket
+  PROJECT_NAME: COTATO-BE-TEST
+  BUCKET_NAME: cotato-ci-cd-bucket-test
   CODE_DEPLOY_APP_NAME: cotato-deploy
-  DEPLOYMENT_GROUP_NAME: cotato-deploy-group
-  RESOURCE_PATH: ./src/main/resources/application-prod.yml
+  DEPLOYMENT_GROUP_NAME: cotato-deploy-group-test
+  RESOURCE_PATH: ./src/main/resources/application-stage.yml
   BASE_RESOURCE_PATH: ./src/main/resources/application.yml
 
 jobs:
@@ -26,19 +26,20 @@ jobs:
           distribution: 'zulu'
 
       # [1] Set up Yaml File
+        # application-stage.yml을 세팅한다.
       - name: Set up Yaml File
         uses: microsoft/variable-substitution@v1
         with:
           files: ${{ env.RESOURCE_PATH }}
         env:
-          spring.datasource.url: ${{ secrets.DB_PATH }}
-          spring.datasource.username: ${{ secrets.DB_USERNAME }}
-          spring.datasource.password: ${{ secrets.DB_PWD }}
-          spring.jpa.hibernate.ddl-auto: ${{ secrets.DDL_AUTO }}
+          spring.datasource.url: ${{ secrets.TEST_DB_PATH }}
+          spring.datasource.username: ${{ secrets.TEST_DB_USERNAME }}
+          spring.datasource.password: ${{ secrets.TEST_DB_PWD }}
+          spring.jpa.hibernate.ddl-auto: ${{ secrets.TEST_DDL_AUTO }}
           spring.mail.username: ${{ secrets.SENDER_EMAIL }}
           spring.mail.password: ${{ secrets.SENDER_PASSWORD }}
 
-      # application-yml을 세팅한다.
+        # application.yml을 세팅한다.
       - name: Set up Base Yaml File
         uses: microsoft/variable-substitution@v1
         with:
@@ -63,7 +64,7 @@ jobs:
 
       # [3] - 1 생성된 jar 파일 이름 변경
       - name: Rename JAR file
-        run: mv build/libs/*.jar build/libs/csquiz-prod-0.0.1-SNAPSHOT.jar
+        run: mv build/libs/*.jar build/libs/csquiz-stage-0.0.1-SNAPSHOT.jar
         shell: bash
 
       # [4] Zip 파일 만들기

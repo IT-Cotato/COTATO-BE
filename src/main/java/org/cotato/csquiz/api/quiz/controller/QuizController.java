@@ -32,7 +32,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class QuizController {
 
     private final QuizService quizService;
-    private final RecordService recordService;
 
     @PostMapping(value = "/adds", consumes = "multipart/form-data")
     public ResponseEntity<Void> addAllQuizzes(@ModelAttribute CreateQuizzesRequest request,
@@ -65,9 +64,8 @@ public class QuizController {
     }
 
     @PostMapping("/cs-admin/answer/add")
-    public ResponseEntity<Void> addAnswer(@RequestBody @Valid AddAdditionalAnswerRequest request) {
+    public ResponseEntity<Void> addAdditionalAnswer(@RequestBody @Valid AddAdditionalAnswerRequest request) {
         quizService.addAdditionalAnswer(request);
-        recordService.addAdditionalAnswerToRedis(request);
 
         return ResponseEntity.noContent().build();
     }

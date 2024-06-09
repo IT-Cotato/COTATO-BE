@@ -28,6 +28,7 @@ import org.cotato.csquiz.api.quiz.dto.QuizResultInfo;
 import org.cotato.csquiz.api.quiz.dto.ShortAnswerResponse;
 import org.cotato.csquiz.api.quiz.dto.ShortQuizResponse;
 import org.cotato.csquiz.common.entity.S3Info;
+import org.cotato.csquiz.domain.education.cache.QuizAnswerRedisRepository;
 import org.cotato.csquiz.domain.education.entity.Choice;
 import org.cotato.csquiz.domain.education.entity.Education;
 import org.cotato.csquiz.domain.education.entity.MultipleQuiz;
@@ -48,6 +49,7 @@ import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.ImageException;
 import org.cotato.csquiz.common.S3.S3Uploader;
 import org.cotato.csquiz.domain.auth.service.MemberService;
+import org.cotato.csquiz.domain.education.util.AnswerUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,6 +66,7 @@ public class QuizService {
     private final ScorerRepository scorerRepository;
     private final ShortAnswerRepository shortAnswerRepository;
     private final ChoiceRepository choiceRepository;
+    private final QuizAnswerRedisRepository quizAnswerRedisRepository;
     private final S3Uploader s3Uploader;
 
     @Transactional
@@ -143,8 +146,7 @@ public class QuizService {
 
         List<ShortAnswer> shortAnswers = request.getShortAnswers().stream()
                 .map(CreateShortAnswerRequest::getAnswer)
-                .map(String::toLowerCase)
-                .map(String::trim)
+                .map(AnswerUtil::processAnswer)
                 .map(answer -> ShortAnswer.of(answer, createdShortQuiz))
                 .toList();
         shortAnswerRepository.saveAll(shortAnswers);
@@ -301,25 +303,25 @@ public class QuizService {
     @Transactional
     public void addAdditionalAnswer(AddAdditionalAnswerRequest request) {
         Quiz quiz = findQuizById(request.quizId());
+        String processedAnswer = AnswerUtil.processAnswer(request.answer());
         if (quiz instanceof ShortQuiz) {
-            addShortAnswer((ShortQuiz) quiz, request.answer());
+            addShortAnswer((ShortQuiz) quiz, processedAnswer);
         }
         if (quiz instanceof MultipleQuiz) {
-            addCorrectChoice((MultipleQuiz) quiz, request.answer());
+            addCorrectChoice((MultipleQuiz) quiz, processedAnswer);
         }
+
+        quizAnswerRedisRepository.saveAdditionalQuizAnswer(quiz, processedAnswer);
     }
 
     private void addShortAnswer(ShortQuiz shortQuiz, String answer) {
-        checkAnswerAlreadyExist(shortQuiz, answer);
+        checkAlreadyAnswerExist(shortQuiz, answer);
 
-        String cleanedAnswer = answer.toLowerCase()
-                .trim();
-        ShortAnswer shortAnswer = ShortAnswer.of(cleanedAnswer, shortQuiz);
-
+        ShortAnswer shortAnswer = ShortAnswer.of(answer, shortQuiz);
         shortAnswerRepository.save(shortAnswer);
     }
 
-    private void checkAnswerAlreadyExist(ShortQuiz shortQuiz, String answer) {
+    private void checkAlreadyAnswerExist(ShortQuiz shortQuiz, String answer) {
         shortAnswerRepository.findByShortQuizAndContent(shortQuiz, answer)
                 .ifPresent(existingAnswer -> {
                     throw new AppException(ErrorCode.CONTENT_IS_ALREADY_ANSWER);

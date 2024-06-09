@@ -36,11 +36,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class EducationService {
 
-    private final MemberService memberService;
     private final EducationRepository educationRepository;
-    private final KingMemberRepository kingMemberRepository;
     private final QuizRepository quizRepository;
-    private final WinnerRepository winnerRepository;
     private final SessionRepository sessionRepository;
 
     @Transactional
@@ -95,32 +92,6 @@ public class EducationService {
         return findAllEducationByGenerationId(generationId).stream()
                 .map(AllEducationResponse::from)
                 .toList();
-    }
-
-    public List<KingMemberInfo> findKingMemberInfo(Long educationId) {
-        Education findEducation = educationRepository.findById(educationId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 교육을 찾을 수 없습니다."));
-        List<KingMember> kingMembers = kingMemberRepository.findAllByEducation(findEducation);
-        validateIsEmpty(kingMembers);
-        return kingMembers.stream()
-                .map(kingMember -> memberService.findById(kingMember.getMemberId()))
-                .map(member -> KingMemberInfo.from(member, memberService.findBackFourNumber(member)))
-                .toList();
-    }
-
-    private void validateIsEmpty(List<KingMember> kingMembers) {
-        if (kingMembers.isEmpty()) {
-            throw new EntityNotFoundException("아직 결승 진출자가 결정되지 않았습니다.");
-        }
-    }
-
-    public WinnerInfoResponse findWinner(Long educationId) {
-        Education findEducation = educationRepository.findById(educationId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 교육을 찾을 수 없습니다."));
-        Winner findWinner = winnerRepository.findByEducation(findEducation)
-                .orElseThrow(() -> new EntityNotFoundException("해당 교육의 우승자를 찾을 수 없습니다."));
-        Member findMember = memberService.findById(findWinner.getMemberId());
-        return WinnerInfoResponse.of(findWinner, findMember, memberService.findBackFourNumber(findMember));
     }
 
     public EducationIdOfQuizResponse findEducationIdOfQuizId(Long quizId) {

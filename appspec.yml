@@ -5,6 +5,7 @@ files:
   - source: /
     destination: /home/ubuntu/backend/CS-Quiz-BE
     overwrite: yes
+file_exists_behavior: OVERWRITE
 
 permissions:
   - object: /
