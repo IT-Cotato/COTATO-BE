@@ -4,6 +4,9 @@ import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.ImageException;
 import java.util.UUID;
@@ -28,25 +31,32 @@ public class S3Uploader {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    public String uploadFiles(MultipartFile multipartFile, String dirName) throws ImageException {
+    public S3Info uploadFiles(MultipartFile multipartFile, String folderName) throws ImageException {
         log.info("upload Files {}", multipartFile);
         File uploadFile = convert(multipartFile)
                 .orElseThrow(() -> new ImageException(ErrorCode.IMAGE_PROCESSING_FAIL));
-        return upload(uploadFile, dirName, multipartFile.getOriginalFilename());
+        String uploadUrl = upload(uploadFile, folderName);
+
+        return S3Info.builder()
+                .folderName(folderName)
+                .fileName(uploadFile.getName())
+                .s3Url(uploadUrl)
+                .build();
     }
 
-    public void deleteFile(String fileUrl) throws ImageException {
-        String[] splitFile = fileUrl.split("/");
-        String fileName = splitFile[splitFile.length - 2] + "/" + splitFile[splitFile.length - 1];
+    public void deleteFile(S3Info s3Info) {
+        String fileName = s3Info.getFolderName() + "/" + s3Info.getFileName();
+
+        log.info("deleteFile fileName = {}", fileName);
         try {
             amazonS3.deleteObject(bucket, fileName);
         } catch (SdkClientException e) {
-            throw new ImageException(ErrorCode.IMAGE_DELETE_FAIL);
+            log.error("Failed to delete file: {}", s3Info.getUploadUrl(), e);
         }
     }
 
-    private String upload(File uploadFile, String dirName, String originalName) {
-        String fileName = dirName + "/" + UUID.randomUUID() + originalName;
+    private String upload(File uploadFile, String dirName) {
+        String fileName = dirName + "/" + uploadFile.getName();
         String uploadUrl = putS3(uploadFile, fileName);
         removeNewFile(uploadFile);
         log.info(uploadUrl);
@@ -69,7 +79,7 @@ public class S3Uploader {
 
     private Optional<File> convert(MultipartFile file) throws ImageException {
         File convertFile = new File(System.getProperty("user.dir") + "/" + UUID.randomUUID());
-        log.info("original file name: {}", convertFile.getName());
+        log.info("converted file name: {}", convertFile.getName());
 
         try {
             log.info("convert try start");

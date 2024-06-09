@@ -1,16 +1,21 @@
 package org.cotato.csquiz.domain.generation.entity;
 
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Persistence;
 import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.csquiz.common.entity.BaseTimeEntity;
+import org.cotato.csquiz.common.entity.GenerationPeriod;
 
 @Entity
 @Getter
@@ -28,21 +33,21 @@ public class Generation extends BaseTimeEntity {
     @Column(name = "generation_session_count", nullable = false)
     private Integer sessionCount;
 
-    @Column(name = "generation_start_date")
-    private LocalDate startDate;
-
-    @Column(name = "generation_end_date")
-    private LocalDate endDate;
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "startDate", column = @Column(name = "generation_start_date")),
+            @AttributeOverride(name = "endDate", column = @Column(name = "generation_end_date"))
+    })
+    private GenerationPeriod period;
 
     @Column(name = "generation_recruiting")
     private Boolean isRecruit;
 
     @Builder
-    public Generation(Integer number, Integer sessionCount, LocalDate startDate, LocalDate endDate) {
+    public Generation(Integer number, Integer sessionCount, GenerationPeriod period) {
         this.number = number;
         this.sessionCount = sessionCount;
-        this.startDate = startDate;
-        this.endDate = endDate;
+        this.period = period;
         isRecruit = false;
     }
 
@@ -50,8 +55,7 @@ public class Generation extends BaseTimeEntity {
         this.isRecruit = isRecruit;
     }
 
-    public void changePeriod(LocalDate startDate, LocalDate endDate) {
-        this.startDate = startDate;
-        this.endDate = endDate;
+    public void changePeriod(GenerationPeriod period) {
+        this.period = period;
     }
 }
