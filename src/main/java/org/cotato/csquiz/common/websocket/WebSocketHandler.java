@@ -2,6 +2,7 @@ package org.cotato.csquiz.common.websocket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cotato.csquiz.api.socket.dto.CsQuizStopResponse;
+import org.cotato.csquiz.api.socket.dto.EducationResultResponse;
 import org.cotato.csquiz.api.socket.dto.QuizStartResponse;
 import org.cotato.csquiz.api.socket.dto.QuizStatusResponse;
 import org.cotato.csquiz.api.socket.dto.QuizStopResponse;
@@ -118,14 +119,23 @@ public class WebSocketHandler extends TextWebSocketHandler {
     }
 
     public void stopQuiz(Quiz quiz) {
-        String command = "";
-        if (quiz.getNumber() == 9) {
-            command = KING_COMMAND;
+        QuizStopResponse response = QuizStopResponse.from(quiz.getId());
+        for (WebSocketSession clientSession : CLIENTS.values()) {
+            sendMessage(clientSession, response);
         }
-        if (quiz.getNumber() == 10) {
-            command = WINNER_COMMAND;
+    }
+
+    public void sendKingMemberCommand(Long educationId) {
+        EducationResultResponse response = EducationResultResponse.of(KING_COMMAND, educationId);
+
+        for (WebSocketSession clientSession : CLIENTS.values()) {
+            sendMessage(clientSession, response);
         }
-        QuizStopResponse response = QuizStopResponse.from(command, quiz.getId());
+    }
+
+    public void sendWinnerCommand(Long educationId) {
+        EducationResultResponse response = EducationResultResponse.of(WINNER_COMMAND, educationId);
+
         for (WebSocketSession clientSession : CLIENTS.values()) {
             sendMessage(clientSession, response);
         }

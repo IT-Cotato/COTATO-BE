@@ -3,6 +3,7 @@ package org.cotato.csquiz.domain.generation.entity;
 import static jakarta.persistence.FetchType.LAZY;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -15,6 +16,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.domain.generation.enums.CSEducation;
 import org.cotato.csquiz.domain.generation.enums.ItIssue;
 import org.cotato.csquiz.domain.generation.enums.Networking;
@@ -36,8 +38,8 @@ public class Session extends BaseTimeEntity {
     @Column(name = "session_number")
     private Integer number;
 
-    @Column(name = "session_photo_url")
-    private String photoUrl;
+    @Embedded
+    private S3Info photoS3Info;
 
     @Column(name = "session_description")
     private String description;
@@ -62,10 +64,10 @@ public class Session extends BaseTimeEntity {
     private CSEducation csEducation;
 
     @Builder
-    public Session(int number, String photoUrl, String description, Generation generation, ItIssue itIssue,
+    public Session(int number, S3Info s3Info, String description, Generation generation, ItIssue itIssue,
                    CSEducation csEducation, Networking networking) {
         this.number = number;
-        this.photoUrl = photoUrl;
+        this.photoS3Info = s3Info;
         this.description = description;
         this.generation = generation;
         this.itIssue = itIssue;
@@ -81,8 +83,8 @@ public class Session extends BaseTimeEntity {
         this.description = description;
     }
 
-    public void changePhotoUrl(String photoUrl) {
-        this.photoUrl = photoUrl;
+    public void changePhotoUrl(S3Info photoUrl) {
+        this.photoS3Info = photoUrl;
     }
 
     public void updateToggle(ItIssue itIssue, CSEducation csEducation, Networking networking) {

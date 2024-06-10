@@ -10,6 +10,7 @@ import org.cotato.csquiz.api.generation.dto.AddGenerationResponse;
 import org.cotato.csquiz.api.generation.dto.ChangeGenerationPeriodRequest;
 import org.cotato.csquiz.api.generation.dto.ChangeRecruitingStatusRequest;
 import org.cotato.csquiz.api.generation.dto.GenerationInfoResponse;
+import org.cotato.csquiz.common.entity.GenerationPeriod;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.common.error.ErrorCode;
@@ -31,8 +32,7 @@ public class GenerationService {
         checkNumberValid(request.generationNumber());
         Generation generation = Generation.builder()
                 .number(request.generationNumber())
-                .startDate(request.startDate())
-                .endDate(request.endDate())
+                .period(GenerationPeriod.of(request.startDate(),request.endDate()))
                 .sessionCount(request.sessionCount())
                 .build();
         Generation savedGeneration = generationRepository.save(generation);
@@ -52,7 +52,7 @@ public class GenerationService {
         checkPeriodValid(request.startDate(), request.endDate());
         Generation generation = generationRepository.findById(request.generationId())
                 .orElseThrow(() -> new EntityNotFoundException("찾으려는 기수가 존재하지 않습니다."));
-        generation.changePeriod(request.startDate(), request.endDate());
+        generation.changePeriod(GenerationPeriod.of(request.startDate(), request.endDate()));
         log.info("[기수 기간 변경 성공]: 시작: {} ~ 끝: {}", request.startDate(), request.endDate());
     }
 

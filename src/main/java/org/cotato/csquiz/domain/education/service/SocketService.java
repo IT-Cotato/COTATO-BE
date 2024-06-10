@@ -1,7 +1,6 @@
 package org.cotato.csquiz.domain.education.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.socket.dto.EducationCloseRequest;
@@ -10,7 +9,6 @@ import org.cotato.csquiz.api.socket.dto.QuizSocketRequest;
 import org.cotato.csquiz.api.socket.dto.SocketTokenDto;
 import org.cotato.csquiz.common.config.jwt.JwtTokenProvider;
 import org.cotato.csquiz.domain.education.entity.Education;
-import org.cotato.csquiz.domain.education.entity.KingMember;
 import org.cotato.csquiz.domain.education.entity.Quiz;
 import org.cotato.csquiz.domain.education.enums.QuizStatus;
 import org.cotato.csquiz.domain.education.repository.EducationRepository;
@@ -31,8 +29,6 @@ public class SocketService {
     private final WebSocketHandler webSocketHandler;
     private final QuizRepository quizRepository;
     private final EducationRepository educationRepository;
-    private final KingMemberService kingMemberService;
-
     private final JwtTokenProvider jwtTokenProvider;
 
     @Transactional
@@ -106,16 +102,8 @@ public class SocketService {
         checkEducationOpen(quiz.getEducation());
 
         quiz.updateStart(QuizStatus.QUIZ_OFF);
-        if (quiz.getNumber() == 9) {
-            List<KingMember> kingMembers = kingMemberService.calculateKingMember(quiz.getEducation());
-            kingMemberService.saveKingMembers(kingMembers);
-            kingMemberService.saveWinnerIfKingMemberIsOne(quiz.getEducation());
-            webSocketHandler.stopQuiz(quiz);
-        }
-        if (quiz.getNumber() == 10) {
-            kingMemberService.saveWinnerIfNoWinnerExist(quiz);
-            webSocketHandler.stopQuiz(quiz);
-        }
+
+        webSocketHandler.stopQuiz(quiz);
     }
 
     @Transactional
@@ -170,5 +158,13 @@ public class SocketService {
     private Education findEducationById(Long educationId) {
         return educationRepository.findById(educationId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 교육을 찾을 수 없습니다."));
+    }
+
+    public void sendKingCommand(Long educationId) {
+        webSocketHandler.sendKingMemberCommand(educationId);
+    }
+
+    public void sendWinnerCommand(Long educationId) {
+        webSocketHandler.sendWinnerCommand(educationId);
     }
 }

@@ -27,14 +27,14 @@ public class QuizAnswerRedisRepository {
 
     private static final String KEY_PREFIX = "$quiz";
     private static final Integer QUIZ_ANSWER_EXPIRATION_TIME = 60 * 24;
-    private final QuizRepository quizRepository;
     private final ShortAnswerRepository shortAnswerRepository;
     private final ChoiceRepository choiceRepository;
     private final RedisTemplate<String, Object> redisTemplate;
 
-    public void saveAllQuizAnswers(Long educationId) {
-        List<Quiz> allQuizzes = quizRepository.findAllByEducationId(educationId);
-        allQuizzes.forEach(this::saveQuizAnswer);
+    public void saveAllQuizAnswers(List<Quiz> quizzes) {
+        for (Quiz quiz : quizzes) {
+            saveQuizAnswer(quiz);
+        }
     }
 
     public void saveAdditionalQuizAnswer(Quiz quiz, String answer) {
@@ -76,7 +76,7 @@ public class QuizAnswerRedisRepository {
         }
     }
 
-    private void saveShortAnswer(Quiz quiz) {
+    private void saveShortAnswer(final Quiz quiz) {
         List<ShortAnswer> shortAnswers = shortAnswerRepository.findAllByShortQuiz((ShortQuiz) quiz);
         List<String> answers = shortAnswers.stream()
                 .map(ShortAnswer::getContent)
@@ -90,7 +90,7 @@ public class QuizAnswerRedisRepository {
         redisTemplate.expire(quizKey, QUIZ_ANSWER_EXPIRATION_TIME, TimeUnit.MINUTES);
     }
 
-    private void saveChoices(Quiz quiz) {
+    private void saveChoices(final Quiz quiz) {
         List<Choice> choices = choiceRepository.findAllByMultipleQuiz((MultipleQuiz) quiz);
         List<Integer> answerNumbers = choices.stream().filter(choice -> choice.getIsCorrect() == ChoiceCorrect.ANSWER)
                 .map(Choice::getChoiceNumber).toList();
