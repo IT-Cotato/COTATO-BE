@@ -18,6 +18,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.domain.generation.enums.CSEducation;
+import org.cotato.csquiz.domain.generation.enums.DevTalk;
 import org.cotato.csquiz.domain.generation.enums.ItIssue;
 import org.cotato.csquiz.domain.generation.enums.Networking;
 import org.cotato.csquiz.common.entity.BaseTimeEntity;
@@ -63,9 +64,14 @@ public class Session extends BaseTimeEntity {
     @ColumnDefault(value = "'CS_OFF'")
     private CSEducation csEducation;
 
+    @Column(name = "session_dev_talk")
+    @Enumerated(EnumType.STRING)
+    @ColumnDefault(value = "'DEVTALK_OFF'")
+    private DevTalk devTalk;
+
     @Builder
-    public Session(int number, S3Info s3Info, String description, Generation generation, ItIssue itIssue,
-                   CSEducation csEducation, Networking networking) {
+    public Session(Integer number, S3Info s3Info, String description, Generation generation, ItIssue itIssue,
+                   CSEducation csEducation, Networking networking, DevTalk devTalk) {
         this.number = number;
         this.photoS3Info = s3Info;
         this.description = description;
@@ -73,9 +79,10 @@ public class Session extends BaseTimeEntity {
         this.itIssue = itIssue;
         this.csEducation = csEducation;
         this.networking = networking;
+        this.devTalk = devTalk;
     }
 
-    public void changeSessionNumber(int sessionNumber) {
+    public void changeSessionNumber(Integer sessionNumber) {
         this.number = sessionNumber;
     }
 
@@ -87,9 +94,10 @@ public class Session extends BaseTimeEntity {
         this.photoS3Info = photoUrl;
     }
 
-    public void updateToggle(ItIssue itIssue, CSEducation csEducation, Networking networking) {
+    public void updateToggle(ItIssue itIssue, CSEducation csEducation, Networking networking, DevTalk devTalk) {
         this.itIssue = itIssue;
         this.csEducation = csEducation;
         this.networking = networking;
+        this.devTalk = devTalk;
     }
 }

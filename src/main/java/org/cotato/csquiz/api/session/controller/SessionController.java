@@ -41,7 +41,6 @@ public class SessionController {
     @PostMapping(value = "/add", consumes = "multipart/form-data")
     public ResponseEntity<AddSessionResponse> addSession(@ModelAttribute @Valid AddSessionRequest request)
             throws ImageException {
-        log.info("세션 추가 컨트롤러 : {}", request.description());
         return ResponseEntity.status(HttpStatus.CREATED).body(sessionService.addSession(request));
     }
 

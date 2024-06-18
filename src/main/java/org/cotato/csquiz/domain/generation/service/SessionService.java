@@ -57,6 +57,7 @@ public class SessionService {
                 .itIssue(request.itIssue())
                 .csEducation(request.csEducation())
                 .networking(request.networking())
+                .devTalk(request.devTalk())
                 .build();
         Session savedSession = sessionRepository.save(session);
         log.info("세션 생성 완료");
@@ -88,7 +89,7 @@ public class SessionService {
 
         session.updateDescription(request.description());
         session.updateToggle(request.itIssue(), request.csEducation(),
-                request.networking());
+                request.networking(), request.devTalk());
         if (request.isPhotoUpdated()) {
             updatePhoto(session, request.sessionImage());
         }

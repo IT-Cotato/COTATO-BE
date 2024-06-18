@@ -10,7 +10,7 @@ import org.cotato.csquiz.api.generation.dto.AddGenerationResponse;
 import org.cotato.csquiz.api.generation.dto.ChangeGenerationPeriodRequest;
 import org.cotato.csquiz.api.generation.dto.ChangeRecruitingStatusRequest;
 import org.cotato.csquiz.api.generation.dto.GenerationInfoResponse;
-import org.cotato.csquiz.common.entity.GenerationPeriod;
+import org.cotato.csquiz.domain.generation.embedded.GenerationPeriod;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.common.error.ErrorCode;
