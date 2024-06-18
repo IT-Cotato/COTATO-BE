@@ -1,6 +1,7 @@
 package org.cotato.csquiz.api.session.dto;
 
 import org.cotato.csquiz.domain.generation.enums.CSEducation;
+import org.cotato.csquiz.domain.generation.enums.DevTalk;
 import org.cotato.csquiz.domain.generation.enums.ItIssue;
 import org.cotato.csquiz.domain.generation.enums.Networking;
 import jakarta.validation.constraints.NotNull;
@@ -18,6 +19,9 @@ public record UpdateSessionRequest(
         @NotNull
         Networking networking,
         @NotNull
-        CSEducation csEducation
+        CSEducation csEducation,
+
+        @NotNull
+        DevTalk devTalk
 ) {
 }

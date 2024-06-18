@@ -1,4 +1,4 @@
-package org.cotato.csquiz.common.entity;
+package org.cotato.csquiz.domain.generation.embedded;
 
 import jakarta.persistence.Embeddable;
 import java.time.LocalDate;
