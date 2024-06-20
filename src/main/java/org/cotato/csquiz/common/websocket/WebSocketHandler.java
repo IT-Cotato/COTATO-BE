@@ -85,7 +85,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
             MANAGERS.remove(memberId);
         }
 
-        log.info("[세션 종료] {}", memberId);
+        log.info("[세션 종료] {}, 종료 코드: {}", memberId, status);
     }
 
     public void accessQuiz(Long quizId) {
