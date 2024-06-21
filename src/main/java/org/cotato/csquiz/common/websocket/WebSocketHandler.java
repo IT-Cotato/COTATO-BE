@@ -54,7 +54,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
             sendQuiz(educationId, session);
         }
 
-        log.info("[세션 연결] {}", memberId);
+        log.info("[세션 연결] {}, 연결된 세션: {}", memberId, session.getId());
     }
 
     private void sendQuiz(Long educationId, WebSocketSession session) {
@@ -84,7 +84,6 @@ public class WebSocketHandler extends TextWebSocketHandler {
         } else {
             MANAGERS.remove(memberId);
         }
-
         log.info("[세션 종료] {}, 종료 코드: {}", memberId, status);
     }
 
@@ -115,7 +114,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
         for (WebSocketSession clientSession : CLIENTS.values()) {
             sendMessage(clientSession, response);
         }
-        log.info("[전구 전송 후 사용자 : {}]", CLIENTS.keySet());
+        log.info("[풀이 신호 전송 후 사용자 : {}]", CLIENTS.keySet());
     }
 
     public void stopQuiz(Quiz quiz) {
@@ -154,10 +153,10 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
         if (MemberRoleGroup.hasRole(MemberRoleGroup.CLIENTS, role)) {
             CLIENTS.put(memberId, session);
-            log.info("{} connect with Session {} in CLIENTS", memberId, session);
+            log.info("[부원 연결] : {} , 세션 ID : {}" , memberId, session.getId());
         } else {
             MANAGERS.put(memberId, session);
-            log.info("{} connect with Session {} in MANAGER", memberId, session);
+            log.info("[관리자 연결] : {} , 세션 ID : {}" , memberId, session.getId());
         }
     }
 
