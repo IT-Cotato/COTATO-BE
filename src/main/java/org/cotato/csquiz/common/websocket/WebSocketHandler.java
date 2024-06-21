@@ -51,13 +51,13 @@ public class WebSocketHandler extends TextWebSocketHandler {
         addMemberToSession(memberId, session);
 
         if (MemberRoleGroup.hasRole(MemberRoleGroup.CLIENTS, memberRole)) {
-            sendQuiz(educationId, session);
+            sendCurrentOpenQuiz(educationId, session);
         }
 
         log.info("[세션 연결] {}, 연결된 세션: {}", memberId, session.getId());
     }
 
-    private void sendQuiz(Long educationId, WebSocketSession session) {
+    private void sendCurrentOpenQuiz(Long educationId, WebSocketSession session) {
         Optional<Quiz> maybeQuiz = quizRepository.findByStatusAndEducationId(QuizStatus.QUIZ_ON,
                 educationId);
 
