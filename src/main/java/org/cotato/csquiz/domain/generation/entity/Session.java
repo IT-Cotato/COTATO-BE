@@ -2,10 +2,11 @@ package org.cotato.csquiz.domain.generation.entity;
 
 import static jakarta.persistence.FetchType.LAZY;
 
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -15,11 +16,9 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.cotato.csquiz.domain.generation.enums.CSEducation;
-import org.cotato.csquiz.domain.generation.enums.ItIssue;
-import org.cotato.csquiz.domain.generation.enums.Networking;
 import org.cotato.csquiz.common.entity.BaseTimeEntity;
-import org.hibernate.annotations.ColumnDefault;
+import org.cotato.csquiz.common.entity.S3Info;
+import org.cotato.csquiz.domain.generation.embedded.SessionContents;
 import org.hibernate.annotations.DynamicInsert;
 
 @Entity
@@ -36,8 +35,8 @@ public class Session extends BaseTimeEntity {
     @Column(name = "session_number")
     private Integer number;
 
-    @Column(name = "session_photo_url")
-    private String photoUrl;
+    @Embedded
+    private S3Info photoS3Info;
 
     @Column(name = "session_description")
     private String description;
@@ -46,34 +45,28 @@ public class Session extends BaseTimeEntity {
     @JoinColumn(name = "generation_id")
     private Generation generation;
 
-    @Column(name = "session_it_issue")
-    @Enumerated(EnumType.STRING)
-    @ColumnDefault(value = "'IT_OFF'")
-    private ItIssue itIssue;
-
-    @Column(name = "session_networking")
-    @Enumerated(EnumType.STRING)
-    @ColumnDefault(value = "'NW_OFF'")
-    private Networking networking;
-
-    @Column(name = "session_cs_education")
-    @Enumerated(EnumType.STRING)
-    @ColumnDefault(value = "'CS_OFF'")
-    private CSEducation csEducation;
+    @AttributeOverrides({
+            @AttributeOverride(name = "itIssue",
+            column = @Column(name = "session_it_issue")),
+            @AttributeOverride(name = "networking",
+                    column = @Column(name = "session_networking")),
+            @AttributeOverride(name = "csEducation",
+                    column = @Column(name = "session_cs_education")),
+            @AttributeOverride(name = "devTalk",
+                    column = @Column(name = "session_dev_talk"))
+    })
+    private SessionContents sessionContents;
 
     @Builder
-    public Session(int number, String photoUrl, String description, Generation generation, ItIssue itIssue,
-                   CSEducation csEducation, Networking networking) {
+    public Session(Integer number, S3Info s3Info, String description, Generation generation, SessionContents sessionContents) {
         this.number = number;
-        this.photoUrl = photoUrl;
+        this.photoS3Info = s3Info;
         this.description = description;
         this.generation = generation;
-        this.itIssue = itIssue;
-        this.csEducation = csEducation;
-        this.networking = networking;
+        this.sessionContents = sessionContents;
     }
 
-    public void changeSessionNumber(int sessionNumber) {
+    public void changeSessionNumber(Integer sessionNumber) {
         this.number = sessionNumber;
     }
 
@@ -81,13 +74,11 @@ public class Session extends BaseTimeEntity {
         this.description = description;
     }
 
-    public void changePhotoUrl(String photoUrl) {
-        this.photoUrl = photoUrl;
+    public void changePhotoUrl(S3Info photoUrl) {
+        this.photoS3Info = photoUrl;
     }
 
-    public void updateToggle(ItIssue itIssue, CSEducation csEducation, Networking networking) {
-        this.itIssue = itIssue;
-        this.csEducation = csEducation;
-        this.networking = networking;
+    public void updateSessionContents(SessionContents sessionContents) {
+        this.sessionContents = sessionContents;
     }
 }

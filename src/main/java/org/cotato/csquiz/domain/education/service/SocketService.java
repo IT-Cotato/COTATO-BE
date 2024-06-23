@@ -1,7 +1,6 @@
 package org.cotato.csquiz.domain.education.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.socket.dto.EducationCloseRequest;
@@ -10,7 +9,6 @@ import org.cotato.csquiz.api.socket.dto.QuizSocketRequest;
 import org.cotato.csquiz.api.socket.dto.SocketTokenDto;
 import org.cotato.csquiz.common.config.jwt.JwtTokenProvider;
 import org.cotato.csquiz.domain.education.entity.Education;
-import org.cotato.csquiz.domain.education.entity.KingMember;
 import org.cotato.csquiz.domain.education.entity.Quiz;
 import org.cotato.csquiz.domain.education.enums.QuizStatus;
 import org.cotato.csquiz.domain.education.repository.EducationRepository;
@@ -35,7 +33,6 @@ public class SocketService {
     private final WebSocketHandler webSocketHandler;
     private final QuizRepository quizRepository;
     private final EducationRepository educationRepository;
-
     private final JwtTokenProvider jwtTokenProvider;
 
     @Transactional

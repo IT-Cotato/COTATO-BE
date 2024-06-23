@@ -3,6 +3,7 @@ package org.cotato.csquiz.domain.education.service;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
@@ -26,6 +27,8 @@ import org.cotato.csquiz.api.quiz.dto.QuizResponse;
 import org.cotato.csquiz.api.quiz.dto.QuizResultInfo;
 import org.cotato.csquiz.api.quiz.dto.ShortAnswerResponse;
 import org.cotato.csquiz.api.quiz.dto.ShortQuizResponse;
+import org.cotato.csquiz.common.entity.S3Info;
+import org.cotato.csquiz.domain.education.cache.QuizAnswerRedisRepository;
 import org.cotato.csquiz.domain.education.entity.Choice;
 import org.cotato.csquiz.domain.education.entity.Education;
 import org.cotato.csquiz.domain.education.entity.MultipleQuiz;
@@ -46,6 +49,7 @@ import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.ImageException;
 import org.cotato.csquiz.common.S3.S3Uploader;
 import org.cotato.csquiz.domain.auth.service.MemberService;
+import org.cotato.csquiz.domain.education.util.AnswerUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,6 +66,7 @@ public class QuizService {
     private final ScorerRepository scorerRepository;
     private final ShortAnswerRepository shortAnswerRepository;
     private final ChoiceRepository choiceRepository;
+    private final QuizAnswerRedisRepository quizAnswerRedisRepository;
     private final S3Uploader s3Uploader;
 
     @Transactional
@@ -103,9 +108,16 @@ public class QuizService {
     }
 
     private void deleteAllQuizByEducation(Long educationId) {
-        List<Long> quizIds = quizRepository.findAllByEducationId(educationId).stream()
+        List<Quiz> quizzes = quizRepository.findAllByEducationId(educationId);
+        List<Long> quizIds = quizzes.stream()
                 .map(Quiz::getId)
                 .toList();
+
+        List<S3Info> s3Infos = quizzes.stream()
+                .map(Quiz::getS3Info)
+                .filter(Objects::nonNull)
+                .toList();
+        s3Infos.forEach(s3Uploader::deleteFile);
 
         choiceRepository.deleteAllByQuizIdsInQuery(quizIds);
         shortAnswerRepository.deleteAllByQuizIdsInQuery(quizIds);
@@ -114,25 +126,24 @@ public class QuizService {
 
     private void createShortQuiz(Education findEducation, CreateShortQuizRequest request)
             throws ImageException {
-        String imageUrl = null;
+        S3Info s3Info = null;
         if (request.getImage() != null && !request.getImage().isEmpty()) {
-            imageUrl = s3Uploader.uploadFiles(request.getImage(), QUIZ_BUCKET_DIRECTORY);
+            s3Info = s3Uploader.uploadFiles(request.getImage(), QUIZ_BUCKET_DIRECTORY);
         }
 
         ShortQuiz createdShortQuiz = ShortQuiz.builder()
                 .education(findEducation)
                 .question(request.getQuestion())
                 .number(request.getNumber())
-                .photoUrl(imageUrl)
+                .s3Info(s3Info)
                 .appearSecond(generateRandomTime())
                 .build();
-        log.info("주관식 문제 생성 완료: 사진 url {}", imageUrl);
+        log.info("주관식 문제 생성 완료: 사진 정보 {}", s3Info);
         quizRepository.save(createdShortQuiz);
 
         List<ShortAnswer> shortAnswers = request.getShortAnswers().stream()
                 .map(CreateShortAnswerRequest::getAnswer)
-                .map(String::toLowerCase)
-                .map(String::trim)
+                .map(AnswerUtil::processAnswer)
                 .map(answer -> ShortAnswer.of(answer, createdShortQuiz))
                 .toList();
         shortAnswerRepository.saveAll(shortAnswers);
@@ -142,20 +153,20 @@ public class QuizService {
 
     private void createMultipleQuiz(Education findEducation, CreateMultipleQuizRequest request)
             throws ImageException {
-        String imageUrl = null;
+        S3Info s3Info = null;
         if (request.getImage() != null && !request.getImage().isEmpty()) {
-            imageUrl = s3Uploader.uploadFiles(request.getImage(), QUIZ_BUCKET_DIRECTORY);
+            s3Info = s3Uploader.uploadFiles(request.getImage(), QUIZ_BUCKET_DIRECTORY);
         }
 
         MultipleQuiz createdMultipleQuiz = MultipleQuiz.builder()
                 .education(findEducation)
                 .number(request.getNumber())
                 .question(request.getQuestion())
-                .photoUrl(imageUrl)
+                .s3Info(s3Info)
                 .appearSecond(generateRandomTime())
                 .build();
 
-        log.info("객관식 문제 생성, 사진 url {}", imageUrl);
+        log.info("객관식 문제 생성, 사진 정보 {}", s3Info);
         quizRepository.save(createdMultipleQuiz);
 
         List<Integer> choiceNumbers = request.getChoices().stream().map(CreateChoiceRequest::getNumber).toList();
@@ -289,25 +300,25 @@ public class QuizService {
     @Transactional
     public void addAdditionalAnswer(AddAdditionalAnswerRequest request) {
         Quiz quiz = findQuizById(request.quizId());
+        String processedAnswer = AnswerUtil.processAnswer(request.answer());
         if (quiz instanceof ShortQuiz) {
-            addShortAnswer((ShortQuiz) quiz, request.answer());
+            addShortAnswer((ShortQuiz) quiz, processedAnswer);
         }
         if (quiz instanceof MultipleQuiz) {
-            addCorrectChoice((MultipleQuiz) quiz, request.answer());
+            addCorrectChoice((MultipleQuiz) quiz, processedAnswer);
         }
+
+        quizAnswerRedisRepository.saveAdditionalQuizAnswer(quiz, processedAnswer);
     }
 
     private void addShortAnswer(ShortQuiz shortQuiz, String answer) {
-        checkAnswerAlreadyExist(shortQuiz, answer);
+        checkAlreadyAnswerExist(shortQuiz, answer);
 
-        String cleanedAnswer = answer.toLowerCase()
-                .trim();
-        ShortAnswer shortAnswer = ShortAnswer.of(cleanedAnswer, shortQuiz);
-
+        ShortAnswer shortAnswer = ShortAnswer.of(answer, shortQuiz);
         shortAnswerRepository.save(shortAnswer);
     }
 
-    private void checkAnswerAlreadyExist(ShortQuiz shortQuiz, String answer) {
+    private void checkAlreadyAnswerExist(ShortQuiz shortQuiz, String answer) {
         shortAnswerRepository.findByShortQuizAndContent(shortQuiz, answer)
                 .ifPresent(existingAnswer -> {
                     throw new AppException(ErrorCode.CONTENT_IS_ALREADY_ANSWER);

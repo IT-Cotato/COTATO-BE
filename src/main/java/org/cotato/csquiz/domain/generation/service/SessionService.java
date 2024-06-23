@@ -12,8 +12,10 @@ import org.cotato.csquiz.api.session.dto.UpdateSessionDescriptionRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionNumberRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionPhotoRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionRequest;
+import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.domain.education.entity.Education;
 import org.cotato.csquiz.domain.education.service.EducationService;
+import org.cotato.csquiz.domain.generation.embedded.SessionContents;
 import org.cotato.csquiz.domain.generation.enums.CSEducation;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
@@ -39,9 +41,9 @@ public class SessionService {
 
     @Transactional
     public AddSessionResponse addSession(AddSessionRequest request) throws ImageException {
-        String imageUrl = null;
+        S3Info s3Info = null;
         if (isImageExist(request.sessionImage())) {
-            imageUrl = s3Uploader.uploadFiles(request.sessionImage(), SESSION_BUCKET_DIRECTORY);
+            s3Info = s3Uploader.uploadFiles(request.sessionImage(), SESSION_BUCKET_DIRECTORY);
         }
         Generation findGeneration = generationRepository.findById(request.generationId())
                 .orElseThrow(() -> new EntityNotFoundException("해당 기수를 찾을 수 없습니다."));
@@ -50,12 +52,15 @@ public class SessionService {
         log.info("해당 기수에 추가된 마지막 세션 : {}", sessionNumber);
         Session session = Session.builder()
                 .number(sessionNumber + 1)
-                .photoUrl(imageUrl)
+                .s3Info(s3Info)
                 .description(request.description())
                 .generation(findGeneration)
-                .itIssue(request.itIssue())
-                .csEducation(request.csEducation())
-                .networking(request.networking())
+                .sessionContents(SessionContents.builder()
+                        .csEducation(request.csEducation())
+                        .devTalk(request.devTalk())
+                        .itIssue(request.itIssue())
+                        .networking(request.networking())
+                        .build())
                 .build();
         Session savedSession = sessionRepository.save(session);
         log.info("세션 생성 완료");
@@ -86,8 +91,12 @@ public class SessionService {
         Session session = findSessionById(request.sessionId());
 
         session.updateDescription(request.description());
-        session.updateToggle(request.itIssue(), request.csEducation(),
-                request.networking());
+        session.updateSessionContents(SessionContents.builder()
+                .csEducation(request.csEducation())
+                .devTalk(request.devTalk())
+                .itIssue(request.itIssue())
+                .networking(request.networking())
+                .build());
         if (request.isPhotoUpdated()) {
             updatePhoto(session, request.sessionImage());
         }
@@ -103,9 +112,9 @@ public class SessionService {
 
     private void updatePhoto(Session session, MultipartFile sessionImage) throws ImageException {
         if (isImageExist(sessionImage)) {
-            String imageUrl = s3Uploader.uploadFiles(sessionImage, SESSION_BUCKET_DIRECTORY);
+            S3Info s3Info = s3Uploader.uploadFiles(sessionImage, SESSION_BUCKET_DIRECTORY);
             deleteOldImage(session);
-            session.changePhotoUrl(imageUrl);
+            session.changePhotoUrl(s3Info);
         }
         if (!isImageExist(sessionImage)) {
             deleteOldImage(session);
@@ -113,9 +122,9 @@ public class SessionService {
         }
     }
 
-    private void deleteOldImage(Session session) throws ImageException {
-        if (session.getPhotoUrl() != null) {
-            s3Uploader.deleteFile(session.getPhotoUrl());
+    private void deleteOldImage(Session session) {
+        if (session.getPhotoS3Info() != null) {
+            s3Uploader.deleteFile(session.getPhotoS3Info());
         }
     }
 
@@ -138,7 +147,7 @@ public class SessionService {
     public List<CsEducationOnSessionNumberResponse> findAllNotLinkedCsOnSessionsByGenerationId(Long generationId) {
         Generation generation = generationRepository.findById(generationId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 기수를 찾을 수 없습니다."));
-        List<Session> sessions = sessionRepository.findAllByGenerationAndCsEducation(generation, CSEducation.CS_ON);
+        List<Session> sessions = sessionRepository.findAllByGenerationAndSessionContentsCsEducation(generation, CSEducation.CS_ON);
 
         List<Long> educationLinkedSessionIds = educationService.findAllEducationByGenerationId(generationId).stream()
                 .map(Education::getSessionId)

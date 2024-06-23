@@ -30,12 +30,13 @@ public class SchedulerService {
         LocalDateTime now = LocalDateTime.now();
         List<RefusedMember> deleteRefusedMembers = refusedMemberRepository.findAllByCreatedAtBefore(now.minusDays(30));
 
-        refusedMemberRepository.deleteAll(deleteRefusedMembers);
         deleteRefusedMembers.forEach(refusedMember -> {
             if (refusedMember.getMember().getRole() == MemberRole.REFUSED) {
                 memberRepository.delete(refusedMember.getMember());
             }
         });
+
+        refusedMemberRepository.deleteAll(deleteRefusedMembers);
     }
 
     @Transactional
