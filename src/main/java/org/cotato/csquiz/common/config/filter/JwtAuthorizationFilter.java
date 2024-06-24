@@ -28,7 +28,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private static final String LOGIN_PATH = "/login";
     private static final String SWAGGER_PATH = "/swagger-ui";
     private static final String SWAGGER_PATH_3 = "/v3/api-docs";
+    private static final String SWAGGER_FAVICON = "/favicon.ico";
     private static final String WS = "/websocket/csquiz";
+    private static final String GENERATION_PATH = "/v1/api/generation";
+    private static final String SESSION_PATH = "/v1/api/session";
 
     private final JwtTokenProvider jwtTokenProvider;
     private final MemberRepository memberRepository;
@@ -63,7 +66,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         log.info("요청 경로: {}", path);
         log.info("요청 메서드: {}", request.getMethod());
-        return path.startsWith(AUTH_PATH) || path.startsWith(LOGIN_PATH)
-                || path.startsWith(SWAGGER_PATH) || path.startsWith(SWAGGER_PATH_3) || path.startsWith(WS);
+        return path.startsWith(AUTH_PATH) || path.equals(LOGIN_PATH)
+                || path.startsWith(SWAGGER_PATH) || path.equals(SWAGGER_FAVICON)
+                || path.startsWith(SWAGGER_PATH_3) || path.startsWith(WS)
+                || path.equals(GENERATION_PATH) || path.equals(SESSION_PATH);
     }
 }
