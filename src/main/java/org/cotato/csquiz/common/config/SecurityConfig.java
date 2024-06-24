@@ -28,6 +28,8 @@ public class SecurityConfig {
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/swagger-ui.html",
+            "/v1/api/generation",
+            "/v1/api/session",
             "/websocket/csquiz"
     };
 
@@ -49,7 +51,6 @@ public class SecurityConfig {
         AuthenticationManager authenticationManager = sharedObject.build();
         http.authenticationManager(authenticationManager);
         http.cors();
-
         http.csrf().disable()
                 .cors().disable()
                 .formLogin().disable()
@@ -67,7 +68,6 @@ public class SecurityConfig {
                         .hasAnyRole("MEMBER", "EDUCATION", "ADMIN")
                         .requestMatchers(new AntPathRequestMatcher("/v1/api/education", "GET")).authenticated()
                         .requestMatchers("/v1/api/education/**").hasAnyRole("EDUCATION", "ADMIN")
-                        .requestMatchers("/v1/api/generation").authenticated()
                         .requestMatchers("/v1/api/generation/**").hasAnyRole("ADMIN")
                         .requestMatchers("/v1/api/mypage/**").hasAnyRole("MEMBER", "OLD_MEMBER", "EDUCATION", "ADMIN")
                         .requestMatchers("/v1/api/quiz/cs-admin/**").hasAnyRole("EDUCATION", "ADMIN")
