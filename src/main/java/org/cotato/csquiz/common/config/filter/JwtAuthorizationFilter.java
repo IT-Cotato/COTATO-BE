@@ -69,6 +69,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         return path.startsWith(AUTH_PATH) || path.equals(LOGIN_PATH)
                 || path.startsWith(SWAGGER_PATH) || path.equals(SWAGGER_FAVICON)
                 || path.startsWith(SWAGGER_PATH_3) || path.startsWith(WS)
-                || path.equals(GENERATION_PATH) || path.startsWith(SESSION_PATH);
+                || path.equals(GENERATION_PATH) || path.equals(SESSION_PATH);
     }
 }
