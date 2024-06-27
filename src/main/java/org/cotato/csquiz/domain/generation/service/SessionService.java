@@ -55,6 +55,7 @@ public class SessionService {
                 .s3Info(s3Info)
                 .description(request.description())
                 .generation(findGeneration)
+                .title(request.title())
                 .sessionContents(SessionContents.builder()
                         .csEducation(request.csEducation())
                         .devTalk(request.devTalk())

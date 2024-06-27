@@ -12,6 +12,8 @@ public record AddSessionRequest(
         Long generationId,
         MultipartFile sessionImage,
         @NotNull
+        String title,
+        @NotNull
         String description,
         ItIssue itIssue,
         Networking networking,
