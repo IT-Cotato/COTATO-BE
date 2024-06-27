@@ -35,6 +35,9 @@ public class Session extends BaseTimeEntity {
     @Column(name = "session_number")
     private Integer number;
 
+    @Column(name = "session_title", length = 100)
+    private String title;
+
     @Embedded
     private S3Info photoS3Info;
 
@@ -58,9 +61,10 @@ public class Session extends BaseTimeEntity {
     private SessionContents sessionContents;
 
     @Builder
-    public Session(Integer number, S3Info s3Info, String description, Generation generation, SessionContents sessionContents) {
+    public Session(Integer number, S3Info s3Info, String title, String description, Generation generation, SessionContents sessionContents) {
         this.number = number;
         this.photoS3Info = s3Info;
+        this.title = title;
         this.description = description;
         this.generation = generation;
         this.sessionContents = sessionContents;

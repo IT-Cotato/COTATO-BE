@@ -13,6 +13,7 @@ public record UpdateSessionRequest(
         MultipartFile sessionImage,
         @NotNull
         Boolean isPhotoUpdated,
+        String title,
         String description,
         @NotNull
         ItIssue itIssue,
