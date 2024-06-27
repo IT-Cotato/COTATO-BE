@@ -92,6 +92,7 @@ public class SessionService {
         Session session = findSessionById(request.sessionId());
 
         session.updateDescription(request.description());
+        session.updateSessionTitle(request.title());
         session.updateSessionContents(SessionContents.builder()
                 .csEducation(request.csEducation())
                 .devTalk(request.devTalk())
