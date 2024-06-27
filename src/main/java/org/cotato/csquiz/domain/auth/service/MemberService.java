@@ -43,15 +43,6 @@ public class MemberService {
         return originPhoneNumber.substring(numberLength - 4);
     }
 
-    public void checkCorrectPassword(String accessToken, String password) {
-        Long memberId = jwtTokenProvider.getMemberId(accessToken);
-        Member findMember = memberRepository.findById(memberId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다."));
-        if (!bCryptPasswordEncoder.matches(password, findMember.getPassword())) {
-            throw new AppException(ErrorCode.PASSWORD_NOT_MATCH);
-        }
-    }
-
     @Transactional
     public void updatePassword(String accessToken, String password) {
         Long memberId = jwtTokenProvider.getMemberId(accessToken);

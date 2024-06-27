@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.cotato.csquiz.api.quiz.dto.AddAdditionalAnswerRequest;
 import org.cotato.csquiz.api.record.dto.RecordResponse;
 import org.cotato.csquiz.api.record.dto.RecordsAndScorerResponse;
 import org.cotato.csquiz.api.record.dto.RegradeRequest;
@@ -30,6 +29,7 @@ import org.cotato.csquiz.domain.auth.service.MemberService;
 import org.cotato.csquiz.domain.education.cache.QuizAnswerRedisRepository;
 import org.cotato.csquiz.domain.education.cache.ScorerExistRedisRepository;
 import org.cotato.csquiz.domain.education.cache.TicketCountRedisRepository;
+import org.cotato.csquiz.domain.education.util.AnswerUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,8 +59,7 @@ public class RecordService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다."));
         checkMemberAlreadyCorrect(findQuiz, findMember);
         List<String> inputs = request.inputs().stream()
-                .map(String::toLowerCase)
-                .map(String::trim)
+                .map(AnswerUtil::processAnswer)
                 .sorted()
                 .toList();
 
@@ -99,26 +98,16 @@ public class RecordService {
         }
     }
 
-    @Transactional
-    public void addAdditionalAnswerToRedis(AddAdditionalAnswerRequest request) {
-        Quiz quiz = findQuizById(request.quizId());
-
-        String cleanedAnswer = request.answer()
-                .toLowerCase()
-                .trim();
-
-        quizAnswerRedisRepository.saveAdditionalQuizAnswer(quiz, cleanedAnswer);
-    }
-
     private Quiz findQuizById(Long quizId) {
         return quizRepository.findById(quizId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 문제를 찾을 수 없습니다."));
     }
 
-    @Transactional
-    public void saveAnswers(QuizOpenRequest request) {
-        scorerExistRedisRepository.saveAllScorerNone(request.educationId());
-        quizAnswerRedisRepository.saveAllQuizAnswers(request.educationId());
+    public void saveAnswersToCache(QuizOpenRequest request) {
+        List<Quiz> quizzes = quizRepository.findAllByEducationId(request.educationId());
+
+        scorerExistRedisRepository.saveAllScorerNone(quizzes);
+        quizAnswerRedisRepository.saveAllQuizAnswers(quizzes);
     }
 
     @Transactional

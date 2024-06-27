@@ -9,5 +9,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface SessionRepository extends JpaRepository<Session, Long> {
     List<Session> findAllByGeneration(Generation generation);
 
-    List<Session> findAllByGenerationAndCsEducation(Generation generation, CSEducation csEducation);
+    List<Session> findAllByGenerationAndSessionContentsCsEducation(Generation generation, CSEducation csEducation);
 }

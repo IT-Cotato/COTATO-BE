@@ -22,6 +22,7 @@ public class SwaggerConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .addServersItem(new Server().url("http://localhost:8080").description("Local Server"))
+                .addServersItem(new Server().url("http://43.201.196.189:8082").description("Staging Server"))
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components(new Components().addSecuritySchemes("bearerAuth",
                         new SecurityScheme()

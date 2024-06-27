@@ -1,6 +1,7 @@
 package org.cotato.csquiz.api.session.dto;
 
 import org.cotato.csquiz.domain.generation.enums.CSEducation;
+import org.cotato.csquiz.domain.generation.enums.DevTalk;
 import org.cotato.csquiz.domain.generation.enums.ItIssue;
 import org.cotato.csquiz.domain.generation.enums.Networking;
 import jakarta.validation.constraints.NotNull;
@@ -11,9 +12,12 @@ public record AddSessionRequest(
         Long generationId,
         MultipartFile sessionImage,
         @NotNull
+        String title,
+        @NotNull
         String description,
         ItIssue itIssue,
         Networking networking,
-        CSEducation csEducation
+        CSEducation csEducation,
+        DevTalk devTalk
 ) {
 }
