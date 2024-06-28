@@ -12,6 +12,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,6 +40,9 @@ public class Session extends BaseTimeEntity {
 
     @Column(name = "session_title", length = 100)
     private String title;
+
+    @OneToMany(mappedBy = "session", orphanRemoval = true)
+    private List<SessionPhoto> sessionPhotos = new ArrayList<>();
 
     @Embedded
     private S3Info photoS3Info;
