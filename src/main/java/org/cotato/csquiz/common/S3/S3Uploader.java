@@ -102,10 +102,10 @@ public class S3Uploader {
 
     private String extractFileExtension(MultipartFile file) throws ImageException {
         String originalFilename = file.getOriginalFilename();
-        if (originalFilename != null && originalFilename.contains(".")) {
-            return originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
+        if (originalFilename == null || !originalFilename.contains(".")) {
+            throw new ImageException(ErrorCode.IMAGE_PROCESSING_FAIL);
         }
 
-        throw new ImageException(ErrorCode.IMAGE_PROCESSING_FAIL);
+        return originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
     }
 }
