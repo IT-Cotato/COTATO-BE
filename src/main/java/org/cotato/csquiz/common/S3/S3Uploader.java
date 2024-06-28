@@ -78,7 +78,9 @@ public class S3Uploader {
     }
 
     private Optional<File> convert(MultipartFile file) throws ImageException {
-        File convertFile = new File(System.getProperty("user.dir") + "/" + UUID.randomUUID());
+        String fileExtension = extractFileExtension(file);
+
+        File convertFile = new File(System.getProperty("user.dir") + "/" + UUID.randomUUID() + "." + fileExtension);
         log.info("converted file name: {}", convertFile.getName());
 
         try {
@@ -96,5 +98,14 @@ public class S3Uploader {
         }
         log.info("convert empty");
         return Optional.empty();
+    }
+
+    private String extractFileExtension(MultipartFile file) {
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename != null && originalFilename.contains(".")) {
+            return originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
+        }
+
+        return "";
     }
 }
