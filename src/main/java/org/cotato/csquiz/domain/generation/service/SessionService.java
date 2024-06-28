@@ -4,6 +4,9 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.cotato.csquiz.api.session.dto.AddSessionPhotoResponse;
+import org.cotato.csquiz.api.session.dto.UpdateSessionPhotoOrderRequest;
+import org.cotato.csquiz.api.session.dto.AddSessionPhotoRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionResponse;
 import org.cotato.csquiz.api.session.dto.CsEducationOnSessionNumberResponse;
@@ -16,12 +19,14 @@ import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.domain.education.entity.Education;
 import org.cotato.csquiz.domain.education.service.EducationService;
 import org.cotato.csquiz.domain.generation.embedded.SessionContents;
+import org.cotato.csquiz.domain.generation.entity.SessionPhoto;
 import org.cotato.csquiz.domain.generation.enums.CSEducation;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.common.error.exception.ImageException;
 import org.cotato.csquiz.common.S3.S3Uploader;
 import org.cotato.csquiz.domain.generation.repository.GenerationRepository;
+import org.cotato.csquiz.domain.generation.repository.SessionPhotoRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +41,7 @@ public class SessionService {
     private static final String SESSION_BUCKET_DIRECTORY = "session";
     private final SessionRepository sessionRepository;
     private final GenerationRepository generationRepository;
+    private final SessionPhotoRepository sessionPhotoRepository;
     private final EducationService educationService;
     private final S3Uploader s3Uploader;
 
@@ -110,6 +116,29 @@ public class SessionService {
     public void updateSessionPhoto(UpdateSessionPhotoRequest request) throws ImageException {
         Session session = findSessionById(request.sessionId());
         updatePhoto(session, request.sessionImage());
+    }
+
+    @Transactional
+    public AddSessionPhotoResponse additionalSessionPhoto(AddSessionPhotoRequest request) throws ImageException {
+        Session session = findSessionById(request.sessionId());
+
+        S3Info imageInfo = s3Uploader.uploadFiles(request.sessionImage(), "session");
+
+        Integer imageOrder = sessionPhotoRepository.findFirstBySessionOrderByOrderDesc(session)
+                .map(sessionPhoto -> sessionPhoto.getOrder() + 1).orElse(1);
+
+        SessionPhoto sessionPhoto = SessionPhoto.builder()
+                .session(session)
+                .s3Info(imageInfo)
+                .order(imageOrder)
+                .build();
+
+        return AddSessionPhotoResponse.from(sessionPhotoRepository.save(sessionPhoto));
+    }
+
+    @Transactional
+    public void updateSessionPhotoOrder(UpdateSessionPhotoOrderRequest request) {
+
     }
 
     private void updatePhoto(Session session, MultipartFile sessionImage) throws ImageException {

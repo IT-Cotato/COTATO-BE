@@ -4,6 +4,8 @@ import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.cotato.csquiz.api.session.dto.AddSessionPhotoRequest;
+import org.cotato.csquiz.api.session.dto.AddSessionPhotoResponse;
 import org.cotato.csquiz.api.session.dto.AddSessionRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionResponse;
 import org.cotato.csquiz.api.session.dto.CsEducationOnSessionNumberResponse;
@@ -68,6 +70,13 @@ public class SessionController {
             throws ImageException {
         sessionService.updateSessionPhoto(request);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(value = "/add/photo", consumes = "multipart/form-data")
+    public ResponseEntity<AddSessionPhotoResponse> additionalSessionPhoto(@ModelAttribute @Valid AddSessionPhotoRequest request)
+            throws ImageException {
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(sessionService.additionalSessionPhoto(request));
     }
 
     @GetMapping("/cs-on")
