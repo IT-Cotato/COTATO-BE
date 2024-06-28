@@ -12,6 +12,7 @@ import org.cotato.csquiz.api.session.dto.CsEducationOnSessionNumberResponse;
 import org.cotato.csquiz.api.session.dto.SessionListResponse;
 import org.cotato.csquiz.api.session.dto.UpdateSessionDescriptionRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionNumberRequest;
+import org.cotato.csquiz.api.session.dto.UpdateSessionPhotoOrderRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionPhotoRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionRequest;
 import org.cotato.csquiz.domain.generation.service.SessionService;
