@@ -154,11 +154,19 @@ public class SessionService {
         }
 
         Map<Long, UpdateSessionPhotoOrderInfoRequest> orderMap = orderList.stream()
+                .filter(orderInfo -> isOrderValid(orderInfo,savedPhotos.size()))
                 .collect(Collectors.toMap(UpdateSessionPhotoOrderInfoRequest::photoId, Function.identity()));
 
         savedPhotos.forEach(sessionPhoto -> {
             updatePhotoOrder(sessionPhoto, orderMap);
         });
+    }
+
+    private boolean isOrderValid(UpdateSessionPhotoOrderInfoRequest orderInfo, int totalSize) {
+        if (orderInfo.order() < 1 || orderInfo.order() > totalSize) {
+            throw new AppException(ErrorCode.SESSION_ORDER_INVALID);
+        }
+        return true;
     }
 
     private static void updatePhotoOrder(SessionPhoto sessionPhoto, Map<Long, UpdateSessionPhotoOrderInfoRequest> orderMap) {

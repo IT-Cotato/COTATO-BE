@@ -74,7 +74,7 @@ public class SessionController {
     }
 
     @PatchMapping("/update/photo/order")
-    public ResponseEntity<Void> updateSessionPhotoOrder(UpdateSessionPhotoOrderRequest request) {
+    public ResponseEntity<Void> updateSessionPhotoOrder(@RequestBody UpdateSessionPhotoOrderRequest request) {
         sessionService.updateSessionPhotoOrder(request);
         return ResponseEntity.noContent().build();
     }
