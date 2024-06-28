@@ -100,12 +100,12 @@ public class S3Uploader {
         return Optional.empty();
     }
 
-    private String extractFileExtension(MultipartFile file) {
+    private String extractFileExtension(MultipartFile file) throws ImageException {
         String originalFilename = file.getOriginalFilename();
         if (originalFilename != null && originalFilename.contains(".")) {
             return originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
         }
 
-        return "";
+        throw new ImageException(ErrorCode.IMAGE_PROCESSING_FAIL);
     }
 }
