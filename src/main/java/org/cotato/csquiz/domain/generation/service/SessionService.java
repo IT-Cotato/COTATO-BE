@@ -2,9 +2,13 @@ package org.cotato.csquiz.domain.generation.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.session.dto.AddSessionPhotoResponse;
+import org.cotato.csquiz.api.session.dto.UpdateSessionPhotoOrderInfoRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionPhotoOrderRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionPhotoRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionRequest;
@@ -16,6 +20,8 @@ import org.cotato.csquiz.api.session.dto.UpdateSessionNumberRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionPhotoRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionRequest;
 import org.cotato.csquiz.common.entity.S3Info;
+import org.cotato.csquiz.common.error.ErrorCode;
+import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.education.entity.Education;
 import org.cotato.csquiz.domain.education.service.EducationService;
 import org.cotato.csquiz.domain.generation.embedded.SessionContents;
@@ -138,7 +144,30 @@ public class SessionService {
 
     @Transactional
     public void updateSessionPhotoOrder(UpdateSessionPhotoOrderRequest request) {
+        Session session = findSessionById(request.sessionId());
+        List<UpdateSessionPhotoOrderInfoRequest> orderList = request.orderInfos();
 
+        List<SessionPhoto> savedPhotos = sessionPhotoRepository.findAllBySession(session);
+
+        if (savedPhotos.size() != orderList.size()) {
+            throw new AppException(ErrorCode.SESSION_PHOTO_COUNT_MISMATCH);
+        }
+
+        Map<Long, UpdateSessionPhotoOrderInfoRequest> orderMap = orderList.stream()
+                .collect(Collectors.toMap(UpdateSessionPhotoOrderInfoRequest::photoId, Function.identity()));
+
+        savedPhotos.forEach(sessionPhoto -> {
+            updatePhotoOrder(sessionPhoto, orderMap);
+        });
+    }
+
+    private static void updatePhotoOrder(SessionPhoto sessionPhoto, Map<Long, UpdateSessionPhotoOrderInfoRequest> orderMap) {
+        UpdateSessionPhotoOrderInfoRequest orderInfo = orderMap.get(sessionPhoto.getId());
+
+        if (orderInfo == null) {
+            throw new AppException(ErrorCode.SESSION_PHOTO_NOT_EXIST);
+        }
+        sessionPhoto.updateOrder(orderInfo.order());
     }
 
     private void updatePhoto(Session session, MultipartFile sessionImage) throws ImageException {

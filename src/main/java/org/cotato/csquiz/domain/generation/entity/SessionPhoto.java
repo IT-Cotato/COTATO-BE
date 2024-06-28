@@ -43,4 +43,8 @@ public class SessionPhoto extends BaseTimeEntity {
         this.order = order;
         this.s3Info = s3Info;
     }
+
+    public void updateOrder(Integer order) {
+        this.order = order;
+    }
 }

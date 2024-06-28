@@ -1,11 +1,9 @@
 package org.cotato.csquiz.api.session.dto;
 
-import jakarta.validation.constraints.NotNull;
+import java.util.List;
 
 public record UpdateSessionPhotoOrderRequest(
-        @NotNull
-        Long photoId,
-        @NotNull
-        Integer order
+        Long sessionId,
+        List<UpdateSessionPhotoOrderInfoRequest> orderInfos
 ) {
 }

@@ -73,10 +73,15 @@ public class SessionController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/update/photo/order")
+    public ResponseEntity<Void> updateSessionPhotoOrder(UpdateSessionPhotoOrderRequest request) {
+        sessionService.updateSessionPhotoOrder(request);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping(value = "/add/photo", consumes = "multipart/form-data")
     public ResponseEntity<AddSessionPhotoResponse> additionalSessionPhoto(@ModelAttribute @Valid AddSessionPhotoRequest request)
             throws ImageException {
-
         return ResponseEntity.status(HttpStatus.CREATED).body(sessionService.additionalSessionPhoto(request));
     }
 
