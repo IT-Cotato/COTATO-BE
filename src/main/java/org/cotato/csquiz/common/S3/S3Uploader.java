@@ -1,11 +1,12 @@
 package org.cotato.csquiz.common.S3;
 
+import static org.cotato.csquiz.common.util.FileUtil.checkAllowedImageFileExtension;
+import static org.cotato.csquiz.common.util.FileUtil.extractFileExtension;
+
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import java.util.List;
-import java.util.Objects;
 import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.ImageException;
@@ -79,6 +80,7 @@ public class S3Uploader {
 
     private Optional<File> convert(MultipartFile file) throws ImageException {
         String fileExtension = extractFileExtension(file);
+        checkAllowedImageFileExtension(fileExtension);
 
         File convertFile = new File(System.getProperty("user.dir") + "/" + UUID.randomUUID() + "." + fileExtension);
         log.info("converted file name: {}", convertFile.getName());
@@ -98,14 +100,5 @@ public class S3Uploader {
         }
         log.info("convert empty");
         return Optional.empty();
-    }
-
-    private String extractFileExtension(MultipartFile file) throws ImageException {
-        String originalFilename = file.getOriginalFilename();
-        if (originalFilename == null || !originalFilename.contains(".")) {
-            throw new ImageException(ErrorCode.IMAGE_PROCESSING_FAIL);
-        }
-
-        return originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
     }
 }
