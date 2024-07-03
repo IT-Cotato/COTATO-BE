@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.session.dto.AddSessionPhotoResponse;
+import org.cotato.csquiz.api.session.dto.DeleteSessionPhotoRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionPhotoOrderInfoRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionPhotoOrderRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionPhotoRequest;
@@ -140,6 +141,14 @@ public class SessionService {
                 .build();
 
         return AddSessionPhotoResponse.from(sessionPhotoRepository.save(sessionPhoto));
+    }
+
+    @Transactional
+    public void deleteSessionPhoto(DeleteSessionPhotoRequest request) {
+        SessionPhoto sessionPhoto = sessionPhotoRepository.findById(request.photoId())
+                .orElseThrow(() -> new EntityNotFoundException("해당 사진을 찾을 수 없습니다."));
+        s3Uploader.deleteFile(sessionPhoto.getS3Info());
+        sessionPhotoRepository.delete(sessionPhoto);
     }
 
     @Transactional

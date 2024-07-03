@@ -9,6 +9,7 @@ import org.cotato.csquiz.api.session.dto.AddSessionPhotoResponse;
 import org.cotato.csquiz.api.session.dto.AddSessionRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionResponse;
 import org.cotato.csquiz.api.session.dto.CsEducationOnSessionNumberResponse;
+import org.cotato.csquiz.api.session.dto.DeleteSessionPhotoRequest;
 import org.cotato.csquiz.api.session.dto.SessionListResponse;
 import org.cotato.csquiz.api.session.dto.UpdateSessionDescriptionRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionNumberRequest;
@@ -19,6 +20,7 @@ import org.cotato.csquiz.domain.generation.service.SessionService;
 import org.cotato.csquiz.common.error.exception.ImageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -83,6 +85,12 @@ public class SessionController {
     public ResponseEntity<AddSessionPhotoResponse> additionalSessionPhoto(@ModelAttribute @Valid AddSessionPhotoRequest request)
             throws ImageException {
         return ResponseEntity.status(HttpStatus.CREATED).body(sessionService.additionalSessionPhoto(request));
+    }
+
+    @DeleteMapping(value = "/delete/photo")
+    public ResponseEntity<Void> deleteSessionPhoto(@RequestBody DeleteSessionPhotoRequest request) {
+        sessionService.deleteSessionPhoto(request);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/cs-on")
