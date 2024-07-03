@@ -121,7 +121,7 @@ public class SessionService {
     }
 
     @Transactional
-    public void updateSession(UpdateSessionRequest request) throws ImageException {
+    public void updateSession(UpdateSessionRequest request) {
         Session session = findSessionById(request.sessionId());
 
         session.updateDescription(request.description());
@@ -132,9 +132,6 @@ public class SessionService {
                 .itIssue(request.itIssue())
                 .networking(request.networking())
                 .build());
-        if (request.isPhotoUpdated()) {
-            updatePhoto(session, request.sessionImage());
-        }
 
         sessionRepository.save(session);
     }
