@@ -68,7 +68,7 @@ public class S3Uploader {
         if (targetFile.delete()) {
             log.info("삭제 완료");
         } else {
-            log.info("삭제 에러");
+            log.error("삭제 에러");
         }
     }
 

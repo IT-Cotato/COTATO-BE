@@ -39,7 +39,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ErrorResponse> handleImageException(ImageException e, HttpServletRequest request) {
         log.error("이미지 처리 실패 예외 발생: {}", e.getErrorCode().getMessage());
         log.error("에러가 발생한 지점 {}, {}", request.getMethod(), request.getRequestURI());
-        ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.IMAGE_PROCESSING_FAIL, request);
+        ErrorResponse errorResponse = ErrorResponse.of(e.getErrorCode(), request);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 
