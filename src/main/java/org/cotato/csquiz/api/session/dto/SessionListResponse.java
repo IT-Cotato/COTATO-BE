@@ -1,5 +1,6 @@
 package org.cotato.csquiz.api.session.dto;
 
+import java.util.List;
 import org.cotato.csquiz.domain.generation.embedded.SessionContents;
 import org.cotato.csquiz.domain.generation.entity.Session;
 
@@ -7,7 +8,7 @@ public record SessionListResponse(
         Long sessionId,
         Integer sessionNumber,
         String title,
-        String photoUrl,
+        List<SessionListPhotoInfoResponse> photoInfos,
         String description,
         Long generationId,
         SessionContents sessionContents
@@ -17,7 +18,7 @@ public record SessionListResponse(
                 session.getId(),
                 session.getNumber(),
                 session.getTitle(),
-                (session.getPhotoS3Info() != null) ? session.getPhotoS3Info().getUrl() : null,
+                SessionListPhotoInfoResponse.from(session.getSessionPhotos()),
                 session.getDescription(),
                 session.getGeneration().getId(),
                 session.getSessionContents()

@@ -10,10 +10,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.cotato.csquiz.api.session.dto.SessionListPhotoInfoResponse;
 import org.cotato.csquiz.common.entity.BaseTimeEntity;
 import org.cotato.csquiz.common.entity.S3Info;
 

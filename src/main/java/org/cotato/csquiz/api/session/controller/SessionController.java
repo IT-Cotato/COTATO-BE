@@ -40,6 +40,7 @@ public class SessionController {
 
     private final SessionService sessionService;
 
+    @Operation(summary = "Session 리스트 정보 얻기", description = "Get Session Infos")
     @GetMapping("")
     public ResponseEntity<List<SessionListResponse>> findSessionsByGenerationId(@RequestParam Long generationId) {
         return ResponseEntity.status(HttpStatus.OK).body(sessionService.findSessionsByGenerationId(generationId));
