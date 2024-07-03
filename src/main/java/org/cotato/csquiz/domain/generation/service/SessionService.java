@@ -3,6 +3,8 @@ package org.cotato.csquiz.domain.generation.service;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -53,11 +55,7 @@ public class SessionService {
     private final S3Uploader s3Uploader;
 
     @Transactional
-    public AddSessionResponse addSession(AddSessionRequest request) throws ImageException {
-        S3Info s3Info = null;
-        if (isImageExist(request.sessionImage())) {
-            s3Info = s3Uploader.uploadFiles(request.sessionImage(), SESSION_BUCKET_DIRECTORY);
-        }
+    public AddSessionResponse addSession(AddSessionRequest request) {
         Generation findGeneration = generationRepository.findById(request.generationId())
                 .orElseThrow(() -> new EntityNotFoundException("해당 기수를 찾을 수 없습니다."));
 
@@ -65,7 +63,6 @@ public class SessionService {
         log.info("해당 기수에 추가된 마지막 세션 : {}", sessionNumber);
         Session session = Session.builder()
                 .number(sessionNumber + 1)
-                .s3Info(s3Info)
                 .description(request.description())
                 .generation(findGeneration)
                 .title(request.title())
@@ -79,7 +76,30 @@ public class SessionService {
         Session savedSession = sessionRepository.save(session);
         log.info("세션 생성 완료");
 
+        AtomicInteger index = new AtomicInteger(1);
+        List<SessionPhoto> sessionPhotos = request.sessionImages().stream()
+                .map(this::uploadFile)
+                .filter(Objects::nonNull)
+                .map(s3Info -> SessionPhoto.builder()
+                        .session(savedSession)
+                        .s3Info(s3Info)
+                        .order(index.getAndIncrement())
+                        .build())
+                .toList();
+
+        sessionPhotoRepository.saveAll(sessionPhotos);
+        log.info("세션 이미지 생성 완료");
+
         return AddSessionResponse.from(savedSession);
+    }
+
+    private S3Info uploadFile(MultipartFile file) {
+        try {
+            return s3Uploader.uploadFiles(file, SESSION_BUCKET_DIRECTORY);
+        } catch (ImageException e) {
+            log.error("이미지 업로드 문제 발생" + e.getMessage());
+        }
+        return null;
     }
 
     private int calculateLastSessionNumber(Generation generation) {
