@@ -5,11 +5,8 @@ import org.cotato.csquiz.domain.generation.entity.SessionPhoto;
 import org.springframework.web.multipart.MultipartFile;
 
 public record AddSessionPhotoResponse(
-        @NotNull
         Long photoId,
-        @NotNull
         String photoUrl,
-        @NotNull
         Integer order
 ) {
         public static AddSessionPhotoResponse from(SessionPhoto sessionPhoto) {

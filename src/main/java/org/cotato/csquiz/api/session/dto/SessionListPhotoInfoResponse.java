@@ -5,11 +5,8 @@ import java.util.List;
 import org.cotato.csquiz.domain.generation.entity.SessionPhoto;
 
 public record SessionListPhotoInfoResponse(
-        @NotNull
         Long photoId,
-        @NotNull
         String photoUrl,
-        @NotNull
         Integer order
 ) {
         public static SessionListPhotoInfoResponse from(SessionPhoto sessionPhoto) {
