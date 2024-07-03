@@ -165,10 +165,14 @@ public class SessionService {
 
     @Transactional
     public void deleteSessionPhoto(DeleteSessionPhotoRequest request) {
-        SessionPhoto sessionPhoto = sessionPhotoRepository.findById(request.photoId())
+        SessionPhoto deletePhoto = sessionPhotoRepository.findById(request.photoId())
                 .orElseThrow(() -> new EntityNotFoundException("해당 사진을 찾을 수 없습니다."));
-        s3Uploader.deleteFile(sessionPhoto.getS3Info());
-        sessionPhotoRepository.delete(sessionPhoto);
+        s3Uploader.deleteFile(deletePhoto.getS3Info());
+        sessionPhotoRepository.delete(deletePhoto);
+
+        sessionPhotoRepository.findAllBySession(deletePhoto.getSession()).stream()
+                .filter(photo -> photo.getOrder() > deletePhoto.getOrder())
+                .forEach(SessionPhoto::decreaseOrder);
     }
 
     @Transactional

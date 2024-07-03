@@ -1,5 +1,7 @@
 package org.cotato.csquiz.api.session.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -43,9 +45,9 @@ public class SessionController {
         return ResponseEntity.status(HttpStatus.OK).body(sessionService.findSessionsByGenerationId(generationId));
     }
 
+    @Operation(summary = "Session 추가하기", description = "세션 추가하기")
     @PostMapping(value = "/add", consumes = "multipart/form-data")
-    public ResponseEntity<AddSessionResponse> addSession(@ModelAttribute @Valid AddSessionRequest request)
-            throws ImageException {
+    public ResponseEntity<AddSessionResponse> addSession(@ModelAttribute @Valid AddSessionRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(sessionService.addSession(request));
     }
 
@@ -75,18 +77,21 @@ public class SessionController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Session 사진 순서 수정", description = "세션 사진 순서 바꾸기")
     @PatchMapping("/update/photo/order")
     public ResponseEntity<Void> updateSessionPhotoOrder(@RequestBody UpdateSessionPhotoOrderRequest request) {
         sessionService.updateSessionPhotoOrder(request);
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Session 수정 - 사진 추가하기", description = "세션 수정 시 사진 추가하기, photoId 반환")
     @PostMapping(value = "/add/photo", consumes = "multipart/form-data")
     public ResponseEntity<AddSessionPhotoResponse> additionalSessionPhoto(@ModelAttribute @Valid AddSessionPhotoRequest request)
             throws ImageException {
         return ResponseEntity.status(HttpStatus.CREATED).body(sessionService.additionalSessionPhoto(request));
     }
 
+    @Operation(summary = "Session 수정 - 사진 삭제하기", description = "사진 삭제하기")
     @DeleteMapping(value = "/delete/photo")
     public ResponseEntity<Void> deleteSessionPhoto(@RequestBody DeleteSessionPhotoRequest request) {
         sessionService.deleteSessionPhoto(request);

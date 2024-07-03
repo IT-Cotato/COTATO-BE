@@ -47,4 +47,8 @@ public class SessionPhoto extends BaseTimeEntity {
     public void updateOrder(Integer order) {
         this.order = order;
     }
+
+    public void decreaseOrder() {
+        this.order--;
+    }
 }
