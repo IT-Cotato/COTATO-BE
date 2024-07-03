@@ -7,7 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class FileUtil {
 
-    private static final String[] ALLOWED_IMAGE_FILE_EXTENSIONS = {"png", "jpg", "jpeg", "HEIC"};
+    private static final String[] ALLOWED_IMAGE_FILE_EXTENSIONS = {"png", "jpg", "jpeg", "heif"};
 
     public static String extractFileExtension(MultipartFile file) throws ImageException {
         String originalFilename = file.getOriginalFilename();
