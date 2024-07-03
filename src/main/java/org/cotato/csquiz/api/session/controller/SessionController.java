@@ -77,7 +77,7 @@ public class SessionController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Session 사진 순서 수정", description = "세션 사진 순서 바꾸기")
+    @Operation(summary = "Session 수정 - 사진 순서", description = "세션 사진 순서 바꾸기")
     @PatchMapping("/update/photo/order")
     public ResponseEntity<Void> updateSessionPhotoOrder(@RequestBody UpdateSessionPhotoOrderRequest request) {
         sessionService.updateSessionPhotoOrder(request);

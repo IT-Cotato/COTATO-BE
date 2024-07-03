@@ -6,9 +6,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 public record AddSessionPhotoResponse(
         @NotNull
-        Long photoId
+        Long photoId,
+        @NotNull
+        String photoUrl,
+        @NotNull
+        Integer order
 ) {
         public static AddSessionPhotoResponse from(SessionPhoto sessionPhoto) {
-                return new AddSessionPhotoResponse(sessionPhoto.getId());
+                return new AddSessionPhotoResponse(sessionPhoto.getId(),
+                        sessionPhoto.getS3Info().getUrl(),
+                        sessionPhoto.getOrder());
         }
 }
