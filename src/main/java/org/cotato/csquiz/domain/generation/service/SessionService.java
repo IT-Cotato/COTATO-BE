@@ -79,19 +79,21 @@ public class SessionService {
 
         if (request.photos() != null && !request.photos().isEmpty()) {
             AtomicInteger index = new AtomicInteger(0);
+
             List<SessionPhoto> sessionPhotos = new ArrayList<>();
+
             for (MultipartFile photoFile : request.photos()) {
                 S3Info s3Info = s3Uploader.uploadFiles(photoFile, SESSION_BUCKET_DIRECTORY);
-                if (s3Info != null) {
-                    SessionPhoto sessionPhoto = SessionPhoto.builder()
-                            .session(savedSession)
-                            .s3Info(s3Info)
-                            .order(index.getAndIncrement())
-                            .build();
 
-                    sessionPhotos.add(sessionPhoto);
-                }
+                SessionPhoto sessionPhoto = SessionPhoto.builder()
+                        .session(savedSession)
+                        .s3Info(s3Info)
+                        .order(index.getAndIncrement())
+                        .build();
+
+                sessionPhotos.add(sessionPhoto);
             }
+
             sessionPhotoRepository.saveAll(sessionPhotos);
             log.info("세션 이미지 생성 완료");
         }
@@ -131,7 +133,7 @@ public class SessionService {
     public AddSessionPhotoResponse additionalSessionPhoto(AddSessionPhotoRequest request) throws ImageException {
         Session session = findSessionById(request.sessionId());
 
-        S3Info imageInfo = s3Uploader.uploadFiles(request.photo(), "session");
+        S3Info imageInfo = s3Uploader.uploadFiles(request.photo(), SESSION_BUCKET_DIRECTORY);
 
         Integer imageOrder = sessionPhotoRepository.findFirstBySessionOrderByOrderDesc(session)
                 .map(sessionPhoto -> sessionPhoto.getOrder() + 1).orElse(0);
@@ -176,7 +178,9 @@ public class SessionService {
             throw new AppException(ErrorCode.SESSION_ORDER_INVALID);
         }
 
-        checkOrderUnique(orderList);
+        if (!checkOrderUnique(orderList)) {
+            throw new AppException(ErrorCode.SESSION_ORDER_INVALID);
+        }
 
         Map<Long, UpdateSessionPhotoOrderInfoRequest> orderMap = orderList.stream()
                 .collect(Collectors.toMap(UpdateSessionPhotoOrderInfoRequest::photoId, Function.identity()));
@@ -194,13 +198,15 @@ public class SessionService {
                 orderInfo.order() < 0 || orderInfo.order() >= orderList.size());
     }
 
-    private void checkOrderUnique(List<UpdateSessionPhotoOrderInfoRequest> orderList) {
+    private boolean checkOrderUnique(List<UpdateSessionPhotoOrderInfoRequest> orderList) {
         Set<Integer> uniqueOrders = new HashSet<>();
         for (UpdateSessionPhotoOrderInfoRequest orderInfo : orderList) {
             if (!uniqueOrders.add(orderInfo.order())) {
-                throw new AppException(ErrorCode.SESSION_ORDER_INVALID);
+                return false;
             }
         }
+
+        return true;
     }
 
     public List<SessionListResponse> findSessionsByGenerationId(Long generationId) {
