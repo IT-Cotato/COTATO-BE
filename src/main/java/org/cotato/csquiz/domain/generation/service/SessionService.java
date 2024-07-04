@@ -206,24 +206,6 @@ public class SessionService {
         sessionPhoto.updateOrder(orderInfo.order());
     }
 
-    private void updatePhoto(Session session, MultipartFile sessionImage) throws ImageException {
-        if (isImageExist(sessionImage)) {
-            S3Info s3Info = s3Uploader.uploadFiles(sessionImage, SESSION_BUCKET_DIRECTORY);
-            deleteOldImage(session);
-            session.changePhotoUrl(s3Info);
-        }
-        if (!isImageExist(sessionImage)) {
-            deleteOldImage(session);
-            session.changePhotoUrl(null);
-        }
-    }
-
-    private void deleteOldImage(Session session) {
-        if (session.getPhotoS3Info() != null) {
-            s3Uploader.deleteFile(session.getPhotoS3Info());
-        }
-    }
-
     public List<SessionListResponse> findSessionsByGenerationId(Long generationId) {
         Generation generation = generationRepository.findById(generationId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 기수를 찾을 수 없습니다."));
@@ -253,9 +235,5 @@ public class SessionService {
                 .filter(session -> !educationLinkedSessionIds.contains(session.getId()))
                 .map(CsEducationOnSessionNumberResponse::from)
                 .toList();
-    }
-
-    private boolean isImageExist(MultipartFile sessionImage) {
-        return sessionImage != null && !sessionImage.isEmpty();
     }
 }
