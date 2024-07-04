@@ -2,8 +2,10 @@ package org.cotato.csquiz.domain.generation.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -185,11 +187,22 @@ public class SessionService {
             throw new AppException(ErrorCode.SESSION_ORDER_INVALID);
         }
 
+        checkOrderUnique(orderList);
+
         Map<Long, UpdateSessionPhotoOrderInfoRequest> orderMap = orderList.stream()
                 .collect(Collectors.toMap(UpdateSessionPhotoOrderInfoRequest::photoId, Function.identity()));
 
         for (SessionPhoto savePhoto : savedPhotos) {
             updatePhotoOrder(savePhoto, orderMap);
+        }
+    }
+
+    private void checkOrderUnique(List<UpdateSessionPhotoOrderInfoRequest> orderList) {
+        Set<Integer> uniqueOrders = new HashSet<>();
+        for (UpdateSessionPhotoOrderInfoRequest orderInfo : orderList) {
+            if (!uniqueOrders.add(orderInfo.order())) {
+                throw new AppException(ErrorCode.SESSION_ORDER_INVALID);
+            }
         }
     }
 
