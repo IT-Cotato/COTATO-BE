@@ -77,18 +77,21 @@ public class SessionService {
 
         AtomicInteger index = new AtomicInteger(0);
         List<SessionPhoto> sessionPhotos = new ArrayList<>();
-        for (MultipartFile photoFile : request.photos()) {
-            S3Info s3Info = uploadFile(photoFile);
-            if (s3Info != null) {
-                SessionPhoto sessionPhoto = SessionPhoto.builder()
-                        .session(savedSession)
-                        .s3Info(s3Info)
-                        .order(index.getAndIncrement())
-                        .build();
+        if (request.photos() != null && !request.photos().isEmpty()) {
+            for (MultipartFile photoFile : request.photos()) {
+                S3Info s3Info = uploadFile(photoFile);
+                if (s3Info != null) {
+                    SessionPhoto sessionPhoto = SessionPhoto.builder()
+                            .session(savedSession)
+                            .s3Info(s3Info)
+                            .order(index.getAndIncrement())
+                            .build();
 
-                sessionPhotos.add(sessionPhoto);
+                    sessionPhotos.add(sessionPhoto);
+                }
             }
         }
+
 
         sessionPhotoRepository.saveAll(sessionPhotos);
         log.info("세션 이미지 생성 완료");
