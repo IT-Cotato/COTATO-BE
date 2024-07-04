@@ -65,19 +65,6 @@ public class SessionController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/description")
-    public ResponseEntity<Void> updateSessionDescription(@RequestBody @Valid UpdateSessionDescriptionRequest request) {
-        sessionService.updateSessionDescription(request);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PatchMapping(value = "/update/photo", consumes = "multipart/form-data")
-    public ResponseEntity<Void> updateSessionPhoto(@ModelAttribute @Valid UpdateSessionPhotoRequest request)
-            throws ImageException {
-        sessionService.updateSessionPhoto(request);
-        return ResponseEntity.noContent().build();
-    }
-
     @Operation(summary = "Session 수정 - 사진 순서", description = "세션 사진 순서 바꾸기")
     @PatchMapping("/update/photo/order")
     public ResponseEntity<Void> updateSessionPhotoOrder(@RequestBody UpdateSessionPhotoOrderRequest request) {
