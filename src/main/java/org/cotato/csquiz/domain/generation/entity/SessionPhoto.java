@@ -26,13 +26,13 @@ public class SessionPhoto extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "session_image_id")
+    @Column(name = "session_photo_id")
     private Long id;
 
     @Embedded
     private S3Info s3Info;
 
-    @Column(name = "session_image_order")
+    @Column(name = "session_photo_order")
     private Integer order;
 
     @ManyToOne(fetch = LAZY)

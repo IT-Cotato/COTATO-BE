@@ -1,9 +1,9 @@
 package org.cotato.csquiz.domain.generation.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -18,9 +18,7 @@ import org.cotato.csquiz.api.session.dto.AddSessionRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionResponse;
 import org.cotato.csquiz.api.session.dto.CsEducationOnSessionNumberResponse;
 import org.cotato.csquiz.api.session.dto.SessionListResponse;
-import org.cotato.csquiz.api.session.dto.UpdateSessionDescriptionRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionNumberRequest;
-import org.cotato.csquiz.api.session.dto.UpdateSessionPhotoRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionRequest;
 import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.common.error.ErrorCode;
@@ -61,6 +59,7 @@ public class SessionService {
 
         int sessionNumber = calculateLastSessionNumber(findGeneration);
         log.info("해당 기수에 추가된 마지막 세션 : {}", sessionNumber);
+
         Session session = Session.builder()
                 .number(sessionNumber + 1)
                 .description(request.description())
@@ -76,16 +75,20 @@ public class SessionService {
         Session savedSession = sessionRepository.save(session);
         log.info("세션 생성 완료");
 
-        AtomicInteger index = new AtomicInteger(1);
-        List<SessionPhoto> sessionPhotos = request.sessionImages().stream()
-                .map(this::uploadFile)
-                .filter(Objects::nonNull)
-                .map(s3Info -> SessionPhoto.builder()
+        AtomicInteger index = new AtomicInteger(0);
+        List<SessionPhoto> sessionPhotos = new ArrayList<>();
+        for (MultipartFile photoFile : request.photos()) {
+            S3Info s3Info = uploadFile(photoFile);
+            if (s3Info != null) {
+                SessionPhoto sessionPhoto = SessionPhoto.builder()
                         .session(savedSession)
                         .s3Info(s3Info)
                         .order(index.getAndIncrement())
-                        .build())
-                .toList();
+                        .build();
+
+                sessionPhotos.add(sessionPhoto);
+            }
+        }
 
         sessionPhotoRepository.saveAll(sessionPhotos);
         log.info("세션 이미지 생성 완료");
@@ -115,12 +118,6 @@ public class SessionService {
     }
 
     @Transactional
-    public void updateSessionDescription(UpdateSessionDescriptionRequest request) {
-        Session session = findSessionById(request.sessionId());
-        session.updateDescription(request.description());
-    }
-
-    @Transactional
     public void updateSession(UpdateSessionRequest request) {
         Session session = findSessionById(request.sessionId());
 
@@ -137,19 +134,13 @@ public class SessionService {
     }
 
     @Transactional
-    public void updateSessionPhoto(UpdateSessionPhotoRequest request) throws ImageException {
-        Session session = findSessionById(request.sessionId());
-        updatePhoto(session, request.sessionImage());
-    }
-
-    @Transactional
     public AddSessionPhotoResponse additionalSessionPhoto(AddSessionPhotoRequest request) throws ImageException {
         Session session = findSessionById(request.sessionId());
 
-        S3Info imageInfo = s3Uploader.uploadFiles(request.sessionImage(), "session");
+        S3Info imageInfo = s3Uploader.uploadFiles(request.photo(), "session");
 
         Integer imageOrder = sessionPhotoRepository.findFirstBySessionOrderByOrderDesc(session)
-                .map(sessionPhoto -> sessionPhoto.getOrder() + 1).orElse(1);
+                .map(sessionPhoto -> sessionPhoto.getOrder() + 1).orElse(0);
 
         SessionPhoto sessionPhoto = SessionPhoto.builder()
                 .session(session)
@@ -167,39 +158,43 @@ public class SessionService {
         s3Uploader.deleteFile(deletePhoto.getS3Info());
         sessionPhotoRepository.delete(deletePhoto);
 
-        sessionPhotoRepository.findAllBySession(deletePhoto.getSession()).stream()
+        List<SessionPhoto> reOrderPhotos = sessionPhotoRepository.findAllBySession(deletePhoto.getSession()).stream()
                 .filter(photo -> photo.getOrder() > deletePhoto.getOrder())
-                .forEach(SessionPhoto::decreaseOrder);
+                .toList();
+
+        for (SessionPhoto sessionPhoto : reOrderPhotos) {
+            sessionPhoto.decreaseOrder();
+        }
     }
 
     @Transactional
     public void updateSessionPhotoOrder(UpdateSessionPhotoOrderRequest request) {
-        Session session = findSessionById(request.sessionId());
+        Session sessionById = findSessionById(request.sessionId());
         List<UpdateSessionPhotoOrderInfoRequest> orderList = request.orderInfos();
 
-        List<SessionPhoto> savedPhotos = sessionPhotoRepository.findAllBySession(session);
+        List<SessionPhoto> savedPhotos = sessionPhotoRepository.findAllBySession(sessionById);
 
         if (savedPhotos.size() != orderList.size()) {
             throw new AppException(ErrorCode.SESSION_PHOTO_COUNT_MISMATCH);
         }
 
+        if (orderList.stream().anyMatch(orderInfo -> !isOrderValid(orderInfo, savedPhotos.size()))) {
+            throw new AppException(ErrorCode.SESSION_ORDER_INVALID);
+        }
+
         Map<Long, UpdateSessionPhotoOrderInfoRequest> orderMap = orderList.stream()
-                .filter(orderInfo -> isOrderValid(orderInfo,savedPhotos.size()))
                 .collect(Collectors.toMap(UpdateSessionPhotoOrderInfoRequest::photoId, Function.identity()));
 
-        savedPhotos.forEach(sessionPhoto -> {
-            updatePhotoOrder(sessionPhoto, orderMap);
-        });
+        for (SessionPhoto savePhoto : savedPhotos) {
+            updatePhotoOrder(savePhoto, orderMap);
+        }
     }
 
     private boolean isOrderValid(UpdateSessionPhotoOrderInfoRequest orderInfo, int totalSize) {
-        if (orderInfo.order() < 1 || orderInfo.order() > totalSize) {
-            throw new AppException(ErrorCode.SESSION_ORDER_INVALID);
-        }
-        return true;
+        return orderInfo.order() >= 0 && orderInfo.order() < totalSize;
     }
 
-    private static void updatePhotoOrder(SessionPhoto sessionPhoto, Map<Long, UpdateSessionPhotoOrderInfoRequest> orderMap) {
+    private void updatePhotoOrder(SessionPhoto sessionPhoto, Map<Long, UpdateSessionPhotoOrderInfoRequest> orderMap) {
         UpdateSessionPhotoOrderInfoRequest orderInfo = orderMap.get(sessionPhoto.getId());
 
         if (orderInfo == null) {

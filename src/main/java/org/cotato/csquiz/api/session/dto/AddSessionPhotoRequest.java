@@ -8,6 +8,6 @@ public record AddSessionPhotoRequest(
         @NotNull
         Long sessionId,
         @NotNull
-        MultipartFile sessionImage
+        MultipartFile photo
 ) {
 }
