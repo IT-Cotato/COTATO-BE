@@ -55,7 +55,7 @@ public class SessionService {
     private final S3Uploader s3Uploader;
 
     @Transactional
-    public AddSessionResponse addSession(AddSessionRequest request) {
+    public AddSessionResponse addSession(AddSessionRequest request) throws ImageException {
         Generation findGeneration = generationRepository.findById(request.generationId())
                 .orElseThrow(() -> new EntityNotFoundException("해당 기수를 찾을 수 없습니다."));
 
@@ -77,11 +77,11 @@ public class SessionService {
         Session savedSession = sessionRepository.save(session);
         log.info("세션 생성 완료");
 
-        AtomicInteger index = new AtomicInteger(0);
-        List<SessionPhoto> sessionPhotos = new ArrayList<>();
         if (request.photos() != null && !request.photos().isEmpty()) {
+            AtomicInteger index = new AtomicInteger(0);
+            List<SessionPhoto> sessionPhotos = new ArrayList<>();
             for (MultipartFile photoFile : request.photos()) {
-                S3Info s3Info = uploadFile(photoFile);
+                S3Info s3Info = s3Uploader.uploadFiles(photoFile, SESSION_BUCKET_DIRECTORY);
                 if (s3Info != null) {
                     SessionPhoto sessionPhoto = SessionPhoto.builder()
                             .session(savedSession)
@@ -92,22 +92,11 @@ public class SessionService {
                     sessionPhotos.add(sessionPhoto);
                 }
             }
+            sessionPhotoRepository.saveAll(sessionPhotos);
+            log.info("세션 이미지 생성 완료");
         }
-
-
-        sessionPhotoRepository.saveAll(sessionPhotos);
-        log.info("세션 이미지 생성 완료");
 
         return AddSessionResponse.from(savedSession);
-    }
-
-    private S3Info uploadFile(MultipartFile file) {
-        try {
-            return s3Uploader.uploadFiles(file, SESSION_BUCKET_DIRECTORY);
-        } catch (ImageException e) {
-            log.error("이미지 업로드 문제 발생" + e.getMessage());
-        }
-        return null;
     }
 
     private int calculateLastSessionNumber(Generation generation) {
@@ -183,7 +172,7 @@ public class SessionService {
             throw new AppException(ErrorCode.SESSION_PHOTO_COUNT_MISMATCH);
         }
 
-        if (orderList.stream().anyMatch(orderInfo -> !isOrderValid(orderInfo, savedPhotos.size()))) {
+        if (checkValidOrderRange(orderList)) {
             throw new AppException(ErrorCode.SESSION_ORDER_INVALID);
         }
 
@@ -192,9 +181,17 @@ public class SessionService {
         Map<Long, UpdateSessionPhotoOrderInfoRequest> orderMap = orderList.stream()
                 .collect(Collectors.toMap(UpdateSessionPhotoOrderInfoRequest::photoId, Function.identity()));
 
-        for (SessionPhoto savePhoto : savedPhotos) {
-            updatePhotoOrder(savePhoto, orderMap);
+        for (SessionPhoto savedPhoto : savedPhotos) {
+            if (orderMap.get(savedPhoto.getId()) == null) {
+                throw new AppException(ErrorCode.SESSION_PHOTO_NOT_EXIST);
+            }
+            savedPhoto.updateOrder(orderMap.get(savedPhoto.getId()).order());
         }
+    }
+
+    private boolean checkValidOrderRange(List<UpdateSessionPhotoOrderInfoRequest> orderList) {
+        return orderList.stream().noneMatch(orderInfo ->
+                orderInfo.order() < 0 || orderInfo.order() >= orderList.size());
     }
 
     private void checkOrderUnique(List<UpdateSessionPhotoOrderInfoRequest> orderList) {
@@ -204,19 +201,6 @@ public class SessionService {
                 throw new AppException(ErrorCode.SESSION_ORDER_INVALID);
             }
         }
-    }
-
-    private boolean isOrderValid(UpdateSessionPhotoOrderInfoRequest orderInfo, int totalSize) {
-        return orderInfo.order() >= 0 && orderInfo.order() < totalSize;
-    }
-
-    private void updatePhotoOrder(SessionPhoto sessionPhoto, Map<Long, UpdateSessionPhotoOrderInfoRequest> orderMap) {
-        UpdateSessionPhotoOrderInfoRequest orderInfo = orderMap.get(sessionPhoto.getId());
-
-        if (orderInfo == null) {
-            throw new AppException(ErrorCode.SESSION_PHOTO_NOT_EXIST);
-        }
-        sessionPhoto.updateOrder(orderInfo.order());
     }
 
     public List<SessionListResponse> findSessionsByGenerationId(Long generationId) {
