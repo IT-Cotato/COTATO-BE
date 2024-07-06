@@ -38,23 +38,38 @@ public class WebSocketHandler extends TextWebSocketHandler {
     private static final String MEMBER_ID_KEY = "memberId";
     private static final String EDUCATION_ID_KEY = "educationId";
     private static final String ROLE_KEY = "role";
+    private static final CloseStatus ATTEMPT_NEW_CONNECTION = new CloseStatus(4001, "new connection request");
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final QuizRepository quizRepository;
 
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) {
+    public void afterConnectionEstablished(WebSocketSession session) throws IOException {
         String memberId = findAttributeByToken(session, MEMBER_ID_KEY);
         Long educationId = Long.parseLong(findAttributeByToken(session, EDUCATION_ID_KEY));
         String role = findAttributeByToken(session, ROLE_KEY);
         MemberRole memberRole = MemberRole.fromKey(role);
 
-        addMemberToSession(memberId, session);
+        if (MemberRoleGroup.hasRole(MemberRoleGroup.CLIENTS, memberRole)) {
+            handleSessionReplacement(memberId, CLIENTS);
+            CLIENTS.put(memberId, session);
+        } else {
+            handleSessionReplacement(memberId, MANAGERS);
+            MANAGERS.put(memberId, session);
+        }
 
         if (MemberRoleGroup.hasRole(MemberRoleGroup.CLIENTS, memberRole)) {
             sendCurrentOpenQuiz(educationId, session);
         }
 
         log.info("[세션 연결] {}, 연결된 세션: {}", memberId, session.getId());
+    }
+
+    private void handleSessionReplacement(String memberId, ConcurrentHashMap<String, WebSocketSession> managers)
+            throws IOException {
+        if (managers.containsKey(memberId)) {
+            managers.get(memberId).close(ATTEMPT_NEW_CONNECTION);
+            managers.remove(memberId);
+        }
     }
 
     private void sendCurrentOpenQuiz(Long educationId, WebSocketSession session) {
@@ -144,19 +159,6 @@ public class WebSocketHandler extends TextWebSocketHandler {
         CsQuizStopResponse response = CsQuizStopResponse.from(EXIT_COMMAND, educationId);
         for (WebSocketSession clientSession : CLIENTS.values()) {
             sendMessage(clientSession, response);
-        }
-    }
-
-    private void addMemberToSession(String memberId, WebSocketSession session) {
-        String roleAttribute = findAttributeByToken(session, ROLE_KEY);
-        MemberRole role = MemberRole.fromKey(roleAttribute);
-
-        if (MemberRoleGroup.hasRole(MemberRoleGroup.CLIENTS, role)) {
-            CLIENTS.put(memberId, session);
-            log.info("[부원 연결] : {} , 세션 ID : {}" , memberId, session.getId());
-        } else {
-            MANAGERS.put(memberId, session);
-            log.info("[관리자 연결] : {} , 세션 ID : {}" , memberId, session.getId());
         }
     }
 
