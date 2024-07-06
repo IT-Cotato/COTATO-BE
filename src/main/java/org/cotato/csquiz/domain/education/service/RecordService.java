@@ -117,37 +117,15 @@ public class RecordService {
                 .min(Comparator.comparing(Record::getTicketNumber))
                 .orElseThrow(() -> new AppException(ErrorCode.REGRADE_FAIL));
 
-        scorerRepository.findByQuizId(quiz.getId())
-                .ifPresentOrElse(
-                        scorer -> updateScorer(scorer, fastestRecord),
-                        () -> createScorer(fastestRecord)
-                );
+        // 기존 득점자가 있어 -> 비교 후 업데이트
+        // 없어 -> 본인을 득점자로 등록
+        redissonScorerFacade.checkAndThenUpdateScorer(fastestRecord);
     }
 
     private void checkQuizType(Quiz quiz) {
         if (quiz instanceof MultipleQuiz) {
             throw new AppException(ErrorCode.QUIZ_TYPE_NOT_MATCH);
         }
-    }
-
-    private void updateScorer(Scorer previousScorer, Record fastestRecord) {
-        if (isFaster(previousScorer, fastestRecord)) {
-            log.info("[득점자 변경] 새로운 티켓 번호: {}", fastestRecord.getTicketNumber());
-            previousScorer.updateMemberId(fastestRecord.getMemberId());
-            scorerRepository.save(previousScorer);
-        }
-    }
-
-    private boolean isFaster(Scorer previousScorer, Record fastestRecord) {
-        Quiz findQuiz = quizRepository.findById(previousScorer.getQuizId())
-                .orElseThrow(() -> new EntityNotFoundException("이전 득점자가 맞춘 퀴즈가 존재하지 않습니다."));
-        return scorerExistRedisRepository.getScorerTicketNumber(findQuiz) > fastestRecord.getTicketNumber();
-    }
-
-    private void createScorer(Record fastestRecord) {
-        Scorer scorer = Scorer.of(fastestRecord.getMemberId(), fastestRecord.getQuiz());
-        scorerRepository.save(scorer);
-        scorerExistRedisRepository.saveScorer(fastestRecord.getQuiz(), fastestRecord.getTicketNumber());
     }
 
     @Transactional
