@@ -18,6 +18,7 @@ import org.cotato.csquiz.domain.education.entity.MultipleQuiz;
 import org.cotato.csquiz.domain.education.entity.Quiz;
 import org.cotato.csquiz.domain.education.entity.Record;
 import org.cotato.csquiz.domain.education.entity.Scorer;
+import org.cotato.csquiz.domain.education.facade.RedissonScorerFacade;
 import org.cotato.csquiz.domain.education.repository.QuizRepository;
 import org.cotato.csquiz.domain.education.repository.RecordRepository;
 import org.cotato.csquiz.domain.education.repository.ScorerRepository;
@@ -40,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class RecordService {
 
     private static final String INPUT_DELIMITER = ",";
+    private final RedissonScorerFacade redissonScorerFacade;
     private final MemberService memberService;
     private final RecordRepository recordRepository;
     private final QuizRepository quizRepository;
@@ -68,16 +70,8 @@ public class RecordService {
         String reply = String.join(INPUT_DELIMITER, inputs);
         Record createdRecord = Record.of(reply, isCorrect, findMember, findQuiz, ticketNumber);
 
-        if (isCorrect && scorerExistRedisRepository.saveScorerIfIsFastest(findQuiz, ticketNumber)) {
-            scorerRepository.findByQuizId(findQuiz.getId())
-                    .ifPresentOrElse(
-                            scorer -> {
-                                scorer.updateMemberId(findMember.getId());
-                                scorerRepository.save(scorer);
-                            },
-                            () -> createScorer(createdRecord)
-                    );
-            log.info("득점자 생성 : {}, 티켓번호: {}", findMember.getId(), ticketNumber);
+        if (isCorrect) {
+            redissonScorerFacade.checkAndThenUpdateScorer(createdRecord);
         }
 
         recordRepository.save(createdRecord);
