@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.admin.dto.MemberInfoResponse;
 import org.cotato.csquiz.api.member.dto.MemberInfo;
 import org.cotato.csquiz.api.member.dto.MemberMyPageInfoResponse;
+import org.cotato.csquiz.api.member.dto.UpdatePhoneNumberRequest;
 import org.cotato.csquiz.common.config.jwt.JwtTokenProvider;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.common.error.exception.AppException;
@@ -58,6 +59,16 @@ public class MemberService {
         if (bCryptPasswordEncoder.matches(newPassword, originPassword)) {
             throw new AppException(ErrorCode.SAME_PASSWORD);
         }
+    }
+
+    @Transactional
+    public void updatePhoneNumber(String accessToken, String phoneNumber) {
+        Long memberId = jwtTokenProvider.getMemberId(accessToken);
+        Member findMember = memberRepository.findById(memberId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다."));
+
+        String encryptedPhoneNumber = encryptService.encryptPhoneNumber(phoneNumber);
+        findMember.updatePhoneNumber(encryptedPhoneNumber);
     }
 
     public MemberMyPageInfoResponse findMyPageInfo(Long memberId) {

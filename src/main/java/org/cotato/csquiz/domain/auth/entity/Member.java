@@ -75,6 +75,10 @@ public class Member extends BaseTimeEntity {
         this.passedGenerationNumber = passedGenerationNumber;
     }
 
+    public void updatePhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
     public void updatePosition(MemberPosition position) {
         this.position = position;
     }
