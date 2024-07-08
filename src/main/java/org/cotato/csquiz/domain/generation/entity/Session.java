@@ -44,9 +44,6 @@ public class Session extends BaseTimeEntity {
     @OneToMany(mappedBy = "session", orphanRemoval = true)
     private List<SessionPhoto> sessionPhotos = new ArrayList<>();
 
-    @Embedded
-    private S3Info photoS3Info;
-
     @Column(name = "session_description")
     private String description;
 
@@ -67,9 +64,8 @@ public class Session extends BaseTimeEntity {
     private SessionContents sessionContents;
 
     @Builder
-    public Session(Integer number, S3Info s3Info, String title, String description, Generation generation, SessionContents sessionContents) {
+    public Session(Integer number, String title, String description, Generation generation, SessionContents sessionContents) {
         this.number = number;
-        this.photoS3Info = s3Info;
         this.title = title;
         this.description = description;
         this.generation = generation;
@@ -82,10 +78,6 @@ public class Session extends BaseTimeEntity {
 
     public void updateDescription(String description) {
         this.description = description;
-    }
-
-    public void changePhotoUrl(S3Info photoUrl) {
-        this.photoS3Info = photoUrl;
     }
 
     public void updateSessionContents(SessionContents sessionContents) {
