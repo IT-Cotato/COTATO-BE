@@ -69,6 +69,7 @@ public enum ErrorCode {
     IMAGE_DELETE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S-003", "s3 이미지 삭제처리를 실패했습니다"),
     INTERNAL_SQL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S-004", "SQL 관련 에러 발생"),
     ENUM_NOT_RESOLVED(HttpStatus.BAD_REQUEST, "S-005", "입력한 Enum이 존재하지 않습니다."),
+    SCORER_LOCK_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S-006", "득점자 락 획득 과정에서 에러 발생");
     ;
 
     private final HttpStatus httpStatus;

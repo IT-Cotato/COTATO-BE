@@ -14,21 +14,21 @@ import org.cotato.csquiz.api.record.dto.ReplyResponse;
 import org.cotato.csquiz.api.record.dto.ScorerResponse;
 import org.cotato.csquiz.api.socket.dto.QuizOpenRequest;
 import org.cotato.csquiz.api.socket.dto.QuizSocketRequest;
+import org.cotato.csquiz.common.error.ErrorCode;
+import org.cotato.csquiz.common.error.exception.AppException;
+import org.cotato.csquiz.domain.auth.entity.Member;
+import org.cotato.csquiz.domain.auth.repository.MemberRepository;
+import org.cotato.csquiz.domain.auth.service.MemberService;
+import org.cotato.csquiz.domain.education.cache.QuizAnswerRedisRepository;
+import org.cotato.csquiz.domain.education.cache.TicketCountRedisRepository;
 import org.cotato.csquiz.domain.education.entity.MultipleQuiz;
 import org.cotato.csquiz.domain.education.entity.Quiz;
 import org.cotato.csquiz.domain.education.entity.Record;
 import org.cotato.csquiz.domain.education.entity.Scorer;
+import org.cotato.csquiz.domain.education.facade.RedissonScorerFacade;
 import org.cotato.csquiz.domain.education.repository.QuizRepository;
 import org.cotato.csquiz.domain.education.repository.RecordRepository;
 import org.cotato.csquiz.domain.education.repository.ScorerRepository;
-import org.cotato.csquiz.domain.auth.entity.Member;
-import org.cotato.csquiz.common.error.exception.AppException;
-import org.cotato.csquiz.common.error.ErrorCode;
-import org.cotato.csquiz.domain.auth.repository.MemberRepository;
-import org.cotato.csquiz.domain.auth.service.MemberService;
-import org.cotato.csquiz.domain.education.cache.QuizAnswerRedisRepository;
-import org.cotato.csquiz.domain.education.cache.ScorerExistRedisRepository;
-import org.cotato.csquiz.domain.education.cache.TicketCountRedisRepository;
 import org.cotato.csquiz.domain.education.util.AnswerUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class RecordService {
 
     private static final String INPUT_DELIMITER = ",";
+    private final RedissonScorerFacade redissonScorerFacade;
     private final MemberService memberService;
     private final RecordRepository recordRepository;
     private final QuizRepository quizRepository;
@@ -47,7 +48,7 @@ public class RecordService {
     private final ScorerRepository scorerRepository;
     private final QuizAnswerRedisRepository quizAnswerRedisRepository;
     private final TicketCountRedisRepository ticketCountRedisRepository;
-    private final ScorerExistRedisRepository scorerExistRedisRepository;
+
 
     @Transactional
     public ReplyResponse replyToQuiz(ReplyRequest request) {
@@ -68,16 +69,8 @@ public class RecordService {
         String reply = String.join(INPUT_DELIMITER, inputs);
         Record createdRecord = Record.of(reply, isCorrect, findMember, findQuiz, ticketNumber);
 
-        if (isCorrect && scorerExistRedisRepository.saveScorerIfIsFastest(findQuiz, ticketNumber)) {
-            scorerRepository.findByQuizId(findQuiz.getId())
-                    .ifPresentOrElse(
-                            scorer -> {
-                                scorer.updateMemberId(findMember.getId());
-                                scorerRepository.save(scorer);
-                            },
-                            () -> createScorer(createdRecord)
-                    );
-            log.info("득점자 생성 : {}, 티켓번호: {}", findMember.getId(), ticketNumber);
+        if (isCorrect) {
+            redissonScorerFacade.checkAndThenUpdateScorer(createdRecord);
         }
 
         recordRepository.save(createdRecord);
@@ -106,7 +99,6 @@ public class RecordService {
     public void saveAnswersToCache(QuizOpenRequest request) {
         List<Quiz> quizzes = quizRepository.findAllByEducationId(request.educationId());
 
-        scorerExistRedisRepository.saveAllScorerNone(quizzes);
         quizAnswerRedisRepository.saveAllQuizAnswers(quizzes);
     }
 
@@ -123,37 +115,15 @@ public class RecordService {
                 .min(Comparator.comparing(Record::getTicketNumber))
                 .orElseThrow(() -> new AppException(ErrorCode.REGRADE_FAIL));
 
-        scorerRepository.findByQuizId(quiz.getId())
-                .ifPresentOrElse(
-                        scorer -> updateScorer(scorer, fastestRecord),
-                        () -> createScorer(fastestRecord)
-                );
+        // 기존 득점자가 있어 -> 비교 후 업데이트
+        // 없어 -> 본인을 득점자로 등록
+        redissonScorerFacade.checkAndThenUpdateScorer(fastestRecord);
     }
 
     private void checkQuizType(Quiz quiz) {
         if (quiz instanceof MultipleQuiz) {
             throw new AppException(ErrorCode.QUIZ_TYPE_NOT_MATCH);
         }
-    }
-
-    private void updateScorer(Scorer previousScorer, Record fastestRecord) {
-        if (isFaster(previousScorer, fastestRecord)) {
-            log.info("[득점자 변경] 새로운 티켓 번호: {}", fastestRecord.getTicketNumber());
-            previousScorer.updateMemberId(fastestRecord.getMemberId());
-            scorerRepository.save(previousScorer);
-        }
-    }
-
-    private boolean isFaster(Scorer previousScorer, Record fastestRecord) {
-        Quiz findQuiz = quizRepository.findById(previousScorer.getQuizId())
-                .orElseThrow(() -> new EntityNotFoundException("이전 득점자가 맞춘 퀴즈가 존재하지 않습니다."));
-        return scorerExistRedisRepository.getScorerTicketNumber(findQuiz) > fastestRecord.getTicketNumber();
-    }
-
-    private void createScorer(Record fastestRecord) {
-        Scorer scorer = Scorer.of(fastestRecord.getMemberId(), fastestRecord.getQuiz());
-        scorerRepository.save(scorer);
-        scorerExistRedisRepository.saveScorer(fastestRecord.getQuiz(), fastestRecord.getTicketNumber());
     }
 
     @Transactional
@@ -188,6 +158,5 @@ public class RecordService {
         Quiz findQuiz = quizRepository.findById(request.quizId())
                 .orElseThrow(() -> new EntityNotFoundException("해당 퀴즈를 찾을 수 없습니다."));
         quizAnswerRedisRepository.saveQuizAnswer(findQuiz);
-        scorerExistRedisRepository.saveScorer(findQuiz, Long.MAX_VALUE);
     }
 }
