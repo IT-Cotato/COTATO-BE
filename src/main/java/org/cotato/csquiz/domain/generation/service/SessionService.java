@@ -187,7 +187,7 @@ public class SessionService {
 
         for (SessionPhoto savedPhoto : savedPhotos) {
             if (orderMap.get(savedPhoto.getId()) == null) {
-                throw new AppException(ErrorCode.SESSION_PHOTO_NOT_EXIST);
+                throw new EntityNotFoundException("해당 사진을 찾을 수 없습니다.");
             }
             savedPhoto.updateOrder(orderMap.get(savedPhoto.getId()).order());
         }
