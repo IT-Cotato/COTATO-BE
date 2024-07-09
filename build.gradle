@@ -30,6 +30,8 @@ dependencies {
     //S3 관련 의존성 부여
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
+    implementation group: 'org.redisson', name: 'redisson-spring-boot-starter', version: '3.32.0'
+
     implementation 'io.jsonwebtoken:jjwt:0.9.1'
     implementation 'javax.xml.bind:jaxb-api:2.3.0'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'

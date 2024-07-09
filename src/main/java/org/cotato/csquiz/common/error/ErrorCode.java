@@ -49,6 +49,9 @@ public enum ErrorCode {
     SESSION_PHOTO_COUNT_MISMATCH(HttpStatus.BAD_REQUEST, "P-101", "저장된 사진 수와 요청 사진 수가 다릅니다."),
     SESSION_ORDER_INVALID(HttpStatus.BAD_REQUEST, "P-102", "입력한 순서는 유효하지 않습니다."),
 
+    FILE_EXTENSION_FAULT(HttpStatus.BAD_REQUEST, "F-001", "해당 파일은 등록 할 수 없는 확장자명입니다."),
+
+
     INVALID_ANSWER(HttpStatus.BAD_REQUEST, "Q-101", "객관식 문제는 숫자 형식의 값만 정답으로 추가할 수 있습니다."),
     CONTENT_IS_NOT_ANSWER(HttpStatus.BAD_REQUEST, "Q-201", "추가되지 않은 정답을 추가할 수 없습니다."),
     QUIZ_NUMBER_DUPLICATED(HttpStatus.CONFLICT, "Q-301", "퀴즈 번호는 중복될 수 없습니다."),
@@ -73,6 +76,7 @@ public enum ErrorCode {
     IMAGE_DELETE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S-003", "s3 이미지 삭제처리를 실패했습니다"),
     INTERNAL_SQL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S-004", "SQL 관련 에러 발생"),
     ENUM_NOT_RESOLVED(HttpStatus.BAD_REQUEST, "S-005", "입력한 Enum이 존재하지 않습니다."),
+    SCORER_LOCK_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S-006", "득점자 락 획득 과정에서 에러 발생");
     ;
 
     private final HttpStatus httpStatus;

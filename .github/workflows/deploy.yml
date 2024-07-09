@@ -35,8 +35,6 @@ jobs:
           spring.datasource.username: ${{ secrets.DB_USERNAME }}
           spring.datasource.password: ${{ secrets.DB_PWD }}
           spring.jpa.hibernate.ddl-auto: ${{ secrets.DDL_AUTO }}
-          spring.mail.username: ${{ secrets.SENDER_EMAIL }}
-          spring.mail.password: ${{ secrets.SENDER_PASSWORD }}
 
       # application-yml을 세팅한다.
       - name: Set up Base Yaml File
@@ -50,6 +48,8 @@ jobs:
           cloud.aws.credentials.secretKey: ${{ secrets.S3_ACCESS_PASSWORD }}
           aes.secret.key: ${{ secrets.AES_SECRET_KEY }}
           aes.secret.salt: ${{ secrets.AES_SECRET_SALT }}
+          spring.mail.username: ${{ secrets.SENDER_EMAIL }}
+          spring.mail.password: ${{ secrets.SENDER_PASSWORD }}
 
 
       # [2] 실행 권한 부여
