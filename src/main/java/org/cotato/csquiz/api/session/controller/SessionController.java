@@ -1,21 +1,28 @@
 package org.cotato.csquiz.api.session.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.cotato.csquiz.api.session.dto.AddSessionPhotoRequest;
+import org.cotato.csquiz.api.session.dto.AddSessionPhotoResponse;
 import org.cotato.csquiz.api.session.dto.AddSessionRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionResponse;
 import org.cotato.csquiz.api.session.dto.CsEducationOnSessionNumberResponse;
+import org.cotato.csquiz.api.session.dto.DeleteSessionPhotoRequest;
 import org.cotato.csquiz.api.session.dto.SessionListResponse;
 import org.cotato.csquiz.api.session.dto.UpdateSessionDescriptionRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionNumberRequest;
+import org.cotato.csquiz.api.session.dto.UpdateSessionPhotoOrderRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionPhotoRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionRequest;
 import org.cotato.csquiz.domain.generation.service.SessionService;
 import org.cotato.csquiz.common.error.exception.ImageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -33,11 +40,13 @@ public class SessionController {
 
     private final SessionService sessionService;
 
+    @Operation(summary = "Session 리스트 정보 얻기", description = "Get Session Infos")
     @GetMapping("")
     public ResponseEntity<List<SessionListResponse>> findSessionsByGenerationId(@RequestParam Long generationId) {
         return ResponseEntity.status(HttpStatus.OK).body(sessionService.findSessionsByGenerationId(generationId));
     }
 
+    @Operation(summary = "Session 추가하기", description = "세션 추가하기")
     @PostMapping(value = "/add", consumes = "multipart/form-data")
     public ResponseEntity<AddSessionResponse> addSession(@ModelAttribute @Valid AddSessionRequest request)
             throws ImageException {
@@ -45,8 +54,7 @@ public class SessionController {
     }
 
     @PatchMapping(value = "/update", consumes = "multipart/form-data")
-    public ResponseEntity<Void> updateSession(@ModelAttribute @Valid UpdateSessionRequest request)
-            throws ImageException {
+    public ResponseEntity<Void> updateSession(@RequestBody @Valid UpdateSessionRequest request) {
         sessionService.updateSession(request);
         return ResponseEntity.noContent().build();
     }
@@ -57,16 +65,24 @@ public class SessionController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/description")
-    public ResponseEntity<Void> updateSessionDescription(@RequestBody @Valid UpdateSessionDescriptionRequest request) {
-        sessionService.updateSessionDescription(request);
+    @Operation(summary = "Session 수정 - 사진 순서", description = "세션 사진 순서 바꾸기")
+    @PatchMapping("/photo/order")
+    public ResponseEntity<Void> updateSessionPhotoOrder(@RequestBody UpdateSessionPhotoOrderRequest request) {
+        sessionService.updateSessionPhotoOrder(request);
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping(value = "/update/photo", consumes = "multipart/form-data")
-    public ResponseEntity<Void> updateSessionPhoto(@ModelAttribute @Valid UpdateSessionPhotoRequest request)
+    @Operation(summary = "Session 수정 - 사진 추가하기", description = "세션 수정 시 사진 추가하기, photoId 반환")
+    @PostMapping(value = "/photo", consumes = "multipart/form-data")
+    public ResponseEntity<AddSessionPhotoResponse> additionalSessionPhoto(@ModelAttribute @Valid AddSessionPhotoRequest request)
             throws ImageException {
-        sessionService.updateSessionPhoto(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(sessionService.additionalSessionPhoto(request));
+    }
+
+    @Operation(summary = "Session 수정 - 사진 삭제하기", description = "사진 삭제하기")
+    @DeleteMapping(value = "/photo")
+    public ResponseEntity<Void> deleteSessionPhoto(@RequestBody DeleteSessionPhotoRequest request) {
+        sessionService.deleteSessionPhoto(request);
         return ResponseEntity.noContent().build();
     }
 
