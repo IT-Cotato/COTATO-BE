@@ -29,16 +29,25 @@ public class Scorer extends BaseTimeEntity {
     @Column(name = "quiz_id", nullable = false)
     private Long quizId;
 
-    private Scorer(final Long memberId, Quiz quiz) {
+    @Column(name = "ticket_number", nullable = false)
+    private Long ticketNumber;
+
+    private Scorer(final Long memberId, Quiz quiz, Long ticketNumber) {
         this.memberId = memberId;
         this.quizId = quiz.getId();
+        this.ticketNumber = ticketNumber;
     }
 
-    public static Scorer of(final Long memberId, Quiz quiz) {
-        return new Scorer(memberId, quiz);
+    public static Scorer of(final Long memberId, Quiz quiz, Long ticketNumber) {
+        return new Scorer(memberId, quiz, ticketNumber);
     }
 
     public void updateMemberId(final Long memberId) {
         this.memberId = memberId;
+    }
+
+    public void updateScorer(final Long memberId, Long ticketNumber){
+        this.memberId = memberId;
+        this.ticketNumber = ticketNumber;
     }
 }

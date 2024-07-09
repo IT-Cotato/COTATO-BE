@@ -12,6 +12,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,8 +41,8 @@ public class Session extends BaseTimeEntity {
     @Column(name = "session_title", length = 100)
     private String title;
 
-    @Embedded
-    private S3Info photoS3Info;
+    @OneToMany(mappedBy = "session", orphanRemoval = true)
+    private List<SessionPhoto> sessionPhotos = new ArrayList<>();
 
     @Column(name = "session_description")
     private String description;
@@ -61,9 +64,8 @@ public class Session extends BaseTimeEntity {
     private SessionContents sessionContents;
 
     @Builder
-    public Session(Integer number, S3Info s3Info, String title, String description, Generation generation, SessionContents sessionContents) {
+    public Session(Integer number, String title, String description, Generation generation, SessionContents sessionContents) {
         this.number = number;
-        this.photoS3Info = s3Info;
         this.title = title;
         this.description = description;
         this.generation = generation;
@@ -76,10 +78,6 @@ public class Session extends BaseTimeEntity {
 
     public void updateDescription(String description) {
         this.description = description;
-    }
-
-    public void changePhotoUrl(S3Info photoUrl) {
-        this.photoS3Info = photoUrl;
     }
 
     public void updateSessionContents(SessionContents sessionContents) {
