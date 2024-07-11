@@ -2,11 +2,9 @@ package org.cotato.csquiz.common.config.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +14,8 @@ import org.cotato.csquiz.common.config.jwt.JwtTokenProvider;
 import org.cotato.csquiz.common.config.jwt.RefreshToken;
 import org.cotato.csquiz.common.config.jwt.RefreshTokenRepository;
 import org.cotato.csquiz.common.config.jwt.Token;
-import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.common.error.exception.FilterAuthenticationException;
+import org.cotato.csquiz.domain.auth.entity.Member;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -49,7 +47,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-                                            Authentication authResult) throws IOException, ServletException {
+                                            Authentication authResult) {
 
         PrincipalDetails principal = (PrincipalDetails) authResult.getPrincipal();
         String grantedAuthority = authResult.getAuthorities().stream()
