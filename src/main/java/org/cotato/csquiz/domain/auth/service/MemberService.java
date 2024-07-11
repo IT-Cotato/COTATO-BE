@@ -93,6 +93,19 @@ public class MemberService {
         findMember.updateProfileImage(s3Info);
     }
 
+    @Transactional
+    public void deleteMemberProfileImage(String accessToken) {
+        Long memberId = jwtTokenProvider.getMemberId(accessToken);
+        Member findMember = memberRepository.findById(memberId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다."));
+
+        if (findMember.getProfileImage() != null) {
+            s3Uploader.deleteFile(findMember.getProfileImage());
+        }
+
+        findMember.updateProfileImage(null);
+    }
+
     public MemberMyPageInfoResponse findMyPageInfo(Long memberId) {
         Member findMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다."));

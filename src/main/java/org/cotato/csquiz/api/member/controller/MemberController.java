@@ -13,6 +13,7 @@ import org.cotato.csquiz.common.config.jwt.JwtTokenProvider;
 import org.cotato.csquiz.common.error.exception.ImageException;
 import org.cotato.csquiz.domain.auth.service.MemberService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -64,6 +65,15 @@ public class MemberController {
             @ModelAttribute @Valid UpdateProfileImageRequest request) throws ImageException {
         String accessToken = jwtTokenProvider.getBearer(authorizationHeader);
         memberService.updateMemberProfileImage(accessToken, request.image());
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "멤버 프로필 사진 삭제", description = "기본 이미지로 전환")
+    @DeleteMapping("/profile-image")
+    public ResponseEntity<Void> deleteProfileImage(
+            @RequestHeader("Authorization") String authorizationHeader) {
+        String accessToken = jwtTokenProvider.getBearer(authorizationHeader);
+        memberService.deleteMemberProfileImage(accessToken);
         return ResponseEntity.noContent().build();
     }
 
