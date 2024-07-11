@@ -1,13 +1,16 @@
 package org.cotato.csquiz.api.member.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.admin.dto.MemberInfoResponse;
 import org.cotato.csquiz.api.member.dto.MemberMyPageInfoResponse;
 import org.cotato.csquiz.api.member.dto.UpdatePasswordRequest;
+import org.cotato.csquiz.api.member.dto.UpdatePhoneNumberRequest;
 import org.cotato.csquiz.common.config.jwt.JwtTokenProvider;
 import org.cotato.csquiz.domain.auth.service.MemberService;
+import org.springframework.context.annotation.Description;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -39,6 +42,16 @@ public class MemberController {
                                                @RequestBody @Valid UpdatePasswordRequest request) {
         String accessToken = jwtTokenProvider.getBearer(authorizationHeader);
         memberService.updatePassword(accessToken, request.password());
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "멤버 전화번호 수정", description = "멤버 전화번호 수정하기")
+    @PatchMapping("/phone-number")
+    public ResponseEntity<Void> updatePhoneNumber(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestBody @Valid UpdatePhoneNumberRequest request) {
+        String accessToken = jwtTokenProvider.getBearer(authorizationHeader);
+        memberService.updatePhoneNumber(accessToken,request.phoneNumber());
         return ResponseEntity.noContent().build();
     }
 

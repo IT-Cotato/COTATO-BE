@@ -1,11 +1,12 @@
 package org.cotato.csquiz.common.S3;
 
+import static org.cotato.csquiz.common.util.FileUtil.checkAllowedImageFileExtension;
+import static org.cotato.csquiz.common.util.FileUtil.extractFileExtension;
+
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import java.util.List;
-import java.util.Objects;
 import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.ImageException;
@@ -67,7 +68,7 @@ public class S3Uploader {
         if (targetFile.delete()) {
             log.info("삭제 완료");
         } else {
-            log.info("삭제 에러");
+            log.error("삭제 에러");
         }
     }
 
@@ -78,7 +79,10 @@ public class S3Uploader {
     }
 
     private Optional<File> convert(MultipartFile file) throws ImageException {
-        File convertFile = new File(System.getProperty("user.dir") + "/" + UUID.randomUUID());
+        String fileExtension = extractFileExtension(file);
+        checkAllowedImageFileExtension(fileExtension);
+
+        File convertFile = new File(System.getProperty("user.dir") + "/" + UUID.randomUUID() + "." + fileExtension);
         log.info("converted file name: {}", convertFile.getName());
 
         try {
