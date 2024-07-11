@@ -48,7 +48,7 @@ public class MemberController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "멤버 전화번호 수정", description = "멤버 전화번호 수정하기")
+    @Operation(summary = "멤버 전화번호 수정 API")
     @PatchMapping("/phone-number")
     public ResponseEntity<Void> updatePhoneNumber(
             @RequestHeader("Authorization") String authorizationHeader,
@@ -58,7 +58,7 @@ public class MemberController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "멤버 프로필 사진 수정", description = "멤버 프로필 사진 수정하기")
+    @Operation(summary = "멤버 프로필 사진 수정 API")
     @PatchMapping(value = "/profile-image", consumes = "multipart/form-data")
     public ResponseEntity<Void> updateProfileImage(
             @RequestHeader("Authorization") String authorizationHeader,
@@ -68,7 +68,7 @@ public class MemberController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "멤버 프로필 사진 삭제", description = "기본 이미지로 전환")
+    @Operation(summary = "멤버 프로필 사진 삭제 API")
     @DeleteMapping("/profile-image")
     public ResponseEntity<Void> deleteProfileImage(
             @RequestHeader("Authorization") String authorizationHeader) {
