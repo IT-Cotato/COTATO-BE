@@ -5,5 +5,5 @@ import org.cotato.csquiz.domain.auth.entity.MemberPolicy;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MemberPolicyRepository extends JpaRepository<MemberPolicy, Long> {
-    List<MemberPolicy> findALlByMemberId(Long memberId);
+    List<MemberPolicy> findAllByMemberId(Long memberId);
 }
