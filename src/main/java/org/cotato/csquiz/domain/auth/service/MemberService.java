@@ -1,13 +1,11 @@
 package org.cotato.csquiz.domain.auth.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.admin.dto.MemberInfoResponse;
 import org.cotato.csquiz.api.member.dto.MemberInfo;
 import org.cotato.csquiz.api.member.dto.MemberMyPageInfoResponse;
-import org.cotato.csquiz.api.member.dto.UpdateProfileImageRequest;
 import org.cotato.csquiz.common.S3.S3Uploader;
 import org.cotato.csquiz.common.config.jwt.JwtTokenProvider;
 import org.cotato.csquiz.common.entity.S3Info;
@@ -81,6 +79,10 @@ public class MemberService {
 
     @Transactional
     public void updateMemberProfileImage(String accessToken, MultipartFile image) throws ImageException {
+        if (image.isEmpty()) {
+            throw new AppException(ErrorCode.IMAGE_IS_EMPTY);
+        }
+
         Long memberId = jwtTokenProvider.getMemberId(accessToken);
         Member findMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다."));
