@@ -19,19 +19,24 @@ public class PolicyService {
     private final PolicyRepository policyRepository;
     private final MemberPolicyRepository memberPolicyRepository;
 
-    public FindMemberPolicyResponse findUnCheckedEssentialPolicies(final Long memberId) {
+    public FindMemberPolicyResponse findUnCheckedPolicies(final Long memberId) {
         // 회원이 체크한 정책
         List<Long> checkedPolicies = memberPolicyRepository.findAllByMemberId(memberId).stream()
                 .filter(MemberPolicy::getIsChecked)
                 .map(MemberPolicy::getId)
                 .toList();
 
-        // 체크되지 않은 필수 정책
-        List<PolicyInfoResponse> uncheckedEssentialPolicies = policyRepository.findAllByPolicyType(PolicyType.ESSENTIAL).stream()
-                .filter(policy ->  !checkedPolicies.contains(policy.getId()))
+        List<PolicyInfoResponse> uncheckedEssentialPolicies = policyRepository.findAllByPolicyType(PolicyType.ESSENTIAL)
+                .stream()
+                .filter(policy -> !checkedPolicies.contains(policy.getId()))
                 .map(PolicyInfoResponse::from)
                 .toList();
 
-        return FindMemberPolicyResponse.of(memberId, uncheckedEssentialPolicies);
+        List<PolicyInfoResponse> uncheckedOptionalPolicies = policyRepository.findAllByPolicyType(PolicyType.OPTIONAL).stream()
+                .filter(policy -> !checkedPolicies.contains(policy.getId()))
+                .map(PolicyInfoResponse::from)
+                .toList();
+
+        return FindMemberPolicyResponse.of(memberId, uncheckedEssentialPolicies, uncheckedOptionalPolicies);
     }
 }
