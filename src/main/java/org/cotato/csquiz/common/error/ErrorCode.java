@@ -46,8 +46,8 @@ public enum ErrorCode {
     MEMBER_CANT_ACCESS(HttpStatus.BAD_REQUEST, "E-403", "해당 멤버의 ROLE로 접근할 수 없습니다"),
 
     //세션 사진
-    SESSION_PHOTO_COUNT_MISMATCH(HttpStatus.BAD_REQUEST, "P-101", "저장된 사진 수와 요청 사진 수가 다릅니다."),
-    SESSION_ORDER_INVALID(HttpStatus.BAD_REQUEST, "P-102", "입력한 순서는 유효하지 않습니다."),
+    SESSION_IMAGE_COUNT_MISMATCH(HttpStatus.BAD_REQUEST, "I-101", "저장된 사진 수와 요청 사진 수가 다릅니다."),
+    SESSION_ORDER_INVALID(HttpStatus.BAD_REQUEST, "I-102", "입력한 순서는 유효하지 않습니다."),
 
     FILE_EXTENSION_FAULT(HttpStatus.BAD_REQUEST, "F-001", "해당 파일은 등록 할 수 없는 확장자명입니다."),
 

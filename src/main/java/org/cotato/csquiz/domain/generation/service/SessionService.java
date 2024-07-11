@@ -11,11 +11,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.cotato.csquiz.api.session.dto.AddSessionPhotoResponse;
-import org.cotato.csquiz.api.session.dto.DeleteSessionPhotoRequest;
-import org.cotato.csquiz.api.session.dto.UpdateSessionPhotoOrderInfoRequest;
-import org.cotato.csquiz.api.session.dto.UpdateSessionPhotoOrderRequest;
-import org.cotato.csquiz.api.session.dto.AddSessionPhotoRequest;
+import org.cotato.csquiz.api.session.dto.AddSessionImageResponse;
+import org.cotato.csquiz.api.session.dto.DeleteSessionImageRequest;
+import org.cotato.csquiz.api.session.dto.UpdateSessionImageOrderInfoRequest;
+import org.cotato.csquiz.api.session.dto.UpdateSessionImageOrderRequest;
+import org.cotato.csquiz.api.session.dto.AddSessionImageRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionResponse;
 import org.cotato.csquiz.api.session.dto.CsEducationOnSessionNumberResponse;
@@ -28,14 +28,14 @@ import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.education.entity.Education;
 import org.cotato.csquiz.domain.education.service.EducationService;
 import org.cotato.csquiz.domain.generation.embedded.SessionContents;
-import org.cotato.csquiz.domain.generation.entity.SessionPhoto;
+import org.cotato.csquiz.domain.generation.entity.SessionImage;
 import org.cotato.csquiz.domain.generation.enums.CSEducation;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.common.error.exception.ImageException;
 import org.cotato.csquiz.common.S3.S3Uploader;
 import org.cotato.csquiz.domain.generation.repository.GenerationRepository;
-import org.cotato.csquiz.domain.generation.repository.SessionPhotoRepository;
+import org.cotato.csquiz.domain.generation.repository.SessionImageRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,7 +50,7 @@ public class SessionService {
     private static final String SESSION_BUCKET_DIRECTORY = "session";
     private final SessionRepository sessionRepository;
     private final GenerationRepository generationRepository;
-    private final SessionPhotoRepository sessionPhotoRepository;
+    private final SessionImageRepository sessionImageRepository;
     private final EducationService educationService;
     private final S3Uploader s3Uploader;
 
@@ -77,24 +77,24 @@ public class SessionService {
         Session savedSession = sessionRepository.save(session);
         log.info("세션 생성 완료");
 
-        if (request.photos() != null && !request.photos().isEmpty()) {
+        if (request.images() != null && !request.images().isEmpty()) {
             AtomicInteger index = new AtomicInteger(0);
 
-            List<SessionPhoto> sessionPhotos = new ArrayList<>();
+            List<SessionImage> sessionImages = new ArrayList<>();
 
-            for (MultipartFile photoFile : request.photos()) {
-                S3Info s3Info = s3Uploader.uploadFiles(photoFile, SESSION_BUCKET_DIRECTORY);
+            for (MultipartFile imageFile : request.images()) {
+                S3Info s3Info = s3Uploader.uploadFiles(imageFile, SESSION_BUCKET_DIRECTORY);
 
-                SessionPhoto sessionPhoto = SessionPhoto.builder()
+                SessionImage sessionImage = SessionImage.builder()
                         .session(savedSession)
                         .s3Info(s3Info)
                         .order(index.getAndIncrement())
                         .build();
 
-                sessionPhotos.add(sessionPhoto);
+                sessionImages.add(sessionImage);
             }
 
-            sessionPhotoRepository.saveAll(sessionPhotos);
+            sessionImageRepository.saveAll(sessionImages);
             log.info("세션 이미지 생성 완료");
         }
 
@@ -130,48 +130,48 @@ public class SessionService {
     }
 
     @Transactional
-    public AddSessionPhotoResponse additionalSessionPhoto(AddSessionPhotoRequest request) throws ImageException {
+    public AddSessionImageResponse additionalSessionImage(AddSessionImageRequest request) throws ImageException {
         Session session = findSessionById(request.sessionId());
 
-        S3Info imageInfo = s3Uploader.uploadFiles(request.photo(), SESSION_BUCKET_DIRECTORY);
+        S3Info imageInfo = s3Uploader.uploadFiles(request.image(), SESSION_BUCKET_DIRECTORY);
 
-        Integer imageOrder = sessionPhotoRepository.findFirstBySessionOrderByOrderDesc(session)
-                .map(sessionPhoto -> sessionPhoto.getOrder() + 1).orElse(0);
+        Integer imageOrder = sessionImageRepository.findFirstBySessionOrderByOrderDesc(session)
+                .map(sessionImage -> sessionImage.getOrder() + 1).orElse(0);
 
-        SessionPhoto sessionPhoto = SessionPhoto.builder()
+        SessionImage sessionImage = SessionImage.builder()
                 .session(session)
                 .s3Info(imageInfo)
                 .order(imageOrder)
                 .build();
 
-        return AddSessionPhotoResponse.from(sessionPhotoRepository.save(sessionPhoto));
+        return AddSessionImageResponse.from(sessionImageRepository.save(sessionImage));
     }
 
     @Transactional
-    public void deleteSessionPhoto(DeleteSessionPhotoRequest request) {
-        SessionPhoto deletePhoto = sessionPhotoRepository.findById(request.photoId())
+    public void deleteSessionImage(DeleteSessionImageRequest request) {
+        SessionImage deleteImage = sessionImageRepository.findById(request.imageId())
                 .orElseThrow(() -> new EntityNotFoundException("해당 사진을 찾을 수 없습니다."));
-        s3Uploader.deleteFile(deletePhoto.getS3Info());
-        sessionPhotoRepository.delete(deletePhoto);
+        s3Uploader.deleteFile(deleteImage.getS3Info());
+        sessionImageRepository.delete(deleteImage);
 
-        List<SessionPhoto> reOrderPhotos = sessionPhotoRepository.findAllBySession(deletePhoto.getSession()).stream()
-                .filter(photo -> photo.getOrder() > deletePhoto.getOrder())
+        List<SessionImage> reorderImages = sessionImageRepository.findAllBySession(deleteImage.getSession()).stream()
+                .filter(image -> image.getOrder() > deleteImage.getOrder())
                 .toList();
 
-        for (SessionPhoto sessionPhoto : reOrderPhotos) {
-            sessionPhoto.decreaseOrder();
+        for (SessionImage sessionImage : reorderImages) {
+            sessionImage.decreaseOrder();
         }
     }
 
     @Transactional
-    public void updateSessionPhotoOrder(UpdateSessionPhotoOrderRequest request) {
+    public void updateSessionImageOrder(UpdateSessionImageOrderRequest request) {
         Session sessionById = findSessionById(request.sessionId());
-        List<UpdateSessionPhotoOrderInfoRequest> orderList = request.orderInfos();
+        List<UpdateSessionImageOrderInfoRequest> orderList = request.orderInfos();
 
-        List<SessionPhoto> savedPhotos = sessionPhotoRepository.findAllBySession(sessionById);
+        List<SessionImage> savedImages = sessionImageRepository.findAllBySession(sessionById);
 
-        if (savedPhotos.size() != orderList.size()) {
-            throw new AppException(ErrorCode.SESSION_PHOTO_COUNT_MISMATCH);
+        if (savedImages.size() != orderList.size()) {
+            throw new AppException(ErrorCode.SESSION_IMAGE_COUNT_MISMATCH);
         }
 
         if (checkValidOrderRange(orderList)) {
@@ -182,25 +182,25 @@ public class SessionService {
             throw new AppException(ErrorCode.SESSION_ORDER_INVALID);
         }
 
-        Map<Long, UpdateSessionPhotoOrderInfoRequest> orderMap = orderList.stream()
-                .collect(Collectors.toMap(UpdateSessionPhotoOrderInfoRequest::photoId, Function.identity()));
+        Map<Long, UpdateSessionImageOrderInfoRequest> orderMap = orderList.stream()
+                .collect(Collectors.toMap(UpdateSessionImageOrderInfoRequest::imageId, Function.identity()));
 
-        for (SessionPhoto savedPhoto : savedPhotos) {
-            if (orderMap.get(savedPhoto.getId()) == null) {
+        for (SessionImage savedImage : savedImages) {
+            if (orderMap.get(savedImage.getId()) == null) {
                 throw new EntityNotFoundException("해당 사진을 찾을 수 없습니다.");
             }
-            savedPhoto.updateOrder(orderMap.get(savedPhoto.getId()).order());
+            savedImage.updateOrder(orderMap.get(savedImage.getId()).order());
         }
     }
 
-    private boolean checkValidOrderRange(List<UpdateSessionPhotoOrderInfoRequest> orderList) {
+    private boolean checkValidOrderRange(List<UpdateSessionImageOrderInfoRequest> orderList) {
         return orderList.stream().noneMatch(orderInfo ->
                 orderInfo.order() < 0 || orderInfo.order() >= orderList.size());
     }
 
-    private boolean checkOrderUnique(List<UpdateSessionPhotoOrderInfoRequest> orderList) {
+    private boolean checkOrderUnique(List<UpdateSessionImageOrderInfoRequest> orderList) {
         Set<Integer> uniqueOrders = new HashSet<>();
-        for (UpdateSessionPhotoOrderInfoRequest orderInfo : orderList) {
+        for (UpdateSessionImageOrderInfoRequest orderInfo : orderList) {
             if (!uniqueOrders.add(orderInfo.order())) {
                 return false;
             }
