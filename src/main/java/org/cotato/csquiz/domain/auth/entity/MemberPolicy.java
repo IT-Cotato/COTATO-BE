@@ -37,4 +37,15 @@ public class MemberPolicy extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "policy_id")
     private Policy policy;
+
+    private MemberPolicy(Boolean isChecked, Member member, Policy policy) {
+        this.isChecked = isChecked;
+        this.member = member;
+        this.policy = policy;
+        this.checkTime = LocalDateTime.now();
+    }
+
+    public static MemberPolicy of(Boolean isChecked, Member member, Policy policy){
+        return new MemberPolicy(isChecked, member, policy);
+    }
 }

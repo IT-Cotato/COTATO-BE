@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.cotato.csquiz.api.policy.dto.CheckMemberPolicyRequest;
+import org.cotato.csquiz.api.policy.dto.CheckMemberPoliciesRequest;
 import org.cotato.csquiz.api.policy.dto.FindMemberPolicyResponse;
 import org.cotato.csquiz.domain.auth.service.PolicyService;
 import org.springframework.http.ResponseEntity;
@@ -27,5 +27,12 @@ public class PolicyController {
     @GetMapping("/essential")
     public ResponseEntity<FindMemberPolicyResponse> getUnCheckedPolicies(@RequestParam(value = "member-id") Long memberId) {
         return ResponseEntity.ok().body(policyService.findUnCheckedPolicies(memberId));
+    }
+
+    @Operation(summary = "특정 정책에 대해 동의 여부 체크 API")
+    @PostMapping("/check")
+    public ResponseEntity<Void> checkPolicies(@RequestBody @Valid CheckMemberPoliciesRequest request){
+        policyService.checkPolicies(request);
+        return ResponseEntity.noContent().build();
     }
 }
