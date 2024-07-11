@@ -80,7 +80,7 @@ public class MemberService {
     @Transactional
     public void updateMemberProfileImage(String accessToken, MultipartFile image) throws ImageException {
         if (image.isEmpty()) {
-            throw new AppException(ErrorCode.IMAGE_IS_EMPTY);
+            throw new AppException(ErrorCode.FILE_IS_EMPTY);
         }
 
         Long memberId = jwtTokenProvider.getMemberId(accessToken);
