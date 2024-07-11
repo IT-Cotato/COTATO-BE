@@ -8,7 +8,7 @@ public record SessionListResponse(
         Long sessionId,
         Integer sessionNumber,
         String title,
-        List<SessionListPhotoInfoResponse> photoInfos,
+        List<SessionListImageInfoResponse> imageInfos,
         String description,
         Long generationId,
         SessionContents sessionContents
@@ -18,7 +18,7 @@ public record SessionListResponse(
                 session.getId(),
                 session.getNumber(),
                 session.getTitle(),
-                SessionListPhotoInfoResponse.from(session.getSessionPhotos()),
+                SessionListImageInfoResponse.from(session.getSessionImages()),
                 session.getDescription(),
                 session.getGeneration().getId(),
                 session.getSessionContents()

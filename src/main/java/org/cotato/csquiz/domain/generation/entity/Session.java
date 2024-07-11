@@ -5,7 +5,6 @@ import static jakarta.persistence.FetchType.LAZY;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,7 +19,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.csquiz.common.entity.BaseTimeEntity;
-import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.domain.generation.embedded.SessionContents;
 import org.hibernate.annotations.DynamicInsert;
 
@@ -42,7 +40,7 @@ public class Session extends BaseTimeEntity {
     private String title;
 
     @OneToMany(mappedBy = "session", orphanRemoval = true)
-    private List<SessionPhoto> sessionPhotos = new ArrayList<>();
+    private List<SessionImage> sessionImages = new ArrayList<>();
 
     @Column(name = "session_description")
     private String description;
