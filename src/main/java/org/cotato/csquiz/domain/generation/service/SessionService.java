@@ -174,11 +174,11 @@ public class SessionService {
             throw new AppException(ErrorCode.SESSION_IMAGE_COUNT_MISMATCH);
         }
 
-        if (checkValidOrderRange(orderList)) {
+        if (isValidOrderRange(orderList)) {
             throw new AppException(ErrorCode.SESSION_ORDER_INVALID);
         }
 
-        if (!checkOrderUnique(orderList)) {
+        if (!isOrderUnique(orderList)) {
             throw new AppException(ErrorCode.SESSION_ORDER_INVALID);
         }
 
@@ -193,12 +193,12 @@ public class SessionService {
         }
     }
 
-    private boolean checkValidOrderRange(List<UpdateSessionImageOrderInfoRequest> orderList) {
+    private boolean isValidOrderRange(List<UpdateSessionImageOrderInfoRequest> orderList) {
         return orderList.stream().noneMatch(orderInfo ->
                 orderInfo.order() < 0 || orderInfo.order() >= orderList.size());
     }
 
-    private boolean checkOrderUnique(List<UpdateSessionImageOrderInfoRequest> orderList) {
+    private boolean isOrderUnique(List<UpdateSessionImageOrderInfoRequest> orderList) {
         Set<Integer> uniqueOrders = new HashSet<>();
         for (UpdateSessionImageOrderInfoRequest orderInfo : orderList) {
             if (!uniqueOrders.add(orderInfo.order())) {

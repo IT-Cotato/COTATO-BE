@@ -30,7 +30,7 @@ public class SessionImage extends BaseTimeEntity {
     @Embedded
     private S3Info s3Info;
 
-    @Column(name = "session_image_order")
+    @Column(name = "session_image_order", nullable = false)
     private Integer order;
 
     @ManyToOne(fetch = LAZY)
