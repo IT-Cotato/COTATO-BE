@@ -39,9 +39,6 @@ public class Session extends BaseTimeEntity {
     @Column(name = "session_title", length = 100)
     private String title;
 
-    @OneToMany(mappedBy = "session", orphanRemoval = true)
-    private List<SessionImage> sessionImages = new ArrayList<>();
-
     @Column(name = "session_description")
     private String description;
 

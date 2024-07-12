@@ -215,8 +215,11 @@ public class SessionService {
 
         List<Session> sessions = sessionRepository.findAllByGeneration(generation);
 
+        Map<Session, List<SessionImage>> imagesGroupBySession = sessionImageRepository.findAllBySessionIn(sessions).stream()
+                .collect(Collectors.groupingBy(SessionImage::getSession));
+
         return sessions.stream()
-                .map(SessionListResponse::from)
+                .map(session -> SessionListResponse.of(session,imagesGroupBySession.getOrDefault(session, List.of())))
                 .toList();
     }
 
