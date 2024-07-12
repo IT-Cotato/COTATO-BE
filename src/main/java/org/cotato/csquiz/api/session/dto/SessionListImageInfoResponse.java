@@ -13,10 +13,4 @@ public record SessionListImageInfoResponse(
                         sessionImage.getS3Info().getUrl(),
                         sessionImage.getOrder());
         }
-
-        public static List<SessionListImageInfoResponse> from(List<SessionImage> sessionImages) {
-                return sessionImages.stream()
-                        .map(SessionListImageInfoResponse::from)
-                        .toList();
-        }
 }

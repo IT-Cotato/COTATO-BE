@@ -19,7 +19,9 @@ public record SessionListResponse(
                 session.getId(),
                 session.getNumber(),
                 session.getTitle(),
-                SessionListImageInfoResponse.from(sessionImages),
+                sessionImages.stream()
+                        .map(SessionListImageInfoResponse::from)
+                        .toList(),
                 session.getDescription(),
                 session.getGeneration().getId(),
                 session.getSessionContents()
