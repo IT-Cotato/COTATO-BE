@@ -2,6 +2,8 @@ package org.cotato.csquiz.domain.generation.entity;
 
 import static jakarta.persistence.FetchType.LAZY;
 
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -28,6 +30,11 @@ public class SessionImage extends BaseTimeEntity {
     private Long id;
 
     @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "folderName", column = @Column(nullable = false)),
+            @AttributeOverride(name = "fileName", column = @Column(nullable = false)),
+            @AttributeOverride(name = "url", column = @Column(nullable = false))
+    })
     private S3Info s3Info;
 
     @Column(name = "session_image_order", nullable = false)
