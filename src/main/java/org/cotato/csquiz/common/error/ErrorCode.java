@@ -29,6 +29,10 @@ public enum ErrorCode {
     EMAIL_DUPLICATED(HttpStatus.CONFLICT, "A-301", "존재하는 이메일 입니다."),
     PHONE_NUMBER_DUPLICATED(HttpStatus.CONFLICT, "A-302", "존재하는 전화번호입니다."),
 
+    // 정책 관련
+    SHOULD_AGREE_POLICY(HttpStatus.BAD_REQUEST, "P-001", "필수 정책에는 반드시 동의해야합니다."),
+    ALREADY_POLICY_CHECK(HttpStatus.CONFLICT, "P-301", "이미 동의한 정책입니다."),
+
     //회원 관련
     ROLE_IS_NOT_MATCH(HttpStatus.BAD_REQUEST, "M-101", "해당 ROLE은 변경할 수 없습니다."),
     ROLE_IS_NOT_OLD_MEMBER(HttpStatus.BAD_REQUEST, "M-103", "해당 회원의 ROLE은 OLD_MEMBER가 아닙니다."),
@@ -46,7 +50,7 @@ public enum ErrorCode {
     MEMBER_CANT_ACCESS(HttpStatus.BAD_REQUEST, "E-403", "해당 멤버의 ROLE로 접근할 수 없습니다"),
 
     //세션 사진
-    SESSION_PHOTO_COUNT_MISMATCH(HttpStatus.BAD_REQUEST, "P-101", "저장된 사진 수와 요청 사진 수가 다릅니다."),
+    SESSION_IMAGE_COUNT_MISMATCH(HttpStatus.BAD_REQUEST, "P-101", "저장된 사진 수와 요청 사진 수가 다릅니다."),
     SESSION_ORDER_INVALID(HttpStatus.BAD_REQUEST, "P-102", "입력한 순서는 유효하지 않습니다."),
 
     FILE_EXTENSION_FAULT(HttpStatus.BAD_REQUEST, "F-001", "해당 파일은 등록 할 수 없는 확장자명입니다."),

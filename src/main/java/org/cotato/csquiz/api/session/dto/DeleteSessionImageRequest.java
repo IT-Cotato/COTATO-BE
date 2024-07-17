@@ -2,10 +2,8 @@ package org.cotato.csquiz.api.session.dto;
 
 import jakarta.validation.constraints.NotNull;
 
-public record UpdateSessionDescriptionRequest(
+public record DeleteSessionImageRequest(
         @NotNull
-        Long sessionId,
-        @NotNull
-        String description
+        Long imageId
 ) {
 }

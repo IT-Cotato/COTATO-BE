@@ -2,6 +2,8 @@ package org.cotato.csquiz.domain.generation.entity;
 
 import static jakarta.persistence.FetchType.LAZY;
 
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -10,29 +12,32 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.cotato.csquiz.api.session.dto.SessionListPhotoInfoResponse;
 import org.cotato.csquiz.common.entity.BaseTimeEntity;
 import org.cotato.csquiz.common.entity.S3Info;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SessionPhoto extends BaseTimeEntity {
+public class SessionImage extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "session_photo_id")
+    @Column(name = "session_image_id")
     private Long id;
 
     @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "folderName", column = @Column(nullable = false)),
+            @AttributeOverride(name = "fileName", column = @Column(nullable = false)),
+            @AttributeOverride(name = "url", column = @Column(nullable = false))
+    })
     private S3Info s3Info;
 
-    @Column(name = "session_photo_order")
+    @Column(name = "session_image_order", nullable = false)
     private Integer order;
 
     @ManyToOne(fetch = LAZY)
@@ -40,7 +45,7 @@ public class SessionPhoto extends BaseTimeEntity {
     private Session session;
 
     @Builder
-    public SessionPhoto(Session session, Integer order, S3Info s3Info) {
+    public SessionImage(Session session, Integer order, S3Info s3Info) {
         this.session = session;
         this.order = order;
         this.s3Info = s3Info;
