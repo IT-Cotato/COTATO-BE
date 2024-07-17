@@ -50,7 +50,7 @@ public class SessionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(sessionService.addSession(request));
     }
 
-    @PatchMapping(value = "/update", consumes = "multipart/form-data")
+    @PatchMapping(value = "/update")
     public ResponseEntity<Void> updateSession(@RequestBody @Valid UpdateSessionRequest request) {
         sessionService.updateSession(request);
         return ResponseEntity.noContent().build();
