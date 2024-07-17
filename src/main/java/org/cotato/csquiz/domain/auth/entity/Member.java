@@ -12,6 +12,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.domain.auth.enums.MemberPosition;
 import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.cotato.csquiz.common.entity.BaseTimeEntity;
@@ -55,6 +56,9 @@ public class Member extends BaseTimeEntity {
     @Column(name = "passed_generation_number")
     private Integer passedGenerationNumber;
 
+    @Column(name = "member_profile_image")
+    private S3Info profileImage;
+
     @Builder
     public Member(String email, String password, String name, String phoneNumber) {
         this.email = email;
@@ -81,5 +85,9 @@ public class Member extends BaseTimeEntity {
 
     public void updatePosition(MemberPosition position) {
         this.position = position;
+    }
+
+    public void updateProfileImage(S3Info s3Info) {
+        this.profileImage = s3Info;
     }
 }

@@ -2,7 +2,6 @@ package org.cotato.csquiz.api.mypage.controller;
 
 import org.cotato.csquiz.api.mypage.dto.HallOfFameResponse;
 import org.cotato.csquiz.common.config.jwt.JwtTokenProvider;
-import org.cotato.csquiz.api.mypage.dto.MyPageMemberInfoResponse;
 import org.cotato.csquiz.domain.education.service.MyPageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,13 +27,5 @@ public class MyPageController {
         String accessToken = jwtTokenProvider.getBearer(authorizationHeader);
 
         return ResponseEntity.ok(myPageService.findHallOfFame(generationId, jwtTokenProvider.getMemberId(accessToken)));
-    }
-
-    @GetMapping("/info")
-    public ResponseEntity<MyPageMemberInfoResponse> findUserInfo(
-            @RequestHeader("Authorization") String authorizationHeader) {
-        String accessToken = jwtTokenProvider.getBearer(authorizationHeader);
-
-        return ResponseEntity.ok(myPageService.findMemberInfo(jwtTokenProvider.getMemberId(accessToken)));
     }
 }

@@ -11,7 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 public record AddSessionRequest(
         @NotNull
         Long generationId,
-        List<MultipartFile> photos,
+        List<MultipartFile> images,
         @NotNull
         String title,
         @NotNull
