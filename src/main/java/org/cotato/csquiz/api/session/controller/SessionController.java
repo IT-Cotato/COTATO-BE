@@ -1,22 +1,19 @@
 package org.cotato.csquiz.api.session.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.cotato.csquiz.api.session.dto.AddSessionPhotoRequest;
-import org.cotato.csquiz.api.session.dto.AddSessionPhotoResponse;
+import org.cotato.csquiz.api.session.dto.AddSessionImageRequest;
+import org.cotato.csquiz.api.session.dto.AddSessionImageResponse;
 import org.cotato.csquiz.api.session.dto.AddSessionRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionResponse;
 import org.cotato.csquiz.api.session.dto.CsEducationOnSessionNumberResponse;
-import org.cotato.csquiz.api.session.dto.DeleteSessionPhotoRequest;
+import org.cotato.csquiz.api.session.dto.DeleteSessionImageRequest;
 import org.cotato.csquiz.api.session.dto.SessionListResponse;
-import org.cotato.csquiz.api.session.dto.UpdateSessionDescriptionRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionNumberRequest;
-import org.cotato.csquiz.api.session.dto.UpdateSessionPhotoOrderRequest;
-import org.cotato.csquiz.api.session.dto.UpdateSessionPhotoRequest;
+import org.cotato.csquiz.api.session.dto.UpdateSessionImageOrderRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionRequest;
 import org.cotato.csquiz.domain.generation.service.SessionService;
 import org.cotato.csquiz.common.error.exception.ImageException;
@@ -66,23 +63,23 @@ public class SessionController {
     }
 
     @Operation(summary = "Session 수정 - 사진 순서", description = "세션 사진 순서 바꾸기")
-    @PatchMapping("/photo/order")
-    public ResponseEntity<Void> updateSessionPhotoOrder(@RequestBody UpdateSessionPhotoOrderRequest request) {
-        sessionService.updateSessionPhotoOrder(request);
+    @PatchMapping("/image/order")
+    public ResponseEntity<Void> updateSessionImageOrder(@RequestBody UpdateSessionImageOrderRequest request) {
+        sessionService.updateSessionImageOrder(request);
         return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Session 수정 - 사진 추가하기", description = "세션 수정 시 사진 추가하기, photoId 반환")
-    @PostMapping(value = "/photo", consumes = "multipart/form-data")
-    public ResponseEntity<AddSessionPhotoResponse> additionalSessionPhoto(@ModelAttribute @Valid AddSessionPhotoRequest request)
+    @PostMapping(value = "/image", consumes = "multipart/form-data")
+    public ResponseEntity<AddSessionImageResponse> additionalSessionImage(@ModelAttribute @Valid AddSessionImageRequest request)
             throws ImageException {
-        return ResponseEntity.status(HttpStatus.CREATED).body(sessionService.additionalSessionPhoto(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(sessionService.additionalSessionImage(request));
     }
 
     @Operation(summary = "Session 수정 - 사진 삭제하기", description = "사진 삭제하기")
-    @DeleteMapping(value = "/photo")
-    public ResponseEntity<Void> deleteSessionPhoto(@RequestBody DeleteSessionPhotoRequest request) {
-        sessionService.deleteSessionPhoto(request);
+    @DeleteMapping(value = "/image")
+    public ResponseEntity<Void> deleteSessionImage(@RequestBody DeleteSessionImageRequest request) {
+        sessionService.deleteSessionImage(request);
         return ResponseEntity.noContent().build();
     }
 
