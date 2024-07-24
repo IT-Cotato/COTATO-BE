@@ -21,4 +21,9 @@ public class EmailRedisRepository {
                 TimeUnit.MINUTES
         );
     }
+
+    public Boolean isEmailPresent(EmailType type, final String email) {
+        String key = type.getKeyPrefix() + email;
+        return redisTemplate.hasKey(key);
+    }
 }
