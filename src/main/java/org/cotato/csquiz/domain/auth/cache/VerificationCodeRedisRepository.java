@@ -18,8 +18,8 @@ public class VerificationCodeRedisRepository {
         return redisTemplate.opsForValue().get(queryKey);
     }
 
-    public void saveCodeWithEmail(String email, String verificationCode) {
-        String saveKey = KEY_PREFIX + email;
+    public void saveCodeWithEmail(EmailType type, String email, String verificationCode) {
+        String saveKey = type.getKeyPrefix() + KEY_PREFIX + email;
         redisTemplate.opsForValue().set(
                 saveKey,
                 verificationCode,

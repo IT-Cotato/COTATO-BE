@@ -16,6 +16,7 @@ import org.cotato.csquiz.common.config.jwt.JwtTokenProvider;
 import org.cotato.csquiz.common.config.jwt.RefreshToken;
 import org.cotato.csquiz.common.config.jwt.RefreshTokenRepository;
 import org.cotato.csquiz.common.config.jwt.Token;
+import org.cotato.csquiz.domain.auth.cache.EmailType;
 import org.cotato.csquiz.domain.auth.constant.EmailConstants;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.common.error.exception.AppException;
@@ -119,7 +120,7 @@ public class AuthService {
 
     public void sendSignUpEmail(SendEmailRequest request) {
         validateService.emailNotExist(request.email());
-        emailVerificationService.sendVerificationCodeToEmail(request.email(), EmailConstants.SIGNUP_SUBJECT);
+        emailVerificationService.sendVerificationCodeToEmail(EmailType.SIGNUP, request.email(), EmailConstants.SIGNUP_SUBJECT);
     }
 
     public void verifySingUpCode(String email, String code) {
@@ -128,7 +129,7 @@ public class AuthService {
 
     public void sendFindPasswordEmail(SendEmailRequest request) {
         validateService.emailExist(request.email());
-        emailVerificationService.sendVerificationCodeToEmail(request.email(), EmailConstants.PASSWORD_SUBJECT);
+        emailVerificationService.sendVerificationCodeToEmail(EmailType.UPDATE_PASSWORD, request.email(), EmailConstants.PASSWORD_SUBJECT);
     }
 
     public FindPasswordResponse verifyPasswordCode(String email, String code) {

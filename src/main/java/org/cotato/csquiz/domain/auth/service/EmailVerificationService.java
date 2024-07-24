@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.common.error.ErrorCode;
+import org.cotato.csquiz.domain.auth.cache.EmailRedisRepository;
+import org.cotato.csquiz.domain.auth.cache.EmailType;
 import org.cotato.csquiz.domain.auth.utils.EmailFormValidator;
 import org.cotato.csquiz.domain.auth.cache.VerificationCodeRedisRepository;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -33,13 +35,17 @@ public class EmailVerificationService {
     private final JavaMailSender mailSender;
     private final VerificationCodeRedisRepository verificationCodeRedisRepository;
     private final EmailFormValidator emailFormValidator;
+    private final EmailRedisRepository emailRedisRepository;
 
-    @Transactional
-    public void sendVerificationCodeToEmail(String recipient, String subject) {
+    public void sendVerificationCodeToEmail(EmailType type, String recipient, String subject) {
         emailFormValidator.validateEmailForm(recipient);
+
         String verificationCode = getVerificationCode();
         log.info("인증 번호 생성 완료");
-        verificationCodeRedisRepository.saveCodeWithEmail(recipient, verificationCode);
+
+        emailRedisRepository.saveEmail(type, recipient);
+        verificationCodeRedisRepository.saveCodeWithEmail(type, recipient, verificationCode);
+
         sendEmailWithVerificationCode(recipient, verificationCode, subject);
     }
 
