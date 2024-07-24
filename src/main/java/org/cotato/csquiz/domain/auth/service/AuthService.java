@@ -18,7 +18,7 @@ import org.cotato.csquiz.common.config.jwt.RefreshTokenRepository;
 import org.cotato.csquiz.common.config.jwt.Token;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
-import org.cotato.csquiz.domain.auth.cache.EmailType;
+import org.cotato.csquiz.domain.auth.enums.EmailType;
 import org.cotato.csquiz.domain.auth.constant.EmailConstants;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;

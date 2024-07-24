@@ -2,6 +2,7 @@ package org.cotato.csquiz.domain.auth.cache;
 
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
+import org.cotato.csquiz.domain.auth.enums.EmailType;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 

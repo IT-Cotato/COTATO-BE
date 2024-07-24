@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.domain.auth.cache.EmailRedisRepository;
-import org.cotato.csquiz.domain.auth.cache.EmailType;
+import org.cotato.csquiz.domain.auth.enums.EmailType;
 import org.cotato.csquiz.domain.auth.utils.EmailFormValidator;
 import org.cotato.csquiz.domain.auth.cache.VerificationCodeRedisRepository;
 import org.springframework.mail.javamail.JavaMailSender;

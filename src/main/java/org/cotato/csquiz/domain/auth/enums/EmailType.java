@@ -1,4 +1,4 @@
-package org.cotato.csquiz.domain.auth.cache;
+package org.cotato.csquiz.domain.auth.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
