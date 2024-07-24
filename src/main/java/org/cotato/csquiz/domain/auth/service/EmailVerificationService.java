@@ -88,11 +88,19 @@ public class EmailVerificationService {
         }
     }
 
-    @Transactional
-    public void verifyCode(String email, String code) {
-        String savedVerificationCode = verificationCodeRedisRepository.getByEmail(email);
-        validateEmailCodeMatching(savedVerificationCode, code);
-        log.info("[이메일 인증 완료]: 성공한 이메일 == {}", email);
+    public void verifyCode(EmailType type, String email, String code) {
+        String savedVerificationCode = verificationCodeRedisRepository.getByEmail(type, email);
+        if (savedVerificationCode != null) {
+            validateEmailCodeMatching(savedVerificationCode, code);
+            log.info("[이메일 인증 완료]: 성공한 이메일 == {}", email);
+            return;
+        }
+
+        if (emailRedisRepository.isEmailPresent(type, email)) {
+            throw new AppException(ErrorCode.CODE_EXPIRED);
+        } else {
+            throw new AppException(ErrorCode.REQUEST_AGAIN);
+        }
     }
 
     private void validateEmailCodeMatching(String savedVerificationCode, String code) {
