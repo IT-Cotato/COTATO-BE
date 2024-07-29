@@ -9,11 +9,9 @@ import org.cotato.csquiz.api.member.dto.MemberMyPageInfoResponse;
 import org.cotato.csquiz.common.S3.S3Uploader;
 import org.cotato.csquiz.common.config.jwt.JwtTokenProvider;
 import org.cotato.csquiz.common.entity.S3Info;
-import org.cotato.csquiz.common.error.exception.ImageException;
-import org.cotato.csquiz.domain.auth.entity.Member;
-import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
+import org.cotato.csquiz.common.error.exception.ImageException;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -53,10 +51,10 @@ public class MemberService {
     }
 
     @Transactional
-    public void updatePassword(String accessToken, String password) {
-        Long memberId = jwtTokenProvider.getMemberId(accessToken);
+    public void updatePassword(final Long memberId, final String password) {
         Member findMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다."));
+
         validateService.checkPasswordPattern(password);
         validateIsSameBefore(findMember.getPassword(), password);
 
