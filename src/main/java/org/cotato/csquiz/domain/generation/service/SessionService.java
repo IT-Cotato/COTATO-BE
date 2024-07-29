@@ -174,7 +174,7 @@ public class SessionService {
             throw new AppException(ErrorCode.SESSION_IMAGE_COUNT_MISMATCH);
         }
 
-        if (isValidOrderRange(orderList)) {
+        if (!isValidOrderRange(orderList)) {
             throw new AppException(ErrorCode.SESSION_ORDER_INVALID);
         }
 
