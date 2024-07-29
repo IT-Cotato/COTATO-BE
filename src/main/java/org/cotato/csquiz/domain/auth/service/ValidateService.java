@@ -34,13 +34,13 @@ public class ValidateService {
     }
 
     public void emailNotExist(String email) {
-        if (memberRepository.findByEmail(email).isPresent()) {
+        if (memberRepository.existsByEmail(email)) {
             throw new AppException(ErrorCode.EMAIL_DUPLICATED);
         }
     }
 
     public void emailExist(String email) {
-        if (memberRepository.findByEmail(email).isEmpty()) {
+        if (!memberRepository.existsByEmail(email)) {
             throw new AppException(ErrorCode.EMAIL_NOT_FOUND);
         }
     }
