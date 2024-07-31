@@ -1,16 +1,21 @@
 package org.cotato.csquiz.domain.attendance.service;
 
 
+import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionRequest.AttendanceDeadLine;
+import org.cotato.csquiz.common.error.ErrorCode;
+import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.attendance.embedded.Location;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
-import org.cotato.csquiz.domain.attendance.entity.Attendance.AttendanceBuilder;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.generation.entity.Session;
+import org.cotato.csquiz.domain.generation.repository.SessionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AttendanceAdminService {
 
     private final AttendanceRepository attendanceRepository;
+    private final SessionRepository sessionRepository;
 
     @Transactional
     public void addAttendance(Session session, LocalDate localDate, Location location,
@@ -38,5 +44,29 @@ public class AttendanceAdminService {
                 .build();
 
         attendanceRepository.save(attendance);
+    }
+
+
+    @Transactional
+    public void updateAttendance(UpdateAttendanceRequest request) {
+        Attendance attendance = attendanceRepository.findById(request.attendanceId())
+                .orElseThrow(() -> new EntityNotFoundException("해당 출석 정보가 존재하지 않습니다"));
+        Session attendanceSession = sessionRepository.findById(attendance.getSessionId())
+                .orElseThrow(() -> new EntityNotFoundException("출석과 연결된 세션을 찾을 수 없습니다"));
+
+        if (attendanceSession.getSessionDate() == null) {
+            throw new AppException(ErrorCode.SESSION_DATE_NOT_FOUND);
+        }
+
+        if (checkAttendanceTimeValid(request.attendanceDeadLine().startTime(), request.attendanceDeadLine().endTime())) {
+            throw new AppException(ErrorCode.SESSION_DEADLINE_INVALID);
+        }
+
+        attendance.updateDeadLine(attendanceSession.getSessionDate(), request.attendanceDeadLine());
+        attendance.updateLocation(request.location());
+    }
+
+    private boolean checkAttendanceTimeValid(LocalTime startTime, LocalTime endTime) {
+        return endTime == null || startTime == null;
     }
 }

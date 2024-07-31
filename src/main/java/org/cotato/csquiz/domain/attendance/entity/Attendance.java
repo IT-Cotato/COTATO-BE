@@ -5,11 +5,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest.AttendanceDeadLine;
 import org.cotato.csquiz.common.entity.BaseTimeEntity;
 import org.cotato.csquiz.domain.attendance.embedded.Location;
 import org.cotato.csquiz.domain.generation.entity.Session;
@@ -41,5 +43,14 @@ public class Attendance extends BaseTimeEntity {
         this.endTime = endTime;
         this.location = location;
         this.sessionId = session.getId();
+    }
+
+    public void updateLocation(Location location) {
+        this.location = location;
+    }
+
+    public void updateDeadLine(LocalDate sessionDate, AttendanceDeadLine deadLine) {
+        this.startTime = LocalDateTime.of(sessionDate, deadLine.startTime());
+        this.endTime = LocalDateTime.of(sessionDate, deadLine.endTime());
     }
 }
