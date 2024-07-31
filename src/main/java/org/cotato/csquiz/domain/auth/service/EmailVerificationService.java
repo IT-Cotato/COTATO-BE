@@ -31,6 +31,8 @@ public class EmailVerificationService {
 
     private static final int CODE_LENGTH = 6;
     private static final int CODE_BOUNDARY = 10;
+    private static final String SUCCESS = "success";
+    private static final String REQUESTED = "requested";
 
     private final JavaMailSender mailSender;
     private final VerificationCodeRedisRepository verificationCodeRedisRepository;
@@ -43,7 +45,7 @@ public class EmailVerificationService {
         String verificationCode = getVerificationCode();
         log.info("인증 번호 생성 완료");
 
-        emailRedisRepository.saveEmail(type, recipient);
+        emailRedisRepository.saveRequestStatus(REQUESTED, type, recipient);
         verificationCodeRedisRepository.saveCodeWithEmail(type, recipient, verificationCode);
 
         sendEmailWithVerificationCode(recipient, verificationCode, subject);

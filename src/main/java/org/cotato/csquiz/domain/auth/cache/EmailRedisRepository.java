@@ -13,11 +13,11 @@ public class EmailRedisRepository {
     private static final int EXPIRATION_TIME = 15;
     private final RedisTemplate<String, String> redisTemplate;
 
-    public Boolean saveEmail(EmailType type, final String email){
+    public void saveRequestStatus(String status, EmailType type, final String email) {
         String key = type.getKeyPrefix() + email;
-        return redisTemplate.opsForValue().setIfAbsent(
+        redisTemplate.opsForValue().set(
                 key,
-                type.getValue(),
+                status,
                 EXPIRATION_TIME,
                 TimeUnit.MINUTES
         );
