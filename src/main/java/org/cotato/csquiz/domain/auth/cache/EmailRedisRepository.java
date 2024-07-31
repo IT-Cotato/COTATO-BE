@@ -27,4 +27,9 @@ public class EmailRedisRepository {
         String key = type.getKeyPrefix() + email;
         return redisTemplate.hasKey(key);
     }
+
+    public String getValue(EmailType type, final String email) {
+        String key = type.getKeyPrefix() + email;
+        return redisTemplate.opsForValue().get(key);
+    }
 }

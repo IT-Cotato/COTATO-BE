@@ -111,4 +111,8 @@ public class EmailVerificationService {
             throw new AppException(ErrorCode.CODE_NOT_MATCH);
         }
     }
+
+    public boolean isSucceedEmail(EmailType emailType, String email) {
+        return SUCCESS.equals(emailRedisRepository.getValue(emailType, email));
+    }
 }
