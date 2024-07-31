@@ -25,16 +25,18 @@ public class AttendanceAdminService {
     @Transactional
     public void addAttendance(Session session, LocalDate localDate, Location location,
                               AttendanceDeadLine attendanceDeadLine) {
-        AttendanceBuilder attendanceBuilder = Attendance.builder()
-                .session(session)
-                .location(location);
 
-        if (localDate != null && attendanceDeadLine != null) {
-            attendanceBuilder
-                    .startTime(LocalDateTime.of(localDate, attendanceDeadLine.startTime()))
-                    .endTime(LocalDateTime.of(localDate, attendanceDeadLine.endTime()));
+        if (checkAttendanceTimeValid(attendanceDeadLine.startTime(), attendanceDeadLine.endTime())) {
+            throw new AppException(ErrorCode.SESSION_DEADLINE_INVALID);
         }
 
-        attendanceRepository.save(attendanceBuilder.build());
+        Attendance attendance = Attendance.builder()
+                .session(session)
+                .location(location)
+                .startTime(LocalDateTime.of(localDate, attendanceDeadLine.startTime()))
+                .endTime(LocalDateTime.of(localDate, attendanceDeadLine.endTime()))
+                .build();
+
+        attendanceRepository.save(attendance);
     }
 }

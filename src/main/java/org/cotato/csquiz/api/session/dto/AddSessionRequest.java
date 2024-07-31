@@ -1,7 +1,7 @@
 package org.cotato.csquiz.api.session.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import org.cotato.csquiz.domain.attendance.embedded.Location;
@@ -22,7 +22,9 @@ public record AddSessionRequest(
         String description,
         Location location,
         String placeName,
+        @NotNull
         LocalDate sessionDate,
+        @NotNull
         AttendanceDeadLine attendanceDeadLine,
         ItIssue itIssue,
         Networking networking,
@@ -30,9 +32,9 @@ public record AddSessionRequest(
         DevTalk devTalk
 ) {
         public record AttendanceDeadLine(
-                @NotNull
+                @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
                 LocalTime startTime,
-                @NotNull
+                @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
                 LocalTime endTime
         ){
         }
