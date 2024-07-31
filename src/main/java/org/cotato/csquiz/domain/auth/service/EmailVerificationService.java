@@ -95,6 +95,7 @@ public class EmailVerificationService {
         if (savedVerificationCode != null) {
             validateEmailCodeMatching(savedVerificationCode, code);
             log.info("[이메일 인증 완료]: 성공한 이메일 == {}", email);
+            emailRedisRepository.saveRequestStatus(SUCCESS, type, email);
             return;
         }
 
