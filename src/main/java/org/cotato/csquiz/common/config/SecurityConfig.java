@@ -78,6 +78,7 @@ public class SecurityConfig {
                         .requestMatchers("/v1/api/session/cs-on").hasAnyRole("EDUCATION", "ADMIN")
                         .requestMatchers(new AntPathRequestMatcher("/v1/api/session", "GET")).authenticated()
                         .requestMatchers("/v1/api/session/**").hasAnyRole("ADMIN")
+                        .requestMatchers("/v2/api/attendance/admin/**").hasAnyRole("ADMIN")
                         .requestMatchers(new AntPathRequestMatcher("/v1/api/socket/token", "POST"))
                         .hasAnyRole("MEMBER", "EDUCATION", "ADMIN")
                         .requestMatchers("/v1/api/socket/**").hasAnyRole("EDUCATION", "ADMIN")

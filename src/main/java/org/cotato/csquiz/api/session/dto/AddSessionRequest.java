@@ -1,6 +1,10 @@
 package org.cotato.csquiz.api.session.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
+import org.cotato.csquiz.domain.attendance.embedded.Location;
 import org.cotato.csquiz.domain.generation.enums.CSEducation;
 import org.cotato.csquiz.domain.generation.enums.DevTalk;
 import org.cotato.csquiz.domain.generation.enums.ItIssue;
@@ -16,9 +20,22 @@ public record AddSessionRequest(
         String title,
         @NotNull
         String description,
+        Location location,
+        String placeName,
+        @NotNull
+        LocalDate sessionDate,
+        @NotNull
+        AttendanceDeadLine attendanceDeadLine,
         ItIssue itIssue,
         Networking networking,
         CSEducation csEducation,
         DevTalk devTalk
 ) {
+        public record AttendanceDeadLine(
+                @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
+                LocalTime startTime,
+                @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
+                LocalTime endTime
+        ){
+        }
 }

@@ -46,7 +46,7 @@ public class Session extends BaseTimeEntity {
 
     @AttributeOverrides({
             @AttributeOverride(name = "itIssue",
-            column = @Column(name = "session_it_issue")),
+                    column = @Column(name = "session_it_issue")),
             @AttributeOverride(name = "networking",
                     column = @Column(name = "session_networking")),
             @AttributeOverride(name = "csEducation",
@@ -63,10 +63,13 @@ public class Session extends BaseTimeEntity {
     private String placeName;
 
     @Builder
-    public Session(Integer number, String title, String description, Generation generation, SessionContents sessionContents) {
+    public Session(Integer number, String title, String description, String placeName, LocalDate sessionDate,
+                   Generation generation, SessionContents sessionContents) {
         this.number = number;
         this.title = title;
         this.description = description;
+        this.placeName = placeName;
+        this.sessionDate = sessionDate;
         this.generation = generation;
         this.sessionContents = sessionContents;
     }
@@ -83,7 +86,7 @@ public class Session extends BaseTimeEntity {
         this.sessionContents = sessionContents;
     }
 
-    public void updateSessionTitle(String title){
+    public void updateSessionTitle(String title) {
         this.title = title;
     }
 }
