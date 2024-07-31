@@ -31,7 +31,6 @@ public class AuthController {
 
     @PostMapping("/join")
     public ResponseEntity<Void> joinAuth(@RequestBody @Valid JoinRequest request) {
-        log.info("[회원 가입 컨트롤러]: {}, {}", request.email(), request.name());
         authService.createLoginInfo(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
