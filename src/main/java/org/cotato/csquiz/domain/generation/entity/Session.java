@@ -59,8 +59,8 @@ public class Session extends BaseTimeEntity {
     @Column(name = "session_date")
     private LocalDate sessionDate;
 
-    @Column(name = "session_place_title")
-    private String placeTitle;
+    @Column(name = "session_place_name")
+    private String placeName;
 
     @Builder
     public Session(Integer number, String title, String description, Generation generation, SessionContents sessionContents) {
