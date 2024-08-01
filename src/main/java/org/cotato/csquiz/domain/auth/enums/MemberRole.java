@@ -1,5 +1,7 @@
 package org.cotato.csquiz.domain.auth.enums;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.common.error.ErrorCode;
 import java.util.Arrays;
@@ -26,5 +28,9 @@ public enum MemberRole {
                 .filter(memberRole -> memberRole.getKey().equals(key))
                 .findFirst()
                 .orElseThrow(() -> new AppException(ErrorCode.ENUM_NOT_RESOLVED));
+    }
+
+    public static List<MemberRole> activeMemberRoles() {
+        return List.of(ADMIN, EDUCATION, MEMBER);
     }
 }

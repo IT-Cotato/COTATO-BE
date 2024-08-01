@@ -3,26 +3,41 @@ package org.cotato.csquiz.api.attendance.dto;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.cotato.csquiz.api.admin.dto.MemberInfoResponse;
 import org.cotato.csquiz.domain.attendance.entity.AttendanceRecord;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceStatus;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
+import org.cotato.csquiz.domain.auth.entity.Member;
+import org.cotato.csquiz.domain.auth.enums.MemberRole;
 
 
 public record AttendanceRecordResponse(
-        MemberInfoResponse memberInfo,
+        AttendanceMemberInfo memberInfo,
         List<AttendanceInfoResponse> attendanceInfos,
         AttendanceStatistic statistic
 ) {
-    public static AttendanceRecordResponse of(MemberInfoResponse memberInfo, List<AttendanceRecord> attendanceRecords,
+    public static AttendanceRecordResponse of(Member member, List<AttendanceRecord> attendanceRecords,
                                               Integer totalAttendance) {
         return new AttendanceRecordResponse(
-                memberInfo,
+                AttendanceMemberInfo.from(member),
                 attendanceRecords.stream()
                         .map(AttendanceInfoResponse::from)
                         .toList(),
                 AttendanceStatistic.from(attendanceRecords, totalAttendance)
         );
+    }
+
+    public record AttendanceMemberInfo(
+            Long memberId,
+            String memberName,
+            MemberRole role
+    ){
+        static AttendanceMemberInfo from(Member member) {
+            return new AttendanceMemberInfo(
+                    member.getId(),
+                    member.getName(),
+                    member.getRole()
+            );
+        }
     }
 
     public record AttendanceStatistic(
