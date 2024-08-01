@@ -1,6 +1,10 @@
 package org.cotato.csquiz.api.session.dto;
 
+import jakarta.validation.Valid;
+import java.time.LocalDate;
 import java.util.List;
+import org.cotato.csquiz.domain.attendance.embedded.Location;
+import org.cotato.csquiz.api.attendance.dto.AttendanceDeadLineDto;
 import org.cotato.csquiz.domain.generation.enums.CSEducation;
 import org.cotato.csquiz.domain.generation.enums.DevTalk;
 import org.cotato.csquiz.domain.generation.enums.ItIssue;
@@ -16,6 +20,14 @@ public record AddSessionRequest(
         String title,
         @NotNull
         String description,
+        Location location,
+        String placeName,
+        @NotNull
+        LocalDate sessionDate,
+
+        @Valid
+        @NotNull
+        AttendanceDeadLineDto attendanceDeadLine,
         ItIssue itIssue,
         Networking networking,
         CSEducation csEducation,

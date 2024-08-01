@@ -25,6 +25,8 @@ import org.cotato.csquiz.api.session.dto.UpdateSessionRequest;
 import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
+import org.cotato.csquiz.domain.attendance.entity.Attendance;
+import org.cotato.csquiz.domain.attendance.service.AttendanceAdminService;
 import org.cotato.csquiz.domain.education.entity.Education;
 import org.cotato.csquiz.domain.education.service.EducationService;
 import org.cotato.csquiz.domain.generation.embedded.SessionContents;
@@ -51,6 +53,7 @@ public class SessionService {
     private final SessionRepository sessionRepository;
     private final GenerationRepository generationRepository;
     private final SessionImageRepository sessionImageRepository;
+    private final AttendanceAdminService attendanceAdminService;
     private final EducationService educationService;
     private final S3Uploader s3Uploader;
 
@@ -67,6 +70,8 @@ public class SessionService {
                 .description(request.description())
                 .generation(findGeneration)
                 .title(request.title())
+                .placeName(request.placeName())
+                .sessionDate(request.sessionDate())
                 .sessionContents(SessionContents.builder()
                         .csEducation(request.csEducation())
                         .devTalk(request.devTalk())
@@ -97,6 +102,8 @@ public class SessionService {
             sessionImageRepository.saveAll(sessionImages);
             log.info("세션 이미지 생성 완료");
         }
+
+        attendanceAdminService.addAttendance(session, request.location(), request.attendanceDeadLine());
 
         return AddSessionResponse.from(savedSession);
     }

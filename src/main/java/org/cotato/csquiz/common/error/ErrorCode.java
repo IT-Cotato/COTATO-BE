@@ -43,6 +43,7 @@ public enum ErrorCode {
     // 기수 운영 (세션 -> 출석)
     INVALID_DATE(HttpStatus.BAD_REQUEST, "G-101", "시작날짜가 끝 날짜보다 뒤입니다"),
     GENERATION_NUMBER_DUPLICATED(HttpStatus.CONFLICT, "G-201", "같은 숫자의 기수가 있습니다"),
+    SESSION_DATE_NOT_FOUND(HttpStatus.NOT_FOUND, "G-202", "세션 날짜가 존재하지 않습니다"),
 
     // 교육 도메인
     REGRADE_FAIL(HttpStatus.BAD_REQUEST, "E-201", "재채점 할 기록이 없습니다."),
