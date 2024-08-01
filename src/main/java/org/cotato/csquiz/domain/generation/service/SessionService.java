@@ -103,7 +103,7 @@ public class SessionService {
             log.info("세션 이미지 생성 완료");
         }
 
-        attendanceAdminService.addAttendance(session, request.sessionDate() ,request.location(), request.attendanceDeadLine());
+        attendanceAdminService.addAttendance(session, request.location(), request.attendanceDeadLine());
 
         return AddSessionResponse.from(savedSession);
     }

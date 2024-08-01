@@ -4,11 +4,10 @@ package org.cotato.csquiz.domain.attendance.service;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.cotato.csquiz.api.attendance.dto.AttendanceDeadLineDto;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
-import org.cotato.csquiz.api.session.dto.AddSessionRequest.AttendanceDeadLine;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.attendance.embedded.Location;
@@ -29,18 +28,14 @@ public class AttendanceAdminService {
     private final SessionRepository sessionRepository;
 
     @Transactional
-    public void addAttendance(Session session, LocalDate localDate, Location location,
-                              AttendanceDeadLine attendanceDeadLine) {
-
-        if (checkAttendanceTimeValid(attendanceDeadLine.startTime(), attendanceDeadLine.endTime())) {
-            throw new AppException(ErrorCode.SESSION_DEADLINE_INVALID);
-        }
+    public void addAttendance(Session session, Location location,
+                              AttendanceDeadLineDto attendanceDeadLine) {
 
         Attendance attendance = Attendance.builder()
                 .session(session)
                 .location(location)
-                .startTime(LocalDateTime.of(localDate, attendanceDeadLine.startTime()))
-                .endTime(LocalDateTime.of(localDate, attendanceDeadLine.endTime()))
+                .startTime(LocalDateTime.of(session.getSessionDate(), attendanceDeadLine.startTime()))
+                .endTime(LocalDateTime.of(session.getSessionDate(), attendanceDeadLine.endTime()))
                 .build();
 
         attendanceRepository.save(attendance);
@@ -58,15 +53,12 @@ public class AttendanceAdminService {
             throw new AppException(ErrorCode.SESSION_DATE_NOT_FOUND);
         }
 
-        if (checkAttendanceTimeValid(request.attendanceDeadLine().startTime(), request.attendanceDeadLine().endTime())) {
-            throw new AppException(ErrorCode.SESSION_DEADLINE_INVALID);
-        }
+        LocalDate sessionDate = attendanceSession.getSessionDate();
+        AttendanceDeadLineDto deadLine = request.attendanceDeadLine();
+        LocalDateTime startLocalDateTime = LocalDateTime.of(sessionDate, deadLine.startTime());
+        LocalDateTime endLocalDateTime = LocalDateTime.of(sessionDate, deadLine.endTime());
 
-        attendance.updateDeadLine(attendanceSession.getSessionDate(), request.attendanceDeadLine());
+        attendance.updateDeadLine(startLocalDateTime, endLocalDateTime);
         attendance.updateLocation(request.location());
-    }
-
-    private boolean checkAttendanceTimeValid(LocalTime startTime, LocalTime endTime) {
-        return endTime == null || startTime == null;
     }
 }
