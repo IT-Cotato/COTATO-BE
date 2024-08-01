@@ -21,13 +21,13 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v2/api/attendance/admin")
-public class AttendanceAdminController {
+@RequestMapping("/v2/api/attendance")
+public class AttendanceController {
 
     private final AttendanceAdminService attendanceAdminService;
 
     @Operation(summary = "출석 정보 변경 API")
-    @PatchMapping("/update")
+    @PatchMapping()
     public ResponseEntity<Void> updateAttendance(@RequestBody @Valid UpdateAttendanceRequest request) {
         attendanceAdminService.updateAttendance(request);
         return ResponseEntity.noContent().build();
