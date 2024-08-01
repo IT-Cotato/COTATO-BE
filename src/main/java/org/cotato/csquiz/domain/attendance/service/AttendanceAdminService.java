@@ -80,10 +80,16 @@ public class AttendanceAdminService {
                 .map(Session::getId)
                 .toList();
 
-        List<Attendance> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds).stream()
-                .toList();
+        List<Attendance> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds);
 
         return attendanceRecordService.generateAttendanceResponses(attendances);
+    }
+
+    public List<AttendanceRecordResponse> findAttendanceRecordsByAttendance(Long attendanceId){
+        Attendance attendance = attendanceRepository.findById(attendanceId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 출석이 존재하지 않습니다"));
+
+        return attendanceRecordService.generateAttendanceResponses(attendance);
     }
 
     private boolean checkAttendanceTimeValid(LocalTime startTime, LocalTime endTime) {
