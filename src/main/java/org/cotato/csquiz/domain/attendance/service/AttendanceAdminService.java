@@ -6,11 +6,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.cotato.csquiz.api.admin.dto.MemberInfoResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceRecordResponse;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionRequest.AttendanceDeadLine;
@@ -18,10 +15,7 @@ import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.attendance.embedded.Location;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
-import org.cotato.csquiz.domain.attendance.entity.AttendanceRecord;
-import org.cotato.csquiz.domain.attendance.repository.AttendanceRecordRepository;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
-import org.cotato.csquiz.domain.auth.service.MemberService;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
 import org.springframework.stereotype.Service;
@@ -34,9 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class AttendanceAdminService {
 
     private final AttendanceRepository attendanceRepository;
-    private final AttendanceRecordRepository attendanceRecordRepository;
+    private final AttendanceRecordService attendanceRecordService;
     private final SessionRepository sessionRepository;
-    private final MemberService memberService;
 
     @Transactional
     public void addAttendance(Session session, LocalDate localDate, Location location,
@@ -90,16 +83,7 @@ public class AttendanceAdminService {
         List<Attendance> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds).stream()
                 .toList();
 
-        Map<Long, List<AttendanceRecord>> recordsByMemberId = attendanceRecordRepository.findAllByAttendanceIdsInQuery(
-                        attendances).stream()
-                .collect(Collectors.groupingBy(AttendanceRecord::getMemberId));
-
-        return recordsByMemberId.entrySet().stream()
-                .map(entry -> {
-                    MemberInfoResponse memberInfo = memberService.findMemberInfo(entry.getKey());
-                    return AttendanceRecordResponse.of(memberInfo, entry.getValue(), attendances.size());
-                })
-                .toList();
+        return attendanceRecordService.generateAttendanceResponses(attendances);
     }
 
     private boolean checkAttendanceTimeValid(LocalTime startTime, LocalTime endTime) {
