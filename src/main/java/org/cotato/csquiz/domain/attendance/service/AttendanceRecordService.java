@@ -24,10 +24,6 @@ public class AttendanceRecordService {
     private final AttendanceRecordRepository attendanceRecordRepository;
     private final MemberService memberService;
 
-    public List<AttendanceRecordResponse> generateAttendanceResponses(Attendance attendance) {
-        return generateAttendanceResponses(List.of(attendance));
-    }
-
     public List<AttendanceRecordResponse> generateAttendanceResponses(List<Attendance> attendances) {
         List<AttendanceRecord> records = attendanceRecordRepository.findAllByAttendanceIdsInQuery(
                 attendances);

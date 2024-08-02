@@ -89,7 +89,7 @@ public class AttendanceAdminService {
         Attendance attendance = attendanceRepository.findById(attendanceId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석이 존재하지 않습니다"));
 
-        return attendanceRecordService.generateAttendanceResponses(attendance);
+        return attendanceRecordService.generateAttendanceResponses(List.of(attendance));
     }
 
     private boolean checkAttendanceTimeValid(LocalTime startTime, LocalTime endTime) {
