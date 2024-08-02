@@ -13,7 +13,7 @@ public record AttendanceStatistic(
         Integer late,
         Integer absent
 ) {
-    public static AttendanceStatistic from(List<AttendanceRecord> attendanceRecords, Integer totalAttendance) {
+    public static AttendanceStatistic of(List<AttendanceRecord> attendanceRecords, Integer totalAttendance) {
         Map<AttendanceStatus, List<AttendanceRecord>> countByStatus = attendanceRecords.stream()
                 .collect(Collectors.groupingBy(AttendanceRecord::getAttendanceStatus));
         List<AttendanceRecord> presentRecords = countByStatus.getOrDefault(AttendanceStatus.PRESENT, List.of());
