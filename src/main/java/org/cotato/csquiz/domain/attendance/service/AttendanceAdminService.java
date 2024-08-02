@@ -32,8 +32,7 @@ public class AttendanceAdminService {
     private final SessionRepository sessionRepository;
 
     @Transactional
-    public void addAttendance(Session session, LocalDate localDate, Location location,
-                              AttendanceDeadLine attendanceDeadLine) {
+    public void addAttendance(Session session, Location location, AttendanceDeadLineDto attendanceDeadLine) {
 
         Attendance attendance = Attendance.builder()
                 .session(session)
@@ -57,7 +56,9 @@ public class AttendanceAdminService {
             throw new AppException(ErrorCode.SESSION_DATE_NOT_FOUND);
         }
 
-        attendance.updateDeadLine(attendanceSession.getSessionDate(), request.attendanceDeadLine());
+        attendance.updateDeadLine(LocalDateTime.of(attendanceSession.getSessionDate(), request.attendanceDeadLine()
+                .startTime()), LocalDateTime.of(attendanceSession.getSessionDate(), request.attendanceDeadLine()
+                .endTime()));
         attendance.updateLocation(request.location());
     }
 
