@@ -49,8 +49,8 @@ public class Attendance extends BaseTimeEntity {
         this.location = location;
     }
 
-    public void updateDeadLine(LocalDate sessionDate, AttendanceDeadLine deadLine) {
-        this.startTime = LocalDateTime.of(sessionDate, deadLine.startTime());
-        this.endTime = LocalDateTime.of(sessionDate, deadLine.endTime());
+    public void updateDeadLine(LocalDateTime startTime, LocalDateTime endTime) {
+        this.startTime = startTime;
+        this.endTime = endTime;
     }
 }

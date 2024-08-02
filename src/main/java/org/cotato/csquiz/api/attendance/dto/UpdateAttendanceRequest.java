@@ -1,22 +1,16 @@
 package org.cotato.csquiz.api.attendance.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalTime;
 import org.cotato.csquiz.domain.attendance.embedded.Location;
 
 public record UpdateAttendanceRequest(
+        @NotNull
         Long attendanceId,
         Location location,
 
+        @Valid
         @NotNull
-        AttendanceDeadLine attendanceDeadLine
+        AttendanceDeadLineDto attendanceDeadLine
 ) {
-    public record AttendanceDeadLine(
-            @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
-            LocalTime startTime,
-            @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
-            LocalTime endTime
-    ) {
-    }
 }

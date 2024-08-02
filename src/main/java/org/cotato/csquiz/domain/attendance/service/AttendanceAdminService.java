@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.attendance.dto.AttendanceRecordResponse;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
-import org.cotato.csquiz.api.session.dto.AddSessionRequest.AttendanceDeadLine;
+import org.cotato.csquiz.api.attendance.dto.AttendanceDeadLineDto;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.attendance.embedded.Location;
@@ -35,15 +35,11 @@ public class AttendanceAdminService {
     public void addAttendance(Session session, LocalDate localDate, Location location,
                               AttendanceDeadLine attendanceDeadLine) {
 
-        if (checkAttendanceTimeValid(attendanceDeadLine.startTime(), attendanceDeadLine.endTime())) {
-            throw new AppException(ErrorCode.SESSION_DEADLINE_INVALID);
-        }
-
         Attendance attendance = Attendance.builder()
                 .session(session)
                 .location(location)
-                .startTime(LocalDateTime.of(localDate, attendanceDeadLine.startTime()))
-                .endTime(LocalDateTime.of(localDate, attendanceDeadLine.endTime()))
+                .startTime(LocalDateTime.of(session.getSessionDate(), attendanceDeadLine.startTime()))
+                .endTime(LocalDateTime.of(session.getSessionDate(), attendanceDeadLine.endTime()))
                 .build();
 
         attendanceRepository.save(attendance);
@@ -59,10 +55,6 @@ public class AttendanceAdminService {
 
         if (attendanceSession.getSessionDate() == null) {
             throw new AppException(ErrorCode.SESSION_DATE_NOT_FOUND);
-        }
-
-        if (checkAttendanceTimeValid(request.attendanceDeadLine().startTime(), request.attendanceDeadLine().endTime())) {
-            throw new AppException(ErrorCode.SESSION_DEADLINE_INVALID);
         }
 
         attendance.updateDeadLine(attendanceSession.getSessionDate(), request.attendanceDeadLine());
@@ -90,9 +82,5 @@ public class AttendanceAdminService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석이 존재하지 않습니다"));
 
         return attendanceRecordService.generateAttendanceResponses(List.of(attendance));
-    }
-
-    private boolean checkAttendanceTimeValid(LocalTime startTime, LocalTime endTime) {
-        return endTime == null || startTime == null;
     }
 }

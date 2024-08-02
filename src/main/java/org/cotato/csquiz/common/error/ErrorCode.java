@@ -44,7 +44,7 @@ public enum ErrorCode {
     INVALID_DATE(HttpStatus.BAD_REQUEST, "G-101", "시작날짜가 끝 날짜보다 뒤입니다"),
     GENERATION_NUMBER_DUPLICATED(HttpStatus.CONFLICT, "G-201", "같은 숫자의 기수가 있습니다"),
     SESSION_DATE_NOT_FOUND(HttpStatus.NOT_FOUND, "G-202", "세션 날짜가 존재하지 않습니다"),
-    SESSION_DEADLINE_INVALID(HttpStatus.BAD_REQUEST, "G-102", "시작 시간과 끝 시간을 입력해주세요"),
+
     // 교육 도메인
     REGRADE_FAIL(HttpStatus.BAD_REQUEST, "E-201", "재채점 할 기록이 없습니다."),
     EDUCATION_DUPLICATED(HttpStatus.CONFLICT, "E-301", "이미 교육이 존재합니다"),
