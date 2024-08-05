@@ -15,6 +15,7 @@ import org.cotato.csquiz.api.session.dto.SessionListResponse;
 import org.cotato.csquiz.api.session.dto.UpdateSessionNumberRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionImageOrderRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionRequest;
+import org.cotato.csquiz.domain.generation.service.SessionImageService;
 import org.cotato.csquiz.domain.generation.service.SessionService;
 import org.cotato.csquiz.common.error.exception.ImageException;
 import org.springframework.http.HttpStatus;
@@ -36,6 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class SessionController {
 
     private final SessionService sessionService;
+    private final SessionImageService sessionImageService;
 
     @Operation(summary = "Session 리스트 정보 얻기", description = "Get Session Infos")
     @GetMapping("")
@@ -65,7 +67,7 @@ public class SessionController {
     @Operation(summary = "Session 수정 - 사진 순서", description = "세션 사진 순서 바꾸기")
     @PatchMapping("/image/order")
     public ResponseEntity<Void> updateSessionImageOrder(@RequestBody UpdateSessionImageOrderRequest request) {
-        sessionService.updateSessionImageOrder(request);
+        sessionImageService.updateSessionImageOrder(request);
         return ResponseEntity.noContent().build();
     }
 
@@ -73,13 +75,13 @@ public class SessionController {
     @PostMapping(value = "/image", consumes = "multipart/form-data")
     public ResponseEntity<AddSessionImageResponse> additionalSessionImage(@ModelAttribute @Valid AddSessionImageRequest request)
             throws ImageException {
-        return ResponseEntity.status(HttpStatus.CREATED).body(sessionService.additionalSessionImage(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(sessionImageService.additionalSessionImage(request));
     }
 
     @Operation(summary = "Session 수정 - 사진 삭제하기", description = "사진 삭제하기")
     @DeleteMapping(value = "/image")
     public ResponseEntity<Void> deleteSessionImage(@RequestBody DeleteSessionImageRequest request) {
-        sessionService.deleteSessionImage(request);
+        sessionImageService.deleteSessionImage(request);
         return ResponseEntity.noContent().build();
     }
 
