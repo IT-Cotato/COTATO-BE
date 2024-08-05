@@ -75,7 +75,7 @@ public class SessionService {
     }
 
     private int calculateLastSessionNumber(Generation generation) {
-        List<Session> allSession = sessionRepository.findAllByGeneration(generation);
+        List<Session> allSession = sessionRepository.findAllByGenerationId(generation.getId());
         return allSession.stream().mapToInt(Session::getNumber).max()
                 .orElse(-1);
     }
