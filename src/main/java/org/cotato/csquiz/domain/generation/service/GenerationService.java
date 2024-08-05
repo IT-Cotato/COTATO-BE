@@ -2,6 +2,9 @@ package org.cotato.csquiz.domain.generation.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class GenerationService {
 
+    private static final LocalDateTime BASE_TIME = LocalDateTime.of(2000, Month.JANUARY, 1, 0, 0);
     private final GenerationRepository generationRepository;
 
     @Transactional
@@ -32,7 +36,7 @@ public class GenerationService {
         checkNumberValid(request.generationNumber());
         Generation generation = Generation.builder()
                 .number(request.generationNumber())
-                .period(GenerationPeriod.of(request.startDate(),request.endDate()))
+                .period(GenerationPeriod.of(request.startDate(), request.endDate()))
                 .sessionCount(request.sessionCount())
                 .build();
         Generation savedGeneration = generationRepository.save(generation);
@@ -57,8 +61,8 @@ public class GenerationService {
     }
 
     public List<GenerationInfoResponse> findGenerations() {
-        List<Generation> generations = generationRepository.findAll();
-        return generations.stream()
+        return generationRepository.findAllByCreatedAtAfter(BASE_TIME).stream()
+                .sorted(Comparator.comparing(Generation::getNumber))
                 .map(GenerationInfoResponse::from)
                 .toList();
     }
