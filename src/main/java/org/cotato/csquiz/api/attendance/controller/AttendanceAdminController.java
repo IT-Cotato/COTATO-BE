@@ -21,7 +21,7 @@ public class AttendanceAdminController {
     private final AttendanceAdminService attendanceAdminService;
 
     @Operation(summary = "출석 정보 변경 API")
-    @PatchMapping("")
+    @PatchMapping
     public ResponseEntity<Void> updateAttendance(@RequestBody @Valid UpdateAttendanceRequest request) {
         attendanceAdminService.updateAttendance(request);
         return ResponseEntity.noContent().build();
