@@ -2,15 +2,13 @@ package org.cotato.csquiz.domain.attendance.service;
 
 
 import jakarta.persistence.EntityNotFoundException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.cotato.csquiz.api.attendance.dto.AttendanceDeadLineDto;
 import org.cotato.csquiz.api.attendance.dto.AttendanceRecordResponse;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
-import org.cotato.csquiz.api.attendance.dto.AttendanceDeadLineDto;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.attendance.embedded.Location;
@@ -78,7 +76,7 @@ public class AttendanceAdminService {
         return attendanceRecordService.generateAttendanceResponses(attendances);
     }
 
-    public List<AttendanceRecordResponse> findAttendanceRecordsByAttendance(Long attendanceId){
+    public List<AttendanceRecordResponse> findAttendanceRecordsByAttendance(Long attendanceId) {
         Attendance attendance = attendanceRepository.findById(attendanceId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석이 존재하지 않습니다"));
 

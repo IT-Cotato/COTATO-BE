@@ -1,5 +1,8 @@
 package org.cotato.csquiz.api.attendance.dto;
 
+import static org.cotato.csquiz.domain.attendance.constant.DeadLineConstants.DEFAULT_END_TIME;
+import static org.cotato.csquiz.domain.attendance.constant.DeadLineConstants.DEFAULT_START_TIME;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalTime;
 import java.util.Objects;
@@ -11,8 +14,6 @@ public record AttendanceDeadLineDto(
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
         LocalTime endTime
 ) {
-    public static final LocalTime DEFAULT_START_TIME = LocalTime.of(19, 0);
-    public static final LocalTime DEFAULT_END_TIME = LocalTime.of(19, 20);
 
     @Builder
     public AttendanceDeadLineDto {

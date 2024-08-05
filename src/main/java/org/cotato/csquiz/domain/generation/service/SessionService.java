@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.cotato.csquiz.api.attendance.dto.AttendanceDeadLineDto;
 import org.cotato.csquiz.api.session.dto.AddSessionRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionResponse;
 import org.cotato.csquiz.api.session.dto.CsEducationOnSessionNumberResponse;
@@ -13,6 +14,7 @@ import org.cotato.csquiz.api.session.dto.SessionListResponse;
 import org.cotato.csquiz.api.session.dto.UpdateSessionNumberRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionRequest;
 import org.cotato.csquiz.common.error.exception.ImageException;
+import org.cotato.csquiz.domain.attendance.embedded.Location;
 import org.cotato.csquiz.domain.attendance.service.AttendanceAdminService;
 import org.cotato.csquiz.domain.education.entity.Education;
 import org.cotato.csquiz.domain.education.service.EducationService;
@@ -69,7 +71,17 @@ public class SessionService {
             sessionImageService.addSessionImages(request.images(), savedSession);
         }
 
-        attendanceAdminService.addAttendance(session, request.location(), request.attendanceDeadLine());
+        Location location = Location.builder()
+                .latitude(request.latitude())
+                .longitude(request.longitude())
+                .build();
+
+        AttendanceDeadLineDto attendanceDeadLine = AttendanceDeadLineDto.builder()
+                .startTime(request.startTime())
+                .endTime(request.endTime())
+                .build();
+
+        attendanceAdminService.addAttendance(session, location, attendanceDeadLine);
 
         return AddSessionResponse.from(savedSession);
     }
