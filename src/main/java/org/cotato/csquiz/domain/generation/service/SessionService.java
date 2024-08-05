@@ -77,8 +77,8 @@ public class SessionService {
                 .build();
 
         AttendanceDeadLineDto attendanceDeadLine = AttendanceDeadLineDto.builder()
-                .startTime(request.startTime())
-                .endTime(request.endTime())
+                .attendanceDeadLine(request.attendanceDeadLine())
+                .lateDeadLine(request.lateDeadLine())
                 .build();
 
         attendanceAdminService.addAttendance(session, location, attendanceDeadLine);

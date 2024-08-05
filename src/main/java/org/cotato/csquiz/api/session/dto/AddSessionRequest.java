@@ -28,11 +28,11 @@ public record AddSessionRequest(
 
         @Schema(example = "17:00:00")
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
-        LocalTime startTime,
+        LocalTime attendanceDeadLine,
 
         @Schema(example = "17:00:00")
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
-        LocalTime endTime,
+        LocalTime lateDeadLine,
 
         ItIssue itIssue,
         Networking networking,

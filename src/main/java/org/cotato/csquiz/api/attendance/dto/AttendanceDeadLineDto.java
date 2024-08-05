@@ -10,18 +10,18 @@ import lombok.Builder;
 
 public record AttendanceDeadLineDto(
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
-        LocalTime startTime,
+        LocalTime attendanceDeadLine,
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
-        LocalTime endTime
+        LocalTime lateDeadLine
 ) {
 
     @Builder
     public AttendanceDeadLineDto {
-        if (Objects.isNull(startTime)) {
-            startTime = DEFAULT_START_TIME;
+        if (Objects.isNull(attendanceDeadLine)) {
+            attendanceDeadLine = DEFAULT_START_TIME;
         }
-        if (Objects.isNull(endTime)) {
-            endTime = DEFAULT_END_TIME;
+        if (Objects.isNull(lateDeadLine)) {
+            lateDeadLine = DEFAULT_END_TIME;
         }
     }
 }

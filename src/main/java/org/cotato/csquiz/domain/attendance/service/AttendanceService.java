@@ -46,7 +46,7 @@ public class AttendanceService {
                 .map(at -> AttendanceResponse.builder()
                         .attendanceId(at.getId())
                         .sessionTitle(sessionMap.get(at.getSessionId()).getTitle())
-                        .sessionDate(at.getStartTime().toLocalDate())
+                        .sessionDate(at.getAttendanceDeadLine().toLocalDate())
                         .isOpened(isAttendanceOpened(at))
                         .build())
                 .toList();
@@ -60,6 +60,6 @@ public class AttendanceService {
 
     private boolean isAttendanceOpened(Attendance attendance) {
         LocalDateTime currentTime = LocalDateTime.now();
-        return currentTime.isAfter(attendance.getStartTime()) && currentTime.isBefore(attendance.getEndTime());
+        return currentTime.isAfter(attendance.getAttendanceDeadLine()) && currentTime.isBefore(attendance.getLateDeadLine());
     }
 }

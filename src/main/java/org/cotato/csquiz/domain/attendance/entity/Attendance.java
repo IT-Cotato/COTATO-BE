@@ -24,11 +24,11 @@ public class Attendance extends BaseTimeEntity {
     @Column(name = "attendance_id")
     private Long id;
 
-    @Column(name = "start_time", nullable = false)
-    private LocalDateTime startTime;
+    @Column(name = "attendance_deadline", nullable = false)
+    private LocalDateTime attendanceDeadLine;
 
-    @Column(name = "end_time", nullable = false)
-    private LocalDateTime endTime;
+    @Column(name = "late_deadline", nullable = false)
+    private LocalDateTime lateDeadLine;
 
     private Location location;
 
@@ -36,9 +36,9 @@ public class Attendance extends BaseTimeEntity {
     private Long sessionId;
 
     @Builder
-    public Attendance(LocalDateTime startTime, LocalDateTime endTime, Location location, Session session) {
-        this.startTime = startTime;
-        this.endTime = endTime;
+    public Attendance(LocalDateTime attendanceDeadLine, LocalDateTime lateDeadLine, Location location, Session session) {
+        this.attendanceDeadLine = attendanceDeadLine;
+        this.lateDeadLine = lateDeadLine;
         this.location = location;
         this.sessionId = session.getId();
     }
@@ -47,8 +47,8 @@ public class Attendance extends BaseTimeEntity {
         this.location = location;
     }
 
-    public void updateDeadLine(LocalDateTime startTime, LocalDateTime endTime) {
-        this.startTime = startTime;
-        this.endTime = endTime;
+    public void updateDeadLine(LocalDateTime attendanceDeadLine, LocalDateTime lateDeadLine) {
+        this.attendanceDeadLine = attendanceDeadLine;
+        this.lateDeadLine = lateDeadLine;
     }
 }

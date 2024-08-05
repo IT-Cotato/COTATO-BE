@@ -35,8 +35,8 @@ public class AttendanceAdminService {
         Attendance attendance = Attendance.builder()
                 .session(session)
                 .location(location)
-                .startTime(LocalDateTime.of(session.getSessionDate(), attendanceDeadLine.startTime()))
-                .endTime(LocalDateTime.of(session.getSessionDate(), attendanceDeadLine.endTime()))
+                .attendanceDeadLine(LocalDateTime.of(session.getSessionDate(), attendanceDeadLine.attendanceDeadLine()))
+                .lateDeadLine(LocalDateTime.of(session.getSessionDate(), attendanceDeadLine.lateDeadLine()))
                 .build();
 
         attendanceRepository.save(attendance);
@@ -55,8 +55,8 @@ public class AttendanceAdminService {
         }
 
         attendance.updateDeadLine(LocalDateTime.of(attendanceSession.getSessionDate(), request.attendanceDeadLine()
-                .startTime()), LocalDateTime.of(attendanceSession.getSessionDate(), request.attendanceDeadLine()
-                .endTime()));
+                .attendanceDeadLine()), LocalDateTime.of(attendanceSession.getSessionDate(), request.attendanceDeadLine()
+                .lateDeadLine()));
         attendance.updateLocation(request.location());
     }
 
