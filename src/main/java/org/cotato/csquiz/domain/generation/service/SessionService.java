@@ -71,7 +71,10 @@ public class SessionService {
             sessionImageService.addSessionImages(request.images(), savedSession);
         }
 
-        Location location = Location.of(request.latitude(), request.longitude());
+        Location location = Location.builder()
+                .latitude(request.latitude())
+                .longitude(request.longitude())
+                .build();
 
         AttendanceDeadLineDto attendanceDeadLine = AttendanceDeadLineDto.builder()
                 .startTime(request.startTime())
