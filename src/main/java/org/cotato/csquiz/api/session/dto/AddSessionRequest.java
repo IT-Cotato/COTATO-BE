@@ -24,7 +24,6 @@ public record AddSessionRequest(
         String placeName,
         @NotNull
         LocalDate sessionDate,
-
         @Valid
         @NotNull
         AttendanceDeadLineDto attendanceDeadLine,

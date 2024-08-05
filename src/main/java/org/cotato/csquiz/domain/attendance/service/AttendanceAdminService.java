@@ -4,10 +4,13 @@ package org.cotato.csquiz.domain.attendance.service;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.cotato.csquiz.api.attendance.dto.AttendanceDeadLineDto;
+import org.cotato.csquiz.api.attendance.dto.AttendanceRecordResponse;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
+import org.cotato.csquiz.api.attendance.dto.AttendanceDeadLineDto;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.attendance.embedded.Location;
@@ -25,11 +28,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class AttendanceAdminService {
 
     private final AttendanceRepository attendanceRepository;
+    private final AttendanceRecordService attendanceRecordService;
     private final SessionRepository sessionRepository;
 
     @Transactional
-    public void addAttendance(Session session, Location location,
-                              AttendanceDeadLineDto attendanceDeadLine) {
+    public void addAttendance(Session session, Location location, AttendanceDeadLineDto attendanceDeadLine) {
 
         Attendance attendance = Attendance.builder()
                 .session(session)
@@ -53,12 +56,32 @@ public class AttendanceAdminService {
             throw new AppException(ErrorCode.SESSION_DATE_NOT_FOUND);
         }
 
-        LocalDate sessionDate = attendanceSession.getSessionDate();
-        AttendanceDeadLineDto deadLine = request.attendanceDeadLine();
-        LocalDateTime startLocalDateTime = LocalDateTime.of(sessionDate, deadLine.startTime());
-        LocalDateTime endLocalDateTime = LocalDateTime.of(sessionDate, deadLine.endTime());
-
-        attendance.updateDeadLine(startLocalDateTime, endLocalDateTime);
+        attendance.updateDeadLine(LocalDateTime.of(attendanceSession.getSessionDate(), request.attendanceDeadLine()
+                .startTime()), LocalDateTime.of(attendanceSession.getSessionDate(), request.attendanceDeadLine()
+                .endTime()));
         attendance.updateLocation(request.location());
+    }
+
+    public List<AttendanceRecordResponse> findAttendanceRecords(Long generationId, Integer month) {
+        List<Session> sessions = sessionRepository.findAllByGenerationId(generationId);
+        if (month != null) {
+            sessions = sessions.stream()
+                    .filter(session -> session.getSessionDate().getMonthValue() == month)
+                    .toList();
+        }
+        List<Long> sessionIds = sessions.stream()
+                .map(Session::getId)
+                .toList();
+
+        List<Attendance> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds);
+
+        return attendanceRecordService.generateAttendanceResponses(attendances);
+    }
+
+    public List<AttendanceRecordResponse> findAttendanceRecordsByAttendance(Long attendanceId){
+        Attendance attendance = attendanceRepository.findById(attendanceId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 출석이 존재하지 않습니다"));
+
+        return attendanceRecordService.generateAttendanceResponses(List.of(attendance));
     }
 }

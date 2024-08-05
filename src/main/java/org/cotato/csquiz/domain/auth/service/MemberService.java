@@ -1,6 +1,7 @@
 package org.cotato.csquiz.domain.auth.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.admin.dto.MemberInfoResponse;
@@ -13,6 +14,7 @@ import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.common.error.exception.ImageException;
 import org.cotato.csquiz.domain.auth.entity.Member;
+import org.cotato.csquiz.domain.auth.enums.MemberRoleGroup;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -124,5 +126,9 @@ public class MemberService {
         Member findMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 멤버를 찾을 수 없습니다."));
         return MemberInfo.of(findMember, findBackFourNumber(findMember));
+    }
+
+    public List<Member> findActiveMember() {
+        return memberRepository.findAllByRoleInQuery(MemberRoleGroup.ACTIVE_MEMBERS.getRoles());
     }
 }

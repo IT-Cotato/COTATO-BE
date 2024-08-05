@@ -15,6 +15,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.csquiz.common.entity.BaseTimeEntity;
+import org.cotato.csquiz.domain.attendance.enums.AttendanceStatus;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
 
 @Table(name = "attendance_record")
@@ -31,6 +32,10 @@ public class AttendanceRecord extends BaseTimeEntity {
     @Column(name = "attendance_type", nullable = false)
     @Enumerated(EnumType.STRING)
     private AttendanceType attendanceType;
+
+    @Column(name = "attendance_status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private AttendanceStatus attendanceStatus;
 
     @Column(name = "location_accuracy")
     private Double locationAccuracy;
