@@ -1,6 +1,7 @@
 package org.cotato.csquiz.api.attendance.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -8,8 +9,10 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.attendance.dto.AttendanceRecordResponse;
+import org.cotato.csquiz.api.attendance.dto.AttendancesResponse;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
 import org.cotato.csquiz.domain.attendance.service.AttendanceAdminService;
+import org.cotato.csquiz.domain.attendance.service.AttendanceService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
+@Tag(name = "출석 정보", description = "출석 관련 API 입니다.")
 @RestController
 @Validated
 @RequiredArgsConstructor
@@ -28,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AttendanceController {
 
     private final AttendanceAdminService attendanceAdminService;
+    private final AttendanceService attendanceService;
 
     @Operation(summary = "출석 정보 변경 API")
     @PatchMapping
@@ -50,5 +55,11 @@ public class AttendanceController {
     public ResponseEntity<List<AttendanceRecordResponse>> findAttendanceRecordsByAttendance(
             @PathVariable("attendance-id") Long attendanceId) {
         return ResponseEntity.ok().body(attendanceAdminService.findAttendanceRecordsByAttendance(attendanceId));
+    }
+
+    @Operation(summary = "기수별 출석 목록 조회 API")
+    @GetMapping
+    public ResponseEntity<AttendancesResponse> findAttendancesByGeneration(@RequestParam("generationId") Long generationId) {
+        return ResponseEntity.ok().body(attendanceService.findAttendancesByGenerationId(generationId));
     }
 }
