@@ -66,13 +66,13 @@ public class AttendanceService {
 
         LocalTime currentTime = LocalTime.now();
 
-        if (currentTime.isAfter(attendance.getAttendanceDeadLine().toLocalTime())
-                && currentTime.isBefore(attendance.getLateDeadLine().toLocalTime())) {
+        if (currentTime.isAfter(DeadLine.ATTENDANCE_START_TIME.getTime())
+                && currentTime.isBefore(attendance.getAttendanceDeadLine().toLocalTime())) {
             return AttendanceOpenStatus.OPEN;
         }
 
-        if (currentTime.isAfter(attendance.getLateDeadLine().toLocalTime())
-                && currentTime.isBefore(DeadLine.ATTENDANCE_END_TIME.getTime())) {
+        if (currentTime.isAfter(attendance.getAttendanceDeadLine().toLocalTime())
+                && currentTime.isBefore(attendance.getLateDeadLine().toLocalTime())) {
             return AttendanceOpenStatus.LATE;
         }
 
