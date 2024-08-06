@@ -2,8 +2,6 @@ package org.cotato.csquiz.domain.generation.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -13,10 +11,10 @@ import org.cotato.csquiz.api.generation.dto.AddGenerationResponse;
 import org.cotato.csquiz.api.generation.dto.ChangeGenerationPeriodRequest;
 import org.cotato.csquiz.api.generation.dto.ChangeRecruitingStatusRequest;
 import org.cotato.csquiz.api.generation.dto.GenerationInfoResponse;
+import org.cotato.csquiz.common.error.ErrorCode;
+import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.generation.embedded.GenerationPeriod;
 import org.cotato.csquiz.domain.generation.entity.Generation;
-import org.cotato.csquiz.common.error.exception.AppException;
-import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.domain.generation.repository.GenerationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class GenerationService {
 
-    private static final LocalDateTime BASE_TIME = LocalDateTime.of(2000, Month.JANUARY, 1, 0, 0);
+    private static final Integer BASE_NUMBER = 1;
     private final GenerationRepository generationRepository;
 
     @Transactional
@@ -61,7 +59,7 @@ public class GenerationService {
     }
 
     public List<GenerationInfoResponse> findGenerations() {
-        return generationRepository.findAllByCreatedAtAfter(BASE_TIME).stream()
+        return generationRepository.findByNumberGreaterThanEqual(BASE_NUMBER).stream()
                 .sorted(Comparator.comparing(Generation::getNumber))
                 .map(GenerationInfoResponse::from)
                 .toList();
