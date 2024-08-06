@@ -60,7 +60,7 @@ public class AttendanceService {
     }
 
     private AttendanceOpenStatus getAttendanceStatus(Attendance attendance) {
-        if (!isToday(attendance) || !isStarted(attendance)) {
+        if (!isToday(attendance) || !isStarted()) {
             return AttendanceOpenStatus.CLOSED;
         }
 
@@ -83,7 +83,7 @@ public class AttendanceService {
         return LocalDate.now().equals(attendance.getAttendanceDeadLine().toLocalDate());
     }
 
-    private boolean isStarted(Attendance attendance) {
-        return LocalTime.now().isBefore(attendance.getAttendanceDeadLine().toLocalTime());
+    private boolean isStarted() {
+        return LocalTime.now().isBefore(DeadLine.ATTENDANCE_START_TIME.getTime());
     }
 }
