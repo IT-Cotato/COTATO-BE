@@ -1,6 +1,7 @@
 package org.cotato.csquiz.api.attendance.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -8,16 +9,22 @@ import jakarta.validation.constraints.Min;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.cotato.csquiz.api.attendance.dto.AttendResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceRecordResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendancesResponse;
+import org.cotato.csquiz.api.attendance.dto.OfflineAttendanceRequest;
+import org.cotato.csquiz.api.attendance.dto.OnlineAttendanceRequest;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
 import org.cotato.csquiz.domain.attendance.service.AttendanceAdminService;
+import org.cotato.csquiz.domain.attendance.service.AttendanceRecordService;
 import org.cotato.csquiz.domain.attendance.service.AttendanceService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -83,6 +90,27 @@ public class AttendanceController {
     @PostMapping(value = "/records/offline")
     public ResponseEntity<AttendResponse> submitOfflineAttendanceRecord(@RequestBody OfflineAttendanceRequest request,
                                                                         @AuthenticationPrincipal Long memberId) {
+        return ResponseEntity.ok().body(attendanceRecordService.submitRecord(request, memberId));
+    }
+
+    @Operation(summary = "비대면 출결 입력 API",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "성공"
+                    ),
+                    @ApiResponse(
+                            responseCode = "AT-301",
+                            description = "이미 출석을 완료함"
+                    ),
+                    @ApiResponse(
+                            responseCode = "AT-401",
+                            description = "출석 시간이 아님"
+                    )
+            })
+    @PostMapping(value = "/records/online")
+    public ResponseEntity<AttendResponse> submitOnlineAttendanceRecord(@RequestBody OnlineAttendanceRequest request,
+                                                                       @AuthenticationPrincipal Long memberId) {
         return ResponseEntity.ok().body(attendanceRecordService.submitRecord(request, memberId));
     }
 }

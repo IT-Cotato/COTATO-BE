@@ -58,6 +58,16 @@ public class AttendanceRecord extends BaseTimeEntity {
         this.attendance = attendance;
     }
 
+    public static AttendanceRecord onLineRecord(Attendance attendance, Long memberId, AttendanceStatus attendanceStatus) {
+        return new AttendanceRecord(
+                AttendanceType.ONLINE,
+                attendanceStatus,
+                null,
+                memberId,
+                attendance
+        );
+    }
+
     public static AttendanceRecord offlineRecord(Attendance attendance, Long memberId, Double locationAccuracy, AttendanceStatus attendanceStatus) {
         return new AttendanceRecord(
                 AttendanceType.OFFLINE,
