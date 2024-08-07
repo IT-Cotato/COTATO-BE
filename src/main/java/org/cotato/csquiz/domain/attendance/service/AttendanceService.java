@@ -1,7 +1,6 @@
 package org.cotato.csquiz.domain.attendance.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
@@ -10,10 +9,8 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.api.attendance.dto.AttendanceResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendancesResponse;
-import org.cotato.csquiz.domain.attendance.entity.Attendance;
-import org.cotato.csquiz.domain.attendance.enums.AttendanceOpenStatus;
-import org.cotato.csquiz.domain.attendance.enums.DeadLine;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
+import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.domain.generation.repository.GenerationRepository;
@@ -43,12 +40,14 @@ public class AttendanceService {
                 .map(Session::getId)
                 .toList();
 
+        LocalTime currentTime = LocalTime.now();
+
         List<AttendanceResponse> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds).stream()
                 .map(at -> AttendanceResponse.builder()
                         .attendanceId(at.getId())
                         .sessionTitle(sessionMap.get(at.getSessionId()).getTitle())
                         .sessionDate(at.getAttendanceDeadLine().toLocalDate())
-                        .openStatus(getAttendanceStatus(at))
+                        .openStatus(AttendanceUtil.getAttendanceStatus(at, currentTime))
                         .build())
                 .toList();
 
@@ -57,33 +56,5 @@ public class AttendanceService {
                 .generationNumber(findGeneration.getId())
                 .attendances(attendances)
                 .build();
-    }
-
-    private AttendanceOpenStatus getAttendanceStatus(Attendance attendance) {
-        if (!isToday(attendance) || !isStarted()) {
-            return AttendanceOpenStatus.CLOSED;
-        }
-
-        LocalTime currentTime = LocalTime.now();
-
-        if (currentTime.isAfter(DeadLine.ATTENDANCE_START_TIME.getTime())
-                && currentTime.isBefore(attendance.getAttendanceDeadLine().toLocalTime())) {
-            return AttendanceOpenStatus.OPEN;
-        }
-
-        if (currentTime.isAfter(attendance.getAttendanceDeadLine().toLocalTime())
-                && currentTime.isBefore(attendance.getLateDeadLine().toLocalTime())) {
-            return AttendanceOpenStatus.LATE;
-        }
-
-        return AttendanceOpenStatus.ABSENT;
-    }
-
-    private boolean isToday(Attendance attendance) {
-        return LocalDate.now().equals(attendance.getAttendanceDeadLine().toLocalDate());
-    }
-
-    private boolean isStarted() {
-        return LocalTime.now().isBefore(DeadLine.ATTENDANCE_START_TIME.getTime());
     }
 }
