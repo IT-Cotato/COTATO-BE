@@ -51,12 +51,16 @@ public class AuthService {
 
     @Transactional
     public void createLoginInfo(JoinRequest request) {
+        if (!emailVerificationService.isSucceedEmail(EmailType.SIGNUP, request.email())) {
+            throw new AppException(ErrorCode.UNVERIFIED_EMAIL);
+        }
         validateService.checkDuplicateEmail(request.email());
         validateService.checkPasswordPattern(request.password());
         validateService.checkPhoneNumber(request.phoneNumber());
 
         String encryptedPhoneNumber = encryptService.encryptPhoneNumber(request.phoneNumber());
         validateService.checkDuplicatePhoneNumber(encryptedPhoneNumber);
+
         log.info("[회원 가입 서비스]: {}, {}", request.email(), request.name());
 
         Member newMember = Member.builder()

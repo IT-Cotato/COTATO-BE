@@ -13,7 +13,6 @@ public enum ErrorCode {
     JWT_FORM_ERROR(HttpStatus.UNAUTHORIZED, "T-003", "jwt 형식 에러 발생"),
     REFRESH_TOKEN_NOT_EXIST(HttpStatus.UNAUTHORIZED, "T-004", "해당 리프레시 토큰이 DB에 존재하지 않습니다."),
     REISSUE_FAIL(HttpStatus.UNAUTHORIZED, "T-005", "액세스 토큰 재발급 요청 실패"),
-    LOGIN_FAIL(HttpStatus.UNAUTHORIZED, "T-006", "로그인에 실패했습니다."),
 
     // DTO 에서 발생하는 에러
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "I-001", "입력 값이 잘못되었습니다."),
@@ -30,6 +29,7 @@ public enum ErrorCode {
     REQUEST_AGAIN(HttpStatus.NOT_FOUND, "A-202", "해당 이메일에 대한 코드가 존재하지 않습니다. 다시 요청 해주세요"),
     EMAIL_DUPLICATED(HttpStatus.CONFLICT, "A-301", "존재하는 이메일 입니다."),
     PHONE_NUMBER_DUPLICATED(HttpStatus.CONFLICT, "A-302", "존재하는 전화번호입니다."),
+    UNVERIFIED_EMAIL(HttpStatus.UNAUTHORIZED, "A-401", "검증되지 않은 이메일 입니다."),
 
     // 정책 관련
     SHOULD_AGREE_POLICY(HttpStatus.BAD_REQUEST, "P-001", "필수 정책에는 반드시 동의해야합니다."),
