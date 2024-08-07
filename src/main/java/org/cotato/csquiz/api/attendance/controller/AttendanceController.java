@@ -33,6 +33,7 @@ public class AttendanceController {
 
     private final AttendanceAdminService attendanceAdminService;
     private final AttendanceService attendanceService;
+    private final AttendanceRecordService attendanceRecordService;
 
     @Operation(summary = "출석 정보 변경 API")
     @PatchMapping
@@ -61,5 +62,27 @@ public class AttendanceController {
     @GetMapping
     public ResponseEntity<AttendancesResponse> findAttendancesByGeneration(@RequestParam("generationId") Long generationId) {
         return ResponseEntity.ok().body(attendanceService.findAttendancesByGenerationId(generationId));
+    }
+
+    @Operation(summary = "대면 출결 입력 API",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "성공"
+                    ),
+                    @ApiResponse(
+                            responseCode = "AT-301",
+                            description = "이미 출석을 완료함"
+                    ),
+                    @ApiResponse(
+                            responseCode = "AT-401",
+                            description = "출석 시간이 아님"
+                    )
+            }
+    )
+    @PostMapping(value = "/records/offline")
+    public ResponseEntity<AttendResponse> submitOfflineAttendanceRecord(@RequestBody OfflineAttendanceRequest request,
+                                                                        @AuthenticationPrincipal Long memberId) {
+        return ResponseEntity.ok().body(attendanceRecordService.submitRecord(request, memberId));
     }
 }

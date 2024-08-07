@@ -19,4 +19,8 @@ public class Location {
         this.latitude = latitude;
         this.longitude = longitude;
     }
+
+    public Double calculateAccuracy(Location location) {
+        return Math.pow(this.latitude - location.latitude, 2) + Math.pow(this.longitude - location.longitude, 2);
+    }
 }

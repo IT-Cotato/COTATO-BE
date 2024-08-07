@@ -77,6 +77,12 @@ public enum ErrorCode {
 
     LAST_QUIZ_SCORER_NOT_EXIST(HttpStatus.CONFLICT, "W-201", "아직 마지막 문제 득점자가 없습니다"),
     WINNER_EXIST(HttpStatus.CONFLICT, "W-301", "이미 우승자가 존재합니다"),
+
+    //출석 관련 AT
+    OFFLINE_ATTEND_FAIL(HttpStatus.BAD_REQUEST, "AT-101", "거리 부적합으로 인한 대면 출석 실패"),
+    ALREADY_ATTEND(HttpStatus.CONFLICT, "AT-301", "이미 해당 타입으로 출석한 기록이 있습니다."),
+    ATTENDANCE_CLOSED(HttpStatus.CONFLICT, "AT-401", "아직 출석 시간이 아닙니다."),
+
     // 500 오류 -> 서버측에서 처리가 실패한 부분들
     WEBSOCKET_SEND_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "S-001", "소캣 메세지 전송 실패"),
     IMAGE_PROCESSING_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S-002", "이미지 처리에 실패했습니다."),
