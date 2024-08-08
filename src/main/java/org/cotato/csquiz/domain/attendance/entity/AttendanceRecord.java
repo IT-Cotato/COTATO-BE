@@ -12,6 +12,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,7 +20,10 @@ import org.cotato.csquiz.common.entity.BaseTimeEntity;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceStatus;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
 
-@Table(name = "attendance_record", indexes = {@Index(name = "member_id_index", columnList = "member_id")})
+@Table(name = "attendance_record",
+        indexes = {@Index(name = "member_id_index", columnList = "member_id")},
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"member_id", "attendance_id"})}
+)
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
