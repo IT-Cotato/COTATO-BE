@@ -2,6 +2,8 @@ package org.cotato.csquiz.domain.attendance.util;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import org.cotato.csquiz.common.error.ErrorCode;
+import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceOpenStatus;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceStatus;
@@ -46,5 +48,19 @@ public class AttendanceUtil {
 
     private static boolean isStarted(LocalTime currentTime) {
         return currentTime.isAfter(DeadLine.ATTENDANCE_START_TIME.getTime());
+    }
+
+    public static void validateAttendanceTime(LocalTime attendDeadLine, LocalTime lateDeadLine) {
+        if (!DeadLine.ATTENDANCE_START_TIME.getTime().isBefore(attendDeadLine)) {
+            throw new AppException(ErrorCode.INVALID_ATTEND_TIME);
+        }
+
+        if (!attendDeadLine.isBefore(lateDeadLine)) {
+            throw new AppException(ErrorCode.INVALID_ATTEND_TIME);
+        }
+
+        if (!lateDeadLine.isBefore(DeadLine.ATTENDANCE_END_TIME.getTime())) {
+            throw new AppException(ErrorCode.INVALID_ATTEND_TIME);
+        }
     }
 }
