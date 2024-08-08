@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class AttendanceAdminService {
 
+    private static final int DEFAULT_ATTEND_SECOND = 59;
     private final AttendanceRepository attendanceRepository;
     private final AttendanceRecordService attendanceRecordService;
     private final SessionRepository sessionRepository;
@@ -35,8 +36,10 @@ public class AttendanceAdminService {
         Attendance attendance = Attendance.builder()
                 .session(session)
                 .location(location)
-                .attendanceDeadLine(LocalDateTime.of(session.getSessionDate(), attendanceDeadLine.attendanceDeadLine()))
-                .lateDeadLine(LocalDateTime.of(session.getSessionDate(), attendanceDeadLine.lateDeadLine()))
+                .attendanceDeadLine(LocalDateTime.of(session.getSessionDate(), attendanceDeadLine.attendanceDeadLine())
+                        .plusSeconds(DEFAULT_ATTEND_SECOND))
+                .lateDeadLine(LocalDateTime.of(session.getSessionDate(), attendanceDeadLine.lateDeadLine())
+                        .plusSeconds(DEFAULT_ATTEND_SECOND))
                 .build();
 
         attendanceRepository.save(attendance);
@@ -54,9 +57,11 @@ public class AttendanceAdminService {
             throw new AppException(ErrorCode.SESSION_DATE_NOT_FOUND);
         }
 
-        attendance.updateDeadLine(LocalDateTime.of(attendanceSession.getSessionDate(), request.attendanceDeadLine()
-                .attendanceDeadLine()), LocalDateTime.of(attendanceSession.getSessionDate(), request.attendanceDeadLine()
-                .lateDeadLine()));
+        attendance.updateDeadLine(
+                LocalDateTime.of(attendanceSession.getSessionDate(), request.attendanceDeadLine().attendanceDeadLine())
+                        .plusSeconds(DEFAULT_ATTEND_SECOND),
+                LocalDateTime.of(attendanceSession.getSessionDate(), request.attendanceDeadLine()
+                        .lateDeadLine()).plusSeconds(DEFAULT_ATTEND_SECOND));
         attendance.updateLocation(request.location());
     }
 
