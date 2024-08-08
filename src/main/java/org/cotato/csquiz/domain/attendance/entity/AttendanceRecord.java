@@ -78,4 +78,8 @@ public class AttendanceRecord extends BaseTimeEntity {
                 attendance
         );
     }
+
+    public void updateAttendanceType(AttendanceType attendanceType) {
+        this.attendanceType = attendanceType;
+    }
 }
