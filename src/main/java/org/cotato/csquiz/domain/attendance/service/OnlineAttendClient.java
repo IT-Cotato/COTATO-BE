@@ -13,9 +13,10 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class OnlineAttendClient implements AttendClient{
+public class OnlineAttendClient implements AttendClient {
 
     private final AttendanceRecordRepository attendanceRecordRepository;
+
     @Override
     public AttendanceType attendanceType() {
         return AttendanceType.ONLINE;
