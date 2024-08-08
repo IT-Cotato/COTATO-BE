@@ -22,7 +22,7 @@ public class AttendanceUtil {
 
     // 현재 시간을 기준으로 출석 open 상태를 반환한다.
     public static AttendanceOpenStatus getAttendanceStatus(Attendance attendance, LocalTime currentTime) {
-        if (!isToday(attendance) || !isStarted()) {
+        if (!isToday(attendance) || !isStarted(currentTime)) {
             return AttendanceOpenStatus.CLOSED;
         }
 
@@ -43,7 +43,7 @@ public class AttendanceUtil {
         return LocalDate.now().equals(attendance.getAttendanceDeadLine().toLocalDate());
     }
 
-    private static boolean isStarted() {
-        return LocalTime.now().isBefore(DeadLine.ATTENDANCE_START_TIME.getTime());
+    private static boolean isStarted(LocalTime currentTime) {
+        return currentTime.isBefore(DeadLine.ATTENDANCE_START_TIME.getTime());
     }
 }
