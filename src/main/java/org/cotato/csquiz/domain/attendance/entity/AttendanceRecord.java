@@ -49,7 +49,7 @@ public class AttendanceRecord extends BaseTimeEntity {
     private Attendance attendance;
 
     private AttendanceRecord(AttendanceType attendanceType, AttendanceStatus attendanceStatus, Double locationAccuracy,
-                            Long memberId, Attendance attendance) {
+                             Long memberId, Attendance attendance) {
         this.attendanceType = attendanceType;
         this.attendanceStatus = attendanceStatus;
         this.locationAccuracy = locationAccuracy;
@@ -57,7 +57,8 @@ public class AttendanceRecord extends BaseTimeEntity {
         this.attendance = attendance;
     }
 
-    public static AttendanceRecord onLineRecord(Attendance attendance, Long memberId, AttendanceStatus attendanceStatus) {
+    public static AttendanceRecord onLineRecord(Attendance attendance, Long memberId,
+                                                AttendanceStatus attendanceStatus) {
         return new AttendanceRecord(
                 AttendanceType.ONLINE,
                 attendanceStatus,
@@ -67,7 +68,8 @@ public class AttendanceRecord extends BaseTimeEntity {
         );
     }
 
-    public static AttendanceRecord offlineRecord(Attendance attendance, Long memberId, Double locationAccuracy, AttendanceStatus attendanceStatus) {
+    public static AttendanceRecord offlineRecord(Attendance attendance, Long memberId, Double locationAccuracy,
+                                                 AttendanceStatus attendanceStatus) {
         return new AttendanceRecord(
                 AttendanceType.OFFLINE,
                 attendanceStatus,
