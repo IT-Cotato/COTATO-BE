@@ -1,7 +1,7 @@
 package org.cotato.csquiz.domain.attendance.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -40,7 +40,7 @@ public class AttendanceService {
                 .map(Session::getId)
                 .toList();
 
-        LocalTime currentTime = LocalTime.now();
+        LocalDateTime currentTime = LocalDateTime.now();
 
         List<AttendanceResponse> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds).stream()
                 .map(at -> AttendanceResponse.builder()

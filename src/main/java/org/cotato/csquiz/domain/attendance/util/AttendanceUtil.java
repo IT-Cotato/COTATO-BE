@@ -1,6 +1,5 @@
 package org.cotato.csquiz.domain.attendance.util;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
@@ -21,10 +20,12 @@ public class AttendanceUtil {
     }
 
     // 현재 시간을 기준으로 출석 open 상태를 반환한다.
-    public static AttendanceOpenStatus getAttendanceStatus(Attendance attendance, LocalTime currentTime) {
-        if (!isToday(attendance) || !isStarted(currentTime)) {
+    public static AttendanceOpenStatus getAttendanceStatus(Attendance attendance, LocalDateTime currentDateTime) {
+        if (!isToday(attendance, currentDateTime) || !isStarted(currentDateTime.toLocalTime())) {
             return AttendanceOpenStatus.CLOSED;
         }
+
+        LocalTime currentTime = currentDateTime.toLocalTime();
 
         if (currentTime.isAfter(DeadLine.ATTENDANCE_START_TIME.getTime())
                 && currentTime.isBefore(attendance.getAttendanceDeadLine().toLocalTime())) {
@@ -39,11 +40,11 @@ public class AttendanceUtil {
         return AttendanceOpenStatus.ABSENT;
     }
 
-    private static boolean isToday(Attendance attendance) {
-        return LocalDate.now().equals(attendance.getAttendanceDeadLine().toLocalDate());
+    private static boolean isToday(Attendance attendance, LocalDateTime currentDate) {
+        return currentDate.toLocalDate().equals(attendance.getAttendanceDeadLine().toLocalDate());
     }
 
     private static boolean isStarted(LocalTime currentTime) {
-        return currentTime.isBefore(DeadLine.ATTENDANCE_START_TIME.getTime());
+        return currentTime.isAfter(DeadLine.ATTENDANCE_START_TIME.getTime());
     }
 }
