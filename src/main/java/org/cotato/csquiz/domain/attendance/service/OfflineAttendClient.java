@@ -35,14 +35,14 @@ public class OfflineAttendClient implements AttendClient {
         Double accuracy = attendance.getLocation().calculateAccuracy(request.getLocation());
         validateAccuracy(accuracy);
 
-        attendanceRecordRepository.findByIdAndAttendanceStatus(memberId, attendanceStatus).ifPresentOrElse(
-                record -> {
-                    record.updateAttendanceType(request.attendanceType());
-                    attendanceRecordRepository.save(record);
-                },
-                () -> attendanceRecordRepository.save(
-                                AttendanceRecord.offlineRecord(attendance, memberId, accuracy, attendanceStatus))
-        );
+        AttendanceRecord attendanceRecord = attendanceRecordRepository.findByMemberIdAndAttendanceId(memberId,
+                        request.getAttendanceId())
+                .orElseGet(() -> AttendanceRecord.offlineRecord(attendance, memberId, accuracy, attendanceStatus));
+
+        attendanceRecord.updateAttendanceType(request.attendanceType());
+        attendanceRecord.updateLocationAccuracy(accuracy);
+
+        attendanceRecordRepository.save(attendanceRecord);
 
         return AttendResponse.from(attendanceStatus);
     }
