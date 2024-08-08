@@ -62,12 +62,6 @@ public class AttendanceRecordService {
             throw new AppException(ErrorCode.ATTENDANCE_CLOSED);
         }
 
-        // 기존 출결 데이터가 존재하는지 확인
-        if (attendanceRecordRepository.existsByAttendanceIdAndMemberIdAndAttendanceType(request.attendanceId(),
-                memberId, request.attendanceType())) {
-            throw new AppException(ErrorCode.ALREADY_ATTEND);
-        }
-
         return requestAttendanceService.attend(request, memberId, attendance);
     }
 }

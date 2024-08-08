@@ -24,7 +24,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -78,16 +78,12 @@ public class AttendanceController {
                             description = "성공"
                     ),
                     @ApiResponse(
-                            responseCode = "AT-301",
-                            description = "이미 출석을 완료함"
-                    ),
-                    @ApiResponse(
                             responseCode = "AT-401",
                             description = "출석 시간이 아님"
                     )
             }
     )
-    @PostMapping(value = "/records/offline")
+    @PutMapping(value = "/attend/offline")
     public ResponseEntity<AttendResponse> submitOfflineAttendanceRecord(@RequestBody OfflineAttendanceRequest request,
                                                                         @AuthenticationPrincipal Long memberId) {
         return ResponseEntity.ok().body(attendanceRecordService.submitRecord(request, memberId));
@@ -101,14 +97,14 @@ public class AttendanceController {
                     ),
                     @ApiResponse(
                             responseCode = "AT-301",
-                            description = "이미 출석을 완료함"
+                            description = "이미 대면으로 출석을 완료함"
                     ),
                     @ApiResponse(
                             responseCode = "AT-401",
                             description = "출석 시간이 아님"
                     )
             })
-    @PostMapping(value = "/records/online")
+    @PutMapping(value = "/attend/online")
     public ResponseEntity<AttendResponse> submitOnlineAttendanceRecord(@RequestBody OnlineAttendanceRequest request,
                                                                        @AuthenticationPrincipal Long memberId) {
         return ResponseEntity.ok().body(attendanceRecordService.submitRecord(request, memberId));
