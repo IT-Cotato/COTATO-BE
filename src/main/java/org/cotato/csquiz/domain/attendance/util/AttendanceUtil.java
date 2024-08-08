@@ -13,7 +13,7 @@ public class AttendanceUtil {
     public static AttendanceStatus calculateAttendanceStatus(Attendance attendance, LocalDateTime attendTime){
         if (attendTime.isBefore(attendance.getAttendanceDeadLine())) {
             return AttendanceStatus.PRESENT;
-        } else if (attendTime.isBefore(attendance.getLateDeadLine())) {
+        } if (attendTime.isBefore(attendance.getLateDeadLine())) {
             return AttendanceStatus.LATE;
         }
         return AttendanceStatus.ABSENT;
