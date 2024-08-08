@@ -11,12 +11,12 @@ public record UpdateAttendanceRequest(
         @NotNull
         Long attendanceId,
         Location location,
-        AttendanceDeadLineDto attendanceDeadLine
+        AttendanceDeadLineDto attendTime
 ) {
 
     public UpdateAttendanceRequest {
-        if (Objects.isNull(attendanceDeadLine)) {
-            attendanceDeadLine = new AttendanceDeadLineDto(DEFAULT_ATTENDANCE_DEADLINE.getTime(),
+        if (Objects.isNull(attendTime)) {
+            attendTime = new AttendanceDeadLineDto(DEFAULT_ATTENDANCE_DEADLINE.getTime(),
                     DEFAULT_LATE_DEADLINE.getTime());
         }
     }

@@ -58,9 +58,9 @@ public class AttendanceAdminService {
         }
 
         attendance.updateDeadLine(
-                LocalDateTime.of(attendanceSession.getSessionDate(), request.attendanceDeadLine().attendanceDeadLine())
+                LocalDateTime.of(attendanceSession.getSessionDate(), request.attendTime().attendanceDeadLine())
                         .plusSeconds(DEFAULT_ATTEND_SECOND),
-                LocalDateTime.of(attendanceSession.getSessionDate(), request.attendanceDeadLine()
+                LocalDateTime.of(attendanceSession.getSessionDate(), request.attendTime()
                         .lateDeadLine()).plusSeconds(DEFAULT_ATTEND_SECOND));
         attendance.updateLocation(request.location());
     }
