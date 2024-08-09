@@ -58,7 +58,7 @@ public class AttendanceRecordService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석이 존재하지 않습니다."));
 
         // 해당 출석이 열려있는지 확인, 닫혀있으면 제외
-        if (getAttendanceStatus(attendance, request.requestTime()) == AttendanceOpenStatus.CLOSED) {
+        if (getAttendanceOpenStatus(attendance, request.requestTime()) == AttendanceOpenStatus.CLOSED) {
             throw new AppException(ErrorCode.ATTENDANCE_CLOSED);
         }
 

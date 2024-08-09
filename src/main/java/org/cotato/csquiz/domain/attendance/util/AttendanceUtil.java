@@ -20,7 +20,7 @@ public class AttendanceUtil {
     }
 
     // 현재 시간을 기준으로 출석 open 상태를 반환한다.
-    public static AttendanceOpenStatus getAttendanceStatus(Attendance attendance, LocalDateTime currentDateTime) {
+    public static AttendanceOpenStatus getAttendanceOpenStatus(Attendance attendance, LocalDateTime currentDateTime) {
         if (!isToday(attendance, currentDateTime) || !isStarted(currentDateTime.toLocalTime())) {
             return AttendanceOpenStatus.CLOSED;
         }

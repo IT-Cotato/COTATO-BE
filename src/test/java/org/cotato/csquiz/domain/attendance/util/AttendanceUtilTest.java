@@ -21,7 +21,7 @@ class AttendanceUtilTest {
                 .build();
 
         //when
-        AttendanceOpenStatus attendanceStatus = AttendanceUtil.getAttendanceStatus(attendance,
+        AttendanceOpenStatus attendanceStatus = AttendanceUtil.getAttendanceOpenStatus(attendance,
                 LocalDateTime.now().plusDays(1));
 
         //then
@@ -43,7 +43,7 @@ class AttendanceUtilTest {
         LocalDateTime beforeTime = attendanceDeadLine.minusMinutes(10);
 
         //when
-        AttendanceOpenStatus attendanceStatus = AttendanceUtil.getAttendanceStatus(attendance, beforeTime);
+        AttendanceOpenStatus attendanceStatus = AttendanceUtil.getAttendanceOpenStatus(attendance, beforeTime);
 
         //then
         assertEquals(attendanceStatus, AttendanceOpenStatus.CLOSED);
