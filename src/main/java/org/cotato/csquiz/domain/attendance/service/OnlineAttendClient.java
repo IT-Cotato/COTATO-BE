@@ -5,7 +5,7 @@ import org.cotato.csquiz.api.attendance.dto.AttendResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceParams;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.entity.AttendanceRecord;
-import org.cotato.csquiz.domain.attendance.enums.AttendanceStatus;
+import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRecordRepository;
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
@@ -24,10 +24,10 @@ public class OnlineAttendClient implements AttendClient {
 
     @Override
     public AttendResponse request(AttendanceParams params, Long memberId, Attendance attendance) {
-        AttendanceStatus attendanceStatus = AttendanceUtil.calculateAttendanceStatus(attendance, params.requestTime());
+        AttendanceResult attendanceResult = AttendanceUtil.calculateAttendanceStatus(attendance, params.requestTime());
 
-        attendanceRecordRepository.save(AttendanceRecord.onLineRecord(attendance, memberId, attendanceStatus));
+        attendanceRecordRepository.save(AttendanceRecord.onLineRecord(attendance, memberId, attendanceResult));
 
-        return AttendResponse.from(attendanceStatus);
+        return AttendResponse.from(attendanceResult);
     }
 }

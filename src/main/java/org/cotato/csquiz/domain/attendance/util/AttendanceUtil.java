@@ -4,19 +4,19 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceOpenStatus;
-import org.cotato.csquiz.domain.attendance.enums.AttendanceStatus;
+import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 import org.cotato.csquiz.domain.attendance.enums.DeadLine;
 
 public class AttendanceUtil {
 
     // 출석 시간에 따른 지각 여부 구분하기
-    public static AttendanceStatus calculateAttendanceStatus(Attendance attendance, LocalDateTime attendTime){
+    public static AttendanceResult calculateAttendanceStatus(Attendance attendance, LocalDateTime attendTime){
         if (attendTime.isBefore(attendance.getAttendanceDeadLine())) {
-            return AttendanceStatus.PRESENT;
+            return AttendanceResult.PRESENT;
         } if (attendTime.isBefore(attendance.getLateDeadLine())) {
-            return AttendanceStatus.LATE;
+            return AttendanceResult.LATE;
         }
-        return AttendanceStatus.ABSENT;
+        return AttendanceResult.ABSENT;
     }
 
     // 현재 시간을 기준으로 출석 open 상태를 반환한다.

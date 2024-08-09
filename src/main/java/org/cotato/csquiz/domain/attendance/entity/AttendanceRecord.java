@@ -17,7 +17,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.csquiz.common.entity.BaseTimeEntity;
-import org.cotato.csquiz.domain.attendance.enums.AttendanceStatus;
+import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
 
 @Table(name = "attendance_record",
@@ -38,9 +38,9 @@ public class AttendanceRecord extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private AttendanceType attendanceType;
 
-    @Column(name = "attendance_status", nullable = false)
+    @Column(name = "attendance_result", nullable = false)
     @Enumerated(EnumType.STRING)
-    private AttendanceStatus attendanceStatus;
+    private AttendanceResult attendanceResult;
 
     @Column(name = "location_accuracy")
     private Double locationAccuracy;
@@ -52,20 +52,20 @@ public class AttendanceRecord extends BaseTimeEntity {
     @JoinColumn(name = "attendance_id")
     private Attendance attendance;
 
-    private AttendanceRecord(AttendanceType attendanceType, AttendanceStatus attendanceStatus, Double locationAccuracy,
+    private AttendanceRecord(AttendanceType attendanceType, AttendanceResult attendanceResult, Double locationAccuracy,
                              Long memberId, Attendance attendance) {
         this.attendanceType = attendanceType;
-        this.attendanceStatus = attendanceStatus;
+        this.attendanceResult = attendanceResult;
         this.locationAccuracy = locationAccuracy;
         this.memberId = memberId;
         this.attendance = attendance;
     }
 
     public static AttendanceRecord onLineRecord(Attendance attendance, Long memberId,
-                                                AttendanceStatus attendanceStatus) {
+                                                AttendanceResult attendanceResult) {
         return new AttendanceRecord(
                 AttendanceType.ONLINE,
-                attendanceStatus,
+                attendanceResult,
                 null,
                 memberId,
                 attendance
@@ -73,10 +73,10 @@ public class AttendanceRecord extends BaseTimeEntity {
     }
 
     public static AttendanceRecord offlineRecord(Attendance attendance, Long memberId, Double locationAccuracy,
-                                                 AttendanceStatus attendanceStatus) {
+                                                 AttendanceResult attendanceResult) {
         return new AttendanceRecord(
                 AttendanceType.OFFLINE,
-                attendanceStatus,
+                attendanceResult,
                 locationAccuracy,
                 memberId,
                 attendance

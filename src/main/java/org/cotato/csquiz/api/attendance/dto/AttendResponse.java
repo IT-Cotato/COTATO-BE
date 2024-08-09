@@ -1,12 +1,12 @@
 package org.cotato.csquiz.api.attendance.dto;
 
-import org.cotato.csquiz.domain.attendance.enums.AttendanceStatus;
+import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 
 public record AttendResponse(
-        AttendanceStatus status,
+        AttendanceResult status,
         String message
 ) {
-    public static AttendResponse from(AttendanceStatus status) {
+    public static AttendResponse from(AttendanceResult status) {
         return new AttendResponse(
                 status,
                 status.getMessage()
