@@ -67,6 +67,8 @@ public class AttendanceAdminService {
                 LocalDateTime.of(attendanceSession.getSessionDate(), request.attendTime()
                         .lateDeadLine()).plusSeconds(DEFAULT_ATTEND_SECOND));
         attendance.updateLocation(request.location());
+
+        attendanceRecordService.updateAttendanceStatus(attendance);
     }
 
     public List<AttendanceRecordResponse> findAttendanceRecords(Long generationId, Integer month) {

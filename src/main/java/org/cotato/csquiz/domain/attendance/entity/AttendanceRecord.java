@@ -13,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -52,6 +53,9 @@ public class AttendanceRecord extends BaseTimeEntity {
     @JoinColumn(name = "attendance_id")
     private Attendance attendance;
 
+    @Column(name = "attend_time", nullable = false)
+    private LocalDateTime attendTime;
+
     private AttendanceRecord(AttendanceType attendanceType, AttendanceStatus attendanceStatus, Double locationAccuracy,
                              Long memberId, Attendance attendance) {
         this.attendanceType = attendanceType;
@@ -89,5 +93,10 @@ public class AttendanceRecord extends BaseTimeEntity {
 
     public void updateLocationAccuracy(Double accuracy) {
         this.locationAccuracy = accuracy;
+    }
+
+    public AttendanceRecord updateAttendanceStatus(AttendanceStatus attendanceStatus) {
+        this.attendanceStatus = attendanceStatus;
+        return this;
     }
 }
