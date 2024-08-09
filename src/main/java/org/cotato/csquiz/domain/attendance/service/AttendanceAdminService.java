@@ -14,6 +14,7 @@ import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.attendance.embedded.Location;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
+import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,7 @@ public class AttendanceAdminService {
 
     @Transactional
     public void addAttendance(Session session, Location location, AttendanceDeadLineDto attendanceDeadLine) {
+        AttendanceUtil.validateAttendanceTime(attendanceDeadLine.attendanceDeadLine(), attendanceDeadLine.lateDeadLine());
 
         Attendance attendance = Attendance.builder()
                 .session(session)
@@ -53,6 +55,8 @@ public class AttendanceAdminService {
         Session attendanceSession = sessionRepository.findById(attendance.getSessionId())
                 .orElseThrow(() -> new EntityNotFoundException("출석과 연결된 세션을 찾을 수 없습니다"));
 
+        AttendanceUtil.validateAttendanceTime(request.attendTime().attendanceDeadLine(), request.attendTime().lateDeadLine());
+
         if (attendanceSession.getSessionDate() == null) {
             throw new AppException(ErrorCode.SESSION_DATE_NOT_FOUND);
         }
@@ -63,6 +67,8 @@ public class AttendanceAdminService {
                 LocalDateTime.of(attendanceSession.getSessionDate(), request.attendTime()
                         .lateDeadLine()).plusSeconds(DEFAULT_ATTEND_SECOND));
         attendance.updateLocation(request.location());
+
+        attendanceRecordService.updateAttendanceStatus(attendance);
     }
 
     public List<AttendanceRecordResponse> findAttendanceRecords(Long generationId, Integer month) {

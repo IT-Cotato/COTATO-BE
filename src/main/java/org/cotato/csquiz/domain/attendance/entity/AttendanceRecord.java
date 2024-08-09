@@ -13,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -52,34 +53,40 @@ public class AttendanceRecord extends BaseTimeEntity {
     @JoinColumn(name = "attendance_id")
     private Attendance attendance;
 
+    @Column(name = "attend_time", nullable = false)
+    private LocalDateTime attendTime;
+
     private AttendanceRecord(AttendanceType attendanceType, AttendanceStatus attendanceStatus, Double locationAccuracy,
-                             Long memberId, Attendance attendance) {
+                             Long memberId, Attendance attendance, LocalDateTime attendTime) {
         this.attendanceType = attendanceType;
         this.attendanceStatus = attendanceStatus;
         this.locationAccuracy = locationAccuracy;
         this.memberId = memberId;
         this.attendance = attendance;
+        this.attendTime = attendTime;
     }
 
-    public static AttendanceRecord onLineRecord(Attendance attendance, Long memberId,
-                                                AttendanceStatus attendanceStatus) {
+    public static AttendanceRecord onLineRecord(Attendance attendance, Long memberId, AttendanceStatus attendanceStatus,
+                                                LocalDateTime attendTime) {
         return new AttendanceRecord(
                 AttendanceType.ONLINE,
                 attendanceStatus,
                 null,
                 memberId,
-                attendance
+                attendance,
+                attendTime
         );
     }
 
     public static AttendanceRecord offlineRecord(Attendance attendance, Long memberId, Double locationAccuracy,
-                                                 AttendanceStatus attendanceStatus) {
+                                                 AttendanceStatus attendanceStatus, LocalDateTime attendTime) {
         return new AttendanceRecord(
                 AttendanceType.OFFLINE,
                 attendanceStatus,
                 locationAccuracy,
                 memberId,
-                attendance
+                attendance,
+                attendTime
         );
     }
 
@@ -89,5 +96,9 @@ public class AttendanceRecord extends BaseTimeEntity {
 
     public void updateLocationAccuracy(Double accuracy) {
         this.locationAccuracy = accuracy;
+    }
+
+    public void updateAttendanceStatus(AttendanceStatus attendanceStatus) {
+        this.attendanceStatus = attendanceStatus;
     }
 }
