@@ -57,33 +57,36 @@ public class AttendanceRecord extends BaseTimeEntity {
     private LocalDateTime attendTime;
 
     private AttendanceRecord(AttendanceType attendanceType, AttendanceStatus attendanceStatus, Double locationAccuracy,
-                             Long memberId, Attendance attendance) {
+                             Long memberId, Attendance attendance, LocalDateTime attendTime) {
         this.attendanceType = attendanceType;
         this.attendanceStatus = attendanceStatus;
         this.locationAccuracy = locationAccuracy;
         this.memberId = memberId;
         this.attendance = attendance;
+        this.attendTime = attendTime;
     }
 
-    public static AttendanceRecord onLineRecord(Attendance attendance, Long memberId,
-                                                AttendanceStatus attendanceStatus) {
+    public static AttendanceRecord onLineRecord(Attendance attendance, Long memberId, AttendanceStatus attendanceStatus,
+                                                LocalDateTime attendTime) {
         return new AttendanceRecord(
                 AttendanceType.ONLINE,
                 attendanceStatus,
                 null,
                 memberId,
-                attendance
+                attendance,
+                attendTime
         );
     }
 
     public static AttendanceRecord offlineRecord(Attendance attendance, Long memberId, Double locationAccuracy,
-                                                 AttendanceStatus attendanceStatus) {
+                                                 AttendanceStatus attendanceStatus, LocalDateTime attendTime) {
         return new AttendanceRecord(
                 AttendanceType.OFFLINE,
                 attendanceStatus,
                 locationAccuracy,
                 memberId,
-                attendance
+                attendance,
+                attendTime
         );
     }
 
@@ -95,8 +98,7 @@ public class AttendanceRecord extends BaseTimeEntity {
         this.locationAccuracy = accuracy;
     }
 
-    public AttendanceRecord updateAttendanceStatus(AttendanceStatus attendanceStatus) {
+    public void updateAttendanceStatus(AttendanceStatus attendanceStatus) {
         this.attendanceStatus = attendanceStatus;
-        return this;
     }
 }
