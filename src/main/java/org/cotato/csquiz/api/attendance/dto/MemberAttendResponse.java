@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import org.cotato.csquiz.domain.attendance.entity.AttendanceRecord;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceOpenStatus;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
+import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
 import org.cotato.csquiz.domain.generation.entity.Session;
 
 public record MemberAttendResponse(
@@ -18,6 +19,8 @@ public record MemberAttendResponse(
                 "CLOSED", "OPEN"
         })
         AttendanceOpenStatus isOpened,
+        @Schema(description = "출결 형식")
+        AttendanceType attendanceType,
         @Schema(description = "마감된 출석에 대한 출결 결과", nullable = true)
         AttendanceResult attendanceResult
 ) {
@@ -28,6 +31,7 @@ public record MemberAttendResponse(
                 session.getTitle(),
                 session.getSessionDate(),
                 openStatus,
+                attendanceRecord.getAttendanceType(),
                 attendanceRecord.getAttendanceResult()
         );
     }
@@ -39,6 +43,7 @@ public record MemberAttendResponse(
                 session.getTitle(),
                 session.getSessionDate(),
                 openStatus,
+                null,
                 null
         );
     }
