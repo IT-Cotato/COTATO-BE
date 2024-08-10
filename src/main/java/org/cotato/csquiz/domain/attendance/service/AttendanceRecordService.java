@@ -1,10 +1,12 @@
 package org.cotato.csquiz.domain.attendance.service;
 
-import static org.cotato.csquiz.domain.attendance.util.AttendanceUtil.getAttendanceStatus;
+import static org.cotato.csquiz.domain.attendance.util.AttendanceUtil.getAttendanceOpenStatus;
 
 import jakarta.persistence.EntityNotFoundException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +14,8 @@ import org.cotato.csquiz.api.attendance.dto.AttendResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceParams;
 import org.cotato.csquiz.api.attendance.dto.AttendanceRecordResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceStatistic;
+import org.cotato.csquiz.api.attendance.dto.MemberAttendResponse;
+import org.cotato.csquiz.api.attendance.dto.MemberAttendanceRecordsResponse;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
@@ -21,6 +25,8 @@ import org.cotato.csquiz.domain.attendance.repository.AttendanceRecordRepository
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.service.MemberService;
+import org.cotato.csquiz.domain.generation.entity.Session;
+import org.cotato.csquiz.domain.generation.repository.SessionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +40,7 @@ public class AttendanceRecordService {
     private final AttendanceRepository attendanceRepository;
     private final MemberService memberService;
     private final RequestAttendanceService requestAttendanceService;
+    private final SessionRepository sessionRepository;
 
     public List<AttendanceRecordResponse> generateAttendanceResponses(List<Attendance> attendances) {
         List<AttendanceRecord> records = attendanceRecordRepository.findAllByAttendanceIdsInQuery(
@@ -69,5 +76,39 @@ public class AttendanceRecordService {
         }
 
         return requestAttendanceService.attend(request, memberId, attendance);
+    }
+
+    public MemberAttendanceRecordsResponse findAllRecordsBy(final Long generationId, final Long memberId) {
+        List<Session> sessions = sessionRepository.findAllByGenerationId(generationId);
+
+        Map<Long, Session> sessionMap = sessions.stream()
+                .collect(Collectors.toUnmodifiableMap(Session::getId, Function.identity()));
+
+        List<Long> sessionIds = sessions.stream()
+                .map(Session::getId)
+                .toList();
+        // 세션에 해당하는 모든 출결을 찾아
+        LocalDateTime currentTime = LocalDateTime.now();
+
+        Map<Boolean, List<Attendance>> isClosedAttendance = attendanceRepository.findAllBySessionIdsInQuery(sessionIds)
+                .stream()
+                .collect(Collectors.partitioningBy(attendance ->
+                        getAttendanceOpenStatus(attendance, currentTime) == AttendanceOpenStatus.CLOSED));
+
+        List<Long> closedAttendanceIds = isClosedAttendance.get(true).stream()
+                .map(Attendance::getId)
+                .toList();
+
+        List<MemberAttendResponse> responses = attendanceRecordRepository.findAllByAttendanceIdsInQueryAndMemberId(closedAttendanceIds, memberId).stream()
+                .map(ar -> MemberAttendResponse.closedAttendanceResponse(
+                        sessionMap.get(ar.getAttendance().getSessionId()), ar, AttendanceOpenStatus.CLOSED))
+                .collect(Collectors.toList());
+
+        responses.addAll(isClosedAttendance.get(false).stream()
+                .map(attendance -> MemberAttendResponse.openedAttendanceResponse(
+                        sessionMap.get(attendance.getSessionId()), memberId, AttendanceOpenStatus.OPEN))
+                .toList());
+
+        return MemberAttendanceRecordsResponse.of(generationId, responses);
     }
 }

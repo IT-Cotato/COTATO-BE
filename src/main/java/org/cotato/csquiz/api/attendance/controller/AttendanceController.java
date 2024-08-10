@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.attendance.dto.AttendResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceRecordResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendancesResponse;
+import org.cotato.csquiz.api.attendance.dto.MemberAttendanceRecordsResponse;
 import org.cotato.csquiz.api.attendance.dto.OfflineAttendanceRequest;
 import org.cotato.csquiz.api.attendance.dto.OnlineAttendanceRequest;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
@@ -112,5 +113,12 @@ public class AttendanceController {
     public ResponseEntity<AttendResponse> submitOnlineAttendanceRecord(@RequestBody OnlineAttendanceRequest request,
                                                                        @AuthenticationPrincipal Long memberId) {
         return ResponseEntity.ok().body(attendanceRecordService.submitRecord(request, memberId));
+    }
+
+    @Operation(summary = "부원의 기수별 출결 기록 반환 API")
+    @GetMapping("/records/members")
+    public ResponseEntity<MemberAttendanceRecordsResponse> findAllRecordsByGeneration(@RequestParam("generation-id") Long generationId ,
+                                                                                      @AuthenticationPrincipal Long memberId) {
+        return ResponseEntity.ok().body(attendanceRecordService.findAllRecordsBy(generationId, memberId));
     }
 }
