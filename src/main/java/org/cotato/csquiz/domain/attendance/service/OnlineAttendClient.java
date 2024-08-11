@@ -26,7 +26,7 @@ public class OnlineAttendClient implements AttendClient {
     public AttendResponse request(AttendanceParams params, Long memberId, Attendance attendance) {
         AttendanceResult attendanceResult = AttendanceUtil.calculateAttendanceStatus(attendance, params.requestTime());
 
-        attendanceRecordRepository.save(AttendanceRecord.onLineRecord(attendance, memberId, attendanceStatus, params.requestTime()));
+        attendanceRecordRepository.save(AttendanceRecord.onLineRecord(attendance, memberId, attendanceResult, params.requestTime()));
 
         return AttendResponse.from(attendanceResult);
     }

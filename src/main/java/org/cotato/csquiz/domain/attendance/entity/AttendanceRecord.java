@@ -56,7 +56,7 @@ public class AttendanceRecord extends BaseTimeEntity {
     @Column(name = "attend_time", nullable = false)
     private LocalDateTime attendTime;
 
-    private AttendanceRecord(AttendanceType attendanceType, AttendanceStatus attendanceStatus, Double locationAccuracy,
+    private AttendanceRecord(AttendanceType attendanceType, AttendanceResult attendanceResult, Double locationAccuracy,
                              Long memberId, Attendance attendance, LocalDateTime attendTime) {
         this.attendanceType = attendanceType;
         this.attendanceResult = attendanceResult;
@@ -66,7 +66,7 @@ public class AttendanceRecord extends BaseTimeEntity {
         this.attendTime = attendTime;
     }
 
-    public static AttendanceRecord onLineRecord(Attendance attendance, Long memberId, AttendanceStatus attendanceStatus,
+    public static AttendanceRecord onLineRecord(Attendance attendance, Long memberId, AttendanceResult attendanceResult,
                                                 LocalDateTime attendTime) {
         return new AttendanceRecord(
                 AttendanceType.ONLINE,
@@ -79,7 +79,7 @@ public class AttendanceRecord extends BaseTimeEntity {
     }
 
     public static AttendanceRecord offlineRecord(Attendance attendance, Long memberId, Double locationAccuracy,
-                                                 AttendanceStatus attendanceStatus, LocalDateTime attendTime) {
+                                                 AttendanceResult attendanceResult, LocalDateTime attendTime) {
         return new AttendanceRecord(
                 AttendanceType.OFFLINE,
                 attendanceResult,
@@ -98,7 +98,7 @@ public class AttendanceRecord extends BaseTimeEntity {
         this.locationAccuracy = accuracy;
     }
 
-    public void updateAttendanceStatus(AttendanceStatus attendanceStatus) {
-        this.attendanceStatus = attendanceStatus;
+    public void updateAttendanceStatus(AttendanceResult attendanceResult) {
+        this.attendanceResult = attendanceResult;
     }
 }

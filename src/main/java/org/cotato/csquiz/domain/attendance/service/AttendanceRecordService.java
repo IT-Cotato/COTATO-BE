@@ -21,7 +21,7 @@ import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.entity.AttendanceRecord;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceOpenStatus;
-import org.cotato.csquiz.domain.attendance.enums.AttendanceStatus;
+import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRecordRepository;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
@@ -119,8 +119,8 @@ public class AttendanceRecordService {
         List<AttendanceRecord> attendanceRecords = attendanceRecordRepository.findAllByAttendanceId(attendance.getId());
 
         for (AttendanceRecord attendanceRecord : attendanceRecords) {
-            AttendanceStatus attendanceStatus = AttendanceUtil.calculateAttendanceStatus(attendance, attendanceRecord.getAttendTime());
-            attendanceRecord.updateAttendanceStatus(attendanceStatus);
+            AttendanceResult attendanceResult = AttendanceUtil.calculateAttendanceStatus(attendance, attendanceRecord.getAttendTime());
+            attendanceRecord.updateAttendanceStatus(attendanceResult);
         }
 
         attendanceRecordRepository.saveAll(attendanceRecords);
