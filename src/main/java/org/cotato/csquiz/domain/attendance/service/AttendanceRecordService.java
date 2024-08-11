@@ -21,8 +21,10 @@ import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.entity.AttendanceRecord;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceOpenStatus;
+import org.cotato.csquiz.domain.attendance.enums.AttendanceStatus;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRecordRepository;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
+import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.service.MemberService;
 import org.cotato.csquiz.domain.generation.entity.Session;
@@ -110,5 +112,17 @@ public class AttendanceRecordService {
                 .toList());
 
         return MemberAttendanceRecordsResponse.of(generationId, responses);
+    }
+    
+    @Transactional
+    public void updateAttendanceStatus(Attendance attendance) {
+        List<AttendanceRecord> attendanceRecords = attendanceRecordRepository.findAllByAttendanceId(attendance.getId());
+
+        for (AttendanceRecord attendanceRecord : attendanceRecords) {
+            AttendanceStatus attendanceStatus = AttendanceUtil.calculateAttendanceStatus(attendance, attendanceRecord.getAttendTime());
+            attendanceRecord.updateAttendanceStatus(attendanceStatus);
+        }
+
+        attendanceRecordRepository.saveAll(attendanceRecords);
     }
 }

@@ -19,4 +19,6 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
 
     @Query("select  a from AttendanceRecord a where a.attendance.id in :attendanceIds and a.memberId = :memberId")
     List<AttendanceRecord> findAllByAttendanceIdsInQueryAndMemberId(@Param("attendanceIds") List<Long> attendanceIds, @Param("memberId") Long memberId);
+  
+    List<AttendanceRecord> findAllByAttendanceId(Long attendanceId);
 }
