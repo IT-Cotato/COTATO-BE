@@ -24,25 +24,23 @@ public record MemberAttendResponse(
         @Schema(description = "마감된 출석에 대한 출결 결과", nullable = true)
         AttendanceResult attendanceResult
 ) {
-    public static MemberAttendResponse closedAttendanceResponse(Session session, AttendanceRecord attendanceRecord,
-                                                                AttendanceOpenStatus openStatus) {
+    public static MemberAttendResponse closedAttendanceResponse(Session session, AttendanceRecord attendanceRecord) {
         return new MemberAttendResponse(
                 attendanceRecord.getMemberId(),
                 session.getTitle(),
                 session.getSessionDate(),
-                openStatus,
+                AttendanceOpenStatus.CLOSED,
                 attendanceRecord.getAttendanceType(),
                 attendanceRecord.getAttendanceResult()
         );
     }
 
-    public static MemberAttendResponse openedAttendanceResponse(Session session, Long memberId,
-                                                                AttendanceOpenStatus openStatus) {
+    public static MemberAttendResponse openedAttendanceResponse(Session session, Long memberId) {
         return new MemberAttendResponse(
                 memberId,
                 session.getTitle(),
                 session.getSessionDate(),
-                openStatus,
+                AttendanceOpenStatus.OPEN,
                 null,
                 null
         );
