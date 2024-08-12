@@ -1,5 +1,7 @@
 package org.cotato.csquiz.domain.attendance.enums;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,4 +18,12 @@ public enum DeadLine {
 
     private final LocalTime time;
     private final String description;
+
+    public static LocalDateTime sessionStartTime(LocalDate date) {
+        return LocalDateTime.of(date, ATTENDANCE_START_TIME.getTime());
+    }
+
+    public static LocalDateTime sessionEndTime(LocalDate date) {
+        return LocalDateTime.of(date, ATTENDANCE_END_TIME.getTime());
+    }
 }
