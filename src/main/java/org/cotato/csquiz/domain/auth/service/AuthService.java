@@ -7,10 +7,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.auth.dto.FindPasswordResponse;
 import org.cotato.csquiz.api.auth.dto.JoinRequest;
+import org.cotato.csquiz.api.auth.dto.JoinResponse;
 import org.cotato.csquiz.api.auth.dto.LogoutRequest;
 import org.cotato.csquiz.api.auth.dto.ReissueResponse;
 import org.cotato.csquiz.api.auth.dto.SendEmailRequest;
 import org.cotato.csquiz.api.member.dto.MemberEmailResponse;
+import org.cotato.csquiz.api.member.dto.MemberInfo;
 import org.cotato.csquiz.common.config.jwt.BlackListRepository;
 import org.cotato.csquiz.common.config.jwt.JwtTokenProvider;
 import org.cotato.csquiz.common.config.jwt.RefreshToken;
@@ -50,7 +52,7 @@ public class AuthService {
     private int refreshTokenAge;
 
     @Transactional
-    public void createLoginInfo(JoinRequest request) {
+    public JoinResponse createLoginInfo(JoinRequest request) {
         validateService.checkDuplicateEmail(request.email());
         validateService.checkPasswordPattern(request.password());
         validateService.checkPhoneNumber(request.phoneNumber());
@@ -66,6 +68,8 @@ public class AuthService {
                 .phoneNumber(encryptedPhoneNumber)
                 .build();
         memberRepository.save(newMember);
+
+        return JoinResponse.from(newMember);
     }
 
     @Transactional
