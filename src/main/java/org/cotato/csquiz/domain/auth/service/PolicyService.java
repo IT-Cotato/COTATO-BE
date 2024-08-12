@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.api.policy.dto.CheckMemberPoliciesRequest;
 import org.cotato.csquiz.api.policy.dto.CheckPolicyRequest;
 import org.cotato.csquiz.api.policy.dto.FindMemberPolicyResponse;
+import org.cotato.csquiz.api.policy.dto.PoliciesResponse;
 import org.cotato.csquiz.api.policy.dto.PolicyInfoResponse;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
@@ -90,5 +91,12 @@ public class PolicyService {
                 .map(MemberPolicy::getPolicy)
                 .map(Policy::getPolicyType)
                 .anyMatch(PolicyType.ESSENTIAL::equals);
+    }
+
+    public PoliciesResponse findPolicies() {
+        List<PolicyInfoResponse> policies = policyRepository.findAll().stream()
+                .map(PolicyInfoResponse::from)
+                .toList();
+        return new PoliciesResponse(policies);
     }
 }

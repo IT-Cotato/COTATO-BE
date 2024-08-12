@@ -1,11 +1,14 @@
 package org.cotato.csquiz.api.auth.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.auth.dto.FindPasswordResponse;
 import org.cotato.csquiz.api.auth.dto.JoinRequest;
+import org.cotato.csquiz.api.auth.dto.JoinResponse;
 import org.cotato.csquiz.api.auth.dto.LogoutRequest;
 import org.cotato.csquiz.api.auth.dto.ReissueResponse;
 import org.cotato.csquiz.api.auth.dto.SendEmailRequest;
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
+@Tag(name = "인증 관련 API", description = "회원 인증 관련 API 모음")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/api/auth")
@@ -29,11 +33,10 @@ public class AuthController {
 
     private final AuthService authService;
 
+    @Operation(summary = "회원 가입 API")
     @PostMapping("/join")
-    public ResponseEntity<Void> joinAuth(@RequestBody @Valid JoinRequest request) {
-        log.info("[회원 가입 컨트롤러]: {}, {}", request.email(), request.name());
-        authService.createLoginInfo(request);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<JoinResponse> joinAuth(@RequestBody @Valid JoinRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.createLoginInfo(request));
     }
 
     @PostMapping("/reissue")

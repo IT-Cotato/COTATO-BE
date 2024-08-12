@@ -32,6 +32,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private static final String WS = "/websocket/csquiz";
     private static final String GENERATION_PATH = "/v1/api/generation";
     private static final String SESSION_PATH = "/v1/api/session";
+    private static final String POLICIES_PATH = "/v2/api/policies";
 
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -67,6 +68,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         return path.startsWith(AUTH_PATH) || path.equals(LOGIN_PATH)
                 || path.startsWith(SWAGGER_PATH) || path.equals(SWAGGER_FAVICON)
                 || path.startsWith(SWAGGER_PATH_3) || path.startsWith(WS)
-                || path.equals(GENERATION_PATH) || path.equals(SESSION_PATH);
+                || path.equals(GENERATION_PATH) || path.equals(SESSION_PATH) || path.equals(POLICIES_PATH);
     }
 }
