@@ -52,8 +52,7 @@ public class MemberController {
 
     @Operation(summary = "멤버 전화번호 수정 API")
     @PatchMapping("/phone-number")
-    public ResponseEntity<Void> updatePhoneNumber(
-            @RequestHeader("Authorization") String authorizationHeader,
+    public ResponseEntity<Void> updatePhoneNumber(@RequestHeader("Authorization") String authorizationHeader,
             @RequestBody @Valid UpdatePhoneNumberRequest request) {
         String accessToken = jwtTokenProvider.getBearer(authorizationHeader);
         memberService.updatePhoneNumber(accessToken, request.phoneNumber());
@@ -76,16 +75,6 @@ public class MemberController {
             @RequestHeader("Authorization") String authorizationHeader) {
         String accessToken = jwtTokenProvider.getBearer(authorizationHeader);
         memberService.deleteMemberProfileImage(accessToken);
-        return ResponseEntity.noContent().build();
-    }
-
-    @Operation(summary = "멤버 전화번호 수정", description = "멤버 전화번호 수정하기")
-    @PatchMapping("/phone-number")
-    public ResponseEntity<Void> updatePhoneNumber(
-            @RequestHeader("Authorization") String authorizationHeader,
-            @RequestBody @Valid UpdatePhoneNumberRequest request) {
-        String accessToken = jwtTokenProvider.getBearer(authorizationHeader);
-        memberService.updatePhoneNumber(accessToken,request.phoneNumber());
         return ResponseEntity.noContent().build();
     }
 
