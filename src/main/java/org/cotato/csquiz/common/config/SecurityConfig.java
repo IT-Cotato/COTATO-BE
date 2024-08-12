@@ -30,7 +30,8 @@ public class SecurityConfig {
             "/swagger-ui.html",
             "/v1/api/generation",
             "/v1/api/session",
-            "/websocket/csquiz"
+            "/websocket/csquiz",
+            "/v2/api/policies"
     };
 
     private final JwtTokenProvider jwtTokenProvider;
