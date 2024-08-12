@@ -5,9 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.web.multipart.MultipartFile;
 
 @Valid
-public record UpdateSessionPhotoRequest(
+public record UpdateSessionImageRequest(
         @NotNull
         Long sessionId,
-        MultipartFile sessionImage
+        MultipartFile image
 ) {
 }

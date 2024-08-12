@@ -6,15 +6,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.admin.dto.MemberInfoResponse;
 import org.cotato.csquiz.api.member.dto.MemberInfo;
 import org.cotato.csquiz.api.member.dto.MemberMyPageInfoResponse;
+import org.cotato.csquiz.common.S3.S3Uploader;
 import org.cotato.csquiz.api.member.dto.UpdatePhoneNumberRequest;
 import org.cotato.csquiz.common.config.jwt.JwtTokenProvider;
-import org.cotato.csquiz.domain.auth.entity.Member;
-import org.cotato.csquiz.common.error.exception.AppException;
+import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.common.error.ErrorCode;
+import org.cotato.csquiz.common.error.exception.AppException;
+import org.cotato.csquiz.common.error.exception.ImageException;
+import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
@@ -22,11 +26,14 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MemberService {
 
+    private static final String PROFILE_BUCKET_DIRECTORY = "profile";
+
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final EncryptService encryptService;
     private final ValidateService validateService;
+    private final S3Uploader s3Uploader;
 
     public MemberInfoResponse findMemberInfo(Long id) {
         Member findMember = memberRepository.findById(id)
@@ -45,10 +52,10 @@ public class MemberService {
     }
 
     @Transactional
-    public void updatePassword(String accessToken, String password) {
-        Long memberId = jwtTokenProvider.getMemberId(accessToken);
+    public void updatePassword(final Long memberId, final String password) {
         Member findMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다."));
+
         validateService.checkPasswordPattern(password);
         validateIsSameBefore(findMember.getPassword(), password);
 
@@ -69,6 +76,37 @@ public class MemberService {
 
         String encryptedPhoneNumber = encryptService.encryptPhoneNumber(phoneNumber);
         findMember.updatePhoneNumber(encryptedPhoneNumber);
+    }
+
+    @Transactional
+    public void updateMemberProfileImage(String accessToken, MultipartFile image) throws ImageException {
+        if (image.isEmpty()) {
+            throw new AppException(ErrorCode.FILE_IS_EMPTY);
+        }
+
+        Long memberId = jwtTokenProvider.getMemberId(accessToken);
+        Member findMember = memberRepository.findById(memberId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다."));
+
+        if (findMember.getProfileImage() != null) {
+            s3Uploader.deleteFile(findMember.getProfileImage());
+        }
+
+        S3Info s3Info = s3Uploader.uploadFiles(image, PROFILE_BUCKET_DIRECTORY);
+        findMember.updateProfileImage(s3Info);
+    }
+
+    @Transactional
+    public void deleteMemberProfileImage(String accessToken) {
+        Long memberId = jwtTokenProvider.getMemberId(accessToken);
+        Member findMember = memberRepository.findById(memberId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다."));
+
+        if (findMember.getProfileImage() != null) {
+            s3Uploader.deleteFile(findMember.getProfileImage());
+        }
+
+        findMember.updateProfileImage(null);
     }
 
     public MemberMyPageInfoResponse findMyPageInfo(Long memberId) {

@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.mypage.dto.HallOfFameInfo;
 import org.cotato.csquiz.api.mypage.dto.HallOfFameResponse;
 import org.cotato.csquiz.api.mypage.dto.MyHallOfFameInfo;
-import org.cotato.csquiz.api.mypage.dto.MyPageMemberInfoResponse;
 import org.cotato.csquiz.domain.education.entity.Education;
 import org.cotato.csquiz.domain.education.entity.Quiz;
 import org.cotato.csquiz.domain.education.entity.Record;
@@ -25,7 +24,6 @@ import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.service.MemberService;
 import org.cotato.csquiz.domain.generation.repository.GenerationRepository;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
-import org.cotato.csquiz.domain.auth.service.EncryptService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,7 +41,6 @@ public class MyPageService {
     private final EducationRepository educationRepository;
     private final RecordRepository recordRepository;
     private final ScorerRepository scorerRepository;
-    private final EncryptService encryptService;
 
     public HallOfFameResponse findHallOfFame(Long generationId, Long memberId) {
         Generation findGeneration = generationRepository.findById(generationId)
@@ -135,13 +132,6 @@ public class MyPageService {
                 .sorted(Entry.comparingByValue(Comparator.reverseOrder()))
                 .limit(SHOW_PEOPLE_COUNT)
                 .toList();
-    }
-
-    public MyPageMemberInfoResponse findMemberInfo(Long memberId) {
-        Member member = findMemberById(memberId);
-        String originPhoneNumber = encryptService.decryptPhoneNumber(member.getPhoneNumber());
-
-        return MyPageMemberInfoResponse.of(member, originPhoneNumber);
     }
 
     private Member findMemberById(Long id) {

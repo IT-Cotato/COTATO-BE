@@ -25,9 +25,15 @@ public enum ErrorCode {
     INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "A-002", "유효하지 않은 패스워드입니다."),
     INVALID_PHONE_NUMBER(HttpStatus.BAD_REQUEST, "A-003", "유효하지 않은 전화번호 입니다."),
     CODE_NOT_MATCH(HttpStatus.BAD_REQUEST, "A-101", "요청하신 코드가 일치하지 않습니다."),
-    EMAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "A-201", "해당 이메일이 존재하지 않습니다."), // 이게 소켓에 왜 필요한지, find 그 부분에서 발생해야할 예외일듯
+    CODE_EXPIRED(HttpStatus.BAD_REQUEST, "A-102", "코드 유효 시간이 만료되었습니다."),
+    EMAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "A-201", "해당 이메일이 존재하지 않습니다."),
+    REQUEST_AGAIN(HttpStatus.NOT_FOUND, "A-202", "해당 이메일에 대한 코드가 존재하지 않습니다. 다시 요청 해주세요"),
     EMAIL_DUPLICATED(HttpStatus.CONFLICT, "A-301", "존재하는 이메일 입니다."),
     PHONE_NUMBER_DUPLICATED(HttpStatus.CONFLICT, "A-302", "존재하는 전화번호입니다."),
+
+    // 정책 관련
+    SHOULD_AGREE_POLICY(HttpStatus.BAD_REQUEST, "P-001", "필수 정책에는 반드시 동의해야합니다."),
+    ALREADY_POLICY_CHECK(HttpStatus.CONFLICT, "P-301", "이미 동의한 정책입니다."),
 
     //회원 관련
     ROLE_IS_NOT_MATCH(HttpStatus.BAD_REQUEST, "M-101", "해당 ROLE은 변경할 수 없습니다."),
@@ -45,6 +51,13 @@ public enum ErrorCode {
     EDUCATION_STATUS_NOT_BEFORE(HttpStatus.BAD_REQUEST, "E-402", "이미 시작한 적이 있는 교육입니다."),
     MEMBER_CANT_ACCESS(HttpStatus.BAD_REQUEST, "E-403", "해당 멤버의 ROLE로 접근할 수 없습니다"),
 
+    //세션 사진
+    SESSION_IMAGE_COUNT_MISMATCH(HttpStatus.BAD_REQUEST, "P-101", "저장된 사진 수와 요청 사진 수가 다릅니다."),
+    SESSION_ORDER_INVALID(HttpStatus.BAD_REQUEST, "P-102", "입력한 순서는 유효하지 않습니다."),
+
+    FILE_EXTENSION_FAULT(HttpStatus.BAD_REQUEST, "F-001", "해당 파일은 등록 할 수 없는 확장자명입니다."),
+    FILE_IS_EMPTY(HttpStatus.BAD_REQUEST, "F-002", "파일이 비어있습니다"),
+
     INVALID_ANSWER(HttpStatus.BAD_REQUEST, "Q-101", "객관식 문제는 숫자 형식의 값만 정답으로 추가할 수 있습니다."),
     CONTENT_IS_NOT_ANSWER(HttpStatus.BAD_REQUEST, "Q-201", "추가되지 않은 정답을 추가할 수 없습니다."),
     QUIZ_NUMBER_DUPLICATED(HttpStatus.CONFLICT, "Q-301", "퀴즈 번호는 중복될 수 없습니다."),
@@ -52,9 +65,9 @@ public enum ErrorCode {
     CONTENT_IS_ALREADY_ANSWER(HttpStatus.BAD_REQUEST, "Q-303", "이미 정답인 답을 추가했습니다"),
     QUIZ_ACCESS_DENIED(HttpStatus.BAD_REQUEST, "Q-401", "해당 퀴즈는 아직 접근할 수 없습니다."),
     QUIZ_TYPE_NOT_MATCH(HttpStatus.BAD_REQUEST, "Q-402", "주관식 정답만 추가 가능합니다."),
-    
+
     KING_MEMBER_EXIST(HttpStatus.CONFLICT, "K-301", "이미 킹킹 멤버가 존재합니다"),
-  
+
     SUBJECT_INVALID(HttpStatus.BAD_REQUEST, "E-000", "교육 주제는 NULL이거나 비어있을 수 없습니다."),
 
     PROCESSING(HttpStatus.CONFLICT, "D-999", "해당 키의 요청은 아직 처리 중 입니다."),
@@ -69,7 +82,7 @@ public enum ErrorCode {
     IMAGE_DELETE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S-003", "s3 이미지 삭제처리를 실패했습니다"),
     INTERNAL_SQL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S-004", "SQL 관련 에러 발생"),
     ENUM_NOT_RESOLVED(HttpStatus.BAD_REQUEST, "S-005", "입력한 Enum이 존재하지 않습니다."),
-    SCORER_LOCK_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S-006", "득점자 락 획득 과정에서 에러 발생");
+    SCORER_LOCK_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S-006", "득점자 락 획득 과정에서 에러 발생"),
     ;
 
     private final HttpStatus httpStatus;

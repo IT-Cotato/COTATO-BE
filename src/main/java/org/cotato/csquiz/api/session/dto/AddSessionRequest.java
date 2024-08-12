@@ -1,5 +1,6 @@
 package org.cotato.csquiz.api.session.dto;
 
+import java.util.List;
 import org.cotato.csquiz.domain.generation.enums.CSEducation;
 import org.cotato.csquiz.domain.generation.enums.DevTalk;
 import org.cotato.csquiz.domain.generation.enums.ItIssue;
@@ -10,7 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 public record AddSessionRequest(
         @NotNull
         Long generationId,
-        MultipartFile sessionImage,
+        List<MultipartFile> images,
         @NotNull
         String title,
         @NotNull

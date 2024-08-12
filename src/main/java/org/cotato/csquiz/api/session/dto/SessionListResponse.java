@@ -1,23 +1,27 @@
 package org.cotato.csquiz.api.session.dto;
 
+import java.util.List;
 import org.cotato.csquiz.domain.generation.embedded.SessionContents;
 import org.cotato.csquiz.domain.generation.entity.Session;
+import org.cotato.csquiz.domain.generation.entity.SessionImage;
 
 public record SessionListResponse(
         Long sessionId,
         Integer sessionNumber,
         String title,
-        String photoUrl,
+        List<SessionListImageInfoResponse> imageInfos,
         String description,
         Long generationId,
         SessionContents sessionContents
 ) {
-    public static SessionListResponse from(Session session) {
+    public static SessionListResponse of(Session session, List<SessionImage> sessionImages) {
         return new SessionListResponse(
                 session.getId(),
                 session.getNumber(),
                 session.getTitle(),
-                (session.getPhotoS3Info() != null) ? session.getPhotoS3Info().getUrl() : null,
+                sessionImages.stream()
+                        .map(SessionListImageInfoResponse::from)
+                        .toList(),
                 session.getDescription(),
                 session.getGeneration().getId(),
                 session.getSessionContents()

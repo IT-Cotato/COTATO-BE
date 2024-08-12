@@ -16,10 +16,11 @@ import org.cotato.csquiz.common.config.jwt.JwtTokenProvider;
 import org.cotato.csquiz.common.config.jwt.RefreshToken;
 import org.cotato.csquiz.common.config.jwt.RefreshTokenRepository;
 import org.cotato.csquiz.common.config.jwt.Token;
+import org.cotato.csquiz.common.error.ErrorCode;
+import org.cotato.csquiz.common.error.exception.AppException;
+import org.cotato.csquiz.domain.auth.enums.EmailType;
 import org.cotato.csquiz.domain.auth.constant.EmailConstants;
 import org.cotato.csquiz.domain.auth.entity.Member;
-import org.cotato.csquiz.common.error.exception.AppException;
-import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -119,20 +120,20 @@ public class AuthService {
 
     public void sendSignUpEmail(SendEmailRequest request) {
         validateService.emailNotExist(request.email());
-        emailVerificationService.sendVerificationCodeToEmail(request.email(), EmailConstants.SIGNUP_SUBJECT);
+        emailVerificationService.sendVerificationCodeToEmail(EmailType.SIGNUP, request.email(), EmailConstants.SIGNUP_SUBJECT);
     }
 
     public void verifySingUpCode(String email, String code) {
-        emailVerificationService.verifyCode(email, code);
+        emailVerificationService.verifyCode(EmailType.SIGNUP, email, code);
     }
 
     public void sendFindPasswordEmail(SendEmailRequest request) {
         validateService.emailExist(request.email());
-        emailVerificationService.sendVerificationCodeToEmail(request.email(), EmailConstants.PASSWORD_SUBJECT);
+        emailVerificationService.sendVerificationCodeToEmail(EmailType.UPDATE_PASSWORD, request.email(), EmailConstants.PASSWORD_SUBJECT);
     }
 
     public FindPasswordResponse verifyPasswordCode(String email, String code) {
-        emailVerificationService.verifyCode(email, code);
+        emailVerificationService.verifyCode(EmailType.UPDATE_PASSWORD, email, code);
         Member findMember = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_FOUND));
         String role = findMember.getRole().getKey();
