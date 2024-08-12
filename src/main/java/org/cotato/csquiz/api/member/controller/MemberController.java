@@ -12,6 +12,7 @@ import org.cotato.csquiz.api.member.dto.UpdateProfileImageRequest;
 import org.cotato.csquiz.common.config.jwt.JwtTokenProvider;
 import org.cotato.csquiz.common.error.exception.ImageException;
 import org.cotato.csquiz.domain.auth.service.MemberService;
+import org.springframework.context.annotation.Description;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -75,6 +76,16 @@ public class MemberController {
             @RequestHeader("Authorization") String authorizationHeader) {
         String accessToken = jwtTokenProvider.getBearer(authorizationHeader);
         memberService.deleteMemberProfileImage(accessToken);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "멤버 전화번호 수정", description = "멤버 전화번호 수정하기")
+    @PatchMapping("/phone-number")
+    public ResponseEntity<Void> updatePhoneNumber(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestBody @Valid UpdatePhoneNumberRequest request) {
+        String accessToken = jwtTokenProvider.getBearer(authorizationHeader);
+        memberService.updatePhoneNumber(accessToken,request.phoneNumber());
         return ResponseEntity.noContent().build();
     }
 
