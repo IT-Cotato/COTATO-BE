@@ -132,8 +132,8 @@ public class WebSocketHandler extends TextWebSocketHandler {
         log.info("[풀이 신호 전송 후 사용자 : {}]", CLIENTS.keySet());
     }
 
-    public void stopQuiz(Quiz quiz) {
-        QuizStopResponse response = QuizStopResponse.from(quiz.getId());
+    public void stopQuiz(Long quizId) {
+        QuizStopResponse response = QuizStopResponse.from(quizId);
         for (WebSocketSession clientSession : CLIENTS.values()) {
             sendMessage(clientSession, response);
         }
@@ -155,7 +155,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    public void stopAllQuiz(Long educationId) {
+    public void stopEducation(Long educationId) {
         CsQuizStopResponse response = CsQuizStopResponse.from(EXIT_COMMAND, educationId);
         for (WebSocketSession clientSession : CLIENTS.values()) {
             sendMessage(clientSession, response);
