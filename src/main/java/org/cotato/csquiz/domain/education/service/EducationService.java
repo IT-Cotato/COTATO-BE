@@ -12,7 +12,7 @@ import org.cotato.csquiz.api.education.dto.EducationIdOfQuizResponse;
 import org.cotato.csquiz.api.education.dto.FindEducationStatusResponse;
 import org.cotato.csquiz.api.education.dto.UpdateEducationRequest;
 import org.cotato.csquiz.api.socket.dto.EducationCloseRequest;
-import org.cotato.csquiz.api.socket.dto.QuizOpenRequest;
+import org.cotato.csquiz.api.socket.dto.EducationOpenRequest;
 import org.cotato.csquiz.domain.education.entity.Education;
 import org.cotato.csquiz.domain.education.entity.Quiz;
 import org.cotato.csquiz.domain.education.enums.EducationStatus;
@@ -88,7 +88,7 @@ public class EducationService {
     }
 
     @Transactional
-    public void openCSQuiz(QuizOpenRequest request) {
+    public void openEducation(EducationOpenRequest request) {
         Education education = findEducationById(request.educationId());
 
         checkEducationBefore(education);

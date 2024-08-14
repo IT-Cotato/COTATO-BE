@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.socket.dto.EducationCloseRequest;
-import org.cotato.csquiz.api.socket.dto.QuizOpenRequest;
+import org.cotato.csquiz.api.socket.dto.EducationOpenRequest;
 import org.cotato.csquiz.api.socket.dto.QuizSocketRequest;
 import org.cotato.csquiz.api.socket.dto.SocketTokenDto;
 import org.cotato.csquiz.domain.education.service.EducationService;
@@ -32,8 +32,8 @@ public class SocketController {
     private final QuizSolveService quizSolveService;
 
     @PatchMapping("/start/csquiz")
-    public ResponseEntity<Void> openCSQuiz(@RequestBody @Valid QuizOpenRequest request) {
-        educationService.openCSQuiz(request);
+    public ResponseEntity<Void> openEducation(@RequestBody @Valid EducationOpenRequest request) {
+        educationService.openEducation(request);
         return ResponseEntity.noContent().build();
     }
 
