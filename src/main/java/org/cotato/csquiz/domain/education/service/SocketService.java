@@ -34,7 +34,6 @@ public class SocketService {
         webSocketHandler.stopEducation(educationId);
     }
 
-
     public SocketTokenDto createSocketToken(final Long memberId) {
         Member member = memberService.findById(memberId);
 

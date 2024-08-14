@@ -10,7 +10,6 @@ import org.cotato.csquiz.domain.education.entity.Education;
 import org.cotato.csquiz.domain.education.entity.Quiz;
 import org.cotato.csquiz.domain.education.enums.EducationStatus;
 import org.cotato.csquiz.domain.education.enums.QuizStatus;
-import org.cotato.csquiz.domain.education.repository.EducationRepository;
 import org.cotato.csquiz.domain.education.repository.QuizRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class QuizSolveService {
 
     private final SocketService socketService;
-    private final EducationRepository educationRepository;
     private final QuizRepository quizRepository;
     private final EducationService educationService;
 
@@ -92,10 +90,5 @@ public class QuizSolveService {
     private Quiz findQuizById(Long quizId) {
         return quizRepository.findById(quizId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 퀴즈를 찾을 수 없습니다."));
-    }
-
-    private Education findEducationById(Long educationId) {
-        return educationRepository.findById(educationId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 교육을 찾을 수 없습니다."));
     }
 }
