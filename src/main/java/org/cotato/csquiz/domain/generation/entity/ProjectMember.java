@@ -30,7 +30,7 @@ public class ProjectMember {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "project_id", nullable = false, unique = true)
+    @Column(name = "project_id", nullable = false)
     private Long projectId;
 
     @Builder

@@ -32,7 +32,10 @@ public class Project {
     @Column(name = "behance_url")
     private String behanceUrl;
 
-    @Column(name = "generation_id", nullable = false, unique = true)
+    @Column(name = "project_url")
+    private String projectUrl;
+
+    @Column(name = "generation_id", nullable = false)
     private Long generationId;
 
     @Builder

@@ -32,7 +32,7 @@ public class ProjectImage {
     @Embedded
     private S3Info s3Info;
 
-    @Column(name = "project_id", nullable = false, unique = true)
+    @Column(name = "project_id", nullable = false)
     private Long projectId;
 
     @Builder
