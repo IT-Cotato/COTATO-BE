@@ -5,6 +5,7 @@ import static org.cotato.csquiz.common.util.FileUtil.extractFileExtension;
 
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import org.cotato.csquiz.common.entity.S3Info;
@@ -56,7 +57,7 @@ public class S3Uploader {
         }
     }
 
-    private String upload(File uploadFile, String dirName) {
+    private String upload(File uploadFile, String dirName) throws ImageException {
         String fileName = dirName + "/" + uploadFile.getName();
         String uploadUrl = putS3(uploadFile, fileName);
         removeNewFile(uploadFile);
@@ -72,15 +73,20 @@ public class S3Uploader {
         }
     }
 
-    private String putS3(File uploadFile, String fileName) {
-        amazonS3.putObject(
-                new PutObjectRequest(bucket, fileName, uploadFile).withCannedAcl(CannedAccessControlList.PublicRead));
-        return amazonS3.getUrl(bucket, fileName).toString();
+    private String putS3(File uploadFile, String fileName) throws ImageException {
+        try {
+            amazonS3.putObject(
+                    new PutObjectRequest(bucket, fileName, uploadFile).withCannedAcl(
+                            CannedAccessControlList.PublicRead));
+            return amazonS3.getUrl(bucket, fileName).toString();
+        } catch (AmazonS3Exception e) {
+            throw new ImageException(ErrorCode.FILE_EXTENSION_FAULT);
+        }
     }
 
     private Optional<File> convert(MultipartFile file) throws ImageException {
         String fileExtension = extractFileExtension(file);
-        checkAllowedImageFileExtension(fileExtension);
+//        checkAllowedImageFileExtension(fileExtension);
 
         File convertFile = new File(System.getProperty("user.dir") + "/" + UUID.randomUUID() + "." + fileExtension);
         log.info("converted file name: {}", convertFile.getName());
