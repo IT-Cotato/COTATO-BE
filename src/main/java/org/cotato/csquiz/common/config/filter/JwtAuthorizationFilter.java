@@ -32,9 +32,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private static final String WS = "/websocket/csquiz";
     private static final String GENERATION_PATH = "/v1/api/generation";
     private static final String SESSION_PATH = "/v1/api/session";
+    private static final String POLICIES_PATH = "/v2/api/policies";
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final MemberRepository memberRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -49,14 +49,13 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private void setAuthentication(String accessToken) {
         Long memberId = jwtTokenProvider.getMemberId(accessToken);
-        Member findMember = memberRepository.findById(memberId)
-                .orElseThrow(() -> new FilterAuthenticationException("해당 회원이 존재하지 않습니다."));
         String role = jwtTokenProvider.getRole(accessToken);
         log.info("[인증 필터 인증 진행, {}]", memberId);
         log.info("Member Role: {}", role);
+
         jwtTokenProvider.checkMemberExist(memberId);
 
-        Authentication authenticationToken = new UsernamePasswordAuthenticationToken(findMember.getEmail(), "",
+        Authentication authenticationToken = new UsernamePasswordAuthenticationToken(memberId, "",
                 List.of(new SimpleGrantedAuthority(role)));
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
     }
@@ -69,6 +68,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         return path.startsWith(AUTH_PATH) || path.equals(LOGIN_PATH)
                 || path.startsWith(SWAGGER_PATH) || path.equals(SWAGGER_FAVICON)
                 || path.startsWith(SWAGGER_PATH_3) || path.startsWith(WS)
-                || path.equals(GENERATION_PATH) || path.equals(SESSION_PATH);
+                || path.equals(GENERATION_PATH) || path.equals(SESSION_PATH) || path.equals(POLICIES_PATH);
     }
 }

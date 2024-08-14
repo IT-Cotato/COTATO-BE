@@ -43,6 +43,7 @@ public enum ErrorCode {
     // 기수 운영 (세션 -> 출석)
     INVALID_DATE(HttpStatus.BAD_REQUEST, "G-101", "시작날짜가 끝 날짜보다 뒤입니다"),
     GENERATION_NUMBER_DUPLICATED(HttpStatus.CONFLICT, "G-201", "같은 숫자의 기수가 있습니다"),
+    SESSION_DATE_NOT_FOUND(HttpStatus.NOT_FOUND, "G-202", "세션 날짜가 존재하지 않습니다"),
 
     // 교육 도메인
     REGRADE_FAIL(HttpStatus.BAD_REQUEST, "E-201", "재채점 할 기록이 없습니다."),
@@ -76,6 +77,13 @@ public enum ErrorCode {
 
     LAST_QUIZ_SCORER_NOT_EXIST(HttpStatus.CONFLICT, "W-201", "아직 마지막 문제 득점자가 없습니다"),
     WINNER_EXIST(HttpStatus.CONFLICT, "W-301", "이미 우승자가 존재합니다"),
+
+    //출석 관련 AT
+    OFFLINE_ATTEND_FAIL(HttpStatus.BAD_REQUEST, "AT-101", "거리 부적합으로 인한 대면 출석 실패"),
+    INVALID_ATTEND_TIME(HttpStatus.BAD_REQUEST, "AT-102", "시간 입력 범위가 잘못되었습니다."),
+    ALREADY_ATTEND(HttpStatus.CONFLICT, "AT-301", "이미 해당 타입으로 출석한 기록이 있습니다."),
+    ATTENDANCE_CLOSED(HttpStatus.CONFLICT, "AT-401", "아직 출석 시간이 아닙니다."),
+
     // 500 오류 -> 서버측에서 처리가 실패한 부분들
     WEBSOCKET_SEND_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "S-001", "소캣 메세지 전송 실패"),
     IMAGE_PROCESSING_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S-002", "이미지 처리에 실패했습니다."),

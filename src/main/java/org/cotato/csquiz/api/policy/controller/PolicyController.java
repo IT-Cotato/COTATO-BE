@@ -6,8 +6,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.api.policy.dto.CheckMemberPoliciesRequest;
 import org.cotato.csquiz.api.policy.dto.FindMemberPolicyResponse;
+import org.cotato.csquiz.api.policy.dto.PoliciesResponse;
 import org.cotato.csquiz.domain.auth.service.PolicyService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,7 +27,7 @@ public class PolicyController {
 
     @Operation(summary = "체크하지 않은 정책 조회 API")
     @GetMapping("/essential")
-    public ResponseEntity<FindMemberPolicyResponse> getUnCheckedPolicies(@RequestParam(value = "member-id") Long memberId) {
+    public ResponseEntity<FindMemberPolicyResponse> getUnCheckedPolicies(@AuthenticationPrincipal Long memberId) {
         return ResponseEntity.ok().body(policyService.findUnCheckedPolicies(memberId));
     }
 
@@ -34,5 +36,11 @@ public class PolicyController {
     public ResponseEntity<Void> checkPolicies(@RequestBody @Valid CheckMemberPoliciesRequest request){
         policyService.checkPolicies(request);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "회원 가입 시 정책 목록 반환 API")
+    @GetMapping
+    public ResponseEntity<PoliciesResponse> getPolicies() {
+        return ResponseEntity.ok().body(policyService.findPolicies());
     }
 }

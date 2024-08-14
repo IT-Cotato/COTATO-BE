@@ -11,9 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -48,7 +46,7 @@ public class Session extends BaseTimeEntity {
 
     @AttributeOverrides({
             @AttributeOverride(name = "itIssue",
-            column = @Column(name = "session_it_issue")),
+                    column = @Column(name = "session_it_issue")),
             @AttributeOverride(name = "networking",
                     column = @Column(name = "session_networking")),
             @AttributeOverride(name = "csEducation",
@@ -58,11 +56,20 @@ public class Session extends BaseTimeEntity {
     })
     private SessionContents sessionContents;
 
+    @Column(name = "session_date")
+    private LocalDate sessionDate;
+
+    @Column(name = "session_place_name")
+    private String placeName;
+
     @Builder
-    public Session(Integer number, String title, String description, Generation generation, SessionContents sessionContents) {
+    public Session(Integer number, String title, String description, String placeName, LocalDate sessionDate,
+                   Generation generation, SessionContents sessionContents) {
         this.number = number;
         this.title = title;
         this.description = description;
+        this.placeName = placeName;
+        this.sessionDate = sessionDate;
         this.generation = generation;
         this.sessionContents = sessionContents;
     }
@@ -79,7 +86,7 @@ public class Session extends BaseTimeEntity {
         this.sessionContents = sessionContents;
     }
 
-    public void updateSessionTitle(String title){
+    public void updateSessionTitle(String title) {
         this.title = title;
     }
 }

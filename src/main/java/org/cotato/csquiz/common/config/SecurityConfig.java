@@ -30,7 +30,8 @@ public class SecurityConfig {
             "/swagger-ui.html",
             "/v1/api/generation",
             "/v1/api/session",
-            "/websocket/csquiz"
+            "/websocket/csquiz",
+            "/v2/api/policies"
     };
 
     private final JwtTokenProvider jwtTokenProvider;
@@ -78,6 +79,8 @@ public class SecurityConfig {
                         .requestMatchers("/v1/api/session/cs-on").hasAnyRole("EDUCATION", "ADMIN")
                         .requestMatchers(new AntPathRequestMatcher("/v1/api/session", "GET")).authenticated()
                         .requestMatchers("/v1/api/session/**").hasAnyRole("ADMIN")
+                        .requestMatchers("/v2/api/attendance/records").hasAnyRole("ADMIN")
+                        .requestMatchers("/v2/api/attendance").hasAnyRole("ADMIN")
                         .requestMatchers(new AntPathRequestMatcher("/v1/api/socket/token", "POST"))
                         .hasAnyRole("MEMBER", "EDUCATION", "ADMIN")
                         .requestMatchers("/v1/api/socket/**").hasAnyRole("EDUCATION", "ADMIN")

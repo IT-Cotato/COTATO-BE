@@ -1,9 +1,9 @@
 package org.cotato.csquiz.domain.auth.enums;
 
-import org.cotato.csquiz.common.error.exception.AppException;
-import org.cotato.csquiz.common.error.ErrorCode;
 import java.util.Arrays;
 import lombok.Getter;
+import org.cotato.csquiz.common.error.ErrorCode;
+import org.cotato.csquiz.common.error.exception.AppException;
 
 @Getter
 public enum MemberRole {
