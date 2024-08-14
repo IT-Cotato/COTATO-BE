@@ -20,18 +20,14 @@ public interface QuizRepository extends JpaRepository<Quiz, Long> {
 
     List<Quiz> findAllByEducationId(Long educationId);
 
-    List<Quiz> findAllByStatus(QuizStatus status);
-
     Optional<Quiz> findByStatusAndEducationId(QuizStatus status, Long educationId);
 
-    List<Quiz> findAllByStart(QuizStatus quizStatus);
+    List<Quiz> findAllByStatusOrStart(QuizStatus status, QuizStatus start);
 
     @Transactional
     @Modifying
     @Query("select q from Quiz q where q.education.id in :educationIds")
     List<Quiz> findAllByEducationIdsInQuery(@Param("educationIds") List<Long> educationIds);
-
-    Optional<Quiz> findByEducationIdAndNumber(Long educationId, Integer i);
 
     Optional<Quiz> findFirstByEducationOrderByNumberDesc(Education education);
 }

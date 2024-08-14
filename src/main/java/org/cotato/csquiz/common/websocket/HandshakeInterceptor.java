@@ -1,4 +1,4 @@
-package org.cotato.csquiz.common.interceptor;
+package org.cotato.csquiz.common.websocket;
 
 import org.cotato.csquiz.common.config.jwt.JwtTokenProvider;
 import org.cotato.csquiz.domain.auth.enums.MemberRole;

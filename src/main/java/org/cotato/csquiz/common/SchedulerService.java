@@ -5,6 +5,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.domain.auth.entity.RefusedMember;
+import org.cotato.csquiz.domain.education.service.EducationService;
+import org.cotato.csquiz.domain.education.service.QuizService;
 import org.cotato.csquiz.domain.education.service.SocketService;
 import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
@@ -21,7 +23,7 @@ public class SchedulerService {
 
     private final RefusedMemberRepository refusedMemberRepository;
     private final MemberRepository memberRepository;
-    private final SocketService socketService;
+    private final EducationService educationService;
 
     @Transactional
     @Scheduled(cron = "0 0 0 * * *")
@@ -42,7 +44,7 @@ public class SchedulerService {
     @Transactional
     @Scheduled(cron = "0 0 2 * * SAT")
     public void closeAllCsQuiz() {
-        socketService.closeAllFlags();
+        educationService.closeAllFlags();
         log.info("[ CS 퀴즈 모두 닫기 Scheduler 완료 ]");
     }
 }
