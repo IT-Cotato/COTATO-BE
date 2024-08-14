@@ -1,12 +1,13 @@
 package org.cotato.csquiz.common.S3;
 
-import static org.cotato.csquiz.common.util.FileUtil.checkAllowedImageFileExtension;
 import static org.cotato.csquiz.common.util.FileUtil.extractFileExtension;
+import static org.cotato.csquiz.common.util.FileUtil.isImageFileExtension;
 
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.common.error.ErrorCode;
@@ -28,6 +29,7 @@ import java.util.Optional;
 @Component
 public class S3Uploader {
 
+    private static final String CONTENT_TYPE = "multipart/formed-data";
     private final AmazonS3Client amazonS3;
 
     @Value("${cloud.aws.s3.bucket}")
@@ -58,6 +60,7 @@ public class S3Uploader {
     }
 
     private String upload(File uploadFile, String dirName) throws ImageException {
+        log.info(dirName);
         String fileName = dirName + "/" + uploadFile.getName();
         String uploadUrl = putS3(uploadFile, fileName);
         removeNewFile(uploadFile);
@@ -75,18 +78,38 @@ public class S3Uploader {
 
     private String putS3(File uploadFile, String fileName) throws ImageException {
         try {
-            amazonS3.putObject(
-                    new PutObjectRequest(bucket, fileName, uploadFile).withCannedAcl(
-                            CannedAccessControlList.PublicRead));
+            PutObjectRequest putObjectRequest = new PutObjectRequest(bucket, fileName, uploadFile)
+                    .withCannedAcl(CannedAccessControlList.PublicRead);
+
+            if (isImageFile(uploadFile)) {
+                putObjectRequest = addMetadataToRequest(putObjectRequest);
+            }
+
+            amazonS3.putObject(putObjectRequest);
+
             return amazonS3.getUrl(bucket, fileName).toString();
         } catch (AmazonS3Exception e) {
             throw new ImageException(ErrorCode.FILE_EXTENSION_FAULT);
         }
     }
 
+    private boolean isImageFile(File file) {
+        String fileName = file.getName();
+        String extension = fileName.substring(fileName.lastIndexOf(".") + 1);
+        log.info(extension);
+
+        return isImageFileExtension(extension);
+    }
+
+    private PutObjectRequest addMetadataToRequest(PutObjectRequest request) {
+        ObjectMetadata objMeta = new ObjectMetadata();
+        objMeta.setContentType(CONTENT_TYPE);
+
+        return request.withMetadata(objMeta);
+    }
+
     private Optional<File> convert(MultipartFile file) throws ImageException {
         String fileExtension = extractFileExtension(file);
-//        checkAllowedImageFileExtension(fileExtension);
 
         File convertFile = new File(System.getProperty("user.dir") + "/" + UUID.randomUUID() + "." + fileExtension);
         log.info("converted file name: {}", convertFile.getName());
