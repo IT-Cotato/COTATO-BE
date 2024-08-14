@@ -7,12 +7,15 @@ import org.cotato.csquiz.api.socket.dto.EducationCloseRequest;
 import org.cotato.csquiz.api.socket.dto.QuizOpenRequest;
 import org.cotato.csquiz.api.socket.dto.QuizSocketRequest;
 import org.cotato.csquiz.api.socket.dto.SocketTokenDto;
-import org.cotato.csquiz.domain.education.service.*;
+import org.cotato.csquiz.domain.education.service.EducationService;
+import org.cotato.csquiz.domain.education.service.QuizSolveService;
+import org.cotato.csquiz.domain.education.service.RecordService;
+import org.cotato.csquiz.domain.education.service.SocketService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -67,8 +70,8 @@ public class SocketController {
     }
 
     @PostMapping("/token")
-    public ResponseEntity<SocketTokenDto> makeSocketToken(@RequestHeader("Authorization") String authorizationHeader) {
-        return ResponseEntity.ok(socketService.createSocketToken(authorizationHeader));
+    public ResponseEntity<SocketTokenDto> makeSocketToken(@AuthenticationPrincipal Long memberId) {
+        return ResponseEntity.ok(socketService.createSocketToken(memberId));
     }
 
 
