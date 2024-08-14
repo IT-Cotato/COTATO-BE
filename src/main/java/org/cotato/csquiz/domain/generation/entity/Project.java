@@ -39,11 +39,13 @@ public class Project {
     private Long generationId;
 
     @Builder
-    public Project(String name, String introduction, String githubUrl, String behanceUrl, Long generationId) {
+    public Project(String name, String introduction, String githubUrl, String behanceUrl, String projectUrl,
+                   Long generationId) {
         this.name = name;
         this.introduction = introduction;
         this.githubUrl = githubUrl;
         this.behanceUrl = behanceUrl;
+        this.projectUrl = projectUrl;
         this.generationId = generationId;
     }
 }
