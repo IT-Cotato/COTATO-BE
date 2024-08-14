@@ -12,7 +12,6 @@ import org.cotato.csquiz.api.record.dto.RegradeRequest;
 import org.cotato.csquiz.api.record.dto.ReplyRequest;
 import org.cotato.csquiz.api.record.dto.ReplyResponse;
 import org.cotato.csquiz.api.record.dto.ScorerResponse;
-import org.cotato.csquiz.api.socket.dto.QuizOpenRequest;
 import org.cotato.csquiz.api.socket.dto.QuizSocketRequest;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
@@ -96,8 +95,8 @@ public class RecordService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 문제를 찾을 수 없습니다."));
     }
 
-    public void saveAnswersToCache(QuizOpenRequest request) {
-        List<Quiz> quizzes = quizRepository.findAllByEducationId(request.educationId());
+    public void saveAnswersToCache(final Long educationId) {
+        List<Quiz> quizzes = quizRepository.findAllByEducationId(educationId);
 
         quizAnswerRedisRepository.saveAllQuizAnswers(quizzes);
     }

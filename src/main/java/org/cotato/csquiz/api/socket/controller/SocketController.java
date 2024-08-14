@@ -34,7 +34,6 @@ public class SocketController {
     @PatchMapping("/start/csquiz")
     public ResponseEntity<Void> openCSQuiz(@RequestBody @Valid QuizOpenRequest request) {
         educationService.openCSQuiz(request);
-        recordService.saveAnswersToCache(request);
         return ResponseEntity.noContent().build();
     }
 

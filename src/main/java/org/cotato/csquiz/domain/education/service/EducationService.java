@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class EducationService {
 
+    private final RecordService recordService;
     private final EducationRepository educationRepository;
     private final QuizRepository quizRepository;
     private final SessionRepository sessionRepository;
@@ -93,6 +94,7 @@ public class EducationService {
         checkEducationBefore(education);
 
         education.updateStatus(EducationStatus.ONGOING);
+        recordService.saveAnswersToCache(education.getId());
     }
 
     private void checkEducationBefore(Education education) {
