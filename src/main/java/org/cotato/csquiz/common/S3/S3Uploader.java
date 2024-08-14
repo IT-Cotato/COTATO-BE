@@ -3,7 +3,6 @@ package org.cotato.csquiz.common.S3;
 import static org.cotato.csquiz.common.util.FileUtil.extractFileExtension;
 import static org.cotato.csquiz.common.util.FileUtil.isImageFileExtension;
 
-import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
@@ -22,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -36,9 +34,8 @@ public class S3Uploader {
     private String bucket;
 
     public S3Info uploadFiles(MultipartFile multipartFile, String folderName) throws ImageException {
-        log.info("upload Files {}", multipartFile);
-        File uploadFile = convert(multipartFile)
-                .orElseThrow(() -> new ImageException(ErrorCode.IMAGE_PROCESSING_FAIL));
+        log.info("{} 사진 업로드", multipartFile.getOriginalFilename());
+        File uploadFile = convert(multipartFile);
         String uploadUrl = upload(uploadFile, folderName);
 
         return S3Info.builder()
@@ -51,30 +48,17 @@ public class S3Uploader {
     public void deleteFile(S3Info s3Info) {
         String fileName = s3Info.getFolderName() + "/" + s3Info.getFileName();
 
-        log.info("deleteFile fileName = {}", fileName);
-        try {
-            amazonS3.deleteObject(bucket, fileName);
-        } catch (SdkClientException e) {
-            log.error("Failed to delete file: {}", s3Info.getUrl(), e);
-        }
+        log.info("{} 사진 삭제", fileName);
+        amazonS3.deleteObject(bucket, fileName);
     }
 
-    private String upload(File uploadFile, String dirName) throws ImageException {
-        log.info(dirName);
-        String fileName = dirName + "/" + uploadFile.getName();
-        String uploadUrl = putS3(uploadFile, fileName);
-        removeNewFile(uploadFile);
-        log.info(uploadUrl);
+    private String upload(File localUploadFile, String dirName) throws ImageException {
+        String fileName = dirName + "/" + localUploadFile.getName();
+        String uploadUrl = putS3(localUploadFile, fileName);
+        localUploadFile.delete();
         return uploadUrl;
     }
 
-    private void removeNewFile(File targetFile) {
-        if (targetFile.delete()) {
-            log.info("삭제 완료");
-        } else {
-            log.error("삭제 에러");
-        }
-    }
 
     private String putS3(File uploadFile, String fileName) throws ImageException {
         try {
@@ -96,7 +80,6 @@ public class S3Uploader {
     private boolean isImageFile(File file) {
         String fileName = file.getName();
         String extension = fileName.substring(fileName.lastIndexOf(".") + 1);
-        log.info(extension);
 
         return isImageFileExtension(extension);
     }
@@ -108,26 +91,18 @@ public class S3Uploader {
         return request.withMetadata(objMeta);
     }
 
-    private Optional<File> convert(MultipartFile file) throws ImageException {
+    private File convert(MultipartFile file) throws ImageException {
         String fileExtension = extractFileExtension(file);
-
         File convertFile = new File(System.getProperty("user.dir") + "/" + UUID.randomUUID() + "." + fileExtension);
-        log.info("converted file name: {}", convertFile.getName());
 
         try {
-            log.info("convert try start");
-            if (convertFile.createNewFile()) { // 바로 위에서 지정한 경로에 File이 생성됨 (경로가 잘못되었다면 생성 불가능)
-                FileOutputStream fos = new FileOutputStream(convertFile); // FileOutputStream 데이터를 파일에 바이트 스트림으로 저장하기 위함
-                fos.write(file.getBytes());
-                fos.close();
-                log.info("convert to " + convertFile);
-                return Optional.of(convertFile);
-            }
+            FileOutputStream fos = new FileOutputStream(convertFile);
+            fos.write(file.getBytes());
+            fos.close();
+
+            return convertFile;
         } catch (IOException e) {
-            log.error("convert 실패", e);
             throw new ImageException(ErrorCode.IMAGE_PROCESSING_FAIL);
         }
-        log.info("convert empty");
-        return Optional.empty();
     }
 }
