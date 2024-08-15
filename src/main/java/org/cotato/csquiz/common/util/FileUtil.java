@@ -1,13 +1,13 @@
 package org.cotato.csquiz.common.util;
 
-import java.util.Arrays;
+import java.util.List;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.ImageException;
 import org.springframework.web.multipart.MultipartFile;
 
 public class FileUtil {
 
-    private static final String[] ALLOWED_IMAGE_FILE_EXTENSIONS = {"png", "jpg", "jpeg", "heif"};
+    private static final List<String> ALLOWED_IMAGE_FILE_EXTENSIONS = List.of("png", "jpg", "jpeg", "heif");
 
     public static String extractFileExtension(MultipartFile file) throws ImageException {
         String originalFilename = file.getOriginalFilename();
@@ -19,6 +19,6 @@ public class FileUtil {
     }
 
     public static boolean isImageFileExtension(String fileExtension) {
-        return Arrays.asList(ALLOWED_IMAGE_FILE_EXTENSIONS).contains(fileExtension);
+        return ALLOWED_IMAGE_FILE_EXTENSIONS.contains(fileExtension);
     }
 }
