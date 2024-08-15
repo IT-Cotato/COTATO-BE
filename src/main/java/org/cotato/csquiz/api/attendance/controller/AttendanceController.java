@@ -79,11 +79,11 @@ public class AttendanceController {
                             description = "성공"
                     ),
                     @ApiResponse(
-                            responseCode = "AT-301",
+                            responseCode = "409",
                             description = "이미 출석을 완료함"
                     ),
                     @ApiResponse(
-                            responseCode = "AT-401",
+                            responseCode = "409",
                             description = "출석 시간이 아님"
                     )
             }
@@ -101,11 +101,11 @@ public class AttendanceController {
                             description = "성공"
                     ),
                     @ApiResponse(
-                            responseCode = "AT-301",
+                            responseCode = "409",
                             description = "이미 출석을 완료함"
                     ),
                     @ApiResponse(
-                            responseCode = "AT-401",
+                            responseCode = "409",
                             description = "출석 시간이 아님"
                     )
             })
