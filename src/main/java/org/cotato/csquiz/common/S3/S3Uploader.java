@@ -35,12 +35,15 @@ public class S3Uploader {
 
     public S3Info uploadFiles(MultipartFile multipartFile, String folderName) throws ImageException {
         log.info("{} 사진 업로드", multipartFile.getOriginalFilename());
-        File uploadFile = convert(multipartFile);
-        String uploadUrl = upload(uploadFile, folderName);
+        File localUploadFile = convert(multipartFile);
+
+        String fileName = folderName + "/" + localUploadFile.getName();
+        String uploadUrl = putS3(localUploadFile, fileName);
+        localUploadFile.delete();
 
         return S3Info.builder()
                 .folderName(folderName)
-                .fileName(uploadFile.getName())
+                .fileName(localUploadFile.getName())
                 .url(uploadUrl)
                 .build();
     }
@@ -51,14 +54,6 @@ public class S3Uploader {
         log.info("{} 사진 삭제", fileName);
         amazonS3.deleteObject(bucket, fileName);
     }
-
-    private String upload(File localUploadFile, String dirName) throws ImageException {
-        String fileName = dirName + "/" + localUploadFile.getName();
-        String uploadUrl = putS3(localUploadFile, fileName);
-        localUploadFile.delete();
-        return uploadUrl;
-    }
-
 
     private String putS3(File uploadFile, String fileName) throws ImageException {
         try {
