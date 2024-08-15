@@ -66,7 +66,8 @@ public class S3Uploader {
                     .withCannedAcl(CannedAccessControlList.PublicRead);
 
             if (isImageFile(uploadFile)) {
-                putObjectRequest = addMetadataToRequest(putObjectRequest);
+                ObjectMetadata objMeta = new ObjectMetadata();
+                objMeta.setContentType(CONTENT_TYPE);
             }
 
             amazonS3.putObject(putObjectRequest);
@@ -82,13 +83,6 @@ public class S3Uploader {
         String extension = fileName.substring(fileName.lastIndexOf(".") + 1);
 
         return isImageFileExtension(extension);
-    }
-
-    private PutObjectRequest addMetadataToRequest(PutObjectRequest request) {
-        ObjectMetadata objMeta = new ObjectMetadata();
-        objMeta.setContentType(CONTENT_TYPE);
-
-        return request.withMetadata(objMeta);
     }
 
     private File convert(MultipartFile file) throws ImageException {
