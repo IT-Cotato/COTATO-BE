@@ -2,7 +2,7 @@ package org.cotato.csquiz.common.config;
 
 import org.cotato.csquiz.common.config.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
-import org.cotato.csquiz.common.interceptor.HandshakeInterceptor;
+import org.cotato.csquiz.common.websocket.HandshakeInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;

@@ -8,8 +8,8 @@ import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
 
 public record AttendanceStatistic(
-        Integer onLine,
-        Integer offLine,
+        Integer online,
+        Integer offline,
         Integer late,
         Integer absent
 ) {

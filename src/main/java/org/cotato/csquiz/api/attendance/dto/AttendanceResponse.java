@@ -6,6 +6,7 @@ import org.cotato.csquiz.domain.attendance.enums.AttendanceOpenStatus;
 
 @Builder
 public record AttendanceResponse(
+        Long sessionId,
         Long attendanceId,
         String sessionTitle,
         LocalDate sessionDate,

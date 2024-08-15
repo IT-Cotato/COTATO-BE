@@ -11,8 +11,12 @@ import org.cotato.csquiz.api.education.dto.CreateEducationResponse;
 import org.cotato.csquiz.api.education.dto.EducationIdOfQuizResponse;
 import org.cotato.csquiz.api.education.dto.FindEducationStatusResponse;
 import org.cotato.csquiz.api.education.dto.UpdateEducationRequest;
+import org.cotato.csquiz.api.socket.dto.EducationCloseRequest;
+import org.cotato.csquiz.api.socket.dto.EducationOpenRequest;
 import org.cotato.csquiz.domain.education.entity.Education;
 import org.cotato.csquiz.domain.education.entity.Quiz;
+import org.cotato.csquiz.domain.education.enums.EducationStatus;
+import org.cotato.csquiz.domain.education.enums.QuizStatus;
 import org.cotato.csquiz.domain.education.repository.EducationRepository;
 import org.cotato.csquiz.domain.education.repository.QuizRepository;
 import org.cotato.csquiz.domain.generation.entity.Session;
@@ -28,9 +32,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class EducationService {
 
+    private final RecordService recordService;
     private final EducationRepository educationRepository;
     private final QuizRepository quizRepository;
     private final SessionRepository sessionRepository;
+    private final SocketService socketService;
+
 
     @Transactional
     public CreateEducationResponse createEducation(CreateEducationRequest request) {
@@ -80,10 +87,50 @@ public class EducationService {
                 .orElseThrow(() -> new AppException(ErrorCode.SUBJECT_INVALID));
     }
 
+    @Transactional
+    public void openEducation(EducationOpenRequest request) {
+        Education education = findEducationById(request.educationId());
+
+        checkEducationBefore(education);
+
+        education.updateStatus(EducationStatus.ONGOING);
+        recordService.saveAnswersToCache(education.getId());
+    }
+
+    private void checkEducationBefore(Education education) {
+        if (EducationStatus.BEFORE != education.getStatus()) {
+            throw new AppException(ErrorCode.EDUCATION_STATUS_NOT_BEFORE);
+        }
+    }
+
+    @Transactional
+    public void closeAllFlags() {
+        quizRepository.findAllByStatusOrStart(QuizStatus.QUIZ_ON, QuizStatus.QUIZ_ON)
+                .forEach(quiz -> {
+                    quiz.updateStatus(QuizStatus.QUIZ_OFF);
+                    quiz.updateStart(QuizStatus.QUIZ_OFF);
+                });
+    }
+
+    @Transactional
+    public void closeEducation(EducationCloseRequest request) {
+        closeAllFlags();
+
+        Education education = findEducationById(request.educationId());
+
+        education.updateStatus(EducationStatus.FINISHED);
+        socketService.stopEducation(education.getId());
+    }
+
     public List<AllEducationResponse> findEducationListByGeneration(Long generationId) {
         return findAllEducationByGenerationId(generationId).stream()
                 .map(AllEducationResponse::from)
                 .toList();
+    }
+
+    private Education findEducationById(Long educationId) {
+        return educationRepository.findById(educationId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 교육을 찾을 수 없습니다."));
     }
 
     public EducationIdOfQuizResponse findEducationIdOfQuizId(Long quizId) {

@@ -45,6 +45,7 @@ public class AttendanceService {
         List<AttendanceResponse> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds).stream()
                 .map(at -> AttendanceResponse.builder()
                         .attendanceId(at.getId())
+                        .sessionId(at.getSessionId())
                         .sessionTitle(sessionMap.get(at.getSessionId()).getTitle())
                         .sessionDate(at.getAttendanceDeadLine().toLocalDate())
                         .openStatus(AttendanceUtil.getAttendanceOpenStatus(at, currentTime))
