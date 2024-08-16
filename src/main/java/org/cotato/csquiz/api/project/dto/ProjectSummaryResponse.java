@@ -9,7 +9,7 @@ public record ProjectSummaryResponse(
         String introduction,
         Long generationId,
         Integer generationNumber,
-        String imageurl
+        String imageUrl
 ) {
     public static ProjectSummaryResponse of(Project project, Integer generationNumber, ProjectImage projectImage) {
         return new ProjectSummaryResponse(

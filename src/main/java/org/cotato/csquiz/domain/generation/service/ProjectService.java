@@ -3,7 +3,7 @@ package org.cotato.csquiz.domain.generation.service;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.api.project.dto.ProjectDetailResponse;
@@ -47,25 +47,45 @@ public class ProjectService {
 
         List<Project> projects = projectRepository.findAll();
 
-        Map<Long, Integer> generationNumberMap = projects.stream()
+        // 프로젝트의 세대 ID와 Project ID 리스트 추출
+        List<Long> generationIds = projects.stream()
                 .map(Project::getGenerationId)
                 .distinct()
-                .collect(Collectors.toMap(
-                        generationId -> generationId,
-                        generationRepository::findGenerationNumberByGenerationId
-                ));
+                .toList();
 
+        List<Long> projectIds = projects.stream()
+                .map(Project::getId)
+                .toList();
+
+        // 세대 번호와 로고 이미지를 한 번에 배치로 조회
+        Map<Long, Integer> generationNumberMap = getGenerationNumbersByGenerationIds(generationIds);
+        Map<Long, ProjectImage> projectImageMap = getProjectLogosByProjectIds(projectIds);
+
+        // 각 프로젝트에 대해 응답 생성
         return projects.stream()
-                .map(project -> toProjectSummaryResponse(project, generationNumberMap))
+                .map(project -> projectSummaryResponse(project, generationNumberMap, projectImageMap))
                 .toList();
     }
 
-    private ProjectSummaryResponse toProjectSummaryResponse(Project project, Map<Long, Integer> generationMap) {
-        Optional<ProjectImage> logoImage = projectImageRepository.findByProjectIdAndProjectImageType(
-                project.getId(), ProjectImageType.LOGO
-        );
-        Integer generationNumber = generationMap.get(project.getGenerationId());
+    private Map<Long, Integer> getGenerationNumbersByGenerationIds(List<Long> generationIds) {
+        return generationRepository.findGenerationNumbersByGenerationIds(generationIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        result -> (Long) result[0],
+                        result -> (Integer) result[1]
+                ));
+    }
 
-        return ProjectSummaryResponse.of(project, generationNumber, logoImage.orElse(null));
+    private Map<Long, ProjectImage> getProjectLogosByProjectIds(List<Long> projectIds) {
+        return projectImageRepository.findAllByProjectIdInAndProjectImageType(projectIds, ProjectImageType.LOGO)
+                .stream()
+                .collect(Collectors.toMap(ProjectImage::getProjectId, Function.identity()));
+    }
+
+    private ProjectSummaryResponse projectSummaryResponse(Project project, Map<Long, Integer> generationMap, Map<Long, ProjectImage> projectImageMap) {
+        Integer generationNumber = generationMap.get(project.getGenerationId());
+        ProjectImage logoImage = projectImageMap.get(project.getId());
+
+        return ProjectSummaryResponse.of(project, generationNumber, logoImage);
     }
 }
