@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.api.project.dto.ProjectDetailResponse;
 import org.cotato.csquiz.api.project.dto.ProjectSummaryResponse;
+import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Project;
 import org.cotato.csquiz.domain.generation.entity.ProjectImage;
 import org.cotato.csquiz.domain.generation.entity.ProjectMember;
@@ -58,34 +59,15 @@ public class ProjectService {
                 .toList();
 
         // 세대 번호와 로고 이미지를 한 번에 배치로 조회
-        Map<Long, Integer> generationNumberMap = getGenerationNumbersByGenerationIds(generationIds);
-        Map<Long, ProjectImage> projectImageMap = getProjectLogosByProjectIds(projectIds);
+        Map<Long, Integer> generationNumber = generationRepository.findAllByIdsInQuery(generationIds).stream()
+                .collect(Collectors.toUnmodifiableMap(Generation::getId, Generation::getNumber));
+
+        Map<Long, ProjectImage> projectImage = projectImageRepository.findAllByProjectIdInAndProjectImageType(projectIds, ProjectImageType.LOGO).stream()
+                .collect(Collectors.toUnmodifiableMap(ProjectImage::getProjectId, Function.identity()));
 
         // 각 프로젝트에 대해 응답 생성
         return projects.stream()
-                .map(project -> projectSummaryResponse(project, generationNumberMap, projectImageMap))
+                .map(project -> ProjectSummaryResponse.of(project, generationNumber.get(project.getGenerationId()), projectImage.get(project.getId())))
                 .toList();
-    }
-
-    private Map<Long, Integer> getGenerationNumbersByGenerationIds(List<Long> generationIds) {
-        return generationRepository.findGenerationNumbersByGenerationIds(generationIds)
-                .stream()
-                .collect(Collectors.toMap(
-                        result -> (Long) result[0],
-                        result -> (Integer) result[1]
-                ));
-    }
-
-    private Map<Long, ProjectImage> getProjectLogosByProjectIds(List<Long> projectIds) {
-        return projectImageRepository.findAllByProjectIdInAndProjectImageType(projectIds, ProjectImageType.LOGO)
-                .stream()
-                .collect(Collectors.toMap(ProjectImage::getProjectId, Function.identity()));
-    }
-
-    private ProjectSummaryResponse projectSummaryResponse(Project project, Map<Long, Integer> generationMap, Map<Long, ProjectImage> projectImageMap) {
-        Integer generationNumber = generationMap.get(project.getGenerationId());
-        ProjectImage logoImage = projectImageMap.get(project.getId());
-
-        return ProjectSummaryResponse.of(project, generationNumber, logoImage);
     }
 }

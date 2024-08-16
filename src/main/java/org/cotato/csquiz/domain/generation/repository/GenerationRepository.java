@@ -12,11 +12,9 @@ public interface GenerationRepository extends JpaRepository<Generation, Long> {
 
     List<Generation> findByNumberGreaterThanEqual(int generationNumber);
 
-    @Query("SELECT g.id, g.number FROM Generation g WHERE g.id IN :generationIds")
-    List<Object[]> findGenerationNumbersByGenerationIds(@Param("generationIds") List<Long> generationIds);
+    @Query("SELECT g.id, g.number FROM Generation g WHERE g.id IN :generationId")
+    Integer findGenerationNumberByGenerationId(@Param("generationId") Long generationId);
 
-    default Integer findGenerationNumberByGenerationId(Long generationId) {
-        List<Object[]> result = findGenerationNumbersByGenerationIds(List.of(generationId));
-        return result.isEmpty() ? null : (Integer) result.get(0)[1];
-    }
+    @Query("SELECT g from Generation g where g.id in :generationIds")
+    List<Generation> findAllByIdsInQuery(@Param("generationIds") List<Long> generationIds);
 }
