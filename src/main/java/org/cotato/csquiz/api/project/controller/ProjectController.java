@@ -2,8 +2,10 @@ package org.cotato.csquiz.api.project.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.api.project.dto.ProjectDetailResponse;
+import org.cotato.csquiz.api.project.dto.ProjectSummaryResponse;
 import org.cotato.csquiz.domain.generation.service.ProjectService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,5 +25,12 @@ public class ProjectController {
     @GetMapping("/{projectId}")
     public ResponseEntity<ProjectDetailResponse> getProjectDetail(@PathVariable("projectId") Long projectId) {
         return ResponseEntity.ok().body(projectService.getProjectDetail(projectId));
+    }
+
+    @Operation(summary = "프로젝트 목록 조회 API")
+    @GetMapping("")
+    public ResponseEntity<List<ProjectSummaryResponse>> getAllProjectSummaries() {
+        List<ProjectSummaryResponse> projectSummaries = projectService.getAllProjectSummaries();
+        return ResponseEntity.ok(projectSummaries);
     }
 }
