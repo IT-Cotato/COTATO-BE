@@ -86,7 +86,7 @@ public class S3Uploader {
 
             return convertFile;
         } catch (IOException e) {
-            throw new ImageException(ErrorCode.IMAGE_PROCESSING_FAIL);
+            throw new ImageException(ErrorCode.IMAGE_CONVERT_FAIL);
         }
     }
 }

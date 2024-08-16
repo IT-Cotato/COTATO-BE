@@ -90,8 +90,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ErrorResponse> handleAmazonS3Exception(AmazonS3Exception e, HttpServletRequest request) {
         log.error("발생한 에러: {}", e.getErrorCode());
         log.error("에러가 발생한 지점 {}, {}", request.getMethod(), request.getRequestURI());
-        ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.FILE_EXTENSION_FAULT, request);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.IMAGE_PROCESSING_FAIL, request);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 }
 
