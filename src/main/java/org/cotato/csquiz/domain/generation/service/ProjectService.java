@@ -2,7 +2,9 @@ package org.cotato.csquiz.domain.generation.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.api.project.dto.ProjectDetailResponse;
 import org.cotato.csquiz.api.project.dto.ProjectSummaryResponse;
@@ -45,11 +47,25 @@ public class ProjectService {
 
         List<Project> projects = projectRepository.findAll();
 
-        return projects.stream().map(project -> {
-            Optional<ProjectImage> logoImage = projectImageRepository.findByProjectIdAndProjectImageType(project.getId(), ProjectImageType.LOGO);
-            Integer generationNumber = generationRepository.findGenerationNumberByGenerationId(project.getGenerationId());
+        Map<Long, Integer> generationNumberMap = projects.stream()
+                .map(Project::getGenerationId)
+                .distinct()
+                .collect(Collectors.toMap(
+                        generationId -> generationId,
+                        generationRepository::findGenerationNumberByGenerationId
+                ));
 
-            return ProjectSummaryResponse.of(project, generationNumber, logoImage.orElse(null));
-        }).toList();
+        return projects.stream()
+                .map(project -> toProjectSummaryResponse(project, generationNumberMap))
+                .toList();
+    }
+
+    private ProjectSummaryResponse toProjectSummaryResponse(Project project, Map<Long, Integer> generationMap) {
+        Optional<ProjectImage> logoImage = projectImageRepository.findByProjectIdAndProjectImageType(
+                project.getId(), ProjectImageType.LOGO
+        );
+        Integer generationNumber = generationMap.get(project.getGenerationId());
+
+        return ProjectSummaryResponse.of(project, generationNumber, logoImage.orElse(null));
     }
 }
