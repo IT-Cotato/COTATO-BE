@@ -4,7 +4,6 @@ import static org.cotato.csquiz.common.util.FileUtil.extractFileExtension;
 import static org.cotato.csquiz.common.util.FileUtil.isImageFileExtension;
 
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
@@ -55,22 +54,18 @@ public class S3Uploader {
         amazonS3.deleteObject(bucket, fileName);
     }
 
-    private String putS3(File uploadFile, String fileName) throws ImageException {
-        try {
-            PutObjectRequest putObjectRequest = new PutObjectRequest(bucket, fileName, uploadFile)
-                    .withCannedAcl(CannedAccessControlList.PublicRead);
+    private String putS3(File uploadFile, String fileName) {
+        PutObjectRequest putObjectRequest = new PutObjectRequest(bucket, fileName, uploadFile)
+                .withCannedAcl(CannedAccessControlList.PublicRead);
 
-            if (isImageFile(uploadFile)) {
-                ObjectMetadata objMeta = new ObjectMetadata();
-                objMeta.setContentType(CONTENT_TYPE);
-            }
-
-            amazonS3.putObject(putObjectRequest);
-
-            return amazonS3.getUrl(bucket, fileName).toString();
-        } catch (AmazonS3Exception e) {
-            throw new ImageException(ErrorCode.FILE_EXTENSION_FAULT);
+        if (isImageFile(uploadFile)) {
+            ObjectMetadata objMeta = new ObjectMetadata();
+            objMeta.setContentType(CONTENT_TYPE);
         }
+
+        amazonS3.putObject(putObjectRequest);
+
+        return amazonS3.getUrl(bucket, fileName).toString();
     }
 
     private boolean isImageFile(File file) {
