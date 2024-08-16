@@ -28,9 +28,8 @@ public class ProjectController {
     }
 
     @Operation(summary = "프로젝트 목록 조회 API")
-    @GetMapping("")
+    @GetMapping
     public ResponseEntity<List<ProjectSummaryResponse>> getAllProjectSummaries() {
-        List<ProjectSummaryResponse> projectSummaries = projectService.getAllProjectSummaries();
-        return ResponseEntity.ok(projectSummaries);
+        return ResponseEntity.ok(projectService.getAllProjectSummaries());
     }
 }

@@ -3,7 +3,6 @@ package org.cotato.csquiz.domain.generation.service;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.api.project.dto.ProjectDetailResponse;
 import org.cotato.csquiz.api.project.dto.ProjectSummaryResponse;
@@ -51,7 +50,6 @@ public class ProjectService {
             Integer generationNumber = generationRepository.findGenerationNumberByGenerationId(project.getGenerationId());
 
             return ProjectSummaryResponse.of(project, generationNumber, logoImage.orElse(null));
-        }).collect(Collectors.toList());
+        }).toList();
     }
-
 }

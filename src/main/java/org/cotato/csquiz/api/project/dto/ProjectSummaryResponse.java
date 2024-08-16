@@ -9,21 +9,16 @@ public record ProjectSummaryResponse(
         String introduction,
         Long generationId,
         Integer generationNumber,
-        ProjectImageInfoResponse logo
+        String imageurl
 ) {
-    public static ProjectSummaryResponse of(Project project, Integer generationNumber, ProjectImage logoImage) {
-        ProjectImageInfoResponse logoInfoResponse = null;
-        if (logoImage != null) {
-            logoInfoResponse = ProjectImageInfoResponse.from(logoImage);
-        }
-
+    public static ProjectSummaryResponse of(Project project, Integer generationNumber, ProjectImage projectImage) {
         return new ProjectSummaryResponse(
                 project.getId(),
                 project.getName(),
                 project.getIntroduction(),
                 project.getGenerationId(),
                 generationNumber,
-                logoInfoResponse
+                projectImage != null ? projectImage.getS3Info().getUrl() : null
         );
     }
 }
