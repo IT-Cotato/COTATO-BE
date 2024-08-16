@@ -21,7 +21,7 @@ public class ProjectController {
 
     @Operation(summary = "특정 프로젝트 상세 정보 조회 API")
     @GetMapping("/{projectId}")
-    public ResponseEntity<ProjectDetailResponse> getProjectDetail(@PathVariable Long projectId) {
+    public ResponseEntity<ProjectDetailResponse> getProjectDetail(@PathVariable("projectId") Long projectId) {
         return ResponseEntity.ok().body(projectService.getProjectDetail(projectId));
     }
 }

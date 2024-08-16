@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ProjectImageRepository extends JpaRepository<ProjectImage, Long> {
     List<ProjectImage> findByProjectId(Long projectId);
+    List<ProjectImage> findAllByProjectId(Long projectId);
 }
