@@ -27,4 +27,22 @@ public class SseSender {
                 .data(CONNECTED)
                 .build());
     }
+
+    public void sendInitialAttendanceStatus(SseEmitter sseEmitter) throws IOException {
+        Optional<Attendance> maybeAttendance = attendanceRepository.findByAttendanceDeadLineDate(
+                LocalDateTime.now());
+
+        if (maybeAttendance.isEmpty()) {
+            sseEmitter.send(SseEmitter.event()
+                    .name(ATTENDANCE_STATUS)
+                    .data(AttendanceOpenStatus.CLOSED)
+                    .build());
+            return;
+        }
+
+        sseEmitter.send(SseEmitter.event()
+                .name(ATTENDANCE_STATUS)
+                .data(AttendanceUtil.getAttendanceOpenStatus(maybeAttendance.get(), LocalDateTime.now()))
+                .build());
+    }
 }

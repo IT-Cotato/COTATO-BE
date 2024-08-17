@@ -15,6 +15,7 @@ public class SseService {
 
     private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60;
     private final Map<Long, SseEmitter> attendances = new ConcurrentHashMap<>();
+    private final SseSender sseSender;
 
     public SseEmitter subscribeAttendance(final Long memberId) throws IOException {
         SseEmitter sseEmitter = new SseEmitter(DEFAULT_TIMEOUT);
@@ -22,6 +23,7 @@ public class SseService {
         this.attendances.put(memberId, sseEmitter);
 
         sseSender.sendAttendanceConnected(sseEmitter);
+        sseSender.sendInitialAttendanceStatus(sseEmitter);
 
         sseEmitter.onCompletion(() -> {
             log.info("---- [memberId]: {} on completion callback ----", memberId);
