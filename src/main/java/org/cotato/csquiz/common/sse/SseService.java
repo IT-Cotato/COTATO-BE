@@ -21,10 +21,7 @@ public class SseService {
 
         this.attendances.put(memberId, sseEmitter);
 
-        sseEmitter.send(SseEmitter.event()
-                .name(SUBSCRIBE_ATTENDANCE)
-                .data(CONNECTED)
-                .build());
+        sseSender.sendAttendanceConnected(sseEmitter);
 
         sseEmitter.onCompletion(() -> {
             log.info("---- [memberId]: {} on completion callback ----", memberId);
