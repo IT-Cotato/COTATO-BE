@@ -38,7 +38,8 @@ public class ProjectService {
 
         List<ProjectImage> images = projectImageRepository.findAllByProjectId(projectId);
         List<ProjectMember> members = projectMemberRepository.findAllByProjectId(projectId);
-        Integer generationNumber = generationRepository.findGenerationNumberByGenerationId(project.getGenerationId());
+        Integer generationNumber = generationRepository.findById(project.getGenerationId())
+                .map(Generation::getNumber).orElseThrow(()-> new EntityNotFoundException("해당 기수를 찾을 수 없습니다."));
 
         return ProjectDetailResponse.of(project, generationNumber, images, members);
     }
@@ -48,7 +49,6 @@ public class ProjectService {
 
         List<Project> projects = projectRepository.findAll();
 
-        // 프로젝트의 세대 ID와 Project ID 리스트 추출
         List<Long> generationIds = projects.stream()
                 .map(Project::getGenerationId)
                 .distinct()
@@ -58,14 +58,12 @@ public class ProjectService {
                 .map(Project::getId)
                 .toList();
 
-        // 세대 번호와 로고 이미지를 한 번에 배치로 조회
         Map<Long, Integer> generationNumber = generationRepository.findAllByIdsInQuery(generationIds).stream()
                 .collect(Collectors.toUnmodifiableMap(Generation::getId, Generation::getNumber));
 
         Map<Long, ProjectImage> projectImage = projectImageRepository.findAllByProjectIdInAndProjectImageType(projectIds, ProjectImageType.LOGO).stream()
                 .collect(Collectors.toUnmodifiableMap(ProjectImage::getProjectId, Function.identity()));
 
-        // 각 프로젝트에 대해 응답 생성
         return projects.stream()
                 .map(project -> ProjectSummaryResponse.of(project, generationNumber.get(project.getGenerationId()), projectImage.get(project.getId())))
                 .toList();

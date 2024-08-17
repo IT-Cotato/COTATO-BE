@@ -12,9 +12,6 @@ public interface GenerationRepository extends JpaRepository<Generation, Long> {
 
     List<Generation> findByNumberGreaterThanEqual(int generationNumber);
 
-    @Query("SELECT g.id, g.number FROM Generation g WHERE g.id IN :generationId")
-    Integer findGenerationNumberByGenerationId(@Param("generationId") Long generationId);
-
     @Query("SELECT g from Generation g where g.id in :generationIds")
     List<Generation> findAllByIdsInQuery(@Param("generationIds") List<Long> generationIds);
 }
