@@ -20,11 +20,16 @@ public class SseService {
     public SseEmitter subscribeAttendance(final Long memberId) throws IOException {
         SseEmitter sseEmitter = new SseEmitter(DEFAULT_TIMEOUT);
 
-        this.attendances.put(memberId, sseEmitter);
+        saveEmitter(memberId, sseEmitter);
+        setBaseEmitterConfiguration(memberId, sseEmitter);
 
         sseSender.sendAttendanceConnected(sseEmitter);
         sseSender.sendInitialAttendanceStatus(sseEmitter);
 
+        return sseEmitter;
+    }
+
+    private void setBaseEmitterConfiguration(Long memberId, SseEmitter sseEmitter) {
         sseEmitter.onCompletion(() -> {
             log.info("---- [memberId]: {} on completion callback ----", memberId);
             this.attendances.remove(memberId, sseEmitter);
@@ -34,7 +39,14 @@ public class SseService {
             log.info("---- [memberId]: {} on timeout callback ----", memberId);
             sseEmitter.complete();
         });
+    }
 
-        return sseEmitter;
+    private void saveEmitter(Long memberId, SseEmitter sseEmitter) {
+        this.attendances.computeIfPresent(memberId, (key, existing) -> {
+            existing.complete();
+            return sseEmitter;
+        });
+
+        this.attendances.putIfAbsent(memberId, sseEmitter);
     }
 }
