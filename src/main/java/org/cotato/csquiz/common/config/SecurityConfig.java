@@ -53,7 +53,6 @@ public class SecurityConfig {
         http.authenticationManager(authenticationManager);
         http.cors();
         http.csrf().disable()
-                .cors().disable()
                 .formLogin().disable()
                 .addFilter(new JwtAuthenticationFilter(authenticationManager, jwtTokenProvider, refreshTokenRepository))
                 .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
