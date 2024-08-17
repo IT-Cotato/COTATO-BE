@@ -38,10 +38,10 @@ public class ProjectService {
 
         List<ProjectImage> images = projectImageRepository.findAllByProjectId(projectId);
         List<ProjectMember> members = projectMemberRepository.findAllByProjectId(projectId);
-        Integer generationNumber = generationRepository.findById(project.getGenerationId())
-                .map(Generation::getNumber).orElseThrow(()-> new EntityNotFoundException("해당 기수를 찾을 수 없습니다."));
+        Generation generation = generationRepository.findById(project.getGenerationId())
+                .orElseThrow(() -> new EntityNotFoundException("해당 기수를 찾을 수 업습니다."));
 
-        return ProjectDetailResponse.of(project, generationNumber, images, members);
+        return ProjectDetailResponse.of(project, generation.getNumber(), images, members);
     }
 
     @Transactional
