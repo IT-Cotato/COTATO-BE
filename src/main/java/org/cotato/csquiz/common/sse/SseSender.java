@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.cotato.csquiz.api.event.dto.AttendanceStatusInfo;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceOpenStatus;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
@@ -42,7 +43,10 @@ public class SseSender {
 
         sseEmitter.send(SseEmitter.event()
                 .name(ATTENDANCE_STATUS)
-                .data(AttendanceUtil.getAttendanceOpenStatus(maybeAttendance.get(), LocalDateTime.now()))
+                .data(AttendanceStatusInfo.builder()
+                        .attendanceId(maybeAttendance.get().getId())
+                        .openStatus(AttendanceUtil.getAttendanceOpenStatus(maybeAttendance.get(), LocalDateTime.now()))
+                        .build())
                 .build());
     }
 }
