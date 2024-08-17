@@ -13,12 +13,11 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @RequiredArgsConstructor
 public class SseService {
 
-    private static final String SUBSCRIBE_ATTENDANCE = "attendance";
-    private static final String CONNECTED = "connected";
+    private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60;
     private final Map<Long, SseEmitter> attendances = new ConcurrentHashMap<>();
 
     public SseEmitter subscribeAttendance(final Long memberId) throws IOException {
-        SseEmitter sseEmitter = new SseEmitter();
+        SseEmitter sseEmitter = new SseEmitter(DEFAULT_TIMEOUT);
 
         this.attendances.put(memberId, sseEmitter);
 
