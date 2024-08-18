@@ -24,7 +24,7 @@ public record MemberAttendResponse(
                 "CLOSED", "OPEN"
         })
         AttendanceOpenStatus isOpened,
-        @Schema(description = "출결 형식")
+        @Schema(description = "출결 형식", nullable = true)
         AttendanceType attendanceType,
         @Schema(description = "마감된 출석에 대한 출결 결과", nullable = true)
         AttendanceResult attendanceResult
