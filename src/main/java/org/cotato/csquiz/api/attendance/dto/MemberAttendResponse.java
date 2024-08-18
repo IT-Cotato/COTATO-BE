@@ -11,6 +11,8 @@ import org.cotato.csquiz.domain.generation.entity.Session;
 public record MemberAttendResponse(
         @Schema(description = "멤버 PK")
         Long memberId,
+        @Schema(description = "세션 PK")
+        Long sessionId,
         @Schema(description = "세션 타이틀", example = "3주차 세션")
         String sessionTitle,
         @Schema(description = "세션 날짜")
@@ -27,6 +29,7 @@ public record MemberAttendResponse(
     public static MemberAttendResponse closedAttendanceResponse(Session session, AttendanceRecord attendanceRecord) {
         return new MemberAttendResponse(
                 attendanceRecord.getMemberId(),
+                session.getId(),
                 session.getTitle(),
                 session.getSessionDate(),
                 AttendanceOpenStatus.CLOSED,
@@ -38,6 +41,7 @@ public record MemberAttendResponse(
     public static MemberAttendResponse openedAttendanceResponse(Session session, Long memberId) {
         return new MemberAttendResponse(
                 memberId,
+                session.getId(),
                 session.getTitle(),
                 session.getSessionDate(),
                 AttendanceOpenStatus.OPEN,
