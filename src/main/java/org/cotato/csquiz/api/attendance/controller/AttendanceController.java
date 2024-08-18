@@ -83,7 +83,7 @@ public class AttendanceController {
                             description = "이미 출석을 완료함"
                     ),
                     @ApiResponse(
-                            responseCode = "409",
+                            responseCode = "400",
                             description = "출석 시간이 아님"
                     )
             }
@@ -105,7 +105,7 @@ public class AttendanceController {
                             description = "이미 출석을 완료함"
                     ),
                     @ApiResponse(
-                            responseCode = "409",
+                            responseCode = "400",
                             description = "출석 시간이 아님"
                     )
             })
