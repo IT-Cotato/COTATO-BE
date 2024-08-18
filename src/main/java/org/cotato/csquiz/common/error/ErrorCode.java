@@ -56,7 +56,7 @@ public enum ErrorCode {
     SESSION_IMAGE_COUNT_MISMATCH(HttpStatus.BAD_REQUEST, "P-101", "저장된 사진 수와 요청 사진 수가 다릅니다."),
     SESSION_ORDER_INVALID(HttpStatus.BAD_REQUEST, "P-102", "입력한 순서는 유효하지 않습니다."),
 
-    FILE_EXTENSION_FAULT(HttpStatus.BAD_REQUEST, "F-001", "해당 파일은 등록 할 수 없는 확장자명입니다."),
+    FILE_EXTENSION_FAULT(HttpStatus.BAD_REQUEST, "F-001", "해당 파일 확장자 명이 존재하지 않습니다."),
     FILE_IS_EMPTY(HttpStatus.BAD_REQUEST, "F-002", "파일이 비어있습니다"),
 
     INVALID_ANSWER(HttpStatus.BAD_REQUEST, "Q-101", "객관식 문제는 숫자 형식의 값만 정답으로 추가할 수 있습니다."),
@@ -82,7 +82,7 @@ public enum ErrorCode {
     OFFLINE_ATTEND_FAIL(HttpStatus.BAD_REQUEST, "AT-101", "거리 부적합으로 인한 대면 출석 실패"),
     INVALID_ATTEND_TIME(HttpStatus.BAD_REQUEST, "AT-102", "시간 입력 범위가 잘못되었습니다."),
     ALREADY_ATTEND(HttpStatus.CONFLICT, "AT-301", "이미 해당 타입으로 출석한 기록이 있습니다."),
-    ATTENDANCE_CLOSED(HttpStatus.CONFLICT, "AT-401", "아직 출석 시간이 아닙니다."),
+    ATTENDANCE_CLOSED(HttpStatus.BAD_REQUEST, "AT-401", "아직 출석 시간이 아닙니다."),
 
     // 500 오류 -> 서버측에서 처리가 실패한 부분들
     WEBSOCKET_SEND_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "S-001", "소캣 메세지 전송 실패"),
@@ -91,6 +91,7 @@ public enum ErrorCode {
     INTERNAL_SQL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S-004", "SQL 관련 에러 발생"),
     ENUM_NOT_RESOLVED(HttpStatus.BAD_REQUEST, "S-005", "입력한 Enum이 존재하지 않습니다."),
     SCORER_LOCK_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S-006", "득점자 락 획득 과정에서 에러 발생"),
+    IMAGE_CONVERT_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S-007", "로컬 이미지 변환에 실패했습니다"),
     ;
 
     private final HttpStatus httpStatus;

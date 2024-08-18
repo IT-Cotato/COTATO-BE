@@ -1,5 +1,6 @@
 package org.cotato.csquiz.common.error.handler;
 
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.common.error.exception.ImageException;
 import org.cotato.csquiz.common.error.response.ErrorResponse;
@@ -84,4 +85,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.INTERNAL_SQL_ERROR, request);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
+
+    @ExceptionHandler(AmazonS3Exception.class)
+    public ResponseEntity<ErrorResponse> handleAmazonS3Exception(AmazonS3Exception e, HttpServletRequest request) {
+        log.error("발생한 에러: {}", e.getErrorCode());
+        log.error("에러가 발생한 지점 {}, {}", request.getMethod(), request.getRequestURI());
+        ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.IMAGE_PROCESSING_FAIL, request);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
 }
+

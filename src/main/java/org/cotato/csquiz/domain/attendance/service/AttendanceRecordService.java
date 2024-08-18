@@ -102,12 +102,11 @@ public class AttendanceRecordService {
                 .toList();
 
         List<MemberAttendResponse> responses = attendanceRecordRepository.findAllByAttendanceIdsInQueryAndMemberId(closedAttendanceIds, memberId).stream()
-                .map(ar -> MemberAttendResponse.closedAttendanceResponse(
-                        sessionMap.get(ar.getAttendance().getSessionId()), ar))
+                .map(ar -> MemberAttendResponse.closedAttendanceResponse(sessionMap.get(ar.getAttendance().getSessionId()), ar))
                 .collect(Collectors.toList());
 
         responses.addAll(isClosedAttendance.get(false).stream()
-                .map(attendance -> MemberAttendResponse.openedAttendanceResponse(
+                .map(attendance -> MemberAttendResponse.openedAttendanceResponse(attendance,
                         sessionMap.get(attendance.getSessionId()), memberId))
                 .toList());
 
