@@ -7,7 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class FileUtil {
 
-    private static final List<String> IMAGE_FILE_EXTENSIONS = List.of("png", "jpg", "jpeg", "heif", "PNG", "JPG", "JPEG", "HEIF");
+    private static final List<String> IMAGE_FILE_EXTENSIONS = List.of("png", "jpg", "jpeg", "heif");
 
     public static String extractFileExtension(MultipartFile file) throws ImageException {
         String originalFilename = file.getOriginalFilename();
@@ -19,6 +19,6 @@ public class FileUtil {
     }
 
     public static boolean isImageFileExtension(String fileExtension) {
-        return IMAGE_FILE_EXTENSIONS.contains(fileExtension);
+        return IMAGE_FILE_EXTENSIONS.contains(fileExtension.toLowerCase());
     }
 }
