@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.attendance.dto.AttendanceDeadLineDto;
+import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionResponse;
 import org.cotato.csquiz.api.session.dto.CsEducationOnSessionNumberResponse;
@@ -15,6 +16,8 @@ import org.cotato.csquiz.api.session.dto.UpdateSessionNumberRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionRequest;
 import org.cotato.csquiz.common.error.exception.ImageException;
 import org.cotato.csquiz.domain.attendance.embedded.Location;
+import org.cotato.csquiz.domain.attendance.entity.Attendance;
+import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.attendance.service.AttendanceAdminService;
 import org.cotato.csquiz.domain.education.entity.Education;
 import org.cotato.csquiz.domain.education.service.EducationService;
@@ -41,6 +44,7 @@ public class SessionService {
     private final AttendanceAdminService attendanceAdminService;
     private final EducationService educationService;
     private final SessionImageService sessionImageService;
+    private final AttendanceRepository attendanceRepository;
 
     @Transactional
     public AddSessionResponse addSession(AddSessionRequest request) throws ImageException {
@@ -104,14 +108,21 @@ public class SessionService {
 
         session.updateDescription(request.description());
         session.updateSessionTitle(request.title());
+        session.updateSessionDate(request.sessionDate());
+        session.updateSessionPlace(request.placeName());
+
         session.updateSessionContents(SessionContents.builder()
                 .csEducation(request.csEducation())
                 .devTalk(request.devTalk())
                 .itIssue(request.itIssue())
                 .networking(request.networking())
                 .build());
-
         sessionRepository.save(session);
+
+        Attendance findAttendance = attendanceRepository.findBySessionId(session.getId())
+                .orElseThrow(() -> new EntityNotFoundException("해당 세션의 출석이 존재하지 않습니다"));
+
+        attendanceAdminService.updateAttendance(new UpdateAttendanceRequest(findAttendance.getId(), request.location(), request.attendanceDeadLineDto()));
     }
 
     public List<SessionListResponse> findSessionsByGenerationId(Long generationId) {
