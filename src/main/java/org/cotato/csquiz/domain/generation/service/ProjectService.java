@@ -2,11 +2,17 @@ package org.cotato.csquiz.domain.generation.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.api.project.dto.ProjectDetailResponse;
+import org.cotato.csquiz.api.project.dto.ProjectSummaryResponse;
+import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Project;
 import org.cotato.csquiz.domain.generation.entity.ProjectImage;
 import org.cotato.csquiz.domain.generation.entity.ProjectMember;
+import org.cotato.csquiz.domain.generation.enums.ProjectImageType;
 import org.cotato.csquiz.domain.generation.repository.GenerationRepository;
 import org.cotato.csquiz.domain.generation.repository.ProjectImageRepository;
 import org.cotato.csquiz.domain.generation.repository.ProjectMemberRepository;
@@ -32,8 +38,34 @@ public class ProjectService {
 
         List<ProjectImage> images = projectImageRepository.findAllByProjectId(projectId);
         List<ProjectMember> members = projectMemberRepository.findAllByProjectId(projectId);
-        Integer generationNumber = generationRepository.findGenerationNumberByGenerationId(project.getGenerationId());
+        Generation generation = generationRepository.findById(project.getGenerationId())
+                .orElseThrow(() -> new EntityNotFoundException("해당 기수를 찾을 수 없습니다."));
 
-        return ProjectDetailResponse.of(project, generationNumber, images, members);
+        return ProjectDetailResponse.of(project, generation.getNumber(), images, members);
+    }
+
+    @Transactional
+    public List<ProjectSummaryResponse> getAllProjectSummaries(){
+
+        List<Project> projects = projectRepository.findAll();
+
+        List<Long> generationIds = projects.stream()
+                .map(Project::getGenerationId)
+                .distinct()
+                .toList();
+
+        List<Long> projectIds = projects.stream()
+                .map(Project::getId)
+                .toList();
+
+        Map<Long, Integer> generationNumber = generationRepository.findAllByIdsInQuery(generationIds).stream()
+                .collect(Collectors.toUnmodifiableMap(Generation::getId, Generation::getNumber));
+
+        Map<Long, ProjectImage> projectImage = projectImageRepository.findAllByProjectIdInAndProjectImageType(projectIds, ProjectImageType.LOGO).stream()
+                .collect(Collectors.toUnmodifiableMap(ProjectImage::getProjectId, Function.identity()));
+
+        return projects.stream()
+                .map(project -> ProjectSummaryResponse.of(project, generationNumber.get(project.getGenerationId()), projectImage.get(project.getId())))
+                .toList();
     }
 }

@@ -1,11 +1,11 @@
 package org.cotato.csquiz.common.s3;
 
-import static org.cotato.csquiz.common.util.FileUtil.checkAllowedImageFileExtension;
 import static org.cotato.csquiz.common.util.FileUtil.extractFileExtension;
+import static org.cotato.csquiz.common.util.FileUtil.isImageFileExtension;
 
-import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.common.error.ErrorCode;
@@ -20,27 +20,29 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
 @Component
 public class S3Uploader {
 
+    private static final String CONTENT_TYPE = "multipart/formed-data";
     private final AmazonS3Client amazonS3;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
     public S3Info uploadFiles(MultipartFile multipartFile, String folderName) throws ImageException {
-        log.info("upload Files {}", multipartFile);
-        File uploadFile = convert(multipartFile)
-                .orElseThrow(() -> new ImageException(ErrorCode.IMAGE_PROCESSING_FAIL));
-        String uploadUrl = upload(uploadFile, folderName);
+        log.info("{} 사진 업로드", multipartFile.getOriginalFilename());
+        File localUploadFile = convert(multipartFile);
+
+        String fileName = folderName + "/" + localUploadFile.getName();
+        String uploadUrl = putS3(localUploadFile, fileName);
+        localUploadFile.delete();
 
         return S3Info.builder()
                 .folderName(folderName)
-                .fileName(uploadFile.getName())
+                .fileName(localUploadFile.getName())
                 .url(uploadUrl)
                 .build();
     }
@@ -48,57 +50,43 @@ public class S3Uploader {
     public void deleteFile(S3Info s3Info) {
         String fileName = s3Info.getFolderName() + "/" + s3Info.getFileName();
 
-        log.info("deleteFile fileName = {}", fileName);
-        try {
-            amazonS3.deleteObject(bucket, fileName);
-        } catch (SdkClientException e) {
-            log.error("Failed to delete file: {}", s3Info.getUrl(), e);
-        }
-    }
-
-    private String upload(File uploadFile, String dirName) {
-        String fileName = dirName + "/" + uploadFile.getName();
-        String uploadUrl = putS3(uploadFile, fileName);
-        removeNewFile(uploadFile);
-        log.info(uploadUrl);
-        return uploadUrl;
-    }
-
-    private void removeNewFile(File targetFile) {
-        if (targetFile.delete()) {
-            log.info("삭제 완료");
-        } else {
-            log.error("삭제 에러");
-        }
+        log.info("{} 사진 삭제", fileName);
+        amazonS3.deleteObject(bucket, fileName);
     }
 
     private String putS3(File uploadFile, String fileName) {
-        amazonS3.putObject(
-                new PutObjectRequest(bucket, fileName, uploadFile).withCannedAcl(CannedAccessControlList.PublicRead));
+        PutObjectRequest putObjectRequest = new PutObjectRequest(bucket, fileName, uploadFile)
+                .withCannedAcl(CannedAccessControlList.PublicRead);
+
+        if (isImageFile(uploadFile)) {
+            ObjectMetadata objMeta = new ObjectMetadata();
+            objMeta.setContentType(CONTENT_TYPE);
+        }
+
+        amazonS3.putObject(putObjectRequest);
+
         return amazonS3.getUrl(bucket, fileName).toString();
     }
 
-    private Optional<File> convert(MultipartFile file) throws ImageException {
-        String fileExtension = extractFileExtension(file);
-        checkAllowedImageFileExtension(fileExtension);
+    private boolean isImageFile(File file) {
+        String fileName = file.getName();
+        String extension = fileName.substring(fileName.lastIndexOf(".") + 1);
 
+        return isImageFileExtension(extension);
+    }
+
+    private File convert(MultipartFile file) throws ImageException {
+        String fileExtension = extractFileExtension(file);
         File convertFile = new File(System.getProperty("user.dir") + "/" + UUID.randomUUID() + "." + fileExtension);
-        log.info("converted file name: {}", convertFile.getName());
 
         try {
-            log.info("convert try start");
-            if (convertFile.createNewFile()) { // 바로 위에서 지정한 경로에 File이 생성됨 (경로가 잘못되었다면 생성 불가능)
-                FileOutputStream fos = new FileOutputStream(convertFile); // FileOutputStream 데이터를 파일에 바이트 스트림으로 저장하기 위함
-                fos.write(file.getBytes());
-                fos.close();
-                log.info("convert to " + convertFile);
-                return Optional.of(convertFile);
-            }
+            FileOutputStream fos = new FileOutputStream(convertFile);
+            fos.write(file.getBytes());
+            fos.close();
+
+            return convertFile;
         } catch (IOException e) {
-            log.error("convert 실패", e);
-            throw new ImageException(ErrorCode.IMAGE_PROCESSING_FAIL);
+            throw new ImageException(ErrorCode.IMAGE_CONVERT_FAIL);
         }
-        log.info("convert empty");
-        return Optional.empty();
     }
 }
