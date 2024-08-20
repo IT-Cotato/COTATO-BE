@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.api.attendance.dto.AttendanceResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendancesResponse;
+import org.cotato.csquiz.api.attendance.dto.AttendanceTimeResponse;
+import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
 import org.cotato.csquiz.domain.generation.entity.Generation;
@@ -57,5 +59,15 @@ public class AttendanceService {
                 .generationNumber(findGeneration.getId())
                 .attendances(attendances)
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public AttendanceTimeResponse findAttendanceTimeInfo(Long sessionId) {
+        Attendance findAttendance = attendanceRepository.findBySessionId(sessionId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 출석을 찾을 수 없습니다"));
+
+        return AttendanceTimeResponse.of(sessionId,
+                findAttendance.getAttendanceDeadLine(),
+                findAttendance.getLateDeadLine());
     }
 }

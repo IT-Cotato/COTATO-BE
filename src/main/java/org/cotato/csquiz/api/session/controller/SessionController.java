@@ -47,7 +47,6 @@ public class SessionController {
         return ResponseEntity.status(HttpStatus.OK).body(sessionService.findSessionsByGenerationId(generationId));
     }
 
-
     @Operation(summary = "CS ON인 세션 목록 반환 API")
     @GetMapping("/cs-on")
     public ResponseEntity<List<CsEducationOnSessionNumberResponse>> findAllCsOnSessionsByGenerationId(

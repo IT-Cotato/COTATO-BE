@@ -12,6 +12,7 @@ public record SessionListResponse(
         List<SessionListImageInfoResponse> imageInfos,
         String description,
         Long generationId,
+        String placeName,
         SessionContents sessionContents
 ) {
     public static SessionListResponse of(Session session, List<SessionImage> sessionImages) {
@@ -24,6 +25,7 @@ public record SessionListResponse(
                         .toList(),
                 session.getDescription(),
                 session.getGeneration().getId(),
+                session.getPlaceName(),
                 session.getSessionContents()
         );
     }

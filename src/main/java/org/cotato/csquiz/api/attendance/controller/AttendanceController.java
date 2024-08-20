@@ -16,9 +16,11 @@ import org.cotato.csquiz.api.attendance.dto.MemberAttendanceRecordsResponse;
 import org.cotato.csquiz.api.attendance.dto.OfflineAttendanceRequest;
 import org.cotato.csquiz.api.attendance.dto.OnlineAttendanceRequest;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
+import org.cotato.csquiz.api.attendance.dto.AttendanceTimeResponse;
 import org.cotato.csquiz.domain.attendance.service.AttendanceAdminService;
 import org.cotato.csquiz.domain.attendance.service.AttendanceRecordService;
 import org.cotato.csquiz.domain.attendance.service.AttendanceService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
@@ -48,6 +50,12 @@ public class AttendanceController {
     public ResponseEntity<Void> updateAttendance(@RequestBody @Valid UpdateAttendanceRequest request) {
         attendanceAdminService.updateAttendanceByAttendanceId(request);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "세션 시간 반환 API")
+    @GetMapping("/info")
+    public ResponseEntity<AttendanceTimeResponse> findAttendanceTimeInfo(@RequestParam("sessionId") Long sessionId) {
+        return ResponseEntity.status(HttpStatus.OK).body(attendanceService.findAttendanceTimeInfo(sessionId));
     }
 
     @Operation(summary = "회원 출결사항 기간 단위 조회 API")
