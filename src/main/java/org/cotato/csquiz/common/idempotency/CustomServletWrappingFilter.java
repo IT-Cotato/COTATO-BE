@@ -11,6 +11,9 @@ import org.springframework.web.util.ContentCachingResponseWrapper;
 
 @Component
 public class CustomServletWrappingFilter extends OncePerRequestFilter {
+
+    private static final String EVENT_PATH = "/v2/api/events";
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -19,5 +22,10 @@ public class CustomServletWrappingFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, responseWrapper);
 
         responseWrapper.copyBodyToResponse();
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return request.getRequestURI().startsWith(EVENT_PATH);
     }
 }

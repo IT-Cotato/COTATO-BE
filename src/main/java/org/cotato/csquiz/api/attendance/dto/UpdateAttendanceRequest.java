@@ -20,4 +20,8 @@ public record UpdateAttendanceRequest(
                     DEFAULT_LATE_DEADLINE.getTime());
         }
     }
+
+    public static UpdateAttendanceRequest of(Long attendanceId, Location location, AttendanceDeadLineDto attendTime) {
+        return new UpdateAttendanceRequest(attendanceId, location, attendTime);
+    }
 }

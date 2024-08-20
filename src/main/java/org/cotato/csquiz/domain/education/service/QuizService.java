@@ -47,7 +47,7 @@ import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.ImageException;
-import org.cotato.csquiz.common.S3.S3Uploader;
+import org.cotato.csquiz.common.s3.S3Uploader;
 import org.cotato.csquiz.domain.auth.service.MemberService;
 import org.cotato.csquiz.domain.education.util.AnswerUtil;
 import org.springframework.stereotype.Service;

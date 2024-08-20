@@ -16,7 +16,7 @@ import org.cotato.csquiz.api.session.dto.AddSessionImageResponse;
 import org.cotato.csquiz.api.session.dto.DeleteSessionImageRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionImageOrderInfoRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionImageOrderRequest;
-import org.cotato.csquiz.common.S3.S3Uploader;
+import org.cotato.csquiz.common.s3.S3Uploader;
 import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;

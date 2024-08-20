@@ -46,7 +46,7 @@ public class AttendanceController {
     @Operation(summary = "출석 정보 변경 API")
     @PatchMapping
     public ResponseEntity<Void> updateAttendance(@RequestBody @Valid UpdateAttendanceRequest request) {
-        attendanceAdminService.updateAttendance(request);
+        attendanceAdminService.updateAttendanceByAttendanceId(request);
         return ResponseEntity.noContent().build();
     }
 
@@ -117,7 +117,7 @@ public class AttendanceController {
 
     @Operation(summary = "부원의 기수별 출결 기록 반환 API")
     @GetMapping("/records/members")
-    public ResponseEntity<MemberAttendanceRecordsResponse> findAllRecordsByGeneration(@RequestParam("generation-id") Long generationId ,
+    public ResponseEntity<MemberAttendanceRecordsResponse> findAllRecordsByGeneration(@RequestParam("generationId") Long generationId ,
                                                                                       @AuthenticationPrincipal Long memberId) {
         return ResponseEntity.ok().body(attendanceRecordService.findAllRecordsBy(generationId, memberId));
     }
