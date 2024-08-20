@@ -12,6 +12,7 @@ import org.cotato.csquiz.api.session.dto.AddSessionRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionResponse;
 import org.cotato.csquiz.api.session.dto.CsEducationOnSessionNumberResponse;
 import org.cotato.csquiz.api.session.dto.DeleteSessionImageRequest;
+import org.cotato.csquiz.api.session.dto.SessionDetailInfoResponse;
 import org.cotato.csquiz.api.session.dto.SessionListResponse;
 import org.cotato.csquiz.api.session.dto.UpdateSessionNumberRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionImageOrderRequest;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,6 +49,11 @@ public class SessionController {
         return ResponseEntity.status(HttpStatus.OK).body(sessionService.findSessionsByGenerationId(generationId));
     }
 
+    @Operation(summary = "세션 시간, 장소 반환 API")
+    @GetMapping("/{sessionId}/info")
+    public ResponseEntity<SessionDetailInfoResponse> findSessionDetailInfo(@PathVariable("sessionId") Long sessionId) {
+        return ResponseEntity.status(HttpStatus.OK).body(sessionService.findSessionDetailInfo(sessionId));
+    }
 
     @Operation(summary = "CS ON인 세션 목록 반환 API")
     @GetMapping("/cs-on")

@@ -12,6 +12,7 @@ import org.cotato.csquiz.api.attendance.dto.AttendanceDeadLineDto;
 import org.cotato.csquiz.api.session.dto.AddSessionRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionResponse;
 import org.cotato.csquiz.api.session.dto.CsEducationOnSessionNumberResponse;
+import org.cotato.csquiz.api.session.dto.SessionDetailInfoResponse;
 import org.cotato.csquiz.api.session.dto.SessionListResponse;
 import org.cotato.csquiz.api.session.dto.UpdateSessionNumberRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionRequest;
@@ -159,6 +160,15 @@ public class SessionService {
         return sessions.stream()
                 .map(session -> SessionListResponse.of(session, imagesGroupBySession.getOrDefault(session, List.of())))
                 .toList();
+    }
+
+    public SessionDetailInfoResponse findSessionDetailInfo(Long sessionId) {
+        Attendance findAttendance = attendanceRepository.findBySessionId(sessionId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 출석을 찾을 수 없습니다"));
+
+        return SessionDetailInfoResponse.of(sessionId,
+                findAttendance.getAttendanceDeadLine(),
+                findAttendance.getLateDeadLine());
     }
 
     public Session findSessionById(Long sessionId) {
