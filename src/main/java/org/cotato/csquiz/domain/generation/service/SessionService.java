@@ -122,7 +122,8 @@ public class SessionService {
         Attendance findAttendance = attendanceRepository.findBySessionId(session.getId())
                 .orElseThrow(() -> new EntityNotFoundException("해당 세션의 출석이 존재하지 않습니다"));
 
-        attendanceAdminService.updateAttendance(UpdateAttendanceRequest.of(findAttendance.getId(), request.location(), request.attendanceDeadLineDto()));
+        attendanceAdminService.updateAttendance(session, findAttendance, request.attendTime(),
+                request.location());
     }
 
     public List<SessionListResponse> findSessionsByGenerationId(Long generationId) {

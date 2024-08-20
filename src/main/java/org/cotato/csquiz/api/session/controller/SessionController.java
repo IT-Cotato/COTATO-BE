@@ -52,6 +52,7 @@ public class SessionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(sessionService.addSession(request));
     }
 
+    @Operation(summary = "세션 수정 API")
     @PatchMapping(value = "/update")
     public ResponseEntity<Void> updateSession(@RequestBody @Valid UpdateSessionRequest request) {
         sessionService.updateSession(request);
