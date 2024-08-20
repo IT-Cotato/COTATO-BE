@@ -33,7 +33,8 @@ public class AttendanceAdminService {
 
     @Transactional
     public void addAttendance(Session session, Location location, AttendanceDeadLineDto attendanceDeadLine) {
-        AttendanceUtil.validateAttendanceTime(attendanceDeadLine.attendanceDeadLine(), attendanceDeadLine.lateDeadLine());
+        AttendanceUtil.validateAttendanceTime(attendanceDeadLine.attendanceDeadLine(),
+                attendanceDeadLine.lateDeadLine());
 
         Attendance attendance = Attendance.builder()
                 .session(session)
@@ -47,26 +48,33 @@ public class AttendanceAdminService {
         attendanceRepository.save(attendance);
     }
 
-
     @Transactional
-    public void updateAttendance(UpdateAttendanceRequest request) {
+    public void updateAttendanceByAttendanceId(UpdateAttendanceRequest request) {
         Attendance attendance = attendanceRepository.findById(request.attendanceId())
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석 정보가 존재하지 않습니다"));
         Session attendanceSession = sessionRepository.findById(attendance.getSessionId())
                 .orElseThrow(() -> new EntityNotFoundException("출석과 연결된 세션을 찾을 수 없습니다"));
 
-        AttendanceUtil.validateAttendanceTime(request.attendTime().attendanceDeadLine(), request.attendTime().lateDeadLine());
+        updateAttendance(attendanceSession, attendance, request
+                .attendTime(), request.location());
+    }
+
+    @Transactional
+    public void updateAttendance(Session attendanceSession, Attendance attendance,
+                                 AttendanceDeadLineDto attendanceDeadLine, Location location) {
+        AttendanceUtil.validateAttendanceTime(attendanceDeadLine.attendanceDeadLine(),
+                attendanceDeadLine.lateDeadLine());
 
         if (attendanceSession.getSessionDate() == null) {
             throw new AppException(ErrorCode.SESSION_DATE_NOT_FOUND);
         }
 
         attendance.updateDeadLine(
-                LocalDateTime.of(attendanceSession.getSessionDate(), request.attendTime().attendanceDeadLine())
+                LocalDateTime.of(attendanceSession.getSessionDate(), attendanceDeadLine.attendanceDeadLine())
                         .plusSeconds(DEFAULT_ATTEND_SECOND),
-                LocalDateTime.of(attendanceSession.getSessionDate(), request.attendTime()
-                        .lateDeadLine()).plusSeconds(DEFAULT_ATTEND_SECOND));
-        attendance.updateLocation(request.location());
+                LocalDateTime.of(attendanceSession.getSessionDate(), attendanceDeadLine.lateDeadLine())
+                        .plusSeconds(DEFAULT_ATTEND_SECOND));
+        attendance.updateLocation(location);
 
         attendanceRecordService.updateAttendanceStatus(attendance);
     }
