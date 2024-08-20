@@ -2,7 +2,6 @@ package org.cotato.csquiz.api.event.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.common.sse.SseService;
 import org.springframework.http.MediaType;
@@ -23,7 +22,7 @@ public class EventController {
 
     @Operation(summary = "최초 로그인 시 출결 알림 구독 API")
     @GetMapping(value = "/attendances", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public ResponseEntity<SseEmitter> subscribeAttendance(@AuthenticationPrincipal Long memberId) throws IOException {
+    public ResponseEntity<SseEmitter> subscribeAttendance(@AuthenticationPrincipal Long memberId) {
         return ResponseEntity.ok().body(sseService.subscribeAttendance(memberId));
     }
 }
