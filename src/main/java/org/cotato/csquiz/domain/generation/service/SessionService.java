@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.attendance.dto.AttendanceDeadLineDto;
-import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionResponse;
 import org.cotato.csquiz.api.session.dto.CsEducationOnSessionNumberResponse;
