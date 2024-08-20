@@ -1,17 +1,17 @@
 package org.cotato.csquiz.common.error.handler;
 
 import com.amazonaws.services.s3.model.AmazonS3Exception;
-import org.cotato.csquiz.common.error.exception.AppException;
-import org.cotato.csquiz.common.error.exception.ImageException;
-import org.cotato.csquiz.common.error.response.ErrorResponse;
-import org.cotato.csquiz.common.error.response.MethodArgumentErrorResponse;
-import org.cotato.csquiz.common.error.response.MethodArgumentErrorResponse.FieldErrorResponse;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.sql.SQLException;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.common.error.ErrorCode;
+import org.cotato.csquiz.common.error.exception.AppException;
+import org.cotato.csquiz.common.error.exception.ImageException;
+import org.cotato.csquiz.common.error.response.ErrorResponse;
+import org.cotato.csquiz.common.error.response.MethodArgumentErrorResponse;
+import org.cotato.csquiz.common.error.response.MethodArgumentErrorResponse.FieldErrorResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -94,4 +94,3 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 }
-

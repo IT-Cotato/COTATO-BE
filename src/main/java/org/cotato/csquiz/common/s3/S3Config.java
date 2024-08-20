@@ -1,4 +1,4 @@
-package org.cotato.csquiz.common.S3;
+package org.cotato.csquiz.common.s3;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
