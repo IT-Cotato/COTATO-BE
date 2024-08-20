@@ -35,27 +35,22 @@ public class MemberController {
 
     @GetMapping("/info")
     public ResponseEntity<MemberInfoResponse> findMemberInfo(
-            @RequestHeader("Authorization") String authorizationHeader) {
-        String accessToken = jwtTokenProvider.getBearer(authorizationHeader);
-        Long memberId = jwtTokenProvider.getMemberId(accessToken);
+            @AuthenticationPrincipal Long memberId) {
         return ResponseEntity.ok().body(memberService.findMemberInfo(memberId));
     }
 
     @PatchMapping("/update/password")
-    public ResponseEntity<Void> updatePassword(@RequestHeader("Authorization") String authorizationHeader,
+    public ResponseEntity<Void> updatePassword(@AuthenticationPrincipal Long memberId,
                                                @RequestBody @Valid UpdatePasswordRequest request) {
-        String accessToken = jwtTokenProvider.getBearer(authorizationHeader);
-        Long memberId = jwtTokenProvider.getMemberId(accessToken);
         memberService.updatePassword(memberId, request.password());
         return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "멤버 전화번호 수정 API")
     @PatchMapping("/phone-number")
-    public ResponseEntity<Void> updatePhoneNumber(@RequestHeader("Authorization") String authorizationHeader,
+    public ResponseEntity<Void> updatePhoneNumber(@AuthenticationPrincipal Long memberId,
             @RequestBody @Valid UpdatePhoneNumberRequest request) {
-        String accessToken = jwtTokenProvider.getBearer(authorizationHeader);
-        memberService.updatePhoneNumber(accessToken, request.phoneNumber());
+        memberService.updatePhoneNumber(memberId, request.phoneNumber());
         return ResponseEntity.noContent().build();
     }
 
