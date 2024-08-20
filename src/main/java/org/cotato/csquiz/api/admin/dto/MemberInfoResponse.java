@@ -5,7 +5,7 @@ import org.cotato.csquiz.domain.auth.entity.Member;
 
 public record MemberInfoResponse(
         Long memberId,
-        String memberName,
+        String name,
         String backFourNumber,
         MemberRole role
 ) {
