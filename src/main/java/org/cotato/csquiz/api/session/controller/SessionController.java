@@ -49,7 +49,7 @@ public class SessionController {
         return ResponseEntity.status(HttpStatus.OK).body(sessionService.findSessionsByGenerationId(generationId));
     }
 
-    @Operation(summary = "세션 시간, 장소 반환 API")
+    @Operation(summary = "세션 시간 반환 API")
     @GetMapping("/{sessionId}/info")
     public ResponseEntity<SessionDetailInfoResponse> findSessionDetailInfo(@PathVariable("sessionId") Long sessionId) {
         return ResponseEntity.status(HttpStatus.OK).body(sessionService.findSessionDetailInfo(sessionId));
