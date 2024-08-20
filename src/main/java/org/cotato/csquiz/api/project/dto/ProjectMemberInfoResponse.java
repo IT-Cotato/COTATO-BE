@@ -6,7 +6,7 @@ import org.cotato.csquiz.domain.generation.entity.ProjectMember;
 public record ProjectMemberInfoResponse(
         Long memberId,
         String name,
-        MemberPosition memberPosition
+        MemberPosition position
 ) {
     public static ProjectMemberInfoResponse from(ProjectMember projectMember) {
         return new ProjectMemberInfoResponse(
