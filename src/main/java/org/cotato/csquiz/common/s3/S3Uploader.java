@@ -1,4 +1,4 @@
-package org.cotato.csquiz.common.S3;
+package org.cotato.csquiz.common.s3;
 
 import static org.cotato.csquiz.common.util.FileUtil.checkAllowedImageFileExtension;
 import static org.cotato.csquiz.common.util.FileUtil.extractFileExtension;
