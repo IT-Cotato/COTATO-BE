@@ -14,6 +14,7 @@ import org.cotato.csquiz.api.session.dto.SessionListResponse;
 import org.cotato.csquiz.api.session.dto.UpdateSessionNumberRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionRequest;
 import org.cotato.csquiz.common.error.exception.ImageException;
+import org.cotato.csquiz.common.schedule.SchedulerService;
 import org.cotato.csquiz.domain.attendance.embedded.Location;
 import org.cotato.csquiz.domain.attendance.service.AttendanceAdminService;
 import org.cotato.csquiz.domain.education.entity.Education;
@@ -41,6 +42,7 @@ public class SessionService {
     private final AttendanceAdminService attendanceAdminService;
     private final EducationService educationService;
     private final SessionImageService sessionImageService;
+    private final SchedulerService schedulerService;
 
     @Transactional
     public AddSessionResponse addSession(AddSessionRequest request) throws ImageException {
@@ -82,6 +84,7 @@ public class SessionService {
                 .build();
 
         attendanceAdminService.addAttendance(session, location, attendanceDeadLine);
+        schedulerService.scheduleSessionNotification(savedSession.getSessionDate());
 
         return AddSessionResponse.from(savedSession);
     }
