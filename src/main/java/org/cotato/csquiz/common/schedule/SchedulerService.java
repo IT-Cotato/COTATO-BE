@@ -1,4 +1,4 @@
-package org.cotato.csquiz.common;
+package org.cotato.csquiz.common.schedule;
 
 import java.time.LocalDateTime;
 import java.util.List;
