@@ -1,6 +1,8 @@
 package org.cotato.csquiz.domain.generation.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -16,7 +18,10 @@ import org.cotato.csquiz.api.session.dto.UpdateSessionRequest;
 import org.cotato.csquiz.common.error.exception.ImageException;
 import org.cotato.csquiz.common.schedule.SchedulerService;
 import org.cotato.csquiz.domain.attendance.embedded.Location;
+import org.cotato.csquiz.domain.attendance.entity.Attendance;
+import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.attendance.service.AttendanceAdminService;
+import org.cotato.csquiz.domain.attendance.service.AttendanceRecordService;
 import org.cotato.csquiz.domain.education.entity.Education;
 import org.cotato.csquiz.domain.education.service.EducationService;
 import org.cotato.csquiz.domain.generation.embedded.SessionContents;
@@ -43,6 +48,8 @@ public class SessionService {
     private final EducationService educationService;
     private final SessionImageService sessionImageService;
     private final SchedulerService schedulerService;
+    private final AttendanceRepository attendanceRepository;
+    private final AttendanceRecordService attendanceRecordService;
 
     @Transactional
     public AddSessionResponse addSession(AddSessionRequest request) throws ImageException {
@@ -107,6 +114,8 @@ public class SessionService {
 
         session.updateDescription(request.description());
         session.updateSessionTitle(request.title());
+        session.updateSessionPlace(request.placeName());
+
         session.updateSessionContents(SessionContents.builder()
                 .csEducation(request.csEducation())
                 .devTalk(request.devTalk())
@@ -114,7 +123,27 @@ public class SessionService {
                 .networking(request.networking())
                 .build());
 
+        updateSessionDate(session, request.sessionDate(), request.attendTime());
         sessionRepository.save(session);
+    }
+
+    public void updateSessionDate(Session session, LocalDate newDate, AttendanceDeadLineDto newDeadline) {
+        Attendance findAttendance = attendanceRepository.findBySessionId(session.getId())
+                .orElseThrow(() -> new EntityNotFoundException("해당 세션의 출석이 존재하지 않습니다"));
+
+        // 날짜가 바뀌지 않았고, 출결 시간이 모두 동일한 경우
+        if (newDate.equals(session.getSessionDate()) &&
+                findAttendance.getAttendanceDeadLine().toLocalTime().equals(newDeadline.attendanceDeadLine()) &&
+                findAttendance.getLateDeadLine().toLocalTime().equals(newDeadline.lateDeadLine())) {
+            return;
+        }
+        session.updateSessionDate(newDate);
+
+        LocalDateTime newAttendanceDeadline = LocalDateTime.of(newDate, newDeadline.attendanceDeadLine());
+        LocalDateTime newLateDeadline = LocalDateTime.of(newDate, newDeadline.attendanceDeadLine());
+        findAttendance.updateDeadLine(newAttendanceDeadline, newLateDeadline);
+
+        attendanceRecordService.updateAttendanceStatus(findAttendance);
     }
 
     public List<SessionListResponse> findSessionsByGenerationId(Long generationId) {

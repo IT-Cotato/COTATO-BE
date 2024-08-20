@@ -89,4 +89,12 @@ public class Session extends BaseTimeEntity {
     public void updateSessionTitle(String title) {
         this.title = title;
     }
+
+    public void updateSessionDate(LocalDate sessionDate) {
+        this.sessionDate = sessionDate;
+    }
+
+    public void updateSessionPlace(String placeName) {
+        this.placeName = placeName;
+    }
 }

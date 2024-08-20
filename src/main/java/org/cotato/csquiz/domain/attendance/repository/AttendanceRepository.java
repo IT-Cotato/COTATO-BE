@@ -14,4 +14,6 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
 
     @Query("SELECT a FROM Attendance a WHERE DATE(a.attendanceDeadLine) = DATE(:time)")
     Optional<Attendance> findByAttendanceDeadLineDate(@Param("time") LocalDateTime time);
+
+    Optional<Attendance> findBySessionId(Long sessionId);
 }

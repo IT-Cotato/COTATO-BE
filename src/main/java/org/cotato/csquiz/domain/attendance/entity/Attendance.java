@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -36,7 +37,8 @@ public class Attendance extends BaseTimeEntity {
     private Long sessionId;
 
     @Builder
-    public Attendance(LocalDateTime attendanceDeadLine, LocalDateTime lateDeadLine, Location location, Session session) {
+    public Attendance(LocalDateTime attendanceDeadLine, LocalDateTime lateDeadLine, Location location,
+                      Session session) {
         this.attendanceDeadLine = attendanceDeadLine;
         this.lateDeadLine = lateDeadLine;
         this.location = location;
