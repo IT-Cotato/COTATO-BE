@@ -60,8 +60,7 @@ public class SchedulerService {
         LocalDateTime notificationTime = LocalDateTime.of(sessionDate, DeadLine.ATTENDANCE_START_TIME.getTime());
 
         ZonedDateTime zonedDateTime = notificationTime.atZone(ZoneId.of("Asia/Seoul"));
-        Date triggerDate = Date.from(zonedDateTime.toInstant());
 
-        taskScheduler.schedule(() -> sseSender.sendNotification(notificationTime), triggerDate);
+        taskScheduler.schedule(() -> sseSender.sendNotification(notificationTime), zonedDateTime.toInstant());
     }
 }
