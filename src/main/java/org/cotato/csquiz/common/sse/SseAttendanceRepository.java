@@ -1,5 +1,6 @@
 package org.cotato.csquiz.common.sse;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,5 +24,10 @@ public class SseAttendanceRepository {
 
     public void deleteById(Long memberId) {
         attendances.remove(memberId);
+    }
+
+    public List<SseEmitter> findAll() {
+        return attendances.values().stream()
+                .toList();
     }
 }
