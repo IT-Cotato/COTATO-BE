@@ -9,6 +9,7 @@ import org.cotato.csquiz.common.config.jwt.RefreshTokenRepository;
 import org.cotato.csquiz.common.error.handler.CustomAccessDeniedHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -89,6 +90,8 @@ public class SecurityConfig {
                         .hasAnyRole("MEMBER", "EDUCATION", "ADMIN")
                         .requestMatchers("/v2/api/events/attendances").hasAnyRole("MEMBER", "ADMIN", "EDUCATION")
                         .requestMatchers("/v1/api/socket/**").hasAnyRole("EDUCATION", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/v2/api/projects").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/v2/api/projects/**").permitAll()
                         .anyRequest().authenticated()
                 );
         return http.build();
