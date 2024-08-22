@@ -62,12 +62,10 @@ public class AttendanceService {
     }
 
     @Transactional(readOnly = true)
-    public AttendanceTimeResponse findAttendanceTimeInfo(Long sessionId) {
-        Attendance findAttendance = attendanceRepository.findBySessionId(sessionId)
+    public AttendanceTimeResponse findAttendanceTimeInfo(final Long sessionId) {
+        Attendance attendance = attendanceRepository.findBySessionId(sessionId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석을 찾을 수 없습니다"));
 
-        return AttendanceTimeResponse.of(sessionId,
-                findAttendance.getAttendanceDeadLine(),
-                findAttendance.getLateDeadLine());
+        return AttendanceTimeResponse.from(attendance);
     }
 }
