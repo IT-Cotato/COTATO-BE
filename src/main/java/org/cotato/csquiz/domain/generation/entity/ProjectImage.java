@@ -42,10 +42,18 @@ public class ProjectImage {
         this.projectId = projectId;
     }
 
-    public static ProjectImage of(ProjectImageType imageType, S3Info imageInfo, Project project) {
+    public static ProjectImage logoImage(S3Info imageInfo, Project project) {
         return new ProjectImage(
-                imageType,
+                ProjectImageType.LOGO,
                 imageInfo,
+                project.getId()
+        );
+    }
+
+    public static ProjectImage thumbNailImage(S3Info thumbNailInfo, Project project) {
+        return new ProjectImage(
+                ProjectImageType.THUMBNAIL,
+                thumbNailInfo,
                 project.getId()
         );
     }
