@@ -1,45 +1,39 @@
 package org.cotato.csquiz.domain.generation.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.cotato.csquiz.api.session.dto.AddSessionImageResponse;
-import org.cotato.csquiz.api.session.dto.DeleteSessionImageRequest;
-import org.cotato.csquiz.api.session.dto.UpdateSessionImageOrderInfoRequest;
-import org.cotato.csquiz.api.session.dto.UpdateSessionImageOrderRequest;
-import org.cotato.csquiz.api.session.dto.AddSessionImageRequest;
+import org.cotato.csquiz.api.attendance.dto.AttendanceDeadLineDto;
 import org.cotato.csquiz.api.session.dto.AddSessionRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionResponse;
 import org.cotato.csquiz.api.session.dto.CsEducationOnSessionNumberResponse;
 import org.cotato.csquiz.api.session.dto.SessionListResponse;
 import org.cotato.csquiz.api.session.dto.UpdateSessionNumberRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionRequest;
-import org.cotato.csquiz.common.entity.S3Info;
-import org.cotato.csquiz.common.error.ErrorCode;
-import org.cotato.csquiz.common.error.exception.AppException;
+import org.cotato.csquiz.common.error.exception.ImageException;
+import org.cotato.csquiz.common.schedule.SchedulerService;
+import org.cotato.csquiz.domain.attendance.embedded.Location;
+import org.cotato.csquiz.domain.attendance.entity.Attendance;
+import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
+import org.cotato.csquiz.domain.attendance.service.AttendanceAdminService;
+import org.cotato.csquiz.domain.attendance.service.AttendanceRecordService;
 import org.cotato.csquiz.domain.education.entity.Education;
 import org.cotato.csquiz.domain.education.service.EducationService;
 import org.cotato.csquiz.domain.generation.embedded.SessionContents;
-import org.cotato.csquiz.domain.generation.entity.SessionImage;
-import org.cotato.csquiz.domain.generation.enums.CSEducation;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
-import org.cotato.csquiz.common.error.exception.ImageException;
-import org.cotato.csquiz.common.S3.S3Uploader;
+import org.cotato.csquiz.domain.generation.entity.SessionImage;
+import org.cotato.csquiz.domain.generation.enums.CSEducation;
 import org.cotato.csquiz.domain.generation.repository.GenerationRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionImageRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -47,12 +41,15 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 public class SessionService {
 
-    private static final String SESSION_BUCKET_DIRECTORY = "session";
     private final SessionRepository sessionRepository;
     private final GenerationRepository generationRepository;
     private final SessionImageRepository sessionImageRepository;
+    private final AttendanceAdminService attendanceAdminService;
     private final EducationService educationService;
-    private final S3Uploader s3Uploader;
+    private final SessionImageService sessionImageService;
+    private final SchedulerService schedulerService;
+    private final AttendanceRepository attendanceRepository;
+    private final AttendanceRecordService attendanceRecordService;
 
     @Transactional
     public AddSessionResponse addSession(AddSessionRequest request) throws ImageException {
@@ -67,6 +64,8 @@ public class SessionService {
                 .description(request.description())
                 .generation(findGeneration)
                 .title(request.title())
+                .placeName(request.placeName())
+                .sessionDate(request.sessionDate())
                 .sessionContents(SessionContents.builder()
                         .csEducation(request.csEducation())
                         .devTalk(request.devTalk())
@@ -78,31 +77,27 @@ public class SessionService {
         log.info("세션 생성 완료");
 
         if (request.images() != null && !request.images().isEmpty()) {
-            AtomicInteger index = new AtomicInteger(0);
-
-            List<SessionImage> sessionImages = new ArrayList<>();
-
-            for (MultipartFile imageFile : request.images()) {
-                S3Info s3Info = s3Uploader.uploadFiles(imageFile, SESSION_BUCKET_DIRECTORY);
-
-                SessionImage sessionImage = SessionImage.builder()
-                        .session(savedSession)
-                        .s3Info(s3Info)
-                        .order(index.getAndIncrement())
-                        .build();
-
-                sessionImages.add(sessionImage);
-            }
-
-            sessionImageRepository.saveAll(sessionImages);
-            log.info("세션 이미지 생성 완료");
+            sessionImageService.addSessionImages(request.images(), savedSession);
         }
+
+        Location location = Location.builder()
+                .latitude(request.latitude())
+                .longitude(request.longitude())
+                .build();
+
+        AttendanceDeadLineDto attendanceDeadLine = AttendanceDeadLineDto.builder()
+                .attendanceDeadLine(request.attendanceDeadLine())
+                .lateDeadLine(request.lateDeadLine())
+                .build();
+
+        attendanceAdminService.addAttendance(session, location, attendanceDeadLine);
+        schedulerService.scheduleSessionNotification(savedSession.getSessionDate());
 
         return AddSessionResponse.from(savedSession);
     }
 
     private int calculateLastSessionNumber(Generation generation) {
-        List<Session> allSession = sessionRepository.findAllByGeneration(generation);
+        List<Session> allSession = sessionRepository.findAllByGenerationId(generation.getId());
         return allSession.stream().mapToInt(Session::getNumber).max()
                 .orElse(-1);
     }
@@ -119,6 +114,8 @@ public class SessionService {
 
         session.updateDescription(request.description());
         session.updateSessionTitle(request.title());
+        session.updateSessionPlace(request.placeName());
+
         session.updateSessionContents(SessionContents.builder()
                 .csEducation(request.csEducation())
                 .devTalk(request.devTalk())
@@ -126,87 +123,28 @@ public class SessionService {
                 .networking(request.networking())
                 .build());
 
+        updateSessionDate(session, request.sessionDate(), request.attendTime());
         sessionRepository.save(session);
     }
 
-    @Transactional
-    public AddSessionImageResponse additionalSessionImage(AddSessionImageRequest request) throws ImageException {
-        Session session = findSessionById(request.sessionId());
+    public void updateSessionDate(Session session, LocalDate newDate, AttendanceDeadLineDto newDeadline) {
+        Attendance findAttendance = attendanceRepository.findBySessionId(session.getId())
+                .orElseThrow(() -> new EntityNotFoundException("해당 세션의 출석이 존재하지 않습니다"));
 
-        S3Info imageInfo = s3Uploader.uploadFiles(request.image(), SESSION_BUCKET_DIRECTORY);
 
-        Integer imageOrder = sessionImageRepository.findFirstBySessionOrderByOrderDesc(session)
-                .map(sessionImage -> sessionImage.getOrder() + 1).orElse(0);
-
-        SessionImage sessionImage = SessionImage.builder()
-                .session(session)
-                .s3Info(imageInfo)
-                .order(imageOrder)
-                .build();
-
-        return AddSessionImageResponse.from(sessionImageRepository.save(sessionImage));
-    }
-
-    @Transactional
-    public void deleteSessionImage(DeleteSessionImageRequest request) {
-        SessionImage deleteImage = sessionImageRepository.findById(request.imageId())
-                .orElseThrow(() -> new EntityNotFoundException("해당 사진을 찾을 수 없습니다."));
-        s3Uploader.deleteFile(deleteImage.getS3Info());
-        sessionImageRepository.delete(deleteImage);
-
-        List<SessionImage> reorderImages = sessionImageRepository.findAllBySession(deleteImage.getSession()).stream()
-                .filter(image -> image.getOrder() > deleteImage.getOrder())
-                .toList();
-
-        for (SessionImage sessionImage : reorderImages) {
-            sessionImage.decreaseOrder();
+        // 날짜가 바뀌지 않았고, 출결 시간이 모두 동일한 경우
+        if (newDate.equals(session.getSessionDate()) &&
+                findAttendance.getAttendanceDeadLine().toLocalTime().equals(newDeadline.attendanceDeadLine()) &&
+                findAttendance.getLateDeadLine().toLocalTime().equals(newDeadline.lateDeadLine())) {
+            return;
         }
-    }
+        session.updateSessionDate(newDate);
 
-    @Transactional
-    public void updateSessionImageOrder(UpdateSessionImageOrderRequest request) {
-        Session sessionById = findSessionById(request.sessionId());
-        List<UpdateSessionImageOrderInfoRequest> orderList = request.orderInfos();
+        LocalDateTime newAttendanceDeadline = LocalDateTime.of(newDate, newDeadline.attendanceDeadLine());
+        LocalDateTime newLateDeadline = LocalDateTime.of(newDate, newDeadline.lateDeadLine());
+        findAttendance.updateDeadLine(newAttendanceDeadline, newLateDeadline);
 
-        List<SessionImage> savedImages = sessionImageRepository.findAllBySession(sessionById);
-
-        if (savedImages.size() != orderList.size()) {
-            throw new AppException(ErrorCode.SESSION_IMAGE_COUNT_MISMATCH);
-        }
-
-        if (!isValidOrderRange(orderList)) {
-            throw new AppException(ErrorCode.SESSION_ORDER_INVALID);
-        }
-
-        if (!isOrderUnique(orderList)) {
-            throw new AppException(ErrorCode.SESSION_ORDER_INVALID);
-        }
-
-        Map<Long, UpdateSessionImageOrderInfoRequest> orderMap = orderList.stream()
-                .collect(Collectors.toMap(UpdateSessionImageOrderInfoRequest::imageId, Function.identity()));
-
-        for (SessionImage savedImage : savedImages) {
-            if (orderMap.get(savedImage.getId()) == null) {
-                throw new EntityNotFoundException("해당 사진을 찾을 수 없습니다.");
-            }
-            savedImage.updateOrder(orderMap.get(savedImage.getId()).order());
-        }
-    }
-
-    private boolean isValidOrderRange(List<UpdateSessionImageOrderInfoRequest> orderList) {
-        return orderList.stream().noneMatch(orderInfo ->
-                orderInfo.order() < 0 || orderInfo.order() >= orderList.size());
-    }
-
-    private boolean isOrderUnique(List<UpdateSessionImageOrderInfoRequest> orderList) {
-        Set<Integer> uniqueOrders = new HashSet<>();
-        for (UpdateSessionImageOrderInfoRequest orderInfo : orderList) {
-            if (!uniqueOrders.add(orderInfo.order())) {
-                return false;
-            }
-        }
-
-        return true;
+        attendanceRecordService.updateAttendanceStatus(findAttendance);
     }
 
     public List<SessionListResponse> findSessionsByGenerationId(Long generationId) {
@@ -215,11 +153,12 @@ public class SessionService {
 
         List<Session> sessions = sessionRepository.findAllByGeneration(generation);
 
-        Map<Session, List<SessionImage>> imagesGroupBySession = sessionImageRepository.findAllBySessionIn(sessions).stream()
+        Map<Session, List<SessionImage>> imagesGroupBySession = sessionImageRepository.findAllBySessionIn(sessions)
+                .stream()
                 .collect(Collectors.groupingBy(SessionImage::getSession));
 
         return sessions.stream()
-                .map(session -> SessionListResponse.of(session,imagesGroupBySession.getOrDefault(session, List.of())))
+                .map(session -> SessionListResponse.of(session, imagesGroupBySession.getOrDefault(session, List.of())))
                 .toList();
     }
 
@@ -231,7 +170,8 @@ public class SessionService {
     public List<CsEducationOnSessionNumberResponse> findAllNotLinkedCsOnSessionsByGenerationId(Long generationId) {
         Generation generation = generationRepository.findById(generationId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 기수를 찾을 수 없습니다."));
-        List<Session> sessions = sessionRepository.findAllByGenerationAndSessionContentsCsEducation(generation, CSEducation.CS_ON);
+        List<Session> sessions = sessionRepository.findAllByGenerationAndSessionContentsCsEducation(generation,
+                CSEducation.CS_ON);
 
         List<Long> educationLinkedSessionIds = educationService.findAllEducationByGenerationId(generationId).stream()
                 .map(Education::getSessionId)

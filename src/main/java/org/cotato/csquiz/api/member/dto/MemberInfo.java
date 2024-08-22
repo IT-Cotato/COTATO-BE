@@ -9,7 +9,7 @@ public record MemberInfo(
         String name,
         String email,
         String backFourNumber,
-        MemberRole memberRole,
+        MemberRole role,
         MemberPosition position
 ) {
     public static MemberInfo of(Member findMember, String backFourNumber) {

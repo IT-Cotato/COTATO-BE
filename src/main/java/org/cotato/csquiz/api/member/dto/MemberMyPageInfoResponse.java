@@ -8,7 +8,7 @@ public record MemberMyPageInfoResponse(
         String email,
         String name,
         Integer generationNumber,
-        MemberPosition memberPosition,
+        MemberPosition position,
         String phoneNumber,
         String profileImage
 ) {

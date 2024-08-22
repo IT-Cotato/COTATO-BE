@@ -6,7 +6,7 @@ import org.cotato.csquiz.domain.auth.entity.Member;
 
 public record MemberEnrollInfoResponse(
         Long memberId,
-        String memberName,
+        String name,
         MemberPosition position,
         Integer generationNumber,
         MemberRole role

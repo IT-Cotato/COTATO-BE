@@ -4,6 +4,9 @@ spring:
 
 # 로컬, 개발, 운영 환경의 공통된 설정
 
+  jpa:
+    open-in-view: false
+
   data:
     redis:
       host: localhost
