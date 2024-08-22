@@ -129,7 +129,9 @@ public class SessionService {
 
     public void updateSessionDate(Session session, LocalDate newDate, AttendanceDeadLineDto newDeadline) {
         Attendance findAttendance = attendanceRepository.findBySessionId(session.getId())
-                .orElseThrow(() -> new EntityNotFoundException("해당 세션의 출석이 존재하지 않습니다"));
+                .orElseGet(() -> Attendance.builder()
+                        .session(session)
+                        .build());
 
 
         // 날짜가 바뀌지 않았고, 출결 시간이 모두 동일한 경우
@@ -144,6 +146,7 @@ public class SessionService {
         LocalDateTime newLateDeadline = LocalDateTime.of(newDate, newDeadline.lateDeadLine());
         findAttendance.updateDeadLine(newAttendanceDeadline, newLateDeadline);
 
+        attendanceRepository.save(findAttendance);
         attendanceRecordService.updateAttendanceStatus(findAttendance);
     }
 
