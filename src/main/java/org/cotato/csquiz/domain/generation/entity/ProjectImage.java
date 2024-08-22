@@ -42,19 +42,19 @@ public class ProjectImage {
         this.projectId = projectId;
     }
 
-    public static ProjectImage logoImage(S3Info imageInfo, Project project) {
+    public static ProjectImage logoImage(S3Info imageInfo, Long projectId) {
         return new ProjectImage(
                 ProjectImageType.LOGO,
                 imageInfo,
-                project.getId()
+                projectId
         );
     }
 
-    public static ProjectImage thumbNailImage(S3Info thumbNailInfo, Project project) {
+    public static ProjectImage thumbNailImage(S3Info thumbNailInfo, Long projectId) {
         return new ProjectImage(
                 ProjectImageType.THUMBNAIL,
                 thumbNailInfo,
-                project.getId()
+                projectId
         );
     }
 }

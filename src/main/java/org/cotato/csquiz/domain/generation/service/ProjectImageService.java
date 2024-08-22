@@ -23,15 +23,15 @@ public class ProjectImageService {
     private final ProjectImageRepository projectImageRepository;
 
     @Transactional
-    public void createProjectImage(Project project, MultipartFile logoImage, MultipartFile thumbNameImage)
+    public void createProjectImage(Long projectId, MultipartFile logoImage, MultipartFile thumbNameImage)
             throws ImageException {
         List<ProjectImage> newImages = new ArrayList<>();
 
         S3Info logoImageInfo = s3Uploader.uploadFiles(logoImage, PROJECT_IMAGE);
-        newImages.add(ProjectImage.logoImage(logoImageInfo, project));
+        newImages.add(ProjectImage.logoImage(logoImageInfo, projectId));
 
         S3Info thumbNailInfo = s3Uploader.uploadFiles(thumbNameImage, PROJECT_IMAGE);
-        newImages.add(ProjectImage.thumbNailImage(thumbNailInfo, project));
+        newImages.add(ProjectImage.thumbNailImage(thumbNailInfo, projectId));
 
         projectImageRepository.saveAll(newImages);
     }

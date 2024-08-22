@@ -49,4 +49,12 @@ public class ProjectController {
     public ResponseEntity<CreateProjectResponse> createProject(@RequestBody @Valid CreateProjectRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(projectService.createProject(request));
     }
+
+    @Operation(summary = "프로젝트 사진 등록 API")
+    @PostMapping(value = "/iamges", consumes = "multipart/form-data")
+    public ResponseEntity<Void> createProjectImage(@ModelAttribute CreateProjectImageRequest request)
+            throws ImageException {
+        projectImageService.createProjectImage(request.projectId(), request.logoImage(), request.thumbNailImage());
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
 }
