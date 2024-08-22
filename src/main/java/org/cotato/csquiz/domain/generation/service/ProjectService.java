@@ -6,8 +6,11 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.cotato.csquiz.api.project.dto.CreateProjectRequest;
+import org.cotato.csquiz.api.project.dto.CreateProjectResponse;
 import org.cotato.csquiz.api.project.dto.ProjectDetailResponse;
 import org.cotato.csquiz.api.project.dto.ProjectSummaryResponse;
+import org.cotato.csquiz.common.error.exception.ImageException;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Project;
 import org.cotato.csquiz.domain.generation.entity.ProjectImage;
@@ -25,6 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ProjectService {
 
+    private final ProjectImageService projectImageService;
+    private final ProjectMemberService projectMemberService;
     private final ProjectRepository projectRepository;
     private final ProjectImageRepository projectImageRepository;
     private final ProjectMemberRepository projectMemberRepository;
@@ -45,7 +50,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public List<ProjectSummaryResponse> getAllProjectSummaries(){
+    public List<ProjectSummaryResponse> getAllProjectSummaries() {
 
         List<Project> projects = projectRepository.findAll();
 
@@ -61,11 +66,33 @@ public class ProjectService {
         Map<Long, Integer> generationNumber = generationRepository.findAllByIdsInQuery(generationIds).stream()
                 .collect(Collectors.toUnmodifiableMap(Generation::getId, Generation::getNumber));
 
-        Map<Long, ProjectImage> projectImage = projectImageRepository.findAllByProjectIdInAndProjectImageType(projectIds, ProjectImageType.LOGO).stream()
+        Map<Long, ProjectImage> projectImage = projectImageRepository.findAllByProjectIdInAndProjectImageType(
+                        projectIds, ProjectImageType.LOGO).stream()
                 .collect(Collectors.toUnmodifiableMap(ProjectImage::getProjectId, Function.identity()));
 
         return projects.stream()
-                .map(project -> ProjectSummaryResponse.of(project, generationNumber.get(project.getGenerationId()), projectImage.get(project.getId())))
+                .map(project -> ProjectSummaryResponse.of(project, generationNumber.get(project.getGenerationId()),
+                        projectImage.get(project.getId())))
                 .toList();
+    }
+
+    @Transactional
+    public CreateProjectResponse createProject(CreateProjectRequest request) throws ImageException {
+
+        Generation generation = generationRepository.findByNumber(request.generationNumber())
+                .orElseThrow(() -> new EntityNotFoundException("해당 번호의 기수를 찾을 수 없습니다."));
+
+        Project createdProject = Project.builder()
+                .name(request.projectName())
+                .projectUrl(request.projectUrl())
+                .behanceUrl(request.behanceUrl())
+                .projectUrl(request.projectUrl())
+                .generationId(generation.getId())
+                .build();
+
+        projectImageService.createProjectImage(createdProject, request.images());
+        projectMemberService.createProjectMember(createdProject, request.members());
+
+        return CreateProjectResponse.from(createdProject);
     }
 }

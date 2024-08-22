@@ -41,4 +41,12 @@ public class ProjectImage {
         this.s3Info = s3Info;
         this.projectId = projectId;
     }
+
+    public static ProjectImage of(ProjectImageType imageType, S3Info imageInfo, Project project) {
+        return new ProjectImage(
+                imageType,
+                imageInfo,
+                project.getId()
+        );
+    }
 }
