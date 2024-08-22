@@ -13,7 +13,6 @@ public record ProjectSummaryResponse(
         String githubUrl,
         String behanceUrl,
         String projectUrl
-
 ) {
     public static ProjectSummaryResponse of(Project project, Integer generationNumber, ProjectImage projectImage) {
         return new ProjectSummaryResponse(
