@@ -39,4 +39,8 @@ public class ProjectMember {
         this.name = name;
         this.projectId = projectId;
     }
+
+    public static ProjectMember of(MemberPosition memberPosition, String name, Project project) {
+        return new ProjectMember(memberPosition, name, project.getId());
+    }
 }

@@ -41,4 +41,20 @@ public class ProjectImage {
         this.s3Info = s3Info;
         this.projectId = projectId;
     }
+
+    public static ProjectImage logoImage(S3Info imageInfo, Long projectId) {
+        return new ProjectImage(
+                ProjectImageType.LOGO,
+                imageInfo,
+                projectId
+        );
+    }
+
+    public static ProjectImage thumbNailImage(S3Info thumbNailInfo, Long projectId) {
+        return new ProjectImage(
+                ProjectImageType.THUMBNAIL,
+                thumbNailInfo,
+                projectId
+        );
+    }
 }
