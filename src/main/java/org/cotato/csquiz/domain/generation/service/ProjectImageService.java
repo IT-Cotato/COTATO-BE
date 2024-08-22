@@ -12,6 +12,7 @@ import org.cotato.csquiz.domain.generation.entity.ProjectImage;
 import org.cotato.csquiz.domain.generation.repository.ProjectImageRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -22,13 +23,15 @@ public class ProjectImageService {
     private final ProjectImageRepository projectImageRepository;
 
     @Transactional
-    public void createProjectImage(Project project, List<ProjectImageRequest> images) throws ImageException {
+    public void createProjectImage(Project project, MultipartFile logoImage, MultipartFile thumbNameImage)
+            throws ImageException {
         List<ProjectImage> newImages = new ArrayList<>();
 
-        for (ProjectImageRequest image : images) {
-            S3Info imageInfo = s3Uploader.uploadFiles(image.image(), PROJECT_IMAGE);
-            newImages.add(ProjectImage.of(image.imageType(), imageInfo, project));
-        }
+        S3Info logoImageInfo = s3Uploader.uploadFiles(logoImage, PROJECT_IMAGE);
+        newImages.add(ProjectImage.logoImage(logoImageInfo, project));
+
+        S3Info thumbNailInfo = s3Uploader.uploadFiles(thumbNameImage, PROJECT_IMAGE);
+        newImages.add(ProjectImage.thumbNailImage(thumbNailInfo, project));
 
         projectImageRepository.saveAll(newImages);
     }

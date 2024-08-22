@@ -90,7 +90,7 @@ public class ProjectService {
                 .generationId(generation.getId())
                 .build();
 
-        projectImageService.createProjectImage(createdProject, request.images());
+        projectImageService.createProjectImage(createdProject, request.logoImage(), request.thumbNailImage());
         projectMemberService.createProjectMember(createdProject, request.members());
 
         return CreateProjectResponse.from(createdProject);
