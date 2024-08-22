@@ -62,7 +62,7 @@ public class AttendanceService {
     }
 
     @Transactional(readOnly = true)
-    public AttendanceTimeResponse findAttendanceTimeInfo(final Long sessionId) {
+    public AttendanceTimeResponse getAttendanceDetailInfo(final Long sessionId) {
         Attendance attendance = attendanceRepository.findBySessionId(sessionId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석을 찾을 수 없습니다"));
 
