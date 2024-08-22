@@ -33,7 +33,8 @@ public class SecurityConfig {
             "/v1/api/generation",
             "/v1/api/session",
             "/websocket/csquiz",
-            "/v2/api/policies"
+            "/v2/api/policies",
+            "/v2/api/events/**"
     };
 
     private final JwtTokenProvider jwtTokenProvider;
@@ -88,7 +89,7 @@ public class SecurityConfig {
                         .requestMatchers("/v2/api/attendance").hasAnyRole("ADMIN")
                         .requestMatchers(new AntPathRequestMatcher("/v1/api/socket/token", "POST"))
                         .hasAnyRole("MEMBER", "EDUCATION", "ADMIN")
-                        .requestMatchers("/v2/api/events/attendances").hasAnyRole("MEMBER", "ADMIN", "EDUCATION")
+//                        .requestMatchers("/v2/api/events/attendances").hasAnyRole("MEMBER", "ADMIN", "EDUCATION")
                         .requestMatchers("/v1/api/socket/**").hasAnyRole("EDUCATION", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/v2/api/projects").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/v2/api/projects/**").permitAll()
