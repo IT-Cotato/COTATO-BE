@@ -1,6 +1,5 @@
 package org.cotato.csquiz.domain.generation.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.api.project.dto.ProjectMemberRequest;
