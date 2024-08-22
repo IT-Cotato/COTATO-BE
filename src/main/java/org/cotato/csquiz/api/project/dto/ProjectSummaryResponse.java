@@ -9,10 +9,7 @@ public record ProjectSummaryResponse(
         String introduction,
         Long generationId,
         Integer generationNumber,
-        String imageUrl,
-        String githubUrl,
-        String behanceUrl,
-        String projectUrl
+        String logoUrl
 ) {
     public static ProjectSummaryResponse of(Project project, Integer generationNumber, ProjectImage projectImage) {
         return new ProjectSummaryResponse(
@@ -21,10 +18,7 @@ public record ProjectSummaryResponse(
                 project.getIntroduction(),
                 project.getGenerationId(),
                 generationNumber,
-                projectImage != null ? projectImage.getS3Info().getUrl() : null,
-                project.getGithubUrl(),
-                project.getBehanceUrl(),
-                project.getProjectUrl()
+                projectImage != null ? projectImage.getS3Info().getUrl() : null
         );
     }
 }
