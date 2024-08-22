@@ -10,7 +10,6 @@ import org.cotato.csquiz.api.project.dto.CreateProjectRequest;
 import org.cotato.csquiz.api.project.dto.CreateProjectResponse;
 import org.cotato.csquiz.api.project.dto.ProjectDetailResponse;
 import org.cotato.csquiz.api.project.dto.ProjectSummaryResponse;
-import org.cotato.csquiz.common.error.exception.ImageException;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Project;
 import org.cotato.csquiz.domain.generation.entity.ProjectImage;
@@ -77,20 +76,21 @@ public class ProjectService {
     }
 
     @Transactional
-    public CreateProjectResponse createProject(CreateProjectRequest request) throws ImageException {
+    public CreateProjectResponse createProject(CreateProjectRequest request) {
 
         Generation generation = generationRepository.findByNumber(request.generationNumber())
                 .orElseThrow(() -> new EntityNotFoundException("해당 번호의 기수를 찾을 수 없습니다."));
 
         Project createdProject = Project.builder()
                 .name(request.projectName())
+                .introduction(request.projectIntroduction())
+                .githubUrl(request.githubUrl())
                 .projectUrl(request.projectUrl())
                 .behanceUrl(request.behanceUrl())
                 .projectUrl(request.projectUrl())
                 .generationId(generation.getId())
                 .build();
-
-        projectImageService.createProjectImage(createdProject, request.logoImage(), request.thumbNailImage());
+        projectRepository.save(createdProject);
         projectMemberService.createProjectMember(createdProject, request.members());
 
         return CreateProjectResponse.from(createdProject);

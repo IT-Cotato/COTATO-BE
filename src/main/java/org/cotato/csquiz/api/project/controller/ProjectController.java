@@ -5,11 +5,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.cotato.csquiz.api.project.dto.CreateProjectImageRequest;
 import org.cotato.csquiz.api.project.dto.CreateProjectRequest;
 import org.cotato.csquiz.api.project.dto.CreateProjectResponse;
 import org.cotato.csquiz.api.project.dto.ProjectDetailResponse;
 import org.cotato.csquiz.api.project.dto.ProjectSummaryResponse;
 import org.cotato.csquiz.common.error.exception.ImageException;
+import org.cotato.csquiz.domain.generation.service.ProjectImageService;
 import org.cotato.csquiz.domain.generation.service.ProjectService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProjectController {
 
     private final ProjectService projectService;
+    private final ProjectImageService projectImageService;
 
     @Operation(summary = "특정 프로젝트 상세 정보 조회 API")
     @GetMapping("/{projectId}")
@@ -41,9 +45,8 @@ public class ProjectController {
     }
 
     @Operation(summary = "프로젝트 등록 API")
-    @PostMapping(consumes = "multipart/form-data")
-    public ResponseEntity<CreateProjectResponse> createProject(@ModelAttribute @Valid CreateProjectRequest request)
-            throws ImageException {
+    @PostMapping
+    public ResponseEntity<CreateProjectResponse> createProject(@RequestBody @Valid CreateProjectRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(projectService.createProject(request));
     }
 }
