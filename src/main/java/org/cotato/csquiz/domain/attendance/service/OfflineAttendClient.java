@@ -1,6 +1,7 @@
 package org.cotato.csquiz.domain.attendance.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.attendance.dto.AttendResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceParams;
 import org.cotato.csquiz.api.attendance.dto.OfflineAttendanceRequest;
@@ -14,6 +15,7 @@ import org.cotato.csquiz.domain.attendance.repository.AttendanceRecordRepository
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class OfflineAttendClient implements AttendClient {
@@ -32,6 +34,7 @@ public class OfflineAttendClient implements AttendClient {
 
         AttendanceResult attendanceResult = AttendanceUtil.calculateAttendanceStatus(attendance, params.requestTime());
 
+        log.info("[출결 위치 로그: 위도 {}, 경도 {}]", request.getLocation().getLatitude(), request.getLocation().getLongitude());
         Double accuracy = attendance.getLocation().calculateAccuracy(request.getLocation());
         validateAccuracy(accuracy);
 
@@ -48,6 +51,7 @@ public class OfflineAttendClient implements AttendClient {
     }
 
     private void validateAccuracy(Double accuracy) {
+        log.info("[위치 정확도] : {}", accuracy);
         if (accuracy >= ACCURACY_STANDARD) {
             throw new AppException(ErrorCode.OFFLINE_ATTEND_FAIL);
         }
