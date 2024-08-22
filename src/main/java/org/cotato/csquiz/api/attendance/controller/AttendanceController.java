@@ -97,7 +97,7 @@ public class AttendanceController {
             }
     )
     @PostMapping(value = "/records/offline")
-    public ResponseEntity<AttendResponse> submitOfflineAttendanceRecord(@RequestBody OfflineAttendanceRequest request,
+    public ResponseEntity<AttendResponse> submitOfflineAttendanceRecord(@RequestBody @Valid OfflineAttendanceRequest request,
                                                                         @AuthenticationPrincipal Long memberId) {
         return ResponseEntity.ok().body(attendanceRecordService.submitRecord(request, memberId));
     }
@@ -118,7 +118,7 @@ public class AttendanceController {
                     )
             })
     @PostMapping(value = "/records/online")
-    public ResponseEntity<AttendResponse> submitOnlineAttendanceRecord(@RequestBody OnlineAttendanceRequest request,
+    public ResponseEntity<AttendResponse> submitOnlineAttendanceRecord(@RequestBody @Valid OnlineAttendanceRequest request,
                                                                        @AuthenticationPrincipal Long memberId) {
         return ResponseEntity.ok().body(attendanceRecordService.submitRecord(request, memberId));
     }
