@@ -13,14 +13,15 @@ import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
 public class OfflineAttendanceRequest implements AttendanceParams {
 
     @Schema(description = "출석 PK")
-    @NotNull
+    @NotNull(message = "출석 PK를 입력해주세요")
     private Long attendanceId;
 
     @Schema(description = "회원 요청 시간")
+    @NotNull(message = "출결 입력 시간을 적어주세요.")
     private LocalDateTime requestTime;
 
     @Schema(description = "사용자 요청 위치")
-    @NotNull
+    @NotNull(message = "위치를 입력해주세요.")
     private Location location;
 
     @Override
