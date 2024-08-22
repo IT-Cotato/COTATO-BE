@@ -7,7 +7,7 @@ public record RecordResponse(
         Long recordId,
         Long ticketNumber,
         Long memberId,
-        String memberName,
+        String name,
         String backFourNumber,
         String reply
 ) {

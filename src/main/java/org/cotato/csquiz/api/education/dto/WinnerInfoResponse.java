@@ -6,10 +6,10 @@ import org.cotato.csquiz.domain.auth.entity.Member;
 
 public record WinnerInfoResponse(
         Long memberId,
-        String memberName,
+        String name,
         Long educationId,
         String backFourNumber,
-        MemberPosition memberPosition
+        MemberPosition position
 ) {
     public static WinnerInfoResponse of(Winner winner, Member member, String backFourNumber) {
         return new WinnerInfoResponse(

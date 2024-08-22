@@ -6,7 +6,7 @@ import org.cotato.csquiz.domain.auth.entity.Member;
 public record ScorerResponse(
         Long scorerId,
         Long memberId,
-        String memberName,
+        String name,
         String backFourNumber
 ) {
     public static ScorerResponse of(Scorer scorer, Member member, String backFourNumber) {
