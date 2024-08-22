@@ -67,6 +67,21 @@ public class SseSender {
         }
     }
 
+    public void sendTestNotification() {
+        Set<DataWithMediaType> data = SseEmitter.event()
+                .name(ATTENDANCE_STATUS)
+                .data(AttendanceStatusInfo.builder()
+                        .attendanceId(1L)
+                        .openStatus(AttendanceOpenStatus.OPEN)
+                        .build())
+                .build();
+
+        List<SseEmitter> all = sseAttendanceRepository.findAll();
+        for (SseEmitter sseEmitter : all) {
+            send(sseEmitter, data);
+        }
+    }
+
     private void send(SseEmitter sseEmitter, Set<DataWithMediaType> data) {
         try {
             sseEmitter.send(data);

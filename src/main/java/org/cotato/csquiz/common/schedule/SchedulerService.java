@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,5 +61,10 @@ public class SchedulerService {
         ZonedDateTime zonedDateTime = notificationTime.atZone(ZoneId.of("Asia/Seoul"));
 
         taskScheduler.schedule(() -> sseSender.sendNotification(notificationTime), zonedDateTime.toInstant());
+    }
+
+    public void scheduleNotification(LocalDateTime testTime) {
+        ZonedDateTime zonedDateTime = testTime.atZone(ZoneId.of("Asia/Seoul"));
+        taskScheduler.schedule(sseSender::sendTestNotification, zonedDateTime.toInstant());
     }
 }
