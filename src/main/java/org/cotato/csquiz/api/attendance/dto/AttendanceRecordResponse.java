@@ -17,7 +17,7 @@ public record AttendanceRecordResponse(
 
     public record AttendanceMemberInfo(
             Long memberId,
-            String memberName,
+            String name,
             MemberPosition position
     ){
         static AttendanceMemberInfo from(Member member) {
