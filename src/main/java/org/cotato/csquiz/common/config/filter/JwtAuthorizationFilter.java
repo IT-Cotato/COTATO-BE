@@ -6,17 +6,16 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import jodd.net.HttpMethod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.common.config.jwt.JwtTokenProvider;
-import org.cotato.csquiz.domain.auth.entity.Member;
-import org.cotato.csquiz.common.error.exception.FilterAuthenticationException;
-import org.cotato.csquiz.domain.auth.repository.MemberRepository;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Slf4j
@@ -33,8 +32,11 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private static final String GENERATION_PATH = "/v1/api/generation";
     private static final String SESSION_PATH = "/v1/api/session";
     private static final String POLICIES_PATH = "/v2/api/policies";
+    private static final String PROJECTS_LIST = "/v2/api/projects";
+    private static final String PROJECT_DETAIL = "/v2/api/projects/{projectId:\\d+}";
 
     private final JwtTokenProvider jwtTokenProvider;
+    private static final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -68,6 +70,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         return path.startsWith(AUTH_PATH) || path.equals(LOGIN_PATH)
                 || path.startsWith(SWAGGER_PATH) || path.equals(SWAGGER_FAVICON)
                 || path.startsWith(SWAGGER_PATH_3) || path.startsWith(WS)
-                || path.equals(GENERATION_PATH) || path.equals(SESSION_PATH) || path.equals(POLICIES_PATH);
+                || path.equals(GENERATION_PATH) || path.equals(SESSION_PATH)
+                || path.equals(POLICIES_PATH)
+                || path.equals(PROJECTS_LIST) && HttpMethod.GET.name().equals(request.getMethod())
+                || pathMatcher.match(PROJECT_DETAIL, path);
     }
 }
