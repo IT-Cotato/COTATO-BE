@@ -1,18 +1,22 @@
 package org.cotato.csquiz.api.attendance.dto;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
+import org.cotato.csquiz.domain.attendance.embedded.Location;
+import org.cotato.csquiz.domain.attendance.entity.Attendance;
 
 public record AttendanceTimeResponse(
         Long sessionId,
         LocalTime attendanceDeadLine,
-        LocalTime lateDeadLine
+        LocalTime lateDeadLine,
+        Location location
 ) {
-    public static AttendanceTimeResponse of(Long sessionId, LocalDateTime attendanceDeadLine, LocalDateTime lateDeadLine) {
+
+    public static AttendanceTimeResponse from(Attendance attendance) {
         return new AttendanceTimeResponse(
-                sessionId,
-                attendanceDeadLine.toLocalTime(),
-                lateDeadLine.toLocalTime()
+                attendance.getSessionId(),
+                attendance.getAttendanceDeadLine().toLocalTime(),
+                attendance.getLateDeadLine().toLocalTime(),
+                attendance.getLocation()
         );
     }
 }
