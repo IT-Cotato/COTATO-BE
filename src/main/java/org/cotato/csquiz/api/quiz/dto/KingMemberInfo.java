@@ -4,7 +4,7 @@ import org.cotato.csquiz.domain.auth.entity.Member;
 
 public record KingMemberInfo(
         Long memberId,
-        String memberName,
+        String name,
         String backFourNumber
 ) {
     public static KingMemberInfo from(Member member, String backFourNumber) {
