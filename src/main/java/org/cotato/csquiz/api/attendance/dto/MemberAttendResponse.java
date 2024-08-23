@@ -51,7 +51,7 @@ public record MemberAttendResponse(
                 memberId,
                 session.getTitle(),
                 session.getSessionDate(),
-                AttendanceUtil.getAttendanceOpenStatus(attendance, LocalDateTime.now()),
+                AttendanceOpenStatus.OPEN,
                 null,
                 null
         );
