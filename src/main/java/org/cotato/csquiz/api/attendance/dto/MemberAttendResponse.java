@@ -2,11 +2,13 @@ package org.cotato.csquiz.api.attendance.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.entity.AttendanceRecord;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceOpenStatus;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
+import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
 import org.cotato.csquiz.domain.generation.entity.Session;
 
 public record MemberAttendResponse(
@@ -49,7 +51,7 @@ public record MemberAttendResponse(
                 memberId,
                 session.getTitle(),
                 session.getSessionDate(),
-                AttendanceOpenStatus.OPEN,
+                AttendanceUtil.getAttendanceOpenStatus(attendance, LocalDateTime.now()),
                 null,
                 null
         );
