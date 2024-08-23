@@ -1,5 +1,6 @@
 package org.cotato.csquiz.api.admin.dto;
 
+import org.cotato.csquiz.domain.auth.enums.MemberPosition;
 import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.cotato.csquiz.domain.auth.entity.Member;
 
@@ -7,14 +8,16 @@ public record MemberInfoResponse(
         Long memberId,
         String name,
         String backFourNumber,
-        MemberRole role
+        MemberRole role,
+        MemberPosition position
 ) {
     public static MemberInfoResponse from(Member member, String backFourNumber) {
         return new MemberInfoResponse(
                 member.getId(),
                 member.getName(),
                 backFourNumber,
-                member.getRole()
+                member.getRole(),
+                member.getPosition()
         );
     }
 }
