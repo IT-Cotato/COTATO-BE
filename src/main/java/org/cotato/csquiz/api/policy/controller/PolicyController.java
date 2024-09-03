@@ -39,7 +39,7 @@ public class PolicyController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "회원 가입 시 정책 목록 반환 API")
+    @Operation(summary = "회원 가입 시 보여줘야 할 정책 목록 반환 API")
     @GetMapping
     public ResponseEntity<PoliciesResponse> getPolicies() {
         return ResponseEntity.ok().body(policyService.findPolicies());
