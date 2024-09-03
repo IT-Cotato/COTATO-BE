@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "회원 정책 API")
@@ -33,12 +32,13 @@ public class PolicyController {
 
     @Operation(summary = "특정 정책에 대해 동의 여부 체크 API")
     @PostMapping("/check")
-    public ResponseEntity<Void> checkPolicies(@RequestBody @Valid CheckMemberPoliciesRequest request){
-        policyService.checkPolicies(request);
+    public ResponseEntity<Void> checkPolicies(@RequestBody @Valid CheckMemberPoliciesRequest request,
+                                              @AuthenticationPrincipal Long memberId) {
+        policyService.checkPolicies(memberId, request.policies());
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "회원 가입 시 정책 목록 반환 API")
+    @Operation(summary = "회원 가입 시 보여줘야 할 정책 목록 반환 API")
     @GetMapping
     public ResponseEntity<PoliciesResponse> getPolicies() {
         return ResponseEntity.ok().body(policyService.findPolicies());

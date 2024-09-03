@@ -55,7 +55,7 @@ public class AttendanceController {
     @Operation(summary = "세션 시간 반환 API")
     @GetMapping("/info")
     public ResponseEntity<AttendanceTimeResponse> findAttendanceTimeInfo(@RequestParam("sessionId") Long sessionId) {
-        return ResponseEntity.status(HttpStatus.OK).body(attendanceService.findAttendanceTimeInfo(sessionId));
+        return ResponseEntity.status(HttpStatus.OK).body(attendanceService.getAttendanceDetailInfo(sessionId));
     }
 
     @Operation(summary = "회원 출결사항 기간 단위 조회 API")
