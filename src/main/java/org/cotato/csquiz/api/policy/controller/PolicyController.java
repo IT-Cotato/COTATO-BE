@@ -33,8 +33,9 @@ public class PolicyController {
 
     @Operation(summary = "특정 정책에 대해 동의 여부 체크 API")
     @PostMapping("/check")
-    public ResponseEntity<Void> checkPolicies(@RequestBody @Valid CheckMemberPoliciesRequest request){
-        policyService.checkPolicies(request);
+    public ResponseEntity<Void> checkPolicies(@RequestBody @Valid CheckMemberPoliciesRequest request,
+                                              @AuthenticationPrincipal Long memberId) {
+        policyService.checkPolicies(memberId, request.policies());
         return ResponseEntity.noContent().build();
     }
 

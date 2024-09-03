@@ -52,10 +52,10 @@ public class PolicyService {
     }
 
     @Transactional
-    public void checkPolicies(CheckMemberPoliciesRequest request) {
-        Member findMember = memberService.findById(request.memberId());
+    public void checkPolicies(Long memberId, List<CheckPolicyRequest> policies) {
+        Member findMember = memberService.findById(memberId);
 
-        List<Long> policyIds = request.policies().stream()
+        List<Long> policyIds = policies.stream()
                 .map(CheckPolicyRequest::policyId)
                 .toList();
 
@@ -66,7 +66,7 @@ public class PolicyService {
         Map<Long, Policy> policyMap = policyRepository.findAllByIdIn(policyIds).stream()
                 .collect(Collectors.toMap(Policy::getId, Function.identity()));
 
-        List<MemberPolicy> memberPolicies = request.policies().stream()
+        List<MemberPolicy> memberPolicies = policies.stream()
                 .map(policyRequest -> MemberPolicy.of(policyRequest.isChecked(), findMember,
                         policyMap.get(policyRequest.policyId())))
                 .toList();
