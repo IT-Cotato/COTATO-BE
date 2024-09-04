@@ -12,7 +12,6 @@ import org.cotato.csquiz.api.auth.dto.LogoutRequest;
 import org.cotato.csquiz.api.auth.dto.ReissueResponse;
 import org.cotato.csquiz.api.auth.dto.SendEmailRequest;
 import org.cotato.csquiz.api.member.dto.MemberEmailResponse;
-import org.cotato.csquiz.api.member.dto.MemberInfo;
 import org.cotato.csquiz.common.config.jwt.BlackListRepository;
 import org.cotato.csquiz.common.config.jwt.JwtTokenProvider;
 import org.cotato.csquiz.common.config.jwt.RefreshToken;
@@ -20,9 +19,9 @@ import org.cotato.csquiz.common.config.jwt.RefreshTokenRepository;
 import org.cotato.csquiz.common.config.jwt.Token;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
-import org.cotato.csquiz.domain.auth.enums.EmailType;
 import org.cotato.csquiz.domain.auth.constant.EmailConstants;
 import org.cotato.csquiz.domain.auth.entity.Member;
+import org.cotato.csquiz.domain.auth.enums.EmailType;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -39,6 +38,7 @@ public class AuthService {
     private static final int EXPOSED_LENGTH = 4;
     private static final String REFRESH_TOKEN = "refreshToken";
 
+    private final PolicyService policyService;
     private final MemberRepository memberRepository;
     private final ValidateService validateService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -68,6 +68,8 @@ public class AuthService {
                 .phoneNumber(encryptedPhoneNumber)
                 .build();
         memberRepository.save(newMember);
+
+        policyService.checkPolicies(newMember.getId(), request.policies());
 
         return JoinResponse.from(newMember);
     }
