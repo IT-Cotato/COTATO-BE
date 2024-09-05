@@ -36,13 +36,17 @@ public class S3Uploader {
         log.info("{} 사진 업로드", multipartFile.getOriginalFilename());
         File localUploadFile = convert(multipartFile);
 
-        String fileName = folderName + "/" + localUploadFile.getName();
-        String uploadUrl = putS3(localUploadFile, fileName);
-        localUploadFile.delete();
+        return uploadFiles(localUploadFile, folderName);
+    }
+
+    public S3Info uploadFiles(File file, String folderName) {
+        String fileName = folderName + "/" + file.getName();
+        String uploadUrl = putS3(file, fileName);
+        file.delete();
 
         return S3Info.builder()
                 .folderName(folderName)
-                .fileName(localUploadFile.getName())
+                .fileName(file.getName())
                 .url(uploadUrl)
                 .build();
     }
@@ -75,7 +79,7 @@ public class S3Uploader {
         return isImageFileExtension(extension);
     }
 
-    private File convert(MultipartFile file) throws ImageException {
+    public File convert(MultipartFile file) throws ImageException {
         String fileExtension = extractFileExtension(file);
         File convertFile = new File(System.getProperty("user.dir") + "/" + UUID.randomUUID() + "." + fileExtension);
 
