@@ -51,49 +51,53 @@ public class PolicyService {
         return FindMemberPolicyResponse.of(memberId, uncheckedEssentialPolicies, uncheckedOptionalPolicies);
     }
 
-    /**
-     * 이용약관 동의 체크: 부원은 이용약관에 동의 또는 거절을 할 수 있다. 1. 체크하려는 정책이 존재하는지 확인할 것 2. 이미 해당 정책에 체크했는지 확인할 것 3. 필수 동의 정책에 동의하지 않았는지
-     * 확인할 것 4. 검증 시 문제가 없으면 정책 동의 처리
-     */
     @Transactional
-    public void checkPolicies(Long memberId, List<CheckPolicyRequest> policies) {
+    public void checkPolicies(Long memberId, List<CheckPolicyRequest> checkedPolicies) {
         Member findMember = memberService.findById(memberId);
 
-        List<Long> policyIds = policies.stream()
+        List<Long> policyIds = checkedPolicies.stream()
                 .map(CheckPolicyRequest::policyId)
                 .toList();
 
+        List<Policy> policies = policyRepository.findAllByIdIn(policyIds);
+
+        if (policies.size() != policyIds.size()) {
+            throw new EntityNotFoundException("해당 정책을 찾을 수 없습니다.");
+        }
+        // 해당 정책에 이미 체크했는지 확인
         if (isAlreadyChecked(findMember, policyIds)) {
             throw new AppException(ErrorCode.ALREADY_POLICY_CHECK);
         }
+        // 필수 정책에 체크하지 않았는지 확인
+        validateCheckEssentialPolicies(getEssentialPolicies(policies), policyIds);
 
-        Map<Long, Policy> policyMap = policyRepository.findAllByIdIn(policyIds).stream()
-                .collect(Collectors.toMap(Policy::getId, Function.identity()));
-
-        List<MemberPolicy> memberPolicies = policies.stream()
-                .map(policyRequest -> MemberPolicy.of(policyRequest.isChecked(), findMember,
-                        policyMap.get(policyRequest.policyId())))
+        List<MemberPolicy> memberPolicies = checkedPolicies.stream()
+                .map(policyRequest -> MemberPolicy.of(policyRequest.isChecked(), findMember, policyRequest.policyId()))
                 .toList();
 
-        if (hasDisagreementInEssential(memberPolicies)) {
+        memberPolicyRepository.saveAll(memberPolicies);
+    }
+
+    private void validateCheckEssentialPolicies(List<Policy> essentialPolicies, List<Long> checkedPolicyIds) {
+        Set<Long> essentialIds = essentialPolicies.stream()
+                .map(Policy::getId)
+                .collect(Collectors.toUnmodifiableSet());
+
+        if (checkedPolicyIds.stream().anyMatch(id -> !essentialIds.contains(id))) {
             throw new AppException(ErrorCode.SHOULD_AGREE_POLICY);
         }
+    }
 
-        memberPolicyRepository.saveAll(memberPolicies);
+    private List<Policy> getEssentialPolicies(List<Policy> policies) {
+        return policies.stream()
+                .filter(policy -> policy.getPolicyType() == PolicyType.ESSENTIAL)
+                .toList();
     }
 
     private boolean isAlreadyChecked(Member findMember, List<Long> policyIds) {
         return memberPolicyRepository.findAllByMemberId(findMember.getId()).stream()
                 .map(MemberPolicy::getPolicyId)
                 .anyMatch(policyIds::contains);
-    }
-
-    private boolean hasDisagreementInEssential(List<MemberPolicy> checkedPolicies) {
-        return checkedPolicies.stream()
-                .filter(checkedPolicy -> checkedPolicy.getIsChecked().equals(false))
-                .map(MemberPolicy::getPolicy)
-                .map(Policy::getPolicyType)
-                .anyMatch(PolicyType.ESSENTIAL::equals);
     }
 
     public PoliciesResponse findPolicies() {
