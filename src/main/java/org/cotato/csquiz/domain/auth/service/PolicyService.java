@@ -1,11 +1,10 @@
 package org.cotato.csquiz.domain.auth.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.cotato.csquiz.api.policy.dto.CheckMemberPoliciesRequest;
 import org.cotato.csquiz.api.policy.dto.CheckPolicyRequest;
 import org.cotato.csquiz.api.policy.dto.FindMemberPolicyResponse;
 import org.cotato.csquiz.api.policy.dto.PoliciesResponse;
@@ -34,7 +33,7 @@ public class PolicyService {
         // 회원이 체크한 정책
         List<Long> checkedPolicies = memberPolicyRepository.findAllByMemberId(memberId).stream()
                 .filter(MemberPolicy::getIsChecked)
-                .map(MemberPolicy::getId)
+                .map(MemberPolicy::getPolicyId)
                 .toList();
 
         List<PolicyInfoResponse> uncheckedEssentialPolicies = policyRepository.findAllByPolicyType(PolicyType.ESSENTIAL)
@@ -43,7 +42,8 @@ public class PolicyService {
                 .map(PolicyInfoResponse::from)
                 .toList();
 
-        List<PolicyInfoResponse> uncheckedOptionalPolicies = policyRepository.findAllByPolicyType(PolicyType.OPTIONAL).stream()
+        List<PolicyInfoResponse> uncheckedOptionalPolicies = policyRepository.findAllByPolicyType(PolicyType.OPTIONAL)
+                .stream()
                 .filter(policy -> !checkedPolicies.contains(policy.getId()))
                 .map(PolicyInfoResponse::from)
                 .toList();
@@ -52,45 +52,52 @@ public class PolicyService {
     }
 
     @Transactional
-    public void checkPolicies(Long memberId, List<CheckPolicyRequest> policies) {
+    public void checkPolicies(Long memberId, List<CheckPolicyRequest> checkedPolicies) {
         Member findMember = memberService.findById(memberId);
 
-        List<Long> policyIds = policies.stream()
+        List<Long> policyIds = checkedPolicies.stream()
                 .map(CheckPolicyRequest::policyId)
                 .toList();
 
+        List<Policy> policies = policyRepository.findAllByIdIn(policyIds);
+
+        if (policies.size() != policyIds.size()) {
+            throw new EntityNotFoundException("해당 정책을 찾을 수 없습니다.");
+        }
+        // 해당 정책에 이미 체크했는지 확인
         if (isAlreadyChecked(findMember, policyIds)) {
             throw new AppException(ErrorCode.ALREADY_POLICY_CHECK);
         }
+        // 필수 정책에 체크하지 않았는지 확인
+        validateCheckEssentialPolicies(getEssentialPolicies(policies), policyIds);
 
-        Map<Long, Policy> policyMap = policyRepository.findAllByIdIn(policyIds).stream()
-                .collect(Collectors.toMap(Policy::getId, Function.identity()));
-
-        List<MemberPolicy> memberPolicies = policies.stream()
-                .map(policyRequest -> MemberPolicy.of(policyRequest.isChecked(), findMember,
-                        policyMap.get(policyRequest.policyId())))
+        List<MemberPolicy> memberPolicies = checkedPolicies.stream()
+                .map(policyRequest -> MemberPolicy.of(policyRequest.isChecked(), findMember, policyRequest.policyId()))
                 .toList();
-
-        if (hasDisagreementInEssential(memberPolicies)) {
-            throw new AppException(ErrorCode.SHOULD_AGREE_POLICY);
-        }
 
         memberPolicyRepository.saveAll(memberPolicies);
     }
 
-    private boolean isAlreadyChecked(Member findMember, List<Long> policyIds) {
-        return memberPolicyRepository.findAllByMemberId(findMember.getId()).stream()
-                .map(MemberPolicy::getPolicy)
+    private void validateCheckEssentialPolicies(List<Policy> essentialPolicies, List<Long> checkedPolicyIds) {
+        Set<Long> essentialIds = essentialPolicies.stream()
                 .map(Policy::getId)
-                .anyMatch(policyIds::contains);
+                .collect(Collectors.toUnmodifiableSet());
+
+        if (checkedPolicyIds.stream().anyMatch(id -> !essentialIds.contains(id))) {
+            throw new AppException(ErrorCode.SHOULD_AGREE_POLICY);
+        }
     }
 
-    private boolean hasDisagreementInEssential(List<MemberPolicy> checkedPolicies) {
-        return checkedPolicies.stream()
-                .filter(checkedPolicy -> checkedPolicy.getIsChecked().equals(false))
-                .map(MemberPolicy::getPolicy)
-                .map(Policy::getPolicyType)
-                .anyMatch(PolicyType.ESSENTIAL::equals);
+    private List<Policy> getEssentialPolicies(List<Policy> policies) {
+        return policies.stream()
+                .filter(policy -> policy.getPolicyType() == PolicyType.ESSENTIAL)
+                .toList();
+    }
+
+    private boolean isAlreadyChecked(Member findMember, List<Long> policyIds) {
+        return memberPolicyRepository.findAllByMemberId(findMember.getId()).stream()
+                .map(MemberPolicy::getPolicyId)
+                .anyMatch(policyIds::contains);
     }
 
     public PoliciesResponse findPolicies() {

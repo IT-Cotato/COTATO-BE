@@ -34,18 +34,17 @@ public class MemberPolicy extends BaseTimeEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "policy_id")
-    private Policy policy;
+    @Column(name = "policy_id", nullable = false)
+    private Long policyId;
 
-    private MemberPolicy(Boolean isChecked, Member member, Policy policy) {
+    private MemberPolicy(Boolean isChecked, Member member, Long policyId) {
         this.isChecked = isChecked;
         this.member = member;
-        this.policy = policy;
+        this.policyId = policyId;
         this.checkTime = LocalDateTime.now();
     }
 
-    public static MemberPolicy of(Boolean isChecked, Member member, Policy policy){
-        return new MemberPolicy(isChecked, member, policy);
+    public static MemberPolicy of(Boolean isChecked, Member member, Long policyId) {
+        return new MemberPolicy(isChecked, member, policyId);
     }
 }
