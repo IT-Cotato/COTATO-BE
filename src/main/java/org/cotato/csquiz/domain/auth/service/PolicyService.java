@@ -1,11 +1,10 @@
 package org.cotato.csquiz.domain.auth.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.cotato.csquiz.api.policy.dto.CheckMemberPoliciesRequest;
 import org.cotato.csquiz.api.policy.dto.CheckPolicyRequest;
 import org.cotato.csquiz.api.policy.dto.FindMemberPolicyResponse;
 import org.cotato.csquiz.api.policy.dto.PoliciesResponse;
@@ -34,7 +33,7 @@ public class PolicyService {
         // 회원이 체크한 정책
         List<Long> checkedPolicies = memberPolicyRepository.findAllByMemberId(memberId).stream()
                 .filter(MemberPolicy::getIsChecked)
-                .map(MemberPolicy::getId)
+                .map(MemberPolicy::getPolicyId)
                 .toList();
 
         List<PolicyInfoResponse> uncheckedEssentialPolicies = policyRepository.findAllByPolicyType(PolicyType.ESSENTIAL)
@@ -43,7 +42,8 @@ public class PolicyService {
                 .map(PolicyInfoResponse::from)
                 .toList();
 
-        List<PolicyInfoResponse> uncheckedOptionalPolicies = policyRepository.findAllByPolicyType(PolicyType.OPTIONAL).stream()
+        List<PolicyInfoResponse> uncheckedOptionalPolicies = policyRepository.findAllByPolicyType(PolicyType.OPTIONAL)
+                .stream()
                 .filter(policy -> !checkedPolicies.contains(policy.getId()))
                 .map(PolicyInfoResponse::from)
                 .toList();
@@ -51,6 +51,10 @@ public class PolicyService {
         return FindMemberPolicyResponse.of(memberId, uncheckedEssentialPolicies, uncheckedOptionalPolicies);
     }
 
+    /**
+     * 이용약관 동의 체크: 부원은 이용약관에 동의 또는 거절을 할 수 있다. 1. 체크하려는 정책이 존재하는지 확인할 것 2. 이미 해당 정책에 체크했는지 확인할 것 3. 필수 동의 정책에 동의하지 않았는지
+     * 확인할 것 4. 검증 시 문제가 없으면 정책 동의 처리
+     */
     @Transactional
     public void checkPolicies(Long memberId, List<CheckPolicyRequest> policies) {
         Member findMember = memberService.findById(memberId);
@@ -80,8 +84,7 @@ public class PolicyService {
 
     private boolean isAlreadyChecked(Member findMember, List<Long> policyIds) {
         return memberPolicyRepository.findAllByMemberId(findMember.getId()).stream()
-                .map(MemberPolicy::getPolicy)
-                .map(Policy::getId)
+                .map(MemberPolicy::getPolicyId)
                 .anyMatch(policyIds::contains);
     }
 
