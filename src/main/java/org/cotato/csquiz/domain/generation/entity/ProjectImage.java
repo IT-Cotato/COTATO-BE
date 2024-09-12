@@ -35,18 +35,23 @@ public class ProjectImage {
     @Column(name = "project_id", nullable = false)
     private Long projectId;
 
+    @Column(name = "project_image_order")
+    private Integer imageOrder;
+
     @Builder
-    public ProjectImage(ProjectImageType projectImageType, S3Info s3Info, Long projectId) {
+    public ProjectImage(ProjectImageType projectImageType, S3Info s3Info, Long projectId, Integer imageOrder) {
         this.projectImageType = projectImageType;
         this.s3Info = s3Info;
         this.projectId = projectId;
+        this.imageOrder = imageOrder;
     }
 
     public static ProjectImage logoImage(S3Info imageInfo, Long projectId) {
         return new ProjectImage(
                 ProjectImageType.LOGO,
                 imageInfo,
-                projectId
+                projectId,
+                null
         );
     }
 
@@ -54,7 +59,17 @@ public class ProjectImage {
         return new ProjectImage(
                 ProjectImageType.THUMBNAIL,
                 thumbNailInfo,
-                projectId
+                projectId,
+                null
+        );
+    }
+
+    public static ProjectImage detailImage(S3Info detailImageInfo, Long projectId, Integer order) {
+        return new ProjectImage(
+                ProjectImageType.DETAIL,
+                detailImageInfo,
+                projectId,
+                order
         );
     }
 }

@@ -27,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ProjectService {
 
-    private final ProjectImageService projectImageService;
     private final ProjectMemberService projectMemberService;
     private final ProjectRepository projectRepository;
     private final ProjectImageRepository projectImageRepository;
@@ -40,7 +39,7 @@ public class ProjectService {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("찾으려는 프로젝트가 존재하지 않습니다."));
 
-        List<ProjectImage> images = projectImageRepository.findAllByProjectId(projectId);
+        List<ProjectImage> images = projectImageRepository.findByProjectIdOrderByImageOrderAsc(projectId);
         List<ProjectMember> members = projectMemberRepository.findAllByProjectId(projectId);
         Generation generation = generationRepository.findById(project.getGenerationId())
                 .orElseThrow(() -> new EntityNotFoundException("해당 기수를 찾을 수 없습니다."));

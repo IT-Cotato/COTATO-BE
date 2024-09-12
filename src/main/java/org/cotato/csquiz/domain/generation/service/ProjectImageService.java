@@ -24,7 +24,7 @@ public class ProjectImageService {
     private final ProjectImageRepository projectImageRepository;
 
     @Transactional
-    public void createProjectImage(Long projectId, MultipartFile logoImage, MultipartFile thumbNailImage)
+    public void createProjectImage(Long projectId, MultipartFile logoImage, MultipartFile thumbNailImage, List<MultipartFile> detailImages)
             throws ImageException {
         List<ProjectImage> newImages = new ArrayList<>();
 
@@ -35,6 +35,16 @@ public class ProjectImageService {
         File webpThumbNailImage = convertToWebp(convert(thumbNailImage));
         S3Info thumbNailInfo = s3Uploader.uploadFiles(webpThumbNailImage, PROJECT_IMAGE);
         newImages.add(ProjectImage.thumbNailImage(thumbNailInfo, projectId));
+
+        if (detailImages != null && !detailImages.isEmpty()) {
+            int order = 1;
+            for (MultipartFile detailImage : detailImages) {
+                File webpDetailImage = convertToWebp(convert(detailImage));
+                S3Info detailImageInfo = s3Uploader.uploadFiles(webpDetailImage, PROJECT_IMAGE);
+                newImages.add(ProjectImage.detailImage(detailImageInfo, projectId, order));
+                order++;
+            }
+        }
 
         projectImageRepository.saveAll(newImages);
     }
