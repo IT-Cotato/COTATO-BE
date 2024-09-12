@@ -1,8 +1,8 @@
 package org.cotato.csquiz.domain.generation.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -64,7 +64,7 @@ public class SessionService {
                 .generation(findGeneration)
                 .title(request.title())
                 .placeName(request.placeName())
-                .sessionDate(request.sessionDate())
+                .sessionDateTime(request.sessionDateTime())
                 .sessionContents(SessionContents.builder()
                         .csEducation(request.csEducation())
                         .devTalk(request.devTalk())
