@@ -29,7 +29,7 @@ class AttendanceUtilTest {
                 .build();
 
         //when
-        AttendanceOpenStatus attendanceStatus = AttendanceUtil.getAttendanceOpenStatus(attendance,
+        AttendanceOpenStatus attendanceStatus = AttendanceUtil.getAttendanceOpenStatus(LocalDateTime.now(), attendance,
                 LocalDateTime.now().plusDays(1));
 
         //then
@@ -51,7 +51,7 @@ class AttendanceUtilTest {
         LocalDateTime beforeTime = LocalDateTime.of(LocalDate.of(2024, Month.AUGUST, 9),DeadLine.ATTENDANCE_START_TIME.getTime().minusMinutes(10));
 
         //when
-        AttendanceOpenStatus attendanceStatus = AttendanceUtil.getAttendanceOpenStatus(attendance, beforeTime);
+        AttendanceOpenStatus attendanceStatus = AttendanceUtil.getAttendanceOpenStatus(LocalDateTime.of(2024, Month.AUGUST, 9, 19, 0, 0), attendance, beforeTime);
 
         //then
         assertEquals(attendanceStatus, AttendanceOpenStatus.BEFORE);
