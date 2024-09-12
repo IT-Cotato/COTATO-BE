@@ -55,7 +55,7 @@ public class SseSender {
                 .build());
     }
 
-    // sessionDate 6시 50분에 출결을 구독 중인 부원들에게 출결 입력 시작 알림을 전송한다.
+    // sessionDateTime 7시에 출결을 구독 중인 부원들에게 출결 입력 시작 알림을 전송한다.
     public void sendNotification(LocalDateTime notificationDate) {
         Attendance attendance = attendanceRepository.findByAttendanceDeadLineDate(notificationDate)
                 .orElseThrow(() -> new EntityNotFoundException("해당 날짜에 진행하는 출석이 없습니다."));
