@@ -77,7 +77,7 @@ public class AttendanceAdminService {
         List<Session> sessions = sessionRepository.findAllByGenerationId(generationId);
         if (month != null) {
             sessions = sessions.stream()
-                    .filter(session -> session.getSessionDate().getMonthValue() == month)
+                    .filter(session -> session.getSessionDateTime().getMonthValue() == month)
                     .toList();
         }
         List<Long> sessionIds = sessions.stream()
