@@ -11,7 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -56,26 +56,22 @@ public class Session extends BaseTimeEntity {
     })
     private SessionContents sessionContents;
 
-    @Column(name = "session_date")
-    private LocalDate sessionDate;
+    @Column(name = "session_start_time")
+    private LocalDateTime sessionDateTime;
 
     @Column(name = "session_place_name")
     private String placeName;
 
     @Builder
-    public Session(Integer number, String title, String description, String placeName, LocalDate sessionDate,
+    public Session(Integer number, String title, String description, String placeName, LocalDateTime sessionDateTime,
                    Generation generation, SessionContents sessionContents) {
         this.number = number;
         this.title = title;
         this.description = description;
         this.placeName = placeName;
-        this.sessionDate = sessionDate;
+        this.sessionDateTime = sessionDateTime;
         this.generation = generation;
         this.sessionContents = sessionContents;
-    }
-
-    public void changeSessionNumber(Integer sessionNumber) {
-        this.number = sessionNumber;
     }
 
     public void updateDescription(String description) {
@@ -90,8 +86,8 @@ public class Session extends BaseTimeEntity {
         this.title = title;
     }
 
-    public void updateSessionDate(LocalDate sessionDate) {
-        this.sessionDate = sessionDate;
+    public void updateSessionDateTime(LocalDateTime sessionDateTime) {
+        this.sessionDateTime = sessionDateTime;
     }
 
     public void updateSessionPlace(String placeName) {

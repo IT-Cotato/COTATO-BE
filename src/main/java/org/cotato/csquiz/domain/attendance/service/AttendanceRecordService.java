@@ -66,9 +66,13 @@ public class AttendanceRecordService {
         Attendance attendance = attendanceRepository.findById(request.attendanceId())
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석이 존재하지 않습니다."));
 
-        // 해당 출석이 열려있는지 확인, 닫혀있으면 제외
-        if (getAttendanceOpenStatus(attendance, request.requestTime()) == AttendanceOpenStatus.CLOSED) {
-            throw new AppException(ErrorCode.ATTENDANCE_CLOSED);
+        Session session = sessionRepository.findById(attendance.getSessionId())
+                .orElseThrow(() -> new EntityNotFoundException("해당 출석에 대한 세션이 존재하지 않습니다."));
+
+        // 해당 출석에 출결 입력이 가능한지 확인하는 과정
+        if (getAttendanceOpenStatus(session.getSessionDateTime(), attendance, request.requestTime())
+                == AttendanceOpenStatus.CLOSED) {
+            throw new AppException(ErrorCode.ATTENDANCE_NOT_OPEN);
         }
 
         // 기존 출결 데이터가 존재하는지 확인
@@ -77,7 +81,7 @@ public class AttendanceRecordService {
             throw new AppException(ErrorCode.ALREADY_ATTEND);
         }
 
-        return requestAttendanceService.attend(request, memberId, attendance);
+        return requestAttendanceService.attend(request, session.getSessionDateTime(), memberId, attendance);
     }
 
     public MemberAttendanceRecordsResponse findAllRecordsBy(final Long generationId, final Long memberId) {
@@ -95,14 +99,17 @@ public class AttendanceRecordService {
         Map<Boolean, List<Attendance>> isClosedAttendance = attendanceRepository.findAllBySessionIdsInQuery(sessionIds)
                 .stream()
                 .collect(Collectors.partitioningBy(attendance ->
-                        getAttendanceOpenStatus(attendance, currentTime) == AttendanceOpenStatus.CLOSED));
+                        getAttendanceOpenStatus(sessionMap.get(attendance.getSessionId()).getSessionDateTime(),
+                                attendance, currentTime) == AttendanceOpenStatus.CLOSED));
 
         List<Long> closedAttendanceIds = isClosedAttendance.get(true).stream()
                 .map(Attendance::getId)
                 .toList();
 
-        List<MemberAttendResponse> responses = attendanceRecordRepository.findAllByAttendanceIdsInQueryAndMemberId(closedAttendanceIds, memberId).stream()
-                .map(ar -> MemberAttendResponse.closedAttendanceResponse(sessionMap.get(ar.getAttendance().getSessionId()), ar))
+        List<MemberAttendResponse> responses = attendanceRecordRepository.findAllByAttendanceIdsInQueryAndMemberId(
+                        closedAttendanceIds, memberId).stream()
+                .map(ar -> MemberAttendResponse.closedAttendanceResponse(
+                        sessionMap.get(ar.getAttendance().getSessionId()), ar))
                 .collect(Collectors.toList());
 
         responses.addAll(isClosedAttendance.get(false).stream()
@@ -112,14 +119,15 @@ public class AttendanceRecordService {
 
         return MemberAttendanceRecordsResponse.of(generationId, responses);
     }
-    
+
     @Transactional
-    public void updateAttendanceStatus(Attendance attendance) {
+    public void updateAttendanceStatus(LocalDateTime sessionStartTime, Attendance attendance) {
         List<AttendanceRecord> attendanceRecords = attendanceRecordRepository.findAllByAttendanceId(attendance.getId());
 
         for (AttendanceRecord attendanceRecord : attendanceRecords) {
-            AttendanceResult attendanceResult = AttendanceUtil.calculateAttendanceStatus(attendance, attendanceRecord.getAttendTime());
-            attendanceRecord.updateAttendanceStatus(attendanceResult);
+            AttendanceResult attendanceResult = AttendanceUtil.calculateAttendanceStatus(sessionStartTime, attendance,
+                    attendanceRecord.getAttendTime());
+            attendanceRecord.updateAttendanceResult(attendanceResult);
         }
 
         attendanceRecordRepository.saveAll(attendanceRecords);

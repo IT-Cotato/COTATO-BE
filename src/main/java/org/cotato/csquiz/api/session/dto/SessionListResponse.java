@@ -1,6 +1,6 @@
 package org.cotato.csquiz.api.session.dto;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.cotato.csquiz.domain.generation.embedded.SessionContents;
 import org.cotato.csquiz.domain.generation.entity.Session;
@@ -14,7 +14,7 @@ public record SessionListResponse(
         String description,
         Long generationId,
         String placeName,
-        LocalDate sessionDate,
+        LocalDateTime sessionDateTime,
         SessionContents sessionContents
 ) {
     public static SessionListResponse of(Session session, List<SessionImage> sessionImages) {
@@ -28,7 +28,7 @@ public record SessionListResponse(
                 session.getDescription(),
                 session.getGeneration().getId(),
                 session.getPlaceName(),
-                session.getSessionDate(),
+                session.getSessionDateTime(),
                 session.getSessionContents()
         );
     }

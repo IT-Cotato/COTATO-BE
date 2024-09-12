@@ -20,6 +20,10 @@ public class Location {
         this.longitude = longitude;
     }
 
+    public static Location location(Double latitude, Double longitude){
+        return new Location(latitude, longitude);
+    }
+
     public Double calculateAccuracy(Location location) {
         return Math.pow(this.latitude - location.latitude, 2) + Math.pow(this.longitude - location.longitude, 2);
     }

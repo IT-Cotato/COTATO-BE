@@ -1,7 +1,7 @@
 package org.cotato.csquiz.domain.attendance.util;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -11,7 +11,6 @@ import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceOpenStatus;
-import org.cotato.csquiz.domain.attendance.enums.DeadLine;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,7 +28,7 @@ class AttendanceUtilTest {
                 .build();
 
         //when
-        AttendanceOpenStatus attendanceStatus = AttendanceUtil.getAttendanceOpenStatus(attendance,
+        AttendanceOpenStatus attendanceStatus = AttendanceUtil.getAttendanceOpenStatus(LocalDateTime.now(), attendance,
                 LocalDateTime.now().plusDays(1));
 
         //then
@@ -40,18 +39,19 @@ class AttendanceUtilTest {
     void 기준시간_전이면_출석이_닫혀있다() {
         //given
         LocalDateTime attendanceDeadLine = LocalDateTime.of(2024, Month.AUGUST, 9, 19, 10, 0);
-
+        Session session = Session.builder()
+                .sessionDateTime(attendanceDeadLine.minusMinutes(10))
+                .build();
         Attendance attendance = Attendance.builder()
                 .attendanceDeadLine(attendanceDeadLine)
                 .lateDeadLine(attendanceDeadLine.plusMinutes(10))
-                .session(Session.builder()
-                        .build())
+                .session(session)
                 .build();
 
-        LocalDateTime beforeTime = LocalDateTime.of(LocalDate.of(2024, Month.AUGUST, 9),DeadLine.ATTENDANCE_START_TIME.getTime().minusMinutes(10));
+        LocalDateTime beforeTime = session.getSessionDateTime().minusMinutes(10);
 
         //when
-        AttendanceOpenStatus attendanceStatus = AttendanceUtil.getAttendanceOpenStatus(attendance, beforeTime);
+        AttendanceOpenStatus attendanceStatus = AttendanceUtil.getAttendanceOpenStatus(LocalDateTime.of(2024, Month.AUGUST, 9, 19, 0, 0), attendance, beforeTime);
 
         //then
         assertEquals(attendanceStatus, AttendanceOpenStatus.BEFORE);
@@ -60,11 +60,12 @@ class AttendanceUtilTest {
     @Test
     void 지각마감이_세션시작보다_빠를_수_없다() {
         //given
-        LocalTime attendDeadline = LocalTime.of(18, 40, 0);
+        LocalDateTime sessionStartTime = LocalDateTime.of(LocalDate.now(), LocalTime.of(15, 0));
+        LocalTime attendDeadline = LocalTime.of(19, 40, 0);
         LocalTime lateDeadline = LocalTime.of(19, 20, 0);
 
         //when, then
-        assertThatThrownBy(() -> AttendanceUtil.validateAttendanceTime(attendDeadline, lateDeadline))
+        assertThatThrownBy(() -> AttendanceUtil.validateAttendanceTime(sessionStartTime, attendDeadline, lateDeadline))
                 .isInstanceOf(AppException.class)
                 .extracting("errorCode")
                 .isEqualTo(ErrorCode.INVALID_ATTEND_TIME);
@@ -74,25 +75,12 @@ class AttendanceUtilTest {
     @Test
     void 지각마감보다_출석마감이_빠르다() {
         //given
+        LocalDateTime sessionStartTime = LocalDateTime.of(LocalDate.now(), LocalTime.of(15, 0));
         LocalTime attendDeadline = LocalTime.of(19, 40, 0);
         LocalTime lateDeadline = LocalTime.of(19, 20, 0);
 
         //when, then
-        assertThatThrownBy(() -> AttendanceUtil.validateAttendanceTime(attendDeadline, lateDeadline))
-                .isInstanceOf(AppException.class)
-                .extracting("errorCode")
-                .isEqualTo(ErrorCode.INVALID_ATTEND_TIME);
-    }
-
-    @DisplayName(value = "지각 마감이 세션 종료보다 늦으면 예외를 발생한다.")
-    @Test
-    void 지각마감시간_검증_기능() {
-        //given
-        LocalTime attendDeadline = LocalTime.of(19, 40, 0);
-        LocalTime lateDeadline = LocalTime.of(20, 20, 0);
-
-        //when, then
-        assertThatThrownBy(() -> AttendanceUtil.validateAttendanceTime(attendDeadline, lateDeadline))
+        assertThatThrownBy(() -> AttendanceUtil.validateAttendanceTime(sessionStartTime, attendDeadline, lateDeadline))
                 .isInstanceOf(AppException.class)
                 .extracting("errorCode")
                 .isEqualTo(ErrorCode.INVALID_ATTEND_TIME);
