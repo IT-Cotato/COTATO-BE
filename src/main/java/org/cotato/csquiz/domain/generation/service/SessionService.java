@@ -79,17 +79,8 @@ public class SessionService {
             sessionImageService.addSessionImages(request.images(), savedSession);
         }
 
-        Location location = Location.builder()
-                .latitude(request.latitude())
-                .longitude(request.longitude())
-                .build();
-
-        AttendanceDeadLineDto attendanceDeadLine = AttendanceDeadLineDto.builder()
-                .attendanceDeadLine(request.attendanceDeadLine())
-                .lateDeadLine(request.lateDeadLine())
-                .build();
-
-        attendanceAdminService.addAttendance(session, location, attendanceDeadLine);
+        attendanceAdminService.addAttendance(session, Location.location(request.latitude(), request.longitude()),
+                request.attendanceDeadLine(), request.lateDeadLine());
         schedulerService.scheduleSessionNotification(savedSession.getSessionDateTime());
 
         return AddSessionResponse.from(savedSession);

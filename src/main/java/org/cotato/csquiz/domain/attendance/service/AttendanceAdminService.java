@@ -3,6 +3,7 @@ package org.cotato.csquiz.domain.attendance.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,17 +33,14 @@ public class AttendanceAdminService {
     private final SessionRepository sessionRepository;
 
     @Transactional
-    public void addAttendance(Session session, Location location, AttendanceDeadLineDto attendanceDeadLine) {
-        AttendanceUtil.validateAttendanceTime(attendanceDeadLine.attendanceDeadLine(),
-                attendanceDeadLine.lateDeadLine());
+    public void addAttendance(Session session, Location location, LocalTime attendanceDeadline, LocalTime lateDeadline) {
+        AttendanceUtil.validateAttendanceTime(attendanceDeadline, lateDeadline);
 
         Attendance attendance = Attendance.builder()
                 .session(session)
                 .location(location)
-                .attendanceDeadLine(LocalDateTime.of(session.getSessionDate(), attendanceDeadLine.attendanceDeadLine())
-                        .plusSeconds(DEFAULT_ATTEND_SECOND))
-                .lateDeadLine(LocalDateTime.of(session.getSessionDate(), attendanceDeadLine.lateDeadLine())
-                        .plusSeconds(DEFAULT_ATTEND_SECOND))
+                .attendanceDeadLine(LocalDateTime.of(session.getSessionDateTime().toLocalDate(), attendanceDeadline))
+                .lateDeadLine(LocalDateTime.of(session.getSessionDateTime().toLocalDate(), lateDeadline))
                 .build();
 
         attendanceRepository.save(attendance);
