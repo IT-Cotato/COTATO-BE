@@ -120,6 +120,7 @@ public class AttendanceRecordService {
         for (AttendanceRecord attendanceRecord : attendanceRecords) {
             AttendanceResult attendanceResult = AttendanceUtil.calculateAttendanceStatus(attendance, attendanceRecord.getAttendTime());
             attendanceRecord.updateAttendanceStatus(attendanceResult);
+            attendanceRecord.updateAttendanceResult(attendanceResult);
         }
 
         attendanceRecordRepository.saveAll(attendanceRecords);
