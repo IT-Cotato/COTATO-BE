@@ -42,7 +42,7 @@ public class SessionController {
     private final SessionImageService sessionImageService;
 
     @Operation(summary = "세션 목록 반환 API")
-    @GetMapping("")
+    @GetMapping
     public ResponseEntity<List<SessionListResponse>> findSessionsByGenerationId(@RequestParam Long generationId) {
         return ResponseEntity.status(HttpStatus.OK).body(sessionService.findSessionsByGenerationId(generationId));
     }
