@@ -13,7 +13,6 @@ import org.cotato.csquiz.api.session.dto.AddSessionResponse;
 import org.cotato.csquiz.api.session.dto.CsEducationOnSessionNumberResponse;
 import org.cotato.csquiz.api.session.dto.DeleteSessionImageRequest;
 import org.cotato.csquiz.api.session.dto.SessionListResponse;
-import org.cotato.csquiz.api.session.dto.UpdateSessionNumberRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionImageOrderRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionRequest;
 import org.cotato.csquiz.domain.generation.service.SessionImageService;
@@ -66,13 +65,6 @@ public class SessionController {
     @PatchMapping(value = "/update")
     public ResponseEntity<Void> updateSession(@RequestBody @Valid UpdateSessionRequest request) {
         sessionService.updateSession(request);
-        return ResponseEntity.noContent().build();
-    }
-
-    @Operation(summary = "세션 숫자 변경 API")
-    @PatchMapping("/number")
-    public ResponseEntity<Void> updateSessionNumber(@RequestBody @Valid UpdateSessionNumberRequest request) {
-        sessionService.updateSessionNumber(request);
         return ResponseEntity.noContent().build();
     }
 

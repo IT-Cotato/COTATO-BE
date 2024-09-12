@@ -13,7 +13,6 @@ import org.cotato.csquiz.api.session.dto.AddSessionRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionResponse;
 import org.cotato.csquiz.api.session.dto.CsEducationOnSessionNumberResponse;
 import org.cotato.csquiz.api.session.dto.SessionListResponse;
-import org.cotato.csquiz.api.session.dto.UpdateSessionNumberRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionRequest;
 import org.cotato.csquiz.common.error.exception.ImageException;
 import org.cotato.csquiz.common.schedule.SchedulerService;
@@ -100,12 +99,6 @@ public class SessionService {
         List<Session> allSession = sessionRepository.findAllByGenerationId(generation.getId());
         return allSession.stream().mapToInt(Session::getNumber).max()
                 .orElse(-1);
-    }
-
-    @Transactional
-    public void updateSessionNumber(UpdateSessionNumberRequest request) {
-        Session session = findSessionById(request.sessionId());
-        session.changeSessionNumber(session.getNumber());
     }
 
     @Transactional
