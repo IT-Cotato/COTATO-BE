@@ -27,28 +27,23 @@ public class AttendanceUtil {
         return AttendanceResult.ABSENT;
     }
 
-    // 현재 시간을 기준으로 출석 open 상태를 반환한다.
-    public static AttendanceOpenStatus getAttendanceOpenStatus(Attendance attendance, LocalDateTime currentDateTime) {
-        if (currentDateTime.isBefore(DeadLine.sessionStartTime(attendance.getAttendanceDeadLine().toLocalDate()))) {
+    // 현재 시간을 기준으로 출석이 열려있는지를 반환한다.
+    public static AttendanceOpenStatus getAttendanceOpenStatus(LocalDateTime sessionStartTime, Attendance attendance, LocalDateTime currentDateTime) {
+        if (currentDateTime.isBefore(sessionStartTime)) {
             return AttendanceOpenStatus.BEFORE;
         }
 
-        if (currentDateTime.isAfter(DeadLine.sessionEndTime(attendance.getLateDeadLine().toLocalDate()))) {
+        if (currentDateTime.toLocalDate().isAfter(sessionStartTime.toLocalDate())) {
             return AttendanceOpenStatus.CLOSED;
         }
 
-        LocalTime currentTime = currentDateTime.toLocalTime();
-
-        if (currentTime.isAfter(DeadLine.ATTENDANCE_START_TIME.getTime())
-                && currentTime.isBefore(attendance.getAttendanceDeadLine().toLocalTime())) {
+        if (currentDateTime.isAfter(sessionStartTime) && currentDateTime.isBefore(attendance.getAttendanceDeadLine())) {
             return AttendanceOpenStatus.OPEN;
         }
 
-        if (currentTime.isAfter(attendance.getAttendanceDeadLine().toLocalTime())
-                && currentTime.isBefore(attendance.getLateDeadLine().toLocalTime())) {
+        if (currentDateTime.isAfter(attendance.getAttendanceDeadLine()) && currentDateTime.isBefore(attendance.getLateDeadLine())) {
             return AttendanceOpenStatus.LATE;
         }
-
         return AttendanceOpenStatus.ABSENT;
     }
 

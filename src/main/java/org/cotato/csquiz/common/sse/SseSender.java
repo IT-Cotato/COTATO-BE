@@ -13,6 +13,8 @@ import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceOpenStatus;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
+import org.cotato.csquiz.domain.generation.entity.Session;
+import org.cotato.csquiz.domain.generation.repository.SessionRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter.DataWithMediaType;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -23,7 +25,7 @@ public class SseSender {
 
     private static final String ATTENDANCE_STATUS = "AttendanceStatus";
     private final SseAttendanceRepository sseAttendanceRepository;
-
+    private final SessionRepository sessionRepository;
     private final AttendanceRepository attendanceRepository;
 
     public void sendInitialAttendanceStatus(SseEmitter sseEmitter) {
@@ -39,11 +41,16 @@ public class SseSender {
             return;
         }
 
+        Attendance attendance = maybeAttendance.get();
+        Session session = sessionRepository.findById(attendance.getSessionId())
+                .orElseThrow(() -> new EntityNotFoundException("해당 출석에 대한 세션이 존재하지 않습니다."));
+
         send(sseEmitter, SseEmitter.event()
                 .name(ATTENDANCE_STATUS)
                 .data(AttendanceStatusInfo.builder()
                         .attendanceId(maybeAttendance.get().getId())
-                        .openStatus(AttendanceUtil.getAttendanceOpenStatus(maybeAttendance.get(), LocalDateTime.now()))
+                        .openStatus(AttendanceUtil.getAttendanceOpenStatus(session.getSessionDateTime(), attendance,
+                                LocalDateTime.now()))
                         .build())
                 .build());
     }

@@ -99,14 +99,17 @@ public class AttendanceRecordService {
         Map<Boolean, List<Attendance>> isClosedAttendance = attendanceRepository.findAllBySessionIdsInQuery(sessionIds)
                 .stream()
                 .collect(Collectors.partitioningBy(attendance ->
-                        getAttendanceOpenStatus(attendance, currentTime) == AttendanceOpenStatus.CLOSED));
+                        getAttendanceOpenStatus(sessionMap.get(attendance.getSessionId()).getSessionDateTime(),
+                                attendance, currentTime) == AttendanceOpenStatus.CLOSED));
 
         List<Long> closedAttendanceIds = isClosedAttendance.get(true).stream()
                 .map(Attendance::getId)
                 .toList();
 
-        List<MemberAttendResponse> responses = attendanceRecordRepository.findAllByAttendanceIdsInQueryAndMemberId(closedAttendanceIds, memberId).stream()
-                .map(ar -> MemberAttendResponse.closedAttendanceResponse(sessionMap.get(ar.getAttendance().getSessionId()), ar))
+        List<MemberAttendResponse> responses = attendanceRecordRepository.findAllByAttendanceIdsInQueryAndMemberId(
+                        closedAttendanceIds, memberId).stream()
+                .map(ar -> MemberAttendResponse.closedAttendanceResponse(
+                        sessionMap.get(ar.getAttendance().getSessionId()), ar))
                 .collect(Collectors.toList());
 
         responses.addAll(isClosedAttendance.get(false).stream()
@@ -116,7 +119,7 @@ public class AttendanceRecordService {
 
         return MemberAttendanceRecordsResponse.of(generationId, responses);
     }
-    
+
     @Transactional
     public void updateAttendanceStatus(LocalDateTime sessionStartTime, Attendance attendance) {
         List<AttendanceRecord> attendanceRecords = attendanceRecordRepository.findAllByAttendanceId(attendance.getId());
