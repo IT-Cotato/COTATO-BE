@@ -90,7 +90,7 @@ public class SessionService {
                 .build();
 
         attendanceAdminService.addAttendance(session, location, attendanceDeadLine);
-        schedulerService.scheduleSessionNotification(savedSession.getSessionDate());
+        schedulerService.scheduleSessionNotification(savedSession.getSessionDateTime());
 
         return AddSessionResponse.from(savedSession);
     }
