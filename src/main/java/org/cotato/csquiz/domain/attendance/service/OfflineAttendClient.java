@@ -13,6 +13,7 @@ import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRecordRepository;
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -20,7 +21,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class OfflineAttendClient implements AttendClient {
 
-    private static final Double ACCURACY_STANDARD = 0.1;
+    @Value("${location.distance}")
+    private Double standardDistance;
     private final AttendanceRecordRepository attendanceRecordRepository;
 
     @Override
@@ -40,7 +42,8 @@ public class OfflineAttendClient implements AttendClient {
 
         AttendanceRecord attendanceRecord = attendanceRecordRepository.findByMemberIdAndAttendanceId(memberId,
                         request.getAttendanceId())
-                .orElseGet(() -> AttendanceRecord.offlineRecord(attendance, memberId, accuracy, attendanceResult, request.getRequestTime()));
+                .orElseGet(() -> AttendanceRecord.offlineRecord(attendance, memberId, accuracy, attendanceResult,
+                        request.getRequestTime()));
 
         attendanceRecord.updateAttendanceType(request.attendanceType());
         attendanceRecord.updateLocationAccuracy(accuracy);
@@ -52,7 +55,7 @@ public class OfflineAttendClient implements AttendClient {
 
     private void validateAccuracy(Double accuracy) {
         log.info("[위치 정확도] : {}", accuracy);
-        if (accuracy >= ACCURACY_STANDARD) {
+        if (accuracy >= standardDistance) {
             throw new AppException(ErrorCode.OFFLINE_ATTEND_FAIL);
         }
     }
