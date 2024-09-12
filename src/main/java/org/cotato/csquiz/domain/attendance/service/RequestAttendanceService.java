@@ -1,5 +1,6 @@
 package org.cotato.csquiz.domain.attendance.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -23,8 +24,8 @@ public class RequestAttendanceService {
         );
     }
 
-    public AttendResponse attend(AttendanceParams params, Long memberId, Attendance attendance) {
+    public AttendResponse attend(AttendanceParams params, LocalDateTime sessionStartTime, Long memberId, Attendance attendance) {
         AttendClient attendClient = clients.get(params.attendanceType());
-        return attendClient.request(params, memberId, attendance);
+        return attendClient.request(params, sessionStartTime, memberId, attendance);
     }
 }

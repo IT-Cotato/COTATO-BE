@@ -10,12 +10,18 @@ import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 import org.cotato.csquiz.domain.attendance.enums.DeadLine;
 
 public class AttendanceUtil {
-
     // 출석 시간에 따른 지각 여부 구분하기
-    public static AttendanceResult calculateAttendanceStatus(Attendance attendance, LocalDateTime attendTime){
-        if (attendTime.isBefore(attendance.getAttendanceDeadLine())) {
+    public static AttendanceResult calculateAttendanceStatus(LocalDateTime sessionDateTime, Attendance attendance,
+                                                             LocalDateTime attendTime) {
+        // 입력한 날짜와 세션 날짜가 다르거나, 시작 전이라면
+        if (!attendTime.toLocalDate().equals(sessionDateTime.toLocalDate()) || attendTime.isBefore(sessionDateTime)) {
+            throw new AppException(ErrorCode.ATTENDANCE_NOT_OPEN);
+        }
+
+        if (attendTime.isAfter(sessionDateTime) && attendTime.isBefore(attendance.getAttendanceDeadLine())) {
             return AttendanceResult.PRESENT;
-        } if (attendTime.isBefore(attendance.getLateDeadLine())) {
+        }
+        if (attendTime.isBefore(attendance.getLateDeadLine())) {
             return AttendanceResult.LATE;
         }
         return AttendanceResult.ABSENT;

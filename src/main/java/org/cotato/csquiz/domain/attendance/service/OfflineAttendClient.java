@@ -1,5 +1,6 @@
 package org.cotato.csquiz.domain.attendance.service;
 
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.attendance.dto.AttendResponse;
@@ -31,10 +32,10 @@ public class OfflineAttendClient implements AttendClient {
     }
 
     @Override
-    public AttendResponse request(AttendanceParams params, Long memberId, Attendance attendance) {
+    public AttendResponse request(AttendanceParams params, LocalDateTime sessionStartTime, Long memberId, Attendance attendance) {
         OfflineAttendanceRequest request = (OfflineAttendanceRequest) params;
 
-        AttendanceResult attendanceResult = AttendanceUtil.calculateAttendanceStatus(attendance, params.requestTime());
+        AttendanceResult attendanceResult = AttendanceUtil.calculateAttendanceStatus(sessionStartTime, attendance, params.requestTime());
 
         log.info("[출결 위치 로그: 위도 {}, 경도 {}]", request.getLocation().getLatitude(), request.getLocation().getLongitude());
         Double accuracy = attendance.getLocation().calculateAccuracy(request.getLocation());

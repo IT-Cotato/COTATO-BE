@@ -82,7 +82,7 @@ public enum ErrorCode {
     OFFLINE_ATTEND_FAIL(HttpStatus.BAD_REQUEST, "AT-101", "거리 부적합으로 인한 대면 출석 실패"),
     INVALID_ATTEND_TIME(HttpStatus.BAD_REQUEST, "AT-102", "시간 입력 범위가 잘못되었습니다."),
     ALREADY_ATTEND(HttpStatus.CONFLICT, "AT-301", "이미 해당 타입으로 출석한 기록이 있습니다."),
-    ATTENDANCE_CLOSED(HttpStatus.BAD_REQUEST, "AT-401", "아직 출석 시간이 아닙니다."),
+    ATTENDANCE_NOT_OPEN(HttpStatus.BAD_REQUEST, "AT-401", "출석 시간이 아닙니다."),
 
     // 500 오류 -> 서버측에서 처리가 실패한 부분들
     WEBSOCKET_SEND_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "S-001", "소캣 메세지 전송 실패"),
