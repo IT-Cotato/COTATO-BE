@@ -33,7 +33,7 @@ public class AttendanceAdminService {
 
     @Transactional
     public void addAttendance(Session session, Location location, LocalTime attendanceDeadline, LocalTime lateDeadline) {
-        AttendanceUtil.validateAttendanceTime(attendanceDeadline, lateDeadline);
+        AttendanceUtil.validateAttendanceTime(session.getSessionDateTime(), attendanceDeadline, lateDeadline);
 
         Attendance attendance = Attendance.builder()
                 .session(session)
@@ -58,7 +58,7 @@ public class AttendanceAdminService {
     @Transactional
     public void updateAttendance(Session attendanceSession, Attendance attendance,
                                  AttendanceDeadLineDto attendanceDeadLine, Location location) {
-        AttendanceUtil.validateAttendanceTime(attendanceDeadLine.attendanceDeadLine(),
+        AttendanceUtil.validateAttendanceTime(attendanceSession.getSessionDateTime(), attendanceDeadLine.attendanceDeadLine(),
                 attendanceDeadLine.lateDeadLine());
 
         // 세션 날짜가 존재하지 않는 경우 예외 발생

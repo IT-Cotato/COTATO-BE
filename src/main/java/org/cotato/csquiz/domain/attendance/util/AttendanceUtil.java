@@ -47,16 +47,12 @@ public class AttendanceUtil {
         return AttendanceOpenStatus.ABSENT;
     }
 
-    public static void validateAttendanceTime(LocalTime attendDeadLine, LocalTime lateDeadLine) {
-        if (!DeadLine.ATTENDANCE_START_TIME.getTime().isBefore(attendDeadLine)) {
+    public static void validateAttendanceTime(LocalDateTime sessionStartTime, LocalTime attendDeadLine, LocalTime lateDeadLine) {
+        if (!sessionStartTime.toLocalTime().isBefore(attendDeadLine)) {
             throw new AppException(ErrorCode.INVALID_ATTEND_TIME);
         }
 
         if (!attendDeadLine.isBefore(lateDeadLine)) {
-            throw new AppException(ErrorCode.INVALID_ATTEND_TIME);
-        }
-
-        if (!lateDeadLine.isBefore(DeadLine.ATTENDANCE_END_TIME.getTime())) {
             throw new AppException(ErrorCode.INVALID_ATTEND_TIME);
         }
     }

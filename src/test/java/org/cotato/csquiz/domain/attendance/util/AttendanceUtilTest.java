@@ -60,11 +60,12 @@ class AttendanceUtilTest {
     @Test
     void 지각마감이_세션시작보다_빠를_수_없다() {
         //given
-        LocalTime attendDeadline = LocalTime.of(18, 40, 0);
+        LocalDateTime sessionStartTime = LocalDateTime.of(LocalDate.now(), LocalTime.of(15, 0));
+        LocalTime attendDeadline = LocalTime.of(19, 40, 0);
         LocalTime lateDeadline = LocalTime.of(19, 20, 0);
 
         //when, then
-        assertThatThrownBy(() -> AttendanceUtil.validateAttendanceTime(attendDeadline, lateDeadline))
+        assertThatThrownBy(() -> AttendanceUtil.validateAttendanceTime(sessionStartTime, attendDeadline, lateDeadline))
                 .isInstanceOf(AppException.class)
                 .extracting("errorCode")
                 .isEqualTo(ErrorCode.INVALID_ATTEND_TIME);
@@ -74,25 +75,12 @@ class AttendanceUtilTest {
     @Test
     void 지각마감보다_출석마감이_빠르다() {
         //given
+        LocalDateTime sessionStartTime = LocalDateTime.of(LocalDate.now(), LocalTime.of(15, 0));
         LocalTime attendDeadline = LocalTime.of(19, 40, 0);
         LocalTime lateDeadline = LocalTime.of(19, 20, 0);
 
         //when, then
-        assertThatThrownBy(() -> AttendanceUtil.validateAttendanceTime(attendDeadline, lateDeadline))
-                .isInstanceOf(AppException.class)
-                .extracting("errorCode")
-                .isEqualTo(ErrorCode.INVALID_ATTEND_TIME);
-    }
-
-    @DisplayName(value = "지각 마감이 세션 종료보다 늦으면 예외를 발생한다.")
-    @Test
-    void 지각마감시간_검증_기능() {
-        //given
-        LocalTime attendDeadline = LocalTime.of(19, 40, 0);
-        LocalTime lateDeadline = LocalTime.of(20, 20, 0);
-
-        //when, then
-        assertThatThrownBy(() -> AttendanceUtil.validateAttendanceTime(attendDeadline, lateDeadline))
+        assertThatThrownBy(() -> AttendanceUtil.validateAttendanceTime(sessionStartTime, attendDeadline, lateDeadline))
                 .isInstanceOf(AppException.class)
                 .extracting("errorCode")
                 .isEqualTo(ErrorCode.INVALID_ATTEND_TIME);
