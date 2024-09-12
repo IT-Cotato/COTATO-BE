@@ -27,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class AttendanceAdminService {
 
-    private static final int DEFAULT_ATTEND_SECOND = 59;
     private final AttendanceRepository attendanceRepository;
     private final AttendanceRecordService attendanceRecordService;
     private final SessionRepository sessionRepository;
@@ -53,8 +52,7 @@ public class AttendanceAdminService {
         Session attendanceSession = sessionRepository.findById(attendance.getSessionId())
                 .orElseThrow(() -> new EntityNotFoundException("출석과 연결된 세션을 찾을 수 없습니다"));
 
-        updateAttendance(attendanceSession, attendance, request
-                .attendTime(), request.location());
+        updateAttendance(attendanceSession, attendance, request.attendTime(), request.location());
     }
 
     @Transactional
@@ -63,15 +61,13 @@ public class AttendanceAdminService {
         AttendanceUtil.validateAttendanceTime(attendanceDeadLine.attendanceDeadLine(),
                 attendanceDeadLine.lateDeadLine());
 
-        if (attendanceSession.getSessionDate() == null) {
+        // 세션 날짜가 존재하지 않는 경우 예외 발생
+        if (attendanceSession.getSessionDateTime() == null) {
             throw new AppException(ErrorCode.SESSION_DATE_NOT_FOUND);
         }
 
-        attendance.updateDeadLine(
-                LocalDateTime.of(attendanceSession.getSessionDate(), attendanceDeadLine.attendanceDeadLine())
-                        .plusSeconds(DEFAULT_ATTEND_SECOND),
-                LocalDateTime.of(attendanceSession.getSessionDate(), attendanceDeadLine.lateDeadLine())
-                        .plusSeconds(DEFAULT_ATTEND_SECOND));
+        attendance.updateDeadLine(LocalDateTime.of(attendanceSession.getSessionDateTime().toLocalDate(), attendanceDeadLine.attendanceDeadLine()),
+                LocalDateTime.of(attendanceSession.getSessionDateTime().toLocalDate(), attendanceDeadLine.lateDeadLine()));
         attendance.updateLocation(location);
 
         attendanceRecordService.updateAttendanceStatus(attendanceSession.getSessionDateTime(), attendance);
