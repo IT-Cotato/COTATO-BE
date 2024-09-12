@@ -3,6 +3,7 @@ package org.cotato.csquiz.domain.attendance.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,23 +27,19 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class AttendanceAdminService {
 
-    private static final int DEFAULT_ATTEND_SECOND = 59;
     private final AttendanceRepository attendanceRepository;
     private final AttendanceRecordService attendanceRecordService;
     private final SessionRepository sessionRepository;
 
     @Transactional
-    public void addAttendance(Session session, Location location, AttendanceDeadLineDto attendanceDeadLine) {
-        AttendanceUtil.validateAttendanceTime(attendanceDeadLine.attendanceDeadLine(),
-                attendanceDeadLine.lateDeadLine());
+    public void addAttendance(Session session, Location location, LocalTime attendanceDeadline, LocalTime lateDeadline) {
+        AttendanceUtil.validateAttendanceTime(session.getSessionDateTime(), attendanceDeadline, lateDeadline);
 
         Attendance attendance = Attendance.builder()
                 .session(session)
                 .location(location)
-                .attendanceDeadLine(LocalDateTime.of(session.getSessionDate(), attendanceDeadLine.attendanceDeadLine())
-                        .plusSeconds(DEFAULT_ATTEND_SECOND))
-                .lateDeadLine(LocalDateTime.of(session.getSessionDate(), attendanceDeadLine.lateDeadLine())
-                        .plusSeconds(DEFAULT_ATTEND_SECOND))
+                .attendanceDeadLine(LocalDateTime.of(session.getSessionDateTime().toLocalDate(), attendanceDeadline))
+                .lateDeadLine(LocalDateTime.of(session.getSessionDateTime().toLocalDate(), lateDeadline))
                 .build();
 
         attendanceRepository.save(attendance);
@@ -55,35 +52,32 @@ public class AttendanceAdminService {
         Session attendanceSession = sessionRepository.findById(attendance.getSessionId())
                 .orElseThrow(() -> new EntityNotFoundException("출석과 연결된 세션을 찾을 수 없습니다"));
 
-        updateAttendance(attendanceSession, attendance, request
-                .attendTime(), request.location());
+        updateAttendance(attendanceSession, attendance, request.attendTime(), request.location());
     }
 
     @Transactional
     public void updateAttendance(Session attendanceSession, Attendance attendance,
                                  AttendanceDeadLineDto attendanceDeadLine, Location location) {
-        AttendanceUtil.validateAttendanceTime(attendanceDeadLine.attendanceDeadLine(),
+        AttendanceUtil.validateAttendanceTime(attendanceSession.getSessionDateTime(), attendanceDeadLine.attendanceDeadLine(),
                 attendanceDeadLine.lateDeadLine());
 
-        if (attendanceSession.getSessionDate() == null) {
+        // 세션 날짜가 존재하지 않는 경우 예외 발생
+        if (attendanceSession.getSessionDateTime() == null) {
             throw new AppException(ErrorCode.SESSION_DATE_NOT_FOUND);
         }
 
-        attendance.updateDeadLine(
-                LocalDateTime.of(attendanceSession.getSessionDate(), attendanceDeadLine.attendanceDeadLine())
-                        .plusSeconds(DEFAULT_ATTEND_SECOND),
-                LocalDateTime.of(attendanceSession.getSessionDate(), attendanceDeadLine.lateDeadLine())
-                        .plusSeconds(DEFAULT_ATTEND_SECOND));
+        attendance.updateDeadLine(LocalDateTime.of(attendanceSession.getSessionDateTime().toLocalDate(), attendanceDeadLine.attendanceDeadLine()),
+                LocalDateTime.of(attendanceSession.getSessionDateTime().toLocalDate(), attendanceDeadLine.lateDeadLine()));
         attendance.updateLocation(location);
 
-        attendanceRecordService.updateAttendanceStatus(attendance);
+        attendanceRecordService.updateAttendanceStatus(attendanceSession.getSessionDateTime(), attendance);
     }
 
     public List<AttendanceRecordResponse> findAttendanceRecords(Long generationId, Integer month) {
         List<Session> sessions = sessionRepository.findAllByGenerationId(generationId);
         if (month != null) {
             sessions = sessions.stream()
-                    .filter(session -> session.getSessionDate().getMonthValue() == month)
+                    .filter(session -> session.getSessionDateTime().getMonthValue() == month)
                     .toList();
         }
         List<Long> sessionIds = sessions.stream()

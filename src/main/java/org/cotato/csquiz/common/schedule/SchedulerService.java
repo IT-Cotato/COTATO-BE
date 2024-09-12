@@ -55,10 +55,7 @@ public class SchedulerService {
         log.info("[ CS 퀴즈 모두 닫기 Scheduler 완료 ]");
     }
 
-    // sessionDate 18시 50분에 출결을 구독 중인 부원들에게 출결 입력 시작 알림을 전송하는 스케줄러
-    public void scheduleSessionNotification(LocalDate sessionDate) {
-        LocalDateTime notificationTime = LocalDateTime.of(sessionDate, DeadLine.ATTENDANCE_START_TIME.getTime());
-
+    public void scheduleSessionNotification(LocalDateTime notificationTime) {
         ZonedDateTime zonedDateTime = notificationTime.atZone(ZoneId.of("Asia/Seoul"));
 
         taskScheduler.schedule(() -> sseSender.sendNotification(notificationTime), zonedDateTime.toInstant());

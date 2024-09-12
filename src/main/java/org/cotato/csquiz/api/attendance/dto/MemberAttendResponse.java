@@ -1,7 +1,6 @@
 package org.cotato.csquiz.api.attendance.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.entity.AttendanceRecord;
@@ -21,7 +20,7 @@ public record MemberAttendResponse(
         @Schema(description = "세션 타이틀", example = "3주차 세션")
         String sessionTitle,
         @Schema(description = "세션 날짜")
-        LocalDate sessionDate,
+        LocalDateTime sessionDateTime,
         @Schema(description = "출결 진행 여부", examples = {
                 "CLOSED", "OPEN"
         })
@@ -37,7 +36,7 @@ public record MemberAttendResponse(
                 attendanceRecord.getAttendance().getId(),
                 attendanceRecord.getMemberId(),
                 session.getTitle(),
-                session.getSessionDate(),
+                session.getSessionDateTime(),
                 AttendanceOpenStatus.CLOSED,
                 attendanceRecord.getAttendanceType(),
                 attendanceRecord.getAttendanceResult()
@@ -50,8 +49,8 @@ public record MemberAttendResponse(
                 attendance.getId(),
                 memberId,
                 session.getTitle(),
-                session.getSessionDate(),
-                AttendanceUtil.getAttendanceOpenStatus(attendance, LocalDateTime.now()),
+                session.getSessionDateTime(),
+                AttendanceUtil.getAttendanceOpenStatus(session.getSessionDateTime(), attendance, LocalDateTime.now()),
                 null,
                 null
         );

@@ -13,6 +13,8 @@ import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceOpenStatus;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
+import org.cotato.csquiz.domain.generation.entity.Session;
+import org.cotato.csquiz.domain.generation.repository.SessionRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter.DataWithMediaType;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -23,7 +25,7 @@ public class SseSender {
 
     private static final String ATTENDANCE_STATUS = "AttendanceStatus";
     private final SseAttendanceRepository sseAttendanceRepository;
-
+    private final SessionRepository sessionRepository;
     private final AttendanceRepository attendanceRepository;
 
     public void sendInitialAttendanceStatus(SseEmitter sseEmitter) {
@@ -39,16 +41,21 @@ public class SseSender {
             return;
         }
 
+        Attendance attendance = maybeAttendance.get();
+        Session session = sessionRepository.findById(attendance.getSessionId())
+                .orElseThrow(() -> new EntityNotFoundException("해당 출석에 대한 세션이 존재하지 않습니다."));
+
         send(sseEmitter, SseEmitter.event()
                 .name(ATTENDANCE_STATUS)
                 .data(AttendanceStatusInfo.builder()
                         .attendanceId(maybeAttendance.get().getId())
-                        .openStatus(AttendanceUtil.getAttendanceOpenStatus(maybeAttendance.get(), LocalDateTime.now()))
+                        .openStatus(AttendanceUtil.getAttendanceOpenStatus(session.getSessionDateTime(), attendance,
+                                LocalDateTime.now()))
                         .build())
                 .build());
     }
 
-    // sessionDate 6시 50분에 출결을 구독 중인 부원들에게 출결 입력 시작 알림을 전송한다.
+    // sessionDateTime 7시에 출결을 구독 중인 부원들에게 출결 입력 시작 알림을 전송한다.
     public void sendNotification(LocalDateTime notificationDate) {
         Attendance attendance = attendanceRepository.findByAttendanceDeadLineDate(notificationDate)
                 .orElseThrow(() -> new EntityNotFoundException("해당 날짜에 진행하는 출석이 없습니다."));

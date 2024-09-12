@@ -66,3 +66,6 @@ aes:
   secret:
     key: ${AES_SECRET_KEY}
     salt: ${AES_SECRET_SALT}
+
+location:
+  distance: ${STANDARD_DISTANCE}

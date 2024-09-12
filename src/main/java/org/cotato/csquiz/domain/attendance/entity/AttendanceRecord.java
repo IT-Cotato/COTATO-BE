@@ -98,7 +98,7 @@ public class AttendanceRecord extends BaseTimeEntity {
         this.locationAccuracy = accuracy;
     }
 
-    public void updateAttendanceStatus(AttendanceResult attendanceResult) {
+    public void updateAttendanceResult(AttendanceResult attendanceResult) {
         this.attendanceResult = attendanceResult;
     }
 }
