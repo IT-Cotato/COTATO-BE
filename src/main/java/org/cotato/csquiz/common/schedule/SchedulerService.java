@@ -1,15 +1,13 @@
 package org.cotato.csquiz.common.schedule;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.common.sse.SseSender;
-import org.cotato.csquiz.domain.attendance.enums.DeadLine;
+import org.cotato.csquiz.common.util.TimeUtil;
+import org.cotato.csquiz.domain.attendance.service.AttendanceRecordService;
 import org.cotato.csquiz.domain.auth.entity.RefusedMember;
 import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
@@ -29,6 +27,7 @@ public class SchedulerService {
     private final RefusedMemberRepository refusedMemberRepository;
     private final MemberRepository memberRepository;
     private final EducationService educationService;
+    private final AttendanceRecordService attendanceRecordService;
     private final SseSender sseSender;
     private final TaskScheduler taskScheduler;
 
@@ -56,7 +55,7 @@ public class SchedulerService {
     }
 
     public void scheduleSessionNotification(LocalDateTime notificationTime) {
-        ZonedDateTime zonedDateTime = notificationTime.atZone(ZoneId.of("Asia/Seoul"));
+        ZonedDateTime zonedDateTime = TimeUtil.getSeoulZoneTime(notificationTime);
 
         taskScheduler.schedule(() -> sseSender.sendNotification(notificationTime), zonedDateTime.toInstant());
     }
