@@ -96,28 +96,27 @@ public class AttendanceRecordService {
         List<Long> sessionIds = sessions.stream()
                 .map(Session::getId)
                 .toList();
-        // 세션에 해당하는 모든 출결을 찾아
-        LocalDateTime currentTime = LocalDateTime.now();
 
-        Map<Boolean, List<Attendance>> isClosedAttendance = attendanceRepository.findAllBySessionIdsInQuery(sessionIds)
-                .stream()
-                .collect(Collectors.partitioningBy(attendance ->
-                        getAttendanceOpenStatus(sessionMap.get(attendance.getSessionId()).getSessionDateTime(),
-                                attendance, currentTime) == AttendanceOpenStatus.CLOSED));
+        List<Attendance> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds);
 
-        List<Long> closedAttendanceIds = isClosedAttendance.get(true).stream()
+        List<Long> attendanceIds = attendances.stream()
                 .map(Attendance::getId)
                 .toList();
 
-        List<MemberAttendResponse> responses = attendanceRecordRepository.findAllByAttendanceIdsInQueryAndMemberId(
-                        closedAttendanceIds, memberId).stream()
-                .map(ar -> MemberAttendResponse.closedAttendanceResponse(
-                        sessionMap.get(ar.getAttendance().getSessionId()), ar))
+        Map<Long, AttendanceRecord> attendanceRecordMap = attendanceRecordRepository.findAllByAttendanceIdsInQueryAndMemberId(
+                        attendanceIds, memberId).stream()
+                .collect(Collectors.toUnmodifiableMap(AttendanceRecord::getAttendanceId, Function.identity()));
+
+        Map<Boolean, List<Attendance>> recordedAttendance = attendances.stream()
+                .collect(Collectors.partitioningBy(at -> attendanceRecordMap.containsKey(at.getId())));
+
+        List<MemberAttendResponse> responses = recordedAttendance.get(true).stream()
+                .map(at -> MemberAttendResponse.recordedAttendance(sessionMap.get(at.getSessionId()), at,
+                        attendanceRecordMap.get(at.getId())))
                 .collect(Collectors.toList());
 
-        responses.addAll(isClosedAttendance.get(false).stream()
-                .map(attendance -> MemberAttendResponse.openedAttendanceResponse(attendance,
-                        sessionMap.get(attendance.getSessionId()), memberId))
+        responses.addAll(recordedAttendance.get(false).stream()
+                .map(at -> MemberAttendResponse.unrecordedAttendance(sessionMap.get(at.getSessionId()), at, memberId))
                 .toList());
 
         return MemberAttendanceRecordsResponse.of(generationId, responses);
