@@ -3,6 +3,9 @@ package org.cotato.csquiz.common.schedule;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.common.sse.SseSender;
@@ -30,6 +33,7 @@ public class SchedulerService {
     private final AttendanceRecordService attendanceRecordService;
     private final SseSender sseSender;
     private final TaskScheduler taskScheduler;
+    private final Map<Long, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
 
     @Transactional
     @Scheduled(cron = "0 0 0 * * *")
@@ -61,9 +65,27 @@ public class SchedulerService {
     }
 
     public void scheduleAbsentRecords(LocalDateTime sessionDateTime, Long sessionId) {
+        // 이미 해당 세션에 스케줄된 작업이 있으면 취소
+        ScheduledFuture<?> existingTask = scheduledTasks.get(sessionId);
+        if (existingTask != null && !existingTask.isDone()) {
+            existingTask.cancel(false);
+        }
+
         LocalDateTime nextDateTime = sessionDateTime.plusDays(1);
         ZonedDateTime zonedDateTime = TimeUtil.getSeoulZoneTime(nextDateTime);
 
-        taskScheduler.schedule(() ->  attendanceRecordService.updateUnrecordedAttendanceRecord(sessionId), zonedDateTime.toInstant());
+        // 새로운 작업 스케줄링
+        ScheduledFuture<?> newTask = taskScheduler.schedule(
+                () -> {
+                    try {
+                        attendanceRecordService.updateUnrecordedAttendanceRecord(sessionId);
+                    } finally {
+                        scheduledTasks.remove(sessionId);
+                    }
+                },
+                zonedDateTime.toInstant()
+        );
+
+        scheduledTasks.put(sessionId, newTask);
     }
 }
