@@ -59,4 +59,11 @@ public class SchedulerService {
 
         taskScheduler.schedule(() -> sseSender.sendNotification(notificationTime), zonedDateTime.toInstant());
     }
+
+    public void scheduleAbsentRecords(LocalDateTime sessionDateTime, Long sessionId) {
+        LocalDateTime nextDateTime = sessionDateTime.plusDays(1);
+        ZonedDateTime zonedDateTime = TimeUtil.getSeoulZoneTime(nextDateTime);
+
+        taskScheduler.schedule(() ->  attendanceRecordService.updateUnrecordedAttendanceRecord(sessionId), zonedDateTime.toInstant());
+    }
 }
