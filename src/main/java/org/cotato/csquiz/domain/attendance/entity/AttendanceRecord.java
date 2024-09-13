@@ -49,9 +49,8 @@ public class AttendanceRecord extends BaseTimeEntity {
     @Column(name = "member_id", nullable = false)
     private Long memberId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "attendance_id")
-    private Attendance attendance;
+    @Column(name = "attendance_id", nullable = false)
+    private Long attendanceId;
 
     @Column(name = "attend_time", nullable = false)
     private LocalDateTime attendTime;
@@ -62,7 +61,7 @@ public class AttendanceRecord extends BaseTimeEntity {
         this.attendanceResult = attendanceResult;
         this.locationAccuracy = locationAccuracy;
         this.memberId = memberId;
-        this.attendance = attendance;
+        this.attendanceId = attendance.getId();
         this.attendTime = attendTime;
     }
 

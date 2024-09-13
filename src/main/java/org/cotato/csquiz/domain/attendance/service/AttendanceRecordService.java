@@ -45,8 +45,11 @@ public class AttendanceRecordService {
     private final SessionRepository sessionRepository;
 
     public List<AttendanceRecordResponse> generateAttendanceResponses(List<Attendance> attendances) {
-        List<AttendanceRecord> records = attendanceRecordRepository.findAllByAttendanceIdsInQuery(
-                attendances);
+        List<Long> attendanceIds = attendances.stream()
+                .map(Attendance::getId)
+                .toList();
+
+        List<AttendanceRecord> records = attendanceRecordRepository.findAllByAttendanceIdsInQuery(attendanceIds);
 
         Map<Long, List<AttendanceRecord>> recordsByMemberId = records.stream()
                 .collect(Collectors.groupingBy(AttendanceRecord::getMemberId));
