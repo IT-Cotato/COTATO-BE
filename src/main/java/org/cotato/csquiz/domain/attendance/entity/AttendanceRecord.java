@@ -89,6 +89,17 @@ public class AttendanceRecord extends BaseTimeEntity {
         );
     }
 
+    public static AttendanceRecord absentRecord(Attendance attendance, Long memberId) {
+        return new AttendanceRecord(
+            AttendanceType.ABSENT,
+            AttendanceResult.ABSENT,
+            null,
+            memberId,
+            attendance,
+            LocalDateTime.now()
+        );
+    }
+
     public void updateAttendanceType(AttendanceType attendanceType) {
         this.attendanceType = attendanceType;
     }

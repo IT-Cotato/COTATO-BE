@@ -6,6 +6,7 @@ import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -133,5 +134,24 @@ public class AttendanceRecordService {
         }
 
         attendanceRecordRepository.saveAll(attendanceRecords);
+    }
+
+    @Transactional
+    public void updateUnrecordedAttendanceRecord(Long sessionId) {
+        Attendance attendance = attendanceRepository.findBySessionId(sessionId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 세션에 대한 출석이 생성되지 않았습니다."));
+
+        // 출결 입력을 한 부원
+        Set<Long> attendedMember = attendanceRecordRepository.findAllByAttendanceId(attendance.getId()).stream()
+                .map(AttendanceRecord::getMemberId)
+                .collect(Collectors.toUnmodifiableSet());
+
+        List<AttendanceRecord> unrecordedMemberIds = memberService.findActiveMember().stream()
+                .map(Member::getId)
+                .filter(id -> !attendedMember.contains(id))
+                .map(id -> AttendanceRecord.absentRecord(attendance, id))
+                .toList();
+
+        attendanceRecordRepository.saveAll(unrecordedMemberIds);
     }
 }
