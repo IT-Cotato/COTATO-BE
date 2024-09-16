@@ -46,9 +46,25 @@ public class ProjectImage {
         this.imageOrder = imageOrder;
     }
 
-    public static ProjectImage createProjectImage(ProjectImageType projectImageType, S3Info imageInfo, Long projectId, int imageOrder) {
+    public static ProjectImage logoImage(S3Info s3Info, Long projectId) {
         return new ProjectImage(
-                projectImageType,
+                ProjectImageType.LOGO,
+                s3Info,
+                projectId,
+                1);
+    }
+
+    public static ProjectImage thumbnailImage(S3Info s3Info, Long projectId) {
+        return new ProjectImage(
+                ProjectImageType.THUMBNAIL,
+                s3Info,
+                projectId,
+                1);
+    }
+
+    public static ProjectImage detailImage(S3Info imageInfo, Long projectId, int imageOrder) {
+        return new ProjectImage(
+                ProjectImageType.DETAIL,
                 imageInfo,
                 projectId,
                 imageOrder
