@@ -35,11 +35,10 @@ public class ProjectImage {
     @Column(name = "project_id", nullable = false)
     private Long projectId;
 
-    @Column(name = "project_image_order")
-    private int imageOrder = 1;
+    @Column(name = "project_image_order", nullable = false)
+    private int imageOrder;
 
-    @Builder
-    public ProjectImage(ProjectImageType projectImageType, S3Info s3Info, Long projectId, Integer imageOrder) {
+    private ProjectImage(ProjectImageType projectImageType, S3Info s3Info, Long projectId, int imageOrder) {
         this.projectImageType = projectImageType;
         this.s3Info = s3Info;
         this.projectId = projectId;
