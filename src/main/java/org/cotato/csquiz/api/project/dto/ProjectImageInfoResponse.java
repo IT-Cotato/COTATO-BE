@@ -7,14 +7,14 @@ public record ProjectImageInfoResponse(
         Long imageId,
         String imageUrl,
         ProjectImageType projectImageType,
-        Integer imageOrder
+        int imageOrder
 ) {
         public static ProjectImageInfoResponse from(ProjectImage projectImage) {
             return new ProjectImageInfoResponse(
                     projectImage.getId(),
                     projectImage.getS3Info().getUrl(),
                     projectImage.getProjectImageType(),
-                    projectImage.getImageOrder() != null ? projectImage.getImageOrder() : 0
+                    projectImage.getImageOrder()
             );
         }
 }

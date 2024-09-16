@@ -6,6 +6,6 @@ import org.cotato.csquiz.domain.generation.enums.ProjectImageType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ProjectImageRepository extends JpaRepository<ProjectImage, Long> {
-    List<ProjectImage> findAllByProjectIdOrderByImageOrderAsc(Long projectId);
+    List<ProjectImage> findAllByProjectId(Long projectId);
     List<ProjectImage> findAllByProjectIdInAndProjectImageType(List<Long> projectIds, ProjectImageType projectImageType);
 }
