@@ -6,6 +6,7 @@ import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -45,8 +46,11 @@ public class AttendanceRecordService {
     private final SessionRepository sessionRepository;
 
     public List<AttendanceRecordResponse> generateAttendanceResponses(List<Attendance> attendances) {
-        List<AttendanceRecord> records = attendanceRecordRepository.findAllByAttendanceIdsInQuery(
-                attendances);
+        List<Long> attendanceIds = attendances.stream()
+                .map(Attendance::getId)
+                .toList();
+
+        List<AttendanceRecord> records = attendanceRecordRepository.findAllByAttendanceIdsInQuery(attendanceIds);
 
         Map<Long, List<AttendanceRecord>> recordsByMemberId = records.stream()
                 .collect(Collectors.groupingBy(AttendanceRecord::getMemberId));
@@ -93,28 +97,27 @@ public class AttendanceRecordService {
         List<Long> sessionIds = sessions.stream()
                 .map(Session::getId)
                 .toList();
-        // 세션에 해당하는 모든 출결을 찾아
-        LocalDateTime currentTime = LocalDateTime.now();
 
-        Map<Boolean, List<Attendance>> isClosedAttendance = attendanceRepository.findAllBySessionIdsInQuery(sessionIds)
-                .stream()
-                .collect(Collectors.partitioningBy(attendance ->
-                        getAttendanceOpenStatus(sessionMap.get(attendance.getSessionId()).getSessionDateTime(),
-                                attendance, currentTime) == AttendanceOpenStatus.CLOSED));
+        List<Attendance> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds);
 
-        List<Long> closedAttendanceIds = isClosedAttendance.get(true).stream()
+        List<Long> attendanceIds = attendances.stream()
                 .map(Attendance::getId)
                 .toList();
 
-        List<MemberAttendResponse> responses = attendanceRecordRepository.findAllByAttendanceIdsInQueryAndMemberId(
-                        closedAttendanceIds, memberId).stream()
-                .map(ar -> MemberAttendResponse.closedAttendanceResponse(
-                        sessionMap.get(ar.getAttendance().getSessionId()), ar))
+        Map<Long, AttendanceRecord> attendanceRecordMap = attendanceRecordRepository.findAllByAttendanceIdsInQueryAndMemberId(
+                        attendanceIds, memberId).stream()
+                .collect(Collectors.toUnmodifiableMap(AttendanceRecord::getAttendanceId, Function.identity()));
+
+        Map<Boolean, List<Attendance>> recordedAttendance = attendances.stream()
+                .collect(Collectors.partitioningBy(at -> attendanceRecordMap.containsKey(at.getId())));
+
+        List<MemberAttendResponse> responses = recordedAttendance.get(true).stream()
+                .map(at -> MemberAttendResponse.recordedAttendance(sessionMap.get(at.getSessionId()), at,
+                        attendanceRecordMap.get(at.getId())))
                 .collect(Collectors.toList());
 
-        responses.addAll(isClosedAttendance.get(false).stream()
-                .map(attendance -> MemberAttendResponse.openedAttendanceResponse(attendance,
-                        sessionMap.get(attendance.getSessionId()), memberId))
+        responses.addAll(recordedAttendance.get(false).stream()
+                .map(at -> MemberAttendResponse.unrecordedAttendance(sessionMap.get(at.getSessionId()), at, memberId))
                 .toList());
 
         return MemberAttendanceRecordsResponse.of(generationId, responses);
@@ -131,5 +134,24 @@ public class AttendanceRecordService {
         }
 
         attendanceRecordRepository.saveAll(attendanceRecords);
+    }
+
+    @Transactional
+    public void updateUnrecordedAttendanceRecord(Long sessionId) {
+        Attendance attendance = attendanceRepository.findBySessionId(sessionId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 세션에 대한 출석이 생성되지 않았습니다."));
+
+        // 출결 입력을 한 부원
+        Set<Long> attendedMember = attendanceRecordRepository.findAllByAttendanceId(attendance.getId()).stream()
+                .map(AttendanceRecord::getMemberId)
+                .collect(Collectors.toUnmodifiableSet());
+
+        List<AttendanceRecord> unrecordedMemberIds = memberService.findActiveMember().stream()
+                .map(Member::getId)
+                .filter(id -> !attendedMember.contains(id))
+                .map(id -> AttendanceRecord.absentRecord(attendance, id))
+                .toList();
+
+        attendanceRecordRepository.saveAll(unrecordedMemberIds);
     }
 }

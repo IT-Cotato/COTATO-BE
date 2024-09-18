@@ -1,15 +1,16 @@
 package org.cotato.csquiz.common.schedule;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.common.sse.SseSender;
-import org.cotato.csquiz.domain.attendance.enums.DeadLine;
+import org.cotato.csquiz.common.util.TimeUtil;
+import org.cotato.csquiz.domain.attendance.service.AttendanceRecordService;
 import org.cotato.csquiz.domain.auth.entity.RefusedMember;
 import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
@@ -29,8 +30,10 @@ public class SchedulerService {
     private final RefusedMemberRepository refusedMemberRepository;
     private final MemberRepository memberRepository;
     private final EducationService educationService;
+    private final AttendanceRecordService attendanceRecordService;
     private final SseSender sseSender;
     private final TaskScheduler taskScheduler;
+    private final Map<Long, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
 
     @Transactional
     @Scheduled(cron = "0 0 0 * * *")
@@ -56,8 +59,33 @@ public class SchedulerService {
     }
 
     public void scheduleSessionNotification(LocalDateTime notificationTime) {
-        ZonedDateTime zonedDateTime = notificationTime.atZone(ZoneId.of("Asia/Seoul"));
+        ZonedDateTime zonedDateTime = TimeUtil.getSeoulZoneTime(notificationTime);
 
         taskScheduler.schedule(() -> sseSender.sendNotification(notificationTime), zonedDateTime.toInstant());
+    }
+
+    public void scheduleAbsentRecords(LocalDateTime sessionDateTime, Long sessionId) {
+        // 이미 해당 세션에 스케줄된 작업이 있으면 취소
+        ScheduledFuture<?> existingTask = scheduledTasks.get(sessionId);
+        if (existingTask != null && !existingTask.isDone()) {
+            existingTask.cancel(false);
+        }
+
+        LocalDateTime nextDateTime = sessionDateTime.plusDays(1);
+        ZonedDateTime zonedDateTime = TimeUtil.getSeoulZoneTime(nextDateTime);
+
+        // 새로운 작업 스케줄링
+        ScheduledFuture<?> newTask = taskScheduler.schedule(
+                () -> {
+                    try {
+                        attendanceRecordService.updateUnrecordedAttendanceRecord(sessionId);
+                    } finally {
+                        scheduledTasks.remove(sessionId);
+                    }
+                },
+                zonedDateTime.toInstant()
+        );
+
+        scheduledTasks.put(sessionId, newTask);
     }
 }

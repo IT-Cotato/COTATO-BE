@@ -30,20 +30,7 @@ public record MemberAttendResponse(
         @Schema(description = "마감된 출석에 대한 출결 결과", nullable = true)
         AttendanceResult attendanceResult
 ) {
-    public static MemberAttendResponse closedAttendanceResponse(Session session, AttendanceRecord attendanceRecord) {
-        return new MemberAttendResponse(
-                session.getId(),
-                attendanceRecord.getAttendance().getId(),
-                attendanceRecord.getMemberId(),
-                session.getTitle(),
-                session.getSessionDateTime(),
-                AttendanceOpenStatus.CLOSED,
-                attendanceRecord.getAttendanceType(),
-                attendanceRecord.getAttendanceResult()
-        );
-    }
-
-    public static MemberAttendResponse openedAttendanceResponse(Attendance attendance, Session session, Long memberId) {
+    public static MemberAttendResponse unrecordedAttendance(Session session, Attendance attendance, Long memberId) {
         return new MemberAttendResponse(
                 session.getId(),
                 attendance.getId(),
@@ -53,6 +40,20 @@ public record MemberAttendResponse(
                 AttendanceUtil.getAttendanceOpenStatus(session.getSessionDateTime(), attendance, LocalDateTime.now()),
                 null,
                 null
+        );
+    }
+
+    public static MemberAttendResponse recordedAttendance(Session session, Attendance attendance,
+                                                          AttendanceRecord attendanceRecord) {
+        return new MemberAttendResponse(
+                session.getId(),
+                attendanceRecord.getAttendanceId(),
+                attendanceRecord.getMemberId(),
+                session.getTitle(),
+                session.getSessionDateTime(),
+                AttendanceUtil.getAttendanceOpenStatus(session.getSessionDateTime(), attendance, LocalDateTime.now()),
+                attendanceRecord.getAttendanceType(),
+                attendanceRecord.getAttendanceResult()
         );
     }
 }
