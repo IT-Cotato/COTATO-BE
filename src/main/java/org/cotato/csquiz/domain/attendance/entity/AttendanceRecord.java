@@ -52,7 +52,7 @@ public class AttendanceRecord extends BaseTimeEntity {
     @Column(name = "attendance_id", nullable = false)
     private Long attendanceId;
 
-    @Column(name = "attend_time", nullable = false)
+    @Column(name = "attend_time")
     private LocalDateTime attendTime;
 
     private AttendanceRecord(AttendanceType attendanceType, AttendanceResult attendanceResult, Double locationAccuracy,
@@ -96,7 +96,7 @@ public class AttendanceRecord extends BaseTimeEntity {
             null,
             memberId,
             attendance,
-            LocalDateTime.now()
+            null
         );
     }
 
