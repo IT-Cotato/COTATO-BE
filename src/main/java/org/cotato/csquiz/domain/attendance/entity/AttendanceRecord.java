@@ -49,11 +49,10 @@ public class AttendanceRecord extends BaseTimeEntity {
     @Column(name = "member_id", nullable = false)
     private Long memberId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "attendance_id")
-    private Attendance attendance;
+    @Column(name = "attendance_id", nullable = false)
+    private Long attendanceId;
 
-    @Column(name = "attend_time", nullable = false)
+    @Column(name = "attend_time")
     private LocalDateTime attendTime;
 
     private AttendanceRecord(AttendanceType attendanceType, AttendanceResult attendanceResult, Double locationAccuracy,
@@ -62,7 +61,7 @@ public class AttendanceRecord extends BaseTimeEntity {
         this.attendanceResult = attendanceResult;
         this.locationAccuracy = locationAccuracy;
         this.memberId = memberId;
-        this.attendance = attendance;
+        this.attendanceId = attendance.getId();
         this.attendTime = attendTime;
     }
 
@@ -87,6 +86,17 @@ public class AttendanceRecord extends BaseTimeEntity {
                 memberId,
                 attendance,
                 attendTime
+        );
+    }
+
+    public static AttendanceRecord absentRecord(Attendance attendance, Long memberId) {
+        return new AttendanceRecord(
+            AttendanceType.ABSENT,
+            AttendanceResult.ABSENT,
+            null,
+            memberId,
+            attendance,
+            null
         );
     }
 

@@ -27,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ProjectService {
 
-    private final ProjectImageService projectImageService;
     private final ProjectMemberService projectMemberService;
     private final ProjectRepository projectRepository;
     private final ProjectImageRepository projectImageRepository;

@@ -9,7 +9,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.csquiz.common.entity.S3Info;
@@ -35,26 +34,38 @@ public class ProjectImage {
     @Column(name = "project_id", nullable = false)
     private Long projectId;
 
-    @Builder
-    public ProjectImage(ProjectImageType projectImageType, S3Info s3Info, Long projectId) {
+    @Column(name = "project_image_order", nullable = false)
+    private int imageOrder;
+
+    private ProjectImage(ProjectImageType projectImageType, S3Info s3Info, Long projectId, int imageOrder) {
         this.projectImageType = projectImageType;
         this.s3Info = s3Info;
         this.projectId = projectId;
+        this.imageOrder = imageOrder;
     }
 
-    public static ProjectImage logoImage(S3Info imageInfo, Long projectId) {
+    public static ProjectImage logoImage(S3Info s3Info, Long projectId) {
         return new ProjectImage(
                 ProjectImageType.LOGO,
-                imageInfo,
-                projectId
-        );
+                s3Info,
+                projectId,
+                1);
     }
 
-    public static ProjectImage thumbNailImage(S3Info thumbNailInfo, Long projectId) {
+    public static ProjectImage thumbnailImage(S3Info s3Info, Long projectId) {
         return new ProjectImage(
                 ProjectImageType.THUMBNAIL,
-                thumbNailInfo,
-                projectId
+                s3Info,
+                projectId,
+                1);
+    }
+
+    public static ProjectImage detailImage(S3Info imageInfo, Long projectId, int imageOrder) {
+        return new ProjectImage(
+                ProjectImageType.DETAIL,
+                imageInfo,
+                projectId,
+                imageOrder
         );
     }
 }

@@ -81,6 +81,7 @@ public class SessionService {
         attendanceAdminService.addAttendance(session, Location.location(request.latitude(), request.longitude()),
                 request.attendanceDeadLine(), request.lateDeadLine());
         schedulerService.scheduleSessionNotification(savedSession.getSessionDateTime());
+        schedulerService.scheduleAbsentRecords(savedSession.getSessionDateTime(), savedSession.getId());
 
         return AddSessionResponse.from(savedSession);
     }
@@ -106,12 +107,14 @@ public class SessionService {
                 .networking(request.networking())
                 .build());
 
-        updateSessionDateTime(session, request.sessionDateTime(), request.attendTime().attendanceDeadLine(), request.attendTime().lateDeadLine());
+        updateSessionDateTime(session, request.sessionDateTime(), request.attendTime().attendanceDeadLine(),
+                request.attendTime().lateDeadLine());
         sessionRepository.save(session);
     }
 
     @Transactional
-    public void updateSessionDateTime(Session session, LocalDateTime newDateTime, LocalTime attendanceDeadline, LocalTime lateDeadline) {
+    public void updateSessionDateTime(Session session, LocalDateTime newDateTime, LocalTime attendanceDeadline,
+                                      LocalTime lateDeadline) {
         Attendance attendance = attendanceRepository.findBySessionId(session.getId())
                 .orElseGet(() -> Attendance.builder()
                         .session(session)

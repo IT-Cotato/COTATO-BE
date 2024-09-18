@@ -1,6 +1,7 @@
 package org.cotato.csquiz.domain.generation.service;
 
-import static org.cotato.csquiz.common.util.FileUtil.*;
+import static org.cotato.csquiz.common.util.FileUtil.convert;
+import static org.cotato.csquiz.common.util.FileUtil.convertToWebp;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,7 +25,8 @@ public class ProjectImageService {
     private final ProjectImageRepository projectImageRepository;
 
     @Transactional
-    public void createProjectImage(Long projectId, MultipartFile logoImage, MultipartFile thumbNailImage)
+    public void createProjectImage(Long projectId, MultipartFile logoImage, MultipartFile thumbNailImage,
+                                   List<MultipartFile> detailImages)
             throws ImageException {
         List<ProjectImage> newImages = new ArrayList<>();
 
@@ -34,7 +36,16 @@ public class ProjectImageService {
 
         File webpThumbNailImage = convertToWebp(convert(thumbNailImage));
         S3Info thumbNailInfo = s3Uploader.uploadFiles(webpThumbNailImage, PROJECT_IMAGE);
-        newImages.add(ProjectImage.thumbNailImage(thumbNailInfo, projectId));
+        newImages.add(ProjectImage.thumbnailImage(thumbNailInfo, projectId));
+
+        if (detailImages != null && !detailImages.isEmpty()) {
+            for (int orderIndex = 1; orderIndex <= detailImages.size(); orderIndex++) {
+                MultipartFile detailImage = detailImages.get(orderIndex - 1);
+                File webpDetailImage = convertToWebp(convert(detailImage));
+                S3Info detailImageInfo = s3Uploader.uploadFiles(webpDetailImage, PROJECT_IMAGE);
+                newImages.add(ProjectImage.detailImage(detailImageInfo, projectId, orderIndex));
+            }
+        }
 
         projectImageRepository.saveAll(newImages);
     }
