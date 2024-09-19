@@ -11,13 +11,14 @@ import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.cotato.csquiz.common.entity.BaseTimeEntity;
 import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.domain.generation.enums.ProjectImageType;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ProjectImage {
+public class ProjectImage extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,7 +50,7 @@ public class ProjectImage {
                 ProjectImageType.LOGO,
                 s3Info,
                 projectId,
-                1);
+                0);
     }
 
     public static ProjectImage thumbnailImage(S3Info s3Info, Long projectId) {
@@ -57,7 +58,7 @@ public class ProjectImage {
                 ProjectImageType.THUMBNAIL,
                 s3Info,
                 projectId,
-                1);
+                0);
     }
 
     public static ProjectImage detailImage(S3Info imageInfo, Long projectId, int imageOrder) {
