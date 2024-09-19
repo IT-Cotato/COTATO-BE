@@ -11,13 +11,14 @@ import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.cotato.csquiz.common.entity.BaseTimeEntity;
 import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.domain.generation.enums.ProjectImageType;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ProjectImage {
+public class ProjectImage extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
