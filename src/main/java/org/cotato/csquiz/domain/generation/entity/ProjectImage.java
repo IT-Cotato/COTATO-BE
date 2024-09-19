@@ -49,7 +49,7 @@ public class ProjectImage {
                 ProjectImageType.LOGO,
                 s3Info,
                 projectId,
-                1);
+                0);
     }
 
     public static ProjectImage thumbnailImage(S3Info s3Info, Long projectId) {
@@ -57,7 +57,7 @@ public class ProjectImage {
                 ProjectImageType.THUMBNAIL,
                 s3Info,
                 projectId,
-                1);
+                0);
     }
 
     public static ProjectImage detailImage(S3Info imageInfo, Long projectId, int imageOrder) {

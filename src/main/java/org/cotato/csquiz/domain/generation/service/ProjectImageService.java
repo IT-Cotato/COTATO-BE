@@ -39,8 +39,8 @@ public class ProjectImageService {
         newImages.add(ProjectImage.thumbnailImage(thumbNailInfo, projectId));
 
         if (detailImages != null && !detailImages.isEmpty()) {
-            for (int orderIndex = 1; orderIndex <= detailImages.size(); orderIndex++) {
-                MultipartFile detailImage = detailImages.get(orderIndex - 1);
+            for (int orderIndex = 0; orderIndex < detailImages.size(); orderIndex++) {
+                MultipartFile detailImage = detailImages.get(orderIndex);
                 File webpDetailImage = convertToWebp(convert(detailImage));
                 S3Info detailImageInfo = s3Uploader.uploadFiles(webpDetailImage, PROJECT_IMAGE);
                 newImages.add(ProjectImage.detailImage(detailImageInfo, projectId, orderIndex));
