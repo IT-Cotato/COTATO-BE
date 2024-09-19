@@ -6,8 +6,11 @@ import static org.cotato.csquiz.common.util.FileUtil.convertToWebp;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.common.entity.S3Info;
+import org.cotato.csquiz.common.error.ErrorCode;
+import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.common.error.exception.ImageException;
 import org.cotato.csquiz.common.s3.S3Uploader;
 import org.cotato.csquiz.domain.generation.entity.ProjectImage;
@@ -26,8 +29,18 @@ public class ProjectImageService {
 
     @Transactional
     public void createProjectImage(Long projectId, MultipartFile logoImage, MultipartFile thumbNailImage,
-                                   List<MultipartFile> detailImages)
-            throws ImageException {
+                                   List<MultipartFile> detailImages) throws ImageException {
+
+        Optional<ProjectImage> existingLogoImage = projectImageRepository.findLogoImageByProjectId(projectId);
+        if (existingLogoImage.isPresent()) {
+            throw new AppException(ErrorCode.LOGO_IMAGE_EXIST);
+        }
+
+        Optional<ProjectImage> existingThumbnailImage = projectImageRepository.findThumbnailImageByProjectId(projectId);
+        if (existingThumbnailImage.isPresent()) {
+            throw new AppException(ErrorCode.THUMBNAIL_IMAGE_EXIST);
+        }
+
         List<ProjectImage> newImages = new ArrayList<>();
 
         File webpLogoImage = convertToWebp(convert(logoImage));
