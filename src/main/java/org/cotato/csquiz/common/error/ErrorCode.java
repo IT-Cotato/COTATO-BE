@@ -84,6 +84,10 @@ public enum ErrorCode {
     ALREADY_ATTEND(HttpStatus.CONFLICT, "AT-301", "이미 해당 타입으로 출석한 기록이 있습니다."),
     ATTENDANCE_NOT_OPEN(HttpStatus.BAD_REQUEST, "AT-401", "출석 시간이 아닙니다."),
 
+    //프로젝트 관련
+    LOGO_IMAGE_EXIST(HttpStatus.CONFLICT, "PJ-301", "이미 로고 이미지가 존재합니다."),
+    THUMBNAIL_IMAGE_EXIST(HttpStatus.CONFLICT, "PJ-302", "이미 썸네일 이미지가 존재합니다."),
+
     // 500 오류 -> 서버측에서 처리가 실패한 부분들
     WEBSOCKET_SEND_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "S-001", "소캣 메세지 전송 실패"),
     IMAGE_PROCESSING_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S-002", "이미지 처리에 실패했습니다."),
