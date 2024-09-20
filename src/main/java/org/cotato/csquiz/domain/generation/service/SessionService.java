@@ -1,19 +1,17 @@
 package org.cotato.csquiz.domain.generation.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.cotato.csquiz.api.attendance.dto.AttendanceDeadLineDto;
 import org.cotato.csquiz.api.session.dto.AddSessionRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionResponse;
 import org.cotato.csquiz.api.session.dto.CsEducationOnSessionNumberResponse;
 import org.cotato.csquiz.api.session.dto.SessionListResponse;
-import org.cotato.csquiz.api.session.dto.UpdateSessionNumberRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionRequest;
 import org.cotato.csquiz.common.error.exception.ImageException;
 import org.cotato.csquiz.common.schedule.SchedulerService;
@@ -65,7 +63,7 @@ public class SessionService {
                 .generation(findGeneration)
                 .title(request.title())
                 .placeName(request.placeName())
-                .sessionDate(request.sessionDate())
+                .sessionDateTime(request.sessionDateTime())
                 .sessionContents(SessionContents.builder()
                         .csEducation(request.csEducation())
                         .devTalk(request.devTalk())
@@ -80,18 +78,10 @@ public class SessionService {
             sessionImageService.addSessionImages(request.images(), savedSession);
         }
 
-        Location location = Location.builder()
-                .latitude(request.latitude())
-                .longitude(request.longitude())
-                .build();
-
-        AttendanceDeadLineDto attendanceDeadLine = AttendanceDeadLineDto.builder()
-                .attendanceDeadLine(request.attendanceDeadLine())
-                .lateDeadLine(request.lateDeadLine())
-                .build();
-
-        attendanceAdminService.addAttendance(session, location, attendanceDeadLine);
-        schedulerService.scheduleSessionNotification(savedSession.getSessionDate());
+        attendanceAdminService.addAttendance(session, Location.location(request.latitude(), request.longitude()),
+                request.attendanceDeadLine(), request.lateDeadLine());
+        schedulerService.scheduleSessionNotification(savedSession.getSessionDateTime());
+        schedulerService.scheduleAbsentRecords(savedSession.getSessionDateTime(), savedSession.getId());
 
         return AddSessionResponse.from(savedSession);
     }
@@ -100,12 +90,6 @@ public class SessionService {
         List<Session> allSession = sessionRepository.findAllByGenerationId(generation.getId());
         return allSession.stream().mapToInt(Session::getNumber).max()
                 .orElse(-1);
-    }
-
-    @Transactional
-    public void updateSessionNumber(UpdateSessionNumberRequest request) {
-        Session session = findSessionById(request.sessionId());
-        session.changeSessionNumber(session.getNumber());
     }
 
     @Transactional
@@ -123,31 +107,33 @@ public class SessionService {
                 .networking(request.networking())
                 .build());
 
-        updateSessionDate(session, request.sessionDate(), request.attendTime());
+        updateSessionDateTime(session, request.sessionDateTime(), request.attendTime().attendanceDeadLine(),
+                request.attendTime().lateDeadLine());
         sessionRepository.save(session);
     }
 
-    public void updateSessionDate(Session session, LocalDate newDate, AttendanceDeadLineDto newDeadline) {
-        Attendance findAttendance = attendanceRepository.findBySessionId(session.getId())
+    @Transactional
+    public void updateSessionDateTime(Session session, LocalDateTime newDateTime, LocalTime attendanceDeadline,
+                                      LocalTime lateDeadline) {
+        Attendance attendance = attendanceRepository.findBySessionId(session.getId())
                 .orElseGet(() -> Attendance.builder()
                         .session(session)
                         .build());
 
-
         // 날짜가 바뀌지 않았고, 출결 시간이 모두 동일한 경우
-        if (newDate.equals(session.getSessionDate()) &&
-                findAttendance.getAttendanceDeadLine().toLocalTime().equals(newDeadline.attendanceDeadLine()) &&
-                findAttendance.getLateDeadLine().toLocalTime().equals(newDeadline.lateDeadLine())) {
+        if (newDateTime.equals(session.getSessionDateTime()) &&
+                attendance.getAttendanceDeadLine().toLocalTime().equals(attendanceDeadline) &&
+                attendance.getLateDeadLine().toLocalTime().equals(lateDeadline)) {
             return;
         }
-        session.updateSessionDate(newDate);
+        session.updateSessionDateTime(newDateTime);
 
-        LocalDateTime newAttendanceDeadline = LocalDateTime.of(newDate, newDeadline.attendanceDeadLine());
-        LocalDateTime newLateDeadline = LocalDateTime.of(newDate, newDeadline.lateDeadLine());
-        findAttendance.updateDeadLine(newAttendanceDeadline, newLateDeadline);
+        LocalDateTime newAttendanceDeadline = LocalDateTime.of(newDateTime.toLocalDate(), attendanceDeadline);
+        LocalDateTime newLateDeadline = LocalDateTime.of(newDateTime.toLocalDate(), lateDeadline);
+        attendance.updateDeadLine(newAttendanceDeadline, newLateDeadline);
 
-        attendanceRepository.save(findAttendance);
-        attendanceRecordService.updateAttendanceStatus(findAttendance);
+        attendanceRepository.save(attendance);
+        attendanceRecordService.updateAttendanceStatus(newDateTime, attendance);
     }
 
     public List<SessionListResponse> findSessionsByGenerationId(Long generationId) {

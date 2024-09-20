@@ -54,7 +54,7 @@ public class ProjectController {
     @PostMapping(value = "/images", consumes = "multipart/form-data")
     public ResponseEntity<Void> createProjectImage(@ModelAttribute CreateProjectImageRequest request)
             throws ImageException {
-        projectImageService.createProjectImage(request.projectId(), request.logoImage(), request.thumbNailImage());
+        projectImageService.createProjectImage(request.projectId(), request.logoImage(), request.thumbNailImage(), request.detailImages());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

@@ -1,5 +1,6 @@
 package org.cotato.csquiz.domain.attendance.service;
 
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.api.attendance.dto.AttendResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceParams;
@@ -23,8 +24,8 @@ public class OnlineAttendClient implements AttendClient {
     }
 
     @Override
-    public AttendResponse request(AttendanceParams params, Long memberId, Attendance attendance) {
-        AttendanceResult attendanceResult = AttendanceUtil.calculateAttendanceStatus(attendance, params.requestTime());
+    public AttendResponse request(AttendanceParams params, LocalDateTime sessionStartTime, Long memberId, Attendance attendance) {
+        AttendanceResult attendanceResult = AttendanceUtil.calculateAttendanceStatus(sessionStartTime, attendance, params.requestTime());
 
         attendanceRecordRepository.save(AttendanceRecord.onLineRecord(attendance, memberId, attendanceResult, params.requestTime()));
 

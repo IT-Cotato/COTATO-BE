@@ -67,13 +67,14 @@ public class SessionImageService {
 
         S3Info imageInfo = s3Uploader.uploadFiles(request.image(), SESSION_BUCKET_DIRECTORY);
 
-        Integer imageOrder = sessionImageRepository.findFirstBySessionOrderByOrderDesc(session)
-                .map(sessionImage -> sessionImage.getOrder() + 1).orElse(0);
+        if (sessionImageRepository.existsBySessionAndOrder(session, request.order())) {
+            throw new AppException(ErrorCode.SESSION_ORDER_INVALID);
+        }
 
         SessionImage sessionImage = SessionImage.builder()
                 .session(session)
                 .s3Info(imageInfo)
-                .order(imageOrder)
+                .order(request.order())
                 .build();
 
         return AddSessionImageResponse.from(sessionImageRepository.save(sessionImage));

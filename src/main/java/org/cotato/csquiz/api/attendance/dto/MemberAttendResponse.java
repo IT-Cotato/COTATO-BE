@@ -1,7 +1,6 @@
 package org.cotato.csquiz.api.attendance.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.entity.AttendanceRecord;
@@ -21,7 +20,7 @@ public record MemberAttendResponse(
         @Schema(description = "세션 타이틀", example = "3주차 세션")
         String sessionTitle,
         @Schema(description = "세션 날짜")
-        LocalDate sessionDate,
+        LocalDateTime sessionDateTime,
         @Schema(description = "출결 진행 여부", examples = {
                 "CLOSED", "OPEN"
         })
@@ -31,29 +30,30 @@ public record MemberAttendResponse(
         @Schema(description = "마감된 출석에 대한 출결 결과", nullable = true)
         AttendanceResult attendanceResult
 ) {
-    public static MemberAttendResponse closedAttendanceResponse(Session session, AttendanceRecord attendanceRecord) {
-        return new MemberAttendResponse(
-                session.getId(),
-                attendanceRecord.getAttendance().getId(),
-                attendanceRecord.getMemberId(),
-                session.getTitle(),
-                session.getSessionDate(),
-                AttendanceOpenStatus.CLOSED,
-                attendanceRecord.getAttendanceType(),
-                attendanceRecord.getAttendanceResult()
-        );
-    }
-
-    public static MemberAttendResponse openedAttendanceResponse(Attendance attendance, Session session, Long memberId) {
+    public static MemberAttendResponse unrecordedAttendance(Session session, Attendance attendance, Long memberId) {
         return new MemberAttendResponse(
                 session.getId(),
                 attendance.getId(),
                 memberId,
                 session.getTitle(),
-                session.getSessionDate(),
-                AttendanceUtil.getAttendanceOpenStatus(attendance, LocalDateTime.now()),
+                session.getSessionDateTime(),
+                AttendanceUtil.getAttendanceOpenStatus(session.getSessionDateTime(), attendance, LocalDateTime.now()),
                 null,
                 null
+        );
+    }
+
+    public static MemberAttendResponse recordedAttendance(Session session, Attendance attendance,
+                                                          AttendanceRecord attendanceRecord) {
+        return new MemberAttendResponse(
+                session.getId(),
+                attendanceRecord.getAttendanceId(),
+                attendanceRecord.getMemberId(),
+                session.getTitle(),
+                session.getSessionDateTime(),
+                AttendanceUtil.getAttendanceOpenStatus(session.getSessionDateTime(), attendance, LocalDateTime.now()),
+                attendanceRecord.getAttendanceType(),
+                attendanceRecord.getAttendanceResult()
         );
     }
 }
