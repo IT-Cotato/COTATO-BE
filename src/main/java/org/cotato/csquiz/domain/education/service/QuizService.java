@@ -28,6 +28,13 @@ import org.cotato.csquiz.api.quiz.dto.QuizResultInfo;
 import org.cotato.csquiz.api.quiz.dto.ShortAnswerResponse;
 import org.cotato.csquiz.api.quiz.dto.ShortQuizResponse;
 import org.cotato.csquiz.common.entity.S3Info;
+import org.cotato.csquiz.common.error.ErrorCode;
+import org.cotato.csquiz.common.error.exception.AppException;
+import org.cotato.csquiz.common.error.exception.ImageException;
+import org.cotato.csquiz.common.s3.S3Uploader;
+import org.cotato.csquiz.domain.auth.entity.Member;
+import org.cotato.csquiz.domain.auth.service.MemberService;
+import org.cotato.csquiz.domain.education.cache.DiscordQuizRedisRepository;
 import org.cotato.csquiz.domain.education.cache.QuizAnswerRedisRepository;
 import org.cotato.csquiz.domain.education.entity.Choice;
 import org.cotato.csquiz.domain.education.entity.Education;
@@ -37,18 +44,14 @@ import org.cotato.csquiz.domain.education.entity.Scorer;
 import org.cotato.csquiz.domain.education.entity.ShortAnswer;
 import org.cotato.csquiz.domain.education.entity.ShortQuiz;
 import org.cotato.csquiz.domain.education.enums.ChoiceCorrect;
+import org.cotato.csquiz.domain.education.enums.EducationStatus;
+import org.cotato.csquiz.domain.education.enums.QuizType;
 import org.cotato.csquiz.domain.education.repository.ChoiceRepository;
 import org.cotato.csquiz.domain.education.repository.EducationRepository;
 import org.cotato.csquiz.domain.education.repository.QuizRepository;
 import org.cotato.csquiz.domain.education.repository.ScorerRepository;
 import org.cotato.csquiz.domain.education.repository.ShortAnswerRepository;
-import org.cotato.csquiz.domain.education.enums.EducationStatus;
-import org.cotato.csquiz.domain.auth.entity.Member;
-import org.cotato.csquiz.common.error.exception.AppException;
-import org.cotato.csquiz.common.error.ErrorCode;
-import org.cotato.csquiz.common.error.exception.ImageException;
-import org.cotato.csquiz.common.s3.S3Uploader;
-import org.cotato.csquiz.domain.auth.service.MemberService;
+import org.cotato.csquiz.domain.education.service.dto.RandomQuizResponse;
 import org.cotato.csquiz.domain.education.util.AnswerUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,6 +71,7 @@ public class QuizService {
     private final ChoiceRepository choiceRepository;
     private final QuizAnswerRedisRepository quizAnswerRedisRepository;
     private final S3Uploader s3Uploader;
+    private final DiscordQuizRedisRepository discordQuizRedisRepository;
 
     @Transactional
     public void createQuizzes(Long educationId, CreateQuizzesRequest request) throws ImageException {
@@ -349,5 +353,24 @@ public class QuizService {
     private int generateRandomTime() {
         final ThreadLocalRandom random = ThreadLocalRandom.current();
         return random.nextInt(QuizService.RANDOM_DELAY_TIME_BOUNDARY);
+    }
+
+    @Transactional(readOnly = true)
+    public RandomQuizResponse pickRandomQuiz() {
+        List<Long> finishedEducationIds = educationRepository.findAllByStatus(EducationStatus.FINISHED).stream()
+                .map(Education::getId)
+                .toList();
+
+        List<Quiz> multipleQuizzes = quizRepository.findAllByEducationIdsInQuery(finishedEducationIds).stream()
+                .filter(quiz -> quiz.getQuizType() == QuizType.MULTIPLE_QUIZ)
+                .filter(quiz -> !discordQuizRedisRepository.isUsedInOneWeek(quiz.getId()))
+                .toList();
+
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        Quiz randomQuiz = multipleQuizzes.get(random.nextInt(multipleQuizzes.size()));
+
+        discordQuizRedisRepository.save(randomQuiz.getId());
+
+        return RandomQuizResponse.from(randomQuiz);
     }
 }
