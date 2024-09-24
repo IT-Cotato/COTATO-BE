@@ -97,7 +97,10 @@ public enum ErrorCode {
     SCORER_LOCK_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S-006", "득점자 락 획득 과정에서 에러 발생"),
     IMAGE_CONVERT_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S-007", "로컬 이미지 변환에 실패했습니다"),
     SSE_SEND_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S-008", "서버 이벤트 전송간 오류 발생"),
-    WEBP_CONVERT_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S-009", "webp 변환에 실패했습니다")
+    WEBP_CONVERT_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S-009", "webp 변환에 실패했습니다"),
+    GUILD_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "S-010", "디스코드 서버를 찾지 못했습니다."),
+    CHANNEL_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "S-011", "디스코드 채널을 찾지 못했습니다."),
+    DISCORD_BUTTON_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S-012" , "디스코드 버튼 이벤트 ID를 찾지 못했습니다."),
     ;
 
     private final HttpStatus httpStatus;
