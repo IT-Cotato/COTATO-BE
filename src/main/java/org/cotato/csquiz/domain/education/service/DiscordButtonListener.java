@@ -3,6 +3,7 @@ package org.cotato.csquiz.domain.education.service;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.cotato.csquiz.common.error.ErrorCode;
@@ -12,6 +13,7 @@ import org.cotato.csquiz.domain.education.enums.ChoiceCorrect;
 import org.cotato.csquiz.domain.education.repository.ChoiceRepository;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class DiscordButtonListener extends ListenerAdapter {
@@ -22,6 +24,7 @@ public class DiscordButtonListener extends ListenerAdapter {
     public void onButtonInteraction(ButtonInteractionEvent event) {
         String id = Optional.ofNullable(event.getButton().getId())
                 .orElseThrow(() -> new AppException(ErrorCode.DISCORD_BUTTON_ERROR));
+        log.info("[디스 코드 리스너 전송: {}]", id);
 
         Choice choice = choiceRepository.findById(Long.parseLong(id))
                 .orElseThrow(() -> new EntityNotFoundException("해당 선지를 찾을 수 없습니다."));
