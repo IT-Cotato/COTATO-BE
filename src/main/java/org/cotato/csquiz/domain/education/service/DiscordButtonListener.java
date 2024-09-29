@@ -30,9 +30,9 @@ public class DiscordButtonListener extends ListenerAdapter {
                 .orElseThrow(() -> new EntityNotFoundException("해당 선지를 찾을 수 없습니다."));
 
         if (choice.getIsCorrect() == ChoiceCorrect.ANSWER) {
-            event.reply("축하합니다! 정답입니다.").queue();
+            event.deferReply(true).setContent("축하합니다! 정답입니다.").queue();
         } else {
-            event.reply("아쉽게도 오답이네요 ㅠ").queue();
+            event.deferReply(true).setContent("아쉽게도 오답이네요 ㅠ").queue();
         }
     }
 }
