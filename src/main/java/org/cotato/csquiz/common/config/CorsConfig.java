@@ -17,7 +17,6 @@ public class CorsConfig {
         config.setAllowCredentials(true);
         config.addAllowedOrigin("https://www.cotato.kr");
         config.addAllowedOrigin("https://qa.beta.cotato.kr");
-        config.addAllowedOrigin("http://qa.beta.cotato.kr");
         config.addAllowedOrigin("http://localhost:3000");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
