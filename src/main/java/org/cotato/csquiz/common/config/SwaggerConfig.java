@@ -12,8 +12,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @OpenAPIDefinition(
-        info = @Info(title = "CS-QUIZ 프로젝트 API 명세서"
-                , description = "quiz api 명세서", version = "v1")
+        info = @Info(title = "COTATO 프로젝트 API 명세서"
+                , description = "api 명세서", version = "v1")
 )
 @Configuration
 public class SwaggerConfig {
@@ -21,9 +21,8 @@ public class SwaggerConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
-                .addServersItem(new Server().url("http://localhost:8080").description("Local Server"))
-                .addServersItem(new Server().url("http://43.201.196.189:8082").description("Staging Server"))
-                .addServersItem(new Server().url("https://qa.beta.cotato.kr").description("QA Server Domain"))
+                .addServersItem(new Server().url("https://api.stage.cotato.kr").description("Staging Server"))
+                .addServersItem(new Server().url("http://localhost:8080").description("개발자 로컬 서버"))
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components(new Components().addSecuritySchemes("bearerAuth",
                         new SecurityScheme()
