@@ -34,7 +34,8 @@ public class SecurityConfig {
             "/v1/api/session",
             "/websocket/csquiz",
             "/v2/api/policies",
-            "/v2/api/events/**"
+            "/v2/api/events/**",
+            "/v1/api/generation/current"
     };
 
     private final JwtTokenProvider jwtTokenProvider;
