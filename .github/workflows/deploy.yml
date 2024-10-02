@@ -35,6 +35,9 @@ jobs:
           spring.datasource.username: ${{ secrets.DB_USERNAME }}
           spring.datasource.password: ${{ secrets.DB_PWD }}
           spring.jpa.hibernate.ddl-auto: ${{ secrets.DDL_AUTO }}
+          discord.bot.token: ${{ secrets.DISCORD_TOKEN }}
+          discord.guild.id: ${{ secrets.GUILD_ID }}
+          discord.channel.id: ${{ secrets.CHANNEL_ID }}
 
       # application-yml을 세팅한다.
       - name: Set up Base Yaml File
@@ -51,7 +54,6 @@ jobs:
           spring.mail.username: ${{ secrets.SENDER_EMAIL }}
           spring.mail.password: ${{ secrets.SENDER_PASSWORD }}
           location.distance: ${{ secrets.STANDARD_DISTANCE }}
-
 
       # [2] 실행 권한 부여
       - name: Grant permission for gradlew
