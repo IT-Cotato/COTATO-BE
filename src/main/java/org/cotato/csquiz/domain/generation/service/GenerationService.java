@@ -78,7 +78,7 @@ public class GenerationService {
     }
 
     public GenerationInfoResponse findCurrentGeneration(LocalDate currentDate) {
-        Generation currentGeneration = generationRepository.findByCurrentGeneration(currentDate)
+        Generation currentGeneration = generationRepository.findByCurrentDate(currentDate)
                 .orElseThrow(() -> new EntityNotFoundException("현재 날짜에 해당하는 기수가 존재하지 않습니다"));
         return GenerationInfoResponse.from(currentGeneration);
     }
