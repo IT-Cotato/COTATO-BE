@@ -19,4 +19,6 @@ public interface ChoiceRepository extends JpaRepository<Choice, Long> {
     @Modifying
     @Query("delete from Choice c where c.multipleQuiz.id in :quizIds")
     void deleteAllByQuizIdsInQuery(@Param("quizIds") List<Long> quizIds);
+
+    List<Choice> findAllByMultipleQuizId(Long quizId);
 }
