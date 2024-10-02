@@ -76,4 +76,10 @@ public class GenerationService {
             throw new AppException(ErrorCode.GENERATION_NUMBER_DUPLICATED);
         }
     }
+
+    public GenerationInfoResponse findCurrentGeneration(LocalDate currentDate) {
+        Generation currentGeneration = generationRepository.findByCurrentGeneration(currentDate)
+                .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
+        return GenerationInfoResponse.from(currentGeneration);
+    }
 }
