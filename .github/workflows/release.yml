@@ -52,6 +52,9 @@ jobs:
           spring.mail.username: ${{ secrets.SENDER_EMAIL }}
           spring.mail.password: ${{ secrets.SENDER_PASSWORD }}
           location.distance: ${{ secrets.STANDARD_DISTANCE }}
+          discord.bot.token: ${{ secrets.TEST_DISCORD_TOKEN }}
+          discord.guild.id: ${{ secrets.TEST_GUILD_ID }}
+          discord.channel.id: ${{ secrets.TEST_CHANNEL_ID }}
 
 
       # [2] 실행 권한 부여
