@@ -19,6 +19,6 @@ public interface GenerationRepository extends JpaRepository<Generation, Long> {
     @Query("SELECT g FROM Generation g WHERE :currentDate BETWEEN g.period.startDate AND g.period.endDate")
     Optional<Generation> findByCurrentDate(@Param("currentDate") LocalDate currentDate);
 
-    @Query("SELECT g FROM Generation g WHERE g.period.endDate < :currentDate ORDER BY g.period.endDate DESC LIMIT 1")
+    @Query(value = "SELECT * FROM generation g WHERE g.generation_end_date < :currentDate ORDER BY g.generation_end_date DESC LIMIT 1", nativeQuery = true)
     Optional<Generation> findPreviousGenerationByCurrentDate(@Param("currentDate") LocalDate currentDate);
 }
