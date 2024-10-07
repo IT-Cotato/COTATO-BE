@@ -69,3 +69,13 @@ aes:
 
 location:
   distance: ${STANDARD_DISTANCE}
+
+discord:
+  bot:
+    token: ${TEST_DISCORD_TOKEN}
+
+  guild:
+    id: ${TEST_GUILD_ID}
+
+  channel:
+    id: ${TEST_CHANNEL_ID}
