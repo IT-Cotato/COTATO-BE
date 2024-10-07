@@ -2,6 +2,7 @@ package org.cotato.csquiz.api.generation.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,5 +50,11 @@ public class GenerationController {
     public ResponseEntity<Void> changeGenerationPeriod(@RequestBody @Valid ChangeGenerationPeriodRequest request) {
         generationService.changeGenerationPeriod(request);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/current")
+    public ResponseEntity<GenerationInfoResponse> findCurrentGeneration() {
+        LocalDate currentDate = LocalDate.now();
+        return ResponseEntity.ok().body(generationService.findCurrentGeneration(currentDate));
     }
 }
