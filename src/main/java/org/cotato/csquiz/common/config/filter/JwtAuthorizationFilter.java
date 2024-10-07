@@ -34,6 +34,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private static final String POLICIES_PATH = "/v2/api/policies";
     private static final String PROJECTS_LIST = "/v2/api/projects";
     private static final String PROJECT_DETAIL = "/v2/api/projects/{projectId:\\d+}";
+    private static final String CURRENT_GENERATION = "/v1/api/generation/current";
 
     private final JwtTokenProvider jwtTokenProvider;
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
@@ -72,6 +73,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 || path.startsWith(SWAGGER_PATH_3) || path.startsWith(WS)
                 || path.equals(GENERATION_PATH) || path.equals(SESSION_PATH)
                 || path.equals(POLICIES_PATH)
+                || path.equals(CURRENT_GENERATION)
                 || path.equals(PROJECTS_LIST) && HttpMethod.GET.name().equals(request.getMethod())
                 || pathMatcher.match(PROJECT_DETAIL, path);
     }
