@@ -17,3 +17,11 @@ spring:
 springdoc:
   swagger-ui:
     enabled: false
+
+discord:
+  bot:
+    token: ${DISCORD_BOT_TOKEN}
+  guild:
+    id: ${GUILD_ID}
+  channel:
+    id: ${CHANNEL_ID}
