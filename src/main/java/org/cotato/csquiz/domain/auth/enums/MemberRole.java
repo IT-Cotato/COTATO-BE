@@ -14,7 +14,7 @@ public enum MemberRole {
     OLD_MEMBER("ROLE_OM"),
     ADMIN("ROLE_ADMIN"),
     EDUCATION("ROLE_EDUCATION"),
-    SUPPORT("ROLE_SUPPORT");
+    OPERATION("ROLE_OPERATION");
 
     private final String key;
 
