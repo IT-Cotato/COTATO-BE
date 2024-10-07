@@ -13,7 +13,8 @@ public enum MemberRole {
     MEMBER("ROLE_MEMBER"),
     OLD_MEMBER("ROLE_OM"),
     ADMIN("ROLE_ADMIN"),
-    EDUCATION("ROLE_EDUCATION");
+    EDUCATION("ROLE_EDUCATION"),
+    SUPPORT("ROLE_SUPPORT");
 
     private final String key;
 
