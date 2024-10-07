@@ -49,7 +49,7 @@ public class AttendanceService {
                         .attendanceId(at.getId())
                         .sessionId(at.getSessionId())
                         .sessionTitle(sessionMap.get(at.getSessionId()).getTitle())
-                        .sessionDate(at.getAttendanceDeadLine().toLocalDate())
+                        .sessionDateTime(sessionMap.get(at.getSessionId()).getSessionDateTime())
                         .openStatus(AttendanceUtil.getAttendanceOpenStatus(sessionMap.get(at.getSessionId()).getSessionDateTime(), at, currentTime))
                         .build())
                 .toList();
