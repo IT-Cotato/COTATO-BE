@@ -125,6 +125,8 @@ public class AdminService {
             }
             member.updateRole(MemberRole.OLD_MEMBER);
             memberRepository.save(member);
+
+            emailVerificationService.sendConvertToOldMemberToEmail(member);
         }
     }
 

@@ -1,5 +1,7 @@
 package org.cotato.csquiz.domain.auth.service;
 
+import static org.cotato.csquiz.domain.auth.constant.EmailConstants.CONVERSION_TO_OM_SUBJECT;
+import static org.cotato.csquiz.domain.auth.constant.EmailConstants.CONVERSION_TO_OM_MESSAGE;
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.COTATO_HYPERLINK;
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.MEMBER_GENERATION_PREFIX;
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.MEMBER_NAME_SUFFIX;
@@ -100,6 +102,23 @@ public class EmailVerificationService {
         return String.valueOf(
                 sb.append(String.format(MEMBER_GENERATION_PREFIX, passedGenerationNumber))
                         .append(String.format(MEMBER_POSITION_PREFIX, position.name())));
+    }
+
+    public void sendConvertToOldMemberToEmail(Member recipientMember) {
+        emailFormValidator.validateEmailForm(recipientMember.getEmail());
+
+        String conversionMessageBody = getConvertToOldMemberMessageBody(recipientMember);
+
+        sendEmail(recipientMember.getEmail(), conversionMessageBody, CONVERSION_TO_OM_SUBJECT);
+        log.info("OM 전환 이메일 전송 완료");
+    }
+
+    private String getConvertToOldMemberMessageBody(Member recipientMember) {
+        StringBuilder sb = new StringBuilder();
+        return String.valueOf(sb.append(SIGNUP_MESSAGE_PREFIX)
+                .append(getMemberName(recipientMember.getName()))
+                .append(CONVERSION_TO_OM_MESSAGE)
+                .append(COTATO_HYPERLINK));
     }
 
     private String getMemberName(String memberName) {
