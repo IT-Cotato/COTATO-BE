@@ -32,6 +32,7 @@ public class AdminService {
     private final GenerationRepository generationRepository;
     private final RefusedMemberRepository refusedMemberRepository;
     private final MemberService memberService;
+    private final EmailVerificationService emailVerificationService;
 
     public List<ApplyMemberInfoResponse> findApplicantList() {
         return createApplyInfoList(memberRepository.findAllByRole(MemberRole.GENERAL));
@@ -53,6 +54,8 @@ public class AdminService {
             member.updatePosition(request.position());
             memberRepository.save(member);
         }
+
+        emailVerificationService.sendSignUpApprovedToEmail(member);
     }
 
     @Transactional

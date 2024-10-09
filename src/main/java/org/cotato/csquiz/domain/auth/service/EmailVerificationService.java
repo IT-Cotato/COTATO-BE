@@ -1,9 +1,16 @@
 package org.cotato.csquiz.domain.auth.service;
 
+import static org.cotato.csquiz.domain.auth.constant.EmailConstants.COTATO_HYPERLINK;
+import static org.cotato.csquiz.domain.auth.constant.EmailConstants.MEMBER_GENERATION_PREFIX;
+import static org.cotato.csquiz.domain.auth.constant.EmailConstants.MEMBER_NAME_SUFFIX;
+import static org.cotato.csquiz.domain.auth.constant.EmailConstants.MEMBER_POSITION_PREFIX;
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.MESSAGE_PREFIX;
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.MESSAGE_SUFFIX;
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.SENDER_EMAIL;
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.SENDER_PERSONAL;
+import static org.cotato.csquiz.domain.auth.constant.EmailConstants.SIGNUP_MESSAGE_PREFIX;
+import static org.cotato.csquiz.domain.auth.constant.EmailConstants.SIGNUP_SUCCESS_MESSAGE;
+import static org.cotato.csquiz.domain.auth.constant.EmailConstants.SIGNUP_SUCCESS_SUBJECT;
 
 import jakarta.mail.Message.RecipientType;
 import jakarta.mail.MessagingException;
@@ -16,7 +23,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.domain.auth.cache.EmailRedisRepository;
+import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.enums.EmailType;
+import org.cotato.csquiz.domain.auth.enums.MemberPosition;
 import org.cotato.csquiz.domain.auth.utils.EmailFormValidator;
 import org.cotato.csquiz.domain.auth.cache.VerificationCodeRedisRepository;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -49,6 +58,35 @@ public class EmailVerificationService {
         sendEmailWithVerificationCode(recipient, verificationCode, subject);
     }
 
+    public void sendSignUpApprovedToEmail(Member recipientMember) {
+        emailFormValidator.validateEmailForm(recipientMember.getEmail());
+
+        String successMessage = getSuccessMessageBody(recipientMember);
+        log.info("가입 승인 완료 이메일 전송 완료");
+
+        sendEmail(recipientMember.getEmail(), successMessage, SIGNUP_SUCCESS_SUBJECT);
+    }
+
+    private String getSuccessMessageBody(Member recipientMember) {
+        StringBuilder sb = new StringBuilder();
+        return String.valueOf(sb.append(SIGNUP_MESSAGE_PREFIX)
+                .append(getMemberName(recipientMember.getName()))
+                .append(SIGNUP_SUCCESS_MESSAGE)
+                .append(getMemberInfo(recipientMember.getPassedGenerationNumber(), recipientMember.getPosition()))
+                .append(COTATO_HYPERLINK));
+    }
+
+    private String getMemberInfo(Integer passedGenerationNumber, MemberPosition position) {
+        StringBuilder sb = new StringBuilder();
+        return String.valueOf(
+                sb.append(String.format(MEMBER_GENERATION_PREFIX, passedGenerationNumber))
+                        .append(String.format(MEMBER_POSITION_PREFIX, position.name())));
+    }
+
+    private String getMemberName(String memberName) {
+        return String.format(MEMBER_NAME_SUFFIX, memberName);
+    }
+
     private String getVerificationCode() {
         final ThreadLocalRandom random = ThreadLocalRandom.current();
         StringBuilder builder = new StringBuilder();
@@ -56,6 +94,21 @@ public class EmailVerificationService {
             builder.append(random.nextInt(CODE_BOUNDARY));
         }
         return String.valueOf(builder);
+    }
+
+    private void sendEmail(String recipient, String messageBody, String subject) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+
+            message.addRecipients(RecipientType.TO, recipient);
+            message.setSubject(subject);
+            message.setText(messageBody, "utf-8", "html");
+            message.setFrom(getInternetAddress());
+            mailSender.send(message);
+            log.info("이메일 전송 완료");
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void sendEmailWithVerificationCode(String recipient, String verificationCode, String subject) {

@@ -18,6 +18,9 @@ public class EmailConstants {
             + "<h3 style=\"color: #336699; font-family: 'Arial', sans-serif; font-size: 18px;\">10분 안에 입력 부탁드립니다. 감사합니다!</h3>"
             + "</div>"
             + "</div>";
+    public static final String MEMBER_NAME_SUFFIX = "%s님의 ";
+    public static final String MEMBER_POSITION_PREFIX = "포지션: %s" + "<br>";
+    public static final String MEMBER_GENERATION_PREFIX = "합격기수: %s" + "기<br>";
     public static final String SIGNUP_SUCCESS_SUBJECT = "코테이토 가입 승인이 완료됐습니다.";
     public static final String SIGNUP_SUCCESS_MESSAGE = "가입이 승인되었습니다<br>";
     public static final String SIGNUP_MESSAGE_PREFIX = ""
