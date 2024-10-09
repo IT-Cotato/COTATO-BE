@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -58,5 +59,12 @@ public class GenerationController {
     public ResponseEntity<GenerationInfoResponse> findCurrentGeneration() {
         LocalDate currentDate = LocalDate.now();
         return ResponseEntity.ok().body(generationService.findCurrentGeneration(currentDate));
+    }
+
+    @Operation(summary = "기수 단건 조회 API")
+    @GetMapping("/{generation-id}")
+    public ResponseEntity<GenerationInfoResponse> findGenerationById(
+            @PathVariable("generation-id") Long generationId) {
+        return ResponseEntity.ok().body(generationService.findGenerationById(generationId));
     }
 }
