@@ -69,6 +69,8 @@ public class AdminService {
             member.updatePosition(request.position());
             deleteRefusedMember(member);
         }
+
+        emailVerificationService.sendSignUpApprovedToEmail(member);
     }
 
     @Transactional
