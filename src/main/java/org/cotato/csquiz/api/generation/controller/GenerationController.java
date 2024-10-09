@@ -1,5 +1,6 @@
 package org.cotato.csquiz.api.generation.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
@@ -52,6 +53,7 @@ public class GenerationController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "현재 날짜 기준 세션 정보 반환 API")
     @GetMapping("/current")
     public ResponseEntity<GenerationInfoResponse> findCurrentGeneration() {
         LocalDate currentDate = LocalDate.now();
