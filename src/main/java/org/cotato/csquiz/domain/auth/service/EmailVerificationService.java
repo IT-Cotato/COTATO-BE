@@ -64,9 +64,9 @@ public class EmailVerificationService {
         emailFormValidator.validateEmailForm(recipientMember.getEmail());
 
         String successMessage = getSuccessMessageBody(recipientMember);
-        log.info("가입 승인 완료 이메일 전송 완료");
 
         sendEmail(recipientMember.getEmail(), successMessage, SIGNUP_SUCCESS_SUBJECT);
+        log.info("가입 승인 완료 이메일 전송 완료");
     }
 
     private String getSuccessMessageBody(Member recipientMember) {
@@ -82,9 +82,9 @@ public class EmailVerificationService {
         emailFormValidator.validateEmailForm(recipientMember.getEmail());
 
         String rejectMessage = getRejectMessageBody(recipientMember);
-        log.info("가입 승인 거절 이메일 전송 완료");
 
         sendEmail(recipientMember.getEmail(), rejectMessage, SIGNUP_REJECT_SUBJECT);
+        log.info("가입 승인 거절 이메일 전송 완료");
     }
 
     private String getRejectMessageBody(Member recipientMember) {
