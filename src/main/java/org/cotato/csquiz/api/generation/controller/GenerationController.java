@@ -62,9 +62,9 @@ public class GenerationController {
     }
 
     @Operation(summary = "기수 단건 조회 API")
-    @GetMapping("/{generation-id}")
+    @GetMapping("/{generationId}")
     public ResponseEntity<GenerationInfoResponse> findGenerationById(
-            @PathVariable("generation-id") Long generationId) {
+            @PathVariable("generationId") Long generationId) {
         return ResponseEntity.ok().body(generationService.findGenerationById(generationId));
     }
 }
