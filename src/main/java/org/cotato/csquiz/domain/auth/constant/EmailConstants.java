@@ -28,7 +28,7 @@ public class EmailConstants {
     public static final String SIGNUP_MESSAGE_PREFIX = ""
             + "<div style=\"background-color: #f2f2f2; padding: 20px;\">"
             + "<div style=\"background-color: #ffffff; padding: 20px;\">"
-            + "<h1 style=\"color: #336699; font-family: 'Arial', sans-serif; font-size: 24px;\">안녕하세요 IT연합동아리 코테이토 코테이토입니다!</h1>"
+            + "<h1 style=\"color: #336699; font-family: 'Arial', sans-serif; font-size: 24px;\">안녕하세요 IT연합동아리 코테이토입니다!</h1>"
             + "<br>";
     public static final String COTATO_HYPERLINK = "<br>"
             + "<a href=\"https://www.cotato.kr\" style=\"display: inline-block; background-color: #336699; color: #ffffff; padding: 10px 20px; font-family: 'Arial', sans-serif; font-size: 16px; text-decoration: none; border-radius: 5px;\">코테이토 방문하기</a>";
