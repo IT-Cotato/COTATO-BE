@@ -83,4 +83,10 @@ public class GenerationService {
                         .orElseThrow(() -> new EntityNotFoundException("현재 날짜에 해당하는 기수가 존재하지 않습니다")));
         return GenerationInfoResponse.from(currentGeneration);
     }
+
+    public GenerationInfoResponse findGenerationById(Long generationId) {
+        Generation generation = generationRepository.findById(generationId)
+                .orElseThrow(() -> new EntityNotFoundException("찾으려는 기수가 존재하지 않습니다."));
+        return GenerationInfoResponse.from(generation);
+    }
 }
