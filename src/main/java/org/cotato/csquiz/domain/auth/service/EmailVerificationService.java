@@ -8,7 +8,9 @@ import static org.cotato.csquiz.domain.auth.constant.EmailConstants.MESSAGE_PREF
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.MESSAGE_SUFFIX;
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.SENDER_EMAIL;
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.SENDER_PERSONAL;
+import static org.cotato.csquiz.domain.auth.constant.EmailConstants.SIGNUP_FAIL_MESSAGE;
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.SIGNUP_MESSAGE_PREFIX;
+import static org.cotato.csquiz.domain.auth.constant.EmailConstants.SIGNUP_REJECT_SUBJECT;
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.SIGNUP_SUCCESS_MESSAGE;
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.SIGNUP_SUCCESS_SUBJECT;
 
@@ -73,6 +75,23 @@ public class EmailVerificationService {
                 .append(getMemberName(recipientMember.getName()))
                 .append(SIGNUP_SUCCESS_MESSAGE)
                 .append(getMemberInfo(recipientMember.getPassedGenerationNumber(), recipientMember.getPosition()))
+                .append(COTATO_HYPERLINK));
+    }
+
+    public void sendSignUpRejectedToEmail(Member recipientMember) {
+        emailFormValidator.validateEmailForm(recipientMember.getEmail());
+
+        String rejectMessage = getRejectMessageBody(recipientMember);
+        log.info("가입 승인 거절 이메일 전송 완료");
+
+        sendEmail(recipientMember.getEmail(), rejectMessage, SIGNUP_REJECT_SUBJECT);
+    }
+
+    private String getRejectMessageBody(Member recipientMember) {
+        StringBuilder sb = new StringBuilder();
+        return String.valueOf(sb.append(SIGNUP_MESSAGE_PREFIX)
+                .append(getMemberName(recipientMember.getName()))
+                .append(SIGNUP_FAIL_MESSAGE)
                 .append(COTATO_HYPERLINK));
     }
 

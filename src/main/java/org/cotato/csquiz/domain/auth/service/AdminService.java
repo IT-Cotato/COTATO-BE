@@ -80,6 +80,8 @@ public class AdminService {
             memberRepository.save(member);
             addRefusedMember(member);
         }
+
+        emailVerificationService.sendSignUpRejectedToEmail(member);
     }
 
     private Member findMember(Long memberId) {
