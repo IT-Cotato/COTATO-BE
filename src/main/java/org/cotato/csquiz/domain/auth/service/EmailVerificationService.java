@@ -145,7 +145,7 @@ public class EmailVerificationService {
             mailSender.send(message);
             log.info("이메일 전송 완료");
         } catch (MessagingException e) {
-            throw new RuntimeException(e);
+            throw new AppException(ErrorCode.EMAIL_SEND_ERROR);
         }
     }
 
@@ -160,7 +160,7 @@ public class EmailVerificationService {
             mailSender.send(message);
             log.info("이메일 전송 완료");
         } catch (MessagingException e) {
-            throw new RuntimeException(e);
+            throw new AppException(ErrorCode.EMAIL_SEND_ERROR);
         }
     }
 
