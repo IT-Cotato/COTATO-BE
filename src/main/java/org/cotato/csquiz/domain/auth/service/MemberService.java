@@ -79,12 +79,11 @@ public class MemberService {
     }
 
     @Transactional
-    public void updateMemberProfileImage(String accessToken, MultipartFile image) throws ImageException {
+    public void updateMemberProfileImage(Long memberId, MultipartFile image) throws ImageException {
         if (image.isEmpty()) {
             throw new AppException(ErrorCode.FILE_IS_EMPTY);
         }
 
-        Long memberId = jwtTokenProvider.getMemberId(accessToken);
         Member findMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다."));
 
@@ -97,8 +96,7 @@ public class MemberService {
     }
 
     @Transactional
-    public void deleteMemberProfileImage(String accessToken) {
-        Long memberId = jwtTokenProvider.getMemberId(accessToken);
+    public void deleteMemberProfileImage(Long memberId) {
         Member findMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다."));
 
