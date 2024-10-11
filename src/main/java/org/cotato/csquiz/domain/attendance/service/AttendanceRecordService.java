@@ -52,11 +52,13 @@ public class AttendanceRecordService {
 
         List<AttendanceRecord> records = attendanceRecordRepository.findAllByAttendanceIdsInQuery(attendanceIds);
 
+        //출석기록을 memberId 기준으로 그룹화하여 각 멤버의 출석 기록 리스트를 맵으로 저장
         Map<Long, List<AttendanceRecord>> recordsByMemberId = records.stream()
                 .collect(Collectors.groupingBy(AttendanceRecord::getMemberId));
 
         List<Member> activeMembers = memberService.findActiveMember();
 
+        //멤버의 출석기록이 있으면 출석기록 리스트를 없으면 빈 리스트로 응답 DTO를 만듦
         return activeMembers.stream()
                 .map(member -> AttendanceRecordResponse.of(
                         member,
