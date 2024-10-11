@@ -55,13 +55,15 @@ public class AttendanceRecordService {
         Map<Long, List<AttendanceRecord>> recordsByMemberId = records.stream()
                 .collect(Collectors.groupingBy(AttendanceRecord::getMemberId));
 
-        Map<Long, Member> memberMap = memberService.findActiveMember().stream()
-                .collect(Collectors.toMap(Member::getId, member -> member));
+        List<Member> activeMembers = memberService.findActiveMember();
 
-        return recordsByMemberId.keySet().stream()
-                .filter(memberMap::containsKey)
-                .map(memberId -> AttendanceRecordResponse.of(memberMap.get(memberId),
-                        AttendanceStatistic.of(recordsByMemberId.get(memberId), attendances.size())))
+        return activeMembers.stream()
+                .map(member -> AttendanceRecordResponse.of(
+                        member,
+                        AttendanceStatistic.of(recordsByMemberId.getOrDefault(member.getId(), List.of()),
+                                attendances.size()
+                        )
+                ))
                 .toList();
     }
 
