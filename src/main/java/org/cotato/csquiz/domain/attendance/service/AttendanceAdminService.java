@@ -140,7 +140,7 @@ public class AttendanceAdminService {
                 // 2. 해당 세션에 대해 모든 회원의 출석 상태를 '결석'으로 초기화
                 List<String> allMemberNames = memberService.findActiveMember().stream()
                         .map(Member::getName)
-                        .toList();;// 모든 회원 이름 가져오기
+                        .toList();// 모든 회원 이름 가져오기
 
                 for (String memberName : allMemberNames) {
                     memberStatisticsMap
@@ -150,7 +150,8 @@ public class AttendanceAdminService {
 
                 // 3. 해당 세션의 실제 출석 기록을 가져와 상태 업데이트
                 List<Attendance> attendances = attendanceRepository.findAllBySessionIdsInQuery(List.of(sessionId));
-                List<AttendanceRecordResponse> attendanceRecords = attendanceRecordService.generateAttendanceResponses(attendances);
+                List<AttendanceRecordResponse> attendanceRecords = attendanceRecordService.generateAttendanceResponses(
+                        attendances);
 
                 // 실제 출석 기록이 있는 회원들의 상태를 업데이트
                 for (AttendanceRecordResponse record : attendanceRecords) {
