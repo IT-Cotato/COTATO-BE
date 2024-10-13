@@ -215,15 +215,16 @@ public class AttendanceAdminService {
         headerRow.createCell(0).setCellValue("부원이름");
         int colNum = 1;
 
-            // 세션별로 주차 및 날짜를 열 이름으로 추가
-            for (String columnName : sessionColumnNames.keySet()) {
-                headerRow.createCell(colNum++).setCellValue(columnName);
-            }
-            headerRow.createCell(colNum++).setCellValue("출석");
-            headerRow.createCell(colNum++).setCellValue("대면");
-            headerRow.createCell(colNum++).setCellValue("비대면");
-            headerRow.createCell(colNum++).setCellValue("지각");
-            headerRow.createCell(colNum++).setCellValue("결석");
+        for (String columnName : sessionColumnNames.keySet()) {
+            headerRow.createCell(colNum++).setCellValue(columnName);
+        }
+
+        headerRow.createCell(colNum++).setCellValue("출석");
+        headerRow.createCell(colNum++).setCellValue("대면");
+        headerRow.createCell(colNum++).setCellValue("비대면");
+        headerRow.createCell(colNum++).setCellValue("지각");
+        headerRow.createCell(colNum++).setCellValue("결석");
+    }
 
     // 회원의 출석 데이터를 추가하는 메서드
     private void addMemberAttendanceData(Row row, String memberName, Map<String, String> sessionStats,
@@ -244,20 +245,19 @@ public class AttendanceAdminService {
             String status = sessionStats.get(columnName);
             row.createCell(colNum++).setCellValue(status);
 
-                    // 상태에 따라 카운트
-                    switch (status) {
-                        case "대면(출석)" -> {
-                            totalAttendance++;
-                            totalOffline++;
-                        }
-                        case "비대면(출석)" -> {
-                            totalAttendance++;
-                            totalOnline++;
-                        }
-                        case "지각" -> totalLate++;
-                        case "결석" -> totalAbsent++;
-                    }
-                }
+            // 출석 상태에 따라 카운트 처리 (적절한 Enum을 사용)
+            if (status.equals(AttendanceType.OFFLINE.getDescription())) {
+                totalAttendance++;
+                totalOffline++;
+            } else if (status.equals(AttendanceType.ONLINE.getDescription())) {
+                totalAttendance++;
+                totalOnline++;
+            } else if (status.equals(AttendanceResult.LATE.getDescription())) {
+                totalLate++;
+            } else if (status.equals(AttendanceResult.ABSENT.getDescription())) {
+                totalAbsent++;
+            }
+        }
 
         // 출석 카운트 데이터를 추가
         row.createCell(colNum++).setCellValue(totalAttendance);
@@ -270,13 +270,13 @@ public class AttendanceAdminService {
     // 출석 상태를 결정하는 함수
     private String determineAttendanceStatus(AttendanceStatistic statistic) {
         if (statistic.offline() > 0) {
-            return "대면(출석)";
+            return AttendanceType.OFFLINE.getDescription();
         } else if (statistic.online() > 0) {
-            return "비대면(출석)";
+            return AttendanceType.ONLINE.getDescription();
         } else if (statistic.late() > 0) {
-            return "지각";
+            return AttendanceResult.LATE.getDescription();
         } else {
-            return "결석";
+            return AttendanceResult.ABSENT.getDescription();
         }
     }
 }
