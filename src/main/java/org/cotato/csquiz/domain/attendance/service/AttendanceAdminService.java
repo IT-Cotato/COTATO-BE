@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -26,6 +25,8 @@ import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.attendance.embedded.Location;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
+import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
+import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
 import org.cotato.csquiz.domain.auth.entity.Member;
@@ -123,53 +124,96 @@ public class AttendanceAdminService {
 
             // 세션별 출석 데이터를 저장할 구조체
             Map<String, Map<String, String>> memberStatisticsMap = new HashMap<>();
-            LinkedHashMap<String, String> sessionColumnNames = new LinkedHashMap<>(); // 주차별 세션 이름 저장 (순서 유지)
-            List<Session> sessions = new ArrayList<>();
+            LinkedHashMap<String, String> sessionColumnNames = new LinkedHashMap<>();
 
-            // 1. 모든 세션에 대해 회원 출결 정보 수집
-            for (Long sessionId : sessionIds) {
-                Session session = sessionRepository.findById(sessionId)
-                        .orElseThrow(() -> new EntityNotFoundException("세션을 찾을 수 없습니다: " + sessionId));
-                sessions.add(session);
+            // 모든 세션에 대한 출석 정보 수집
+            collectAttendanceRecords(sessionIds, memberStatisticsMap, sessionColumnNames);
 
-                // 세션 날짜와 주차 정보를 사용하여 열 이름 생성
-                String sessionDate = session.getSessionDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                String columnName = session.getNumber() + "주차 세션 (" + sessionDate + ")";
-                sessionColumnNames.put(columnName, sessionDate);
+            // 엑셀 파일 생성 및 데이터 추가
+            byte[] excelFile = generateExcelFile(workbook, sessionColumnNames, memberStatisticsMap);
 
-                // 2. 해당 세션에 대해 모든 회원의 출석 상태를 '결석'으로 초기화
-                List<String> allMemberNames = memberService.findActiveMember().stream()
-                        .map(Member::getName)
-                        .toList();// 모든 회원 이름 가져오기
+            // 파일 다운로드 설정
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=attendance_summary.xlsx");
 
-                for (String memberName : allMemberNames) {
-                    memberStatisticsMap
-                            .computeIfAbsent(memberName, k -> new HashMap<>())
-                            .put(columnName, "결석");
-                }
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .headers(headers)
+                    .body(excelFile);
 
-                // 3. 해당 세션의 실제 출석 기록을 가져와 상태 업데이트
-                List<Attendance> attendances = attendanceRepository.findAllBySessionIdsInQuery(List.of(sessionId));
-                List<AttendanceRecordResponse> attendanceRecords = attendanceRecordService.generateAttendanceResponses(
-                        attendances);
+        } catch (IOException e) {
+            throw new AppException(ErrorCode.FILE_GENERATION_FAIL);
+        }
+    }
 
-                // 실제 출석 기록이 있는 회원들의 상태를 업데이트
-                for (AttendanceRecordResponse record : attendanceRecords) {
-                    String memberName = record.memberInfo().name();
-                    String attendanceStatus = determineAttendanceStatus(record.statistic());
+    // 출석 정보를 수집하는 메소드
+    private void collectAttendanceRecords(List<Long> sessionIds, Map<String, Map<String, String>> memberStatisticsMap,
+                                          LinkedHashMap<String, String> sessionColumnNames) {
+        for (Long sessionId : sessionIds) {
+            Session session = sessionRepository.findById(sessionId)
+                    .orElseThrow(() -> new EntityNotFoundException("세션을 찾을 수 없습니다: " + sessionId));
 
-                    // 이미 결석으로 초기화된 상태를 실제 출석 상태로 덮어씀
-                    memberStatisticsMap.get(memberName).put(columnName, attendanceStatus);
-                }
-            }
+            // 세션 이름을 생성하고 열 이름에 추가
+            String sessionDate = session.getSessionDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            String columnName = session.getNumber() + "주차 세션 (" + sessionDate + ")";
+            sessionColumnNames.put(columnName, sessionDate);
 
-            // 엑셀 시트 생성
-            Sheet sheet = workbook.createSheet("Attendance Summary");
+            // 회원들의 출석 상태를 '결석'으로 초기화하고, 출석 기록을 업데이트
+            initializeMemberAttendance(memberStatisticsMap, columnName);
+            updateAttendanceRecords(sessionId, memberStatisticsMap, columnName);
+        }
+    }
 
-            // 첫 번째 행(헤더)에 세션별로 열 이름 추가
-            Row headerRow = sheet.createRow(0);
-            headerRow.createCell(0).setCellValue("부원이름");
-            int colNum = 1;
+    // 회원의 출석 상태를 초기화하는 메소드
+    private void initializeMemberAttendance(Map<String, Map<String, String>> memberStatisticsMap, String columnName) {
+        List<String> allMemberNames = memberService.findActiveMember().stream()
+                .map(Member::getName)
+                .toList();
+
+        for (String memberName : allMemberNames) {
+            memberStatisticsMap
+                    .computeIfAbsent(memberName, k -> new HashMap<>())
+                    .put(columnName, "결석");
+        }
+    }
+
+    // 실제 출석 기록을 업데이트하는 메소드
+    private void updateAttendanceRecords(Long sessionId, Map<String, Map<String, String>> memberStatisticsMap, String columnName) {
+        List<Attendance> attendances = attendanceRepository.findAllBySessionIdsInQuery(List.of(sessionId));
+        List<AttendanceRecordResponse> attendanceRecords = attendanceRecordService.generateAttendanceResponses(attendances);
+
+        for (AttendanceRecordResponse record : attendanceRecords) {
+            String memberName = record.memberInfo().name();
+            String attendanceStatus = determineAttendanceStatus(record.statistic());
+            memberStatisticsMap.get(memberName).put(columnName, attendanceStatus);
+        }
+    }
+
+    // 엑셀 파일을 생성하고 데이터를 입력하는 메소드
+    private byte[] generateExcelFile(Workbook workbook, LinkedHashMap<String, String> sessionColumnNames,
+                                     Map<String, Map<String, String>> memberStatisticsMap) throws IOException {
+        Sheet sheet = workbook.createSheet("Attendance Summary");
+
+        // 헤더 생성
+        Row headerRow = sheet.createRow(0);
+        createHeaderRow(headerRow, sessionColumnNames);
+
+        // 데이터 생성
+        int rowNum = 1;
+        for (Map.Entry<String, Map<String, String>> entry : memberStatisticsMap.entrySet()) {
+            Row row = sheet.createRow(rowNum++);
+            addMemberAttendanceData(row, entry.getKey(), entry.getValue(), sessionColumnNames);
+        }
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+        return outputStream.toByteArray();
+    }
+
+    // 헤더 행을 생성하는 메소드
+    private void createHeaderRow(Row headerRow, LinkedHashMap<String, String> sessionColumnNames) {
+        headerRow.createCell(0).setCellValue("부원이름");
+        int colNum = 1;
 
             // 세션별로 주차 및 날짜를 열 이름으로 추가
             for (String columnName : sessionColumnNames.keySet()) {
@@ -181,28 +225,24 @@ public class AttendanceAdminService {
             headerRow.createCell(colNum++).setCellValue("지각");
             headerRow.createCell(colNum++).setCellValue("결석");
 
-            // 데이터 추가 (회원별 출석 기록을 행으로 추가)
-            int rowNum = 1;
-            for (Map.Entry<String, Map<String, String>> entry : memberStatisticsMap.entrySet()) {
-                String memberName = entry.getKey();
-                Map<String, String> sessionStats = entry.getValue();
+    // 회원의 출석 데이터를 추가하는 메서드
+    private void addMemberAttendanceData(Row row, String memberName, Map<String, String> sessionStats,
+                                         LinkedHashMap<String, String> sessionColumnNames) {
+        // 회원 이름을 첫 번째 열에 추가
+        row.createCell(0).setCellValue(memberName);
 
-                Row row = sheet.createRow(rowNum++);
-                row.createCell(0).setCellValue(memberName);
+        // 세션 데이터는 두 번째 열부터 시작
+        int colNum = 1;
 
-                // 출석 상태를 계산하기 위한 카운터 변수들
-                int totalAttendance = 0;
-                int totalOffline = 0;
-                int totalOnline = 0;
-                int totalLate = 0;
-                int totalAbsent = 0;
+        int totalAttendance = 0;
+        int totalOffline = 0;
+        int totalOnline = 0;
+        int totalLate = 0;
+        int totalAbsent = 0;
 
-                colNum = 1;
-
-                // 각 세션별 출석 상태를 열에 기록
-                for (String columnName : sessionColumnNames.keySet()) {
-                    String status = sessionStats.get(columnName);
-                    row.createCell(colNum++).setCellValue(status);
+        for (String columnName : sessionColumnNames.keySet()) {
+            String status = sessionStats.get(columnName);
+            row.createCell(colNum++).setCellValue(status);
 
                     // 상태에 따라 카운트
                     switch (status) {
@@ -219,31 +259,12 @@ public class AttendanceAdminService {
                     }
                 }
 
-                // 각 회원의 출석 카운트 추가
-                row.createCell(colNum++).setCellValue(totalAttendance);
-                row.createCell(colNum++).setCellValue(totalOffline);
-                row.createCell(colNum++).setCellValue(totalOnline);
-                row.createCell(colNum++).setCellValue(totalLate);
-                row.createCell(colNum++).setCellValue(totalAbsent);
-            }
-
-            // 엑셀 파일을 ByteArrayOutputStream에 저장
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            workbook.write(outputStream);
-            byte[] bytes = outputStream.toByteArray();
-
-            // 파일 다운로드를 위한 ResponseEntity 설정
-            HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=attendance_summary.xlsx");
-
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .headers(headers)
-                    .body(bytes);
-
-        } catch (IOException e) {
-            throw new AppException(ErrorCode.FILE_GENERATION_FAIL);
-        }
+        // 출석 카운트 데이터를 추가
+        row.createCell(colNum++).setCellValue(totalAttendance);
+        row.createCell(colNum++).setCellValue(totalOffline);
+        row.createCell(colNum++).setCellValue(totalOnline);
+        row.createCell(colNum++).setCellValue(totalLate);
+        row.createCell(colNum++).setCellValue(totalAbsent);
     }
 
     // 출석 상태를 결정하는 함수
