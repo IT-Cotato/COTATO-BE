@@ -96,6 +96,7 @@ public class SecurityConfig {
                                 .requestMatchers("/v2/api/attendances/records").hasAnyRole("OPERATION", "ADMIN")
                                 .requestMatchers("/v2/api/attendances/{attendance-id}/records").hasAnyRole("ADMIN")
                                 .requestMatchers("/v2/api/attendances").hasAnyRole("OPERATION", "ADMIN")
+                                .requestMatchers("/v2/api/attendances/excel").hasAnyRole("OPERATION", "ADMIN")
                                 .requestMatchers("/v2/api/attendances/info")
                                 .hasAnyRole("MEMBER", "EDUCATION", "OPERATION", "ADMIN")
                                 .requestMatchers("/v2/api/attendances/records/**")
