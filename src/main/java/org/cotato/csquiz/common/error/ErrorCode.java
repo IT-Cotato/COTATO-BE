@@ -81,6 +81,7 @@ public enum ErrorCode {
     //출석 관련 AT
     OFFLINE_ATTEND_FAIL(HttpStatus.BAD_REQUEST, "AT-101", "거리 부적합으로 인한 대면 출석 실패"),
     INVALID_ATTEND_TIME(HttpStatus.BAD_REQUEST, "AT-102", "시간 입력 범위가 잘못되었습니다."),
+    FILE_GENERATION_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "AT-201", "엑셀 파일 생성에 실패했습니다."),
     ALREADY_ATTEND(HttpStatus.CONFLICT, "AT-301", "이미 해당 타입으로 출석한 기록이 있습니다."),
     ATTENDANCE_NOT_OPEN(HttpStatus.BAD_REQUEST, "AT-401", "출석 시간이 아닙니다."),
 

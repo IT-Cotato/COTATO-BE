@@ -129,4 +129,11 @@ public class AttendanceController {
                                                                                       @AuthenticationPrincipal Long memberId) {
         return ResponseEntity.ok().body(attendanceRecordService.findAllRecordsBy(generationId, memberId));
     }
+
+    @Operation(summary = "세션별 출석 기록 엑셀 다운로드 API")
+    @GetMapping("/records/excel")
+    public ResponseEntity<byte[]> downloadAttendanceRecordsAsExcelBySessions(
+            @RequestParam(name = "sessionIds") List<Long> sessionIds) {
+        return attendanceAdminService.exportAttendanceRecordsToExcelBySessions(sessionIds);
+    }
 }
