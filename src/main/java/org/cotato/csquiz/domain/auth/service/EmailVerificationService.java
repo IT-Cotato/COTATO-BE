@@ -76,7 +76,8 @@ public class EmailVerificationService {
         return String.valueOf(sb.append(SIGNUP_MESSAGE_PREFIX)
                 .append(getMemberName(recipientMember.getName()))
                 .append(SIGNUP_SUCCESS_MESSAGE)
-                .append(getMemberInfo(recipientMember.getPassedGenerationNumber(), recipientMember.getPosition()))
+                .append(String.format(MEMBER_GENERATION_PREFIX, recipientMember.getPassedGenerationNumber()))
+                .append(String.format(MEMBER_POSITION_PREFIX, recipientMember.getPosition().name()))
                 .append(COTATO_HYPERLINK));
     }
 
@@ -95,13 +96,6 @@ public class EmailVerificationService {
                 .append(getMemberName(recipientMember.getName()))
                 .append(SIGNUP_FAIL_MESSAGE)
                 .append(COTATO_HYPERLINK));
-    }
-
-    private String getMemberInfo(Integer passedGenerationNumber, MemberPosition position) {
-        StringBuilder sb = new StringBuilder();
-        return String.valueOf(
-                sb.append(String.format(MEMBER_GENERATION_PREFIX, passedGenerationNumber))
-                        .append(String.format(MEMBER_POSITION_PREFIX, position.name())));
     }
 
     public void sendConvertToOldMemberToEmail(Member recipientMember) {
