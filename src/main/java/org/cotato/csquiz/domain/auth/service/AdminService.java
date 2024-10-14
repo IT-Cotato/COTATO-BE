@@ -83,7 +83,7 @@ public class AdminService {
             addRefusedMember(member);
         }
 
-        emailVerificationService.sendSignUpRejectedToEmail(member);
+        emailVerificationService.sendSignupRejectionToEmail(member);
     }
 
     private Member findMember(Long memberId) {
@@ -126,7 +126,7 @@ public class AdminService {
             member.updateRole(MemberRole.OLD_MEMBER);
             memberRepository.save(member);
 
-            emailVerificationService.sendConvertToOldMemberToEmail(member);
+            emailVerificationService.sendOldMemberConversionToEmail(member);
         }
     }
 

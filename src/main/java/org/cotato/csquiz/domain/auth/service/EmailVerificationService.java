@@ -29,7 +29,6 @@ import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.domain.auth.cache.EmailRedisRepository;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.enums.EmailType;
-import org.cotato.csquiz.domain.auth.enums.MemberPosition;
 import org.cotato.csquiz.domain.auth.utils.EmailFormValidator;
 import org.cotato.csquiz.domain.auth.cache.VerificationCodeRedisRepository;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -65,13 +64,13 @@ public class EmailVerificationService {
     public void sendSignUpApprovedToEmail(Member recipientMember) {
         emailFormValidator.validateEmailForm(recipientMember.getEmail());
 
-        String successMessage = getSuccessMessageBody(recipientMember);
+        String successMessage = createSignupApprovedMessageBody(recipientMember);
 
         sendEmail(recipientMember.getEmail(), successMessage, SIGNUP_SUCCESS_SUBJECT);
         log.info("가입 승인 완료 이메일 전송 완료");
     }
 
-    private String getSuccessMessageBody(Member recipientMember) {
+    private String createSignupApprovedMessageBody(Member recipientMember) {
         StringBuilder sb = new StringBuilder();
         return String.valueOf(sb.append(SIGNUP_MESSAGE_PREFIX)
                 .append(getMemberName(recipientMember.getName()))
@@ -81,16 +80,16 @@ public class EmailVerificationService {
                 .append(COTATO_HYPERLINK));
     }
 
-    public void sendSignUpRejectedToEmail(Member recipientMember) {
+    public void sendSignupRejectionToEmail(Member recipientMember) {
         emailFormValidator.validateEmailForm(recipientMember.getEmail());
 
-        String rejectMessage = getRejectMessageBody(recipientMember);
+        String rejectMessage = createSignupRejectionMessageBody(recipientMember);
 
         sendEmail(recipientMember.getEmail(), rejectMessage, SIGNUP_REJECT_SUBJECT);
         log.info("가입 승인 거절 이메일 전송 완료");
     }
 
-    private String getRejectMessageBody(Member recipientMember) {
+    private String createSignupRejectionMessageBody(Member recipientMember) {
         StringBuilder sb = new StringBuilder();
         return String.valueOf(sb.append(SIGNUP_MESSAGE_PREFIX)
                 .append(getMemberName(recipientMember.getName()))
@@ -98,16 +97,16 @@ public class EmailVerificationService {
                 .append(COTATO_HYPERLINK));
     }
 
-    public void sendConvertToOldMemberToEmail(Member recipientMember) {
+    public void sendOldMemberConversionToEmail(Member recipientMember) {
         emailFormValidator.validateEmailForm(recipientMember.getEmail());
 
-        String conversionMessageBody = getConvertToOldMemberMessageBody(recipientMember);
+        String conversionMessageBody = createOldMemberConversionEmailBody(recipientMember);
 
         sendEmail(recipientMember.getEmail(), conversionMessageBody, CONVERSION_TO_OM_SUBJECT);
         log.info("OM 전환 이메일 전송 완료");
     }
 
-    private String getConvertToOldMemberMessageBody(Member recipientMember) {
+    private String createOldMemberConversionEmailBody(Member recipientMember) {
         StringBuilder sb = new StringBuilder();
         return String.valueOf(sb.append(SIGNUP_MESSAGE_PREFIX)
                 .append(getMemberName(recipientMember.getName()))
