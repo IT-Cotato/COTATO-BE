@@ -194,7 +194,7 @@ public class AttendanceAdminService {
     // 엑셀 파일을 생성하고 데이터를 입력하는 메소드
     private byte[] generateExcelFile(Workbook workbook, LinkedHashMap<String, String> sessionColumnNames,
                                      Map<String, Map<String, String>> memberStatisticsMap) throws IOException {
-        Sheet sheet = workbook.createSheet("Attendance Summary");
+        Sheet sheet = workbook.createSheet();
 
         // 헤더 생성
         Row headerRow = sheet.createRow(0);
