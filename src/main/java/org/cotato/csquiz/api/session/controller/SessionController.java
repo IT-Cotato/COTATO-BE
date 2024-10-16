@@ -13,6 +13,7 @@ import org.cotato.csquiz.api.session.dto.AddSessionResponse;
 import org.cotato.csquiz.api.session.dto.CsEducationOnSessionNumberResponse;
 import org.cotato.csquiz.api.session.dto.DeleteSessionImageRequest;
 import org.cotato.csquiz.api.session.dto.SessionListResponse;
+import org.cotato.csquiz.api.session.dto.SessionWithAttendanceResponse;
 import org.cotato.csquiz.api.session.dto.UpdateSessionImageOrderRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionRequest;
 import org.cotato.csquiz.domain.generation.service.SessionImageService;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,6 +41,12 @@ public class SessionController {
 
     private final SessionService sessionService;
     private final SessionImageService sessionImageService;
+
+    @Operation(summary = "세션 단건 조회 API")
+    @GetMapping("/{id}")
+    public ResponseEntity<SessionWithAttendanceResponse> findSession(@PathVariable("id") Long sessionId) {
+        return ResponseEntity.ok().body(sessionService.findSession(sessionId));
+    }
 
     @Operation(summary = "세션 목록 반환 API")
     @GetMapping
