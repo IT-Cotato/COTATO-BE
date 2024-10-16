@@ -33,9 +33,6 @@ import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.service.MemberService;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -119,7 +116,7 @@ public class AttendanceAdminService {
         return attendanceRecordService.generateAttendanceResponses(List.of(attendance));
     }
 
-    public ResponseEntity<byte[]> exportAttendanceRecordsToExcelBySessions(List<Long> sessionIds) {
+    public byte[] exportAttendanceRecordsToExcelBySessions(List<Long> sessionIds) {
         try (Workbook workbook = new XSSFWorkbook()) {
 
             // 세션별 출석 데이터를 저장할 구조체
@@ -130,16 +127,7 @@ public class AttendanceAdminService {
             collectAttendanceRecords(sessionIds, memberStatisticsMap, sessionColumnNames);
 
             // 엑셀 파일 생성 및 데이터 추가
-            byte[] excelFile = generateExcelFile(workbook, sessionColumnNames, memberStatisticsMap);
-
-            // 파일 다운로드 설정
-            HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=attendance_summary.xlsx");
-
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .headers(headers)
-                    .body(excelFile);
+            return generateExcelFile(workbook, sessionColumnNames, memberStatisticsMap);
 
         } catch (IOException e) {
             throw new AppException(ErrorCode.FILE_GENERATION_FAIL);
