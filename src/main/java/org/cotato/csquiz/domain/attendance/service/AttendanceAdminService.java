@@ -33,6 +33,7 @@ import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.enums.MemberRoleGroup;
+import org.cotato.csquiz.domain.auth.repository.MemberRepository;
 import org.cotato.csquiz.domain.auth.service.MemberService;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
@@ -49,6 +50,7 @@ public class AttendanceAdminService {
     private final AttendanceRecordService attendanceRecordService;
     private final SessionRepository sessionRepository;
     private final MemberService memberService;
+    private final MemberRepository memberRepository;
 
     @Transactional
     public void addAttendance(Session session, Location location, LocalTime attendanceDeadline,
@@ -123,7 +125,7 @@ public class AttendanceAdminService {
         try (Workbook workbook = new XSSFWorkbook()) {
 
             // 세션별 출석 데이터를 저장할 구조체
-            Map<String, Map<String, String>> memberStatisticsMap = new HashMap<>();
+            Map<Long, Map<String, String>> memberStatisticsMap = new HashMap<>();
             LinkedHashMap<String, String> sessionColumnNames = new LinkedHashMap<>();
 
             // 모든 세션에 대한 출석 정보 수집
@@ -148,12 +150,10 @@ public class AttendanceAdminService {
     }
 
     // 출석 정보를 수집하는 메소드
-    private void collectAttendanceRecords(List<Long> sessionIds, Map<String, Map<String, String>> memberStatisticsMap,
+    private void collectAttendanceRecords(List<Long> sessionIds, Map<Long, Map<String, String>> memberStatisticsMap,
                                           LinkedHashMap<String, String> sessionColumnNames) {
         // 활동 중인 멤버 목록을 한 번만 쿼리
-        List<String> allMemberNames = memberService.findActiveMember().stream()
-                .map(Member::getName)
-                .toList();
+        List<Member> allMembers = memberService.findActiveMember();
 
         for (Long sessionId : sessionIds) {
             Session session = sessionRepository.findById(sessionId)
@@ -165,35 +165,37 @@ public class AttendanceAdminService {
             sessionColumnNames.put(columnName, sessionDate);
 
             // 회원들의 출석 기록을 업데이트 하고 기록이 없을 경우 일괄 '결석' 처리
-            updateAttendanceRecords(sessionId, memberStatisticsMap, columnName, allMemberNames);
+            updateAttendanceRecords(sessionId, memberStatisticsMap, columnName, allMembers);
         }
     }
 
     // 실제 출석 기록을 업데이트하는 메소드
-    private void updateAttendanceRecords(Long sessionId, Map<String, Map<String, String>> memberStatisticsMap, String columnName, List<String> allMemberNames) {
+    private void updateAttendanceRecords(Long sessionId, Map<Long, Map<String, String>> memberStatisticsMap,
+                                         String columnName, List<Member> allMembers) {
         List<Attendance> attendances = attendanceRepository.findAllBySessionIdsInQuery(List.of(sessionId));
-        List<AttendanceRecordResponse> attendanceRecords = attendanceRecordService.generateAttendanceResponses(attendances);
+        List<AttendanceRecordResponse> attendanceRecords = attendanceRecordService.generateAttendanceResponses(
+                attendances);
 
         // 출석 기록이 있는 회원들의 출석 상태 업데이트
         for (AttendanceRecordResponse record : attendanceRecords) {
-            String memberName = record.memberInfo().name();
+            Long memberId = record.memberInfo().memberId();
             String attendanceStatus = determineAttendanceStatus(record.statistic());
             memberStatisticsMap
-                    .computeIfAbsent(memberName, k -> new HashMap<>())
+                    .computeIfAbsent(memberId, k -> new HashMap<>())
                     .put(columnName, attendanceStatus);
         }
 
         // 출석 기록이 없는 회원들의 출석 상태를 '결석'으로 설정
-        for (String memberName : allMemberNames) {
+        for (Member member : allMembers) {
             memberStatisticsMap
-                    .computeIfAbsent(memberName, k -> new HashMap<>())
+                    .computeIfAbsent(member.getId(), k -> new HashMap<>())
                     .putIfAbsent(columnName, AttendanceResult.ABSENT.getDescription());
         }
     }
 
     // 엑셀 파일을 생성하고 데이터를 입력하는 메소드
     private byte[] generateExcelFile(Workbook workbook, LinkedHashMap<String, String> sessionColumnNames,
-                                     Map<String, Map<String, String>> memberStatisticsMap) throws IOException {
+                                     Map<Long, Map<String, String>> memberStatisticsMap) throws IOException {
         Sheet sheet = workbook.createSheet();
 
         // 헤더 생성
@@ -202,9 +204,13 @@ public class AttendanceAdminService {
 
         // 데이터 생성
         int rowNum = 1;
-        for (Map.Entry<String, Map<String, String>> entry : memberStatisticsMap.entrySet()) {
+        for (Map.Entry<Long, Map<String, String>> entry : memberStatisticsMap.entrySet()) {
             Row row = sheet.createRow(rowNum++);
-            addMemberAttendanceData(row, entry.getKey(), entry.getValue(), sessionColumnNames);
+            Long memberId = entry.getKey();
+            String memberName = memberRepository.findById(memberId)
+                    .map(Member::getName)
+                    .orElseThrow(() -> new EntityNotFoundException("회원 정보를 찾을 수 없습니다: " + memberId));
+            addMemberAttendanceData(row, memberName, entry.getValue(), sessionColumnNames);
         }
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -220,7 +226,6 @@ public class AttendanceAdminService {
         for (String columnName : sessionColumnNames.keySet()) {
             headerRow.createCell(colNum++).setCellValue(columnName);
         }
-
 
         headerRow.createCell(colNum++).setCellValue(AttendanceResult.PRESENT.getDescription());
         headerRow.createCell(colNum++).setCellValue(AttendanceType.OFFLINE.getDescription());
