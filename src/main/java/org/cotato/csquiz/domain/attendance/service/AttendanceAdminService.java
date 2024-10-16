@@ -174,7 +174,7 @@ public class AttendanceAdminService {
         for (String memberName : allMemberNames) {
             memberStatisticsMap
                     .computeIfAbsent(memberName, k -> new HashMap<>())
-                    .put(columnName, "결석");
+                    .put(columnName, AttendanceResult.ABSENT.getDescription());
         }
     }
 
@@ -213,18 +213,19 @@ public class AttendanceAdminService {
 
     // 헤더 행을 생성하는 메소드
     private void createHeaderRow(Row headerRow, LinkedHashMap<String, String> sessionColumnNames) {
-        headerRow.createCell(0).setCellValue("부원이름");
+        headerRow.createCell(0).setCellValue("부원 이름");
         int colNum = 1;
 
         for (String columnName : sessionColumnNames.keySet()) {
             headerRow.createCell(colNum++).setCellValue(columnName);
         }
 
-        headerRow.createCell(colNum++).setCellValue("출석");
-        headerRow.createCell(colNum++).setCellValue("대면");
-        headerRow.createCell(colNum++).setCellValue("비대면");
-        headerRow.createCell(colNum++).setCellValue("지각");
-        headerRow.createCell(colNum).setCellValue("결석");
+
+        headerRow.createCell(colNum++).setCellValue(AttendanceResult.PRESENT.getDescription());
+        headerRow.createCell(colNum++).setCellValue(AttendanceType.OFFLINE.getDescription());
+        headerRow.createCell(colNum++).setCellValue(AttendanceType.ONLINE.getDescription());
+        headerRow.createCell(colNum++).setCellValue(AttendanceResult.LATE.getDescription());
+        headerRow.createCell(colNum).setCellValue(AttendanceResult.ABSENT.getDescription());
     }
 
     // 회원의 출석 데이터를 추가하는 메서드
