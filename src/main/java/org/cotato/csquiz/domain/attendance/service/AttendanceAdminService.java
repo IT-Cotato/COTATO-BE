@@ -32,6 +32,7 @@ import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
 import org.cotato.csquiz.domain.auth.entity.Member;
+import org.cotato.csquiz.domain.auth.enums.MemberRoleGroup;
 import org.cotato.csquiz.domain.auth.service.MemberService;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
@@ -213,7 +214,7 @@ public class AttendanceAdminService {
 
     // 헤더 행을 생성하는 메소드
     private void createHeaderRow(Row headerRow, LinkedHashMap<String, String> sessionColumnNames) {
-        headerRow.createCell(0).setCellValue("부원 이름");
+        headerRow.createCell(0).setCellValue(MemberRoleGroup.ACTIVE_MEMBERS.getDescription());
         int colNum = 1;
 
         for (String columnName : sessionColumnNames.keySet()) {
