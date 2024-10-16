@@ -5,6 +5,7 @@ import jakarta.persistence.EntityNotFoundException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -138,9 +139,9 @@ public class AttendanceAdminService {
     // 파일명 인코딩 메서드
     public String getEncodedFileName(String fileName) {
         try {
-            String encodedFileName = URLEncoder.encode(fileName, "UTF-8").replaceAll("\\+", "%20");
+            String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
             return encodedFileName + ".xlsx";
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new AppException(ErrorCode.FILE_NAME_ENCODING_FAIL);
         }
     }
