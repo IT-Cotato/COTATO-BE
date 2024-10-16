@@ -147,9 +147,6 @@ public class AttendanceController {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + finalFileName + "\"");
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .headers(headers)
-                .body(excelFile);
+        return ResponseEntity.ok().headers(headers).body(excelFile);
     }
 }
