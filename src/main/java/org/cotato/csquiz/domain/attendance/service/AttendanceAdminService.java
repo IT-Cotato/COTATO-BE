@@ -164,30 +164,30 @@ public class AttendanceAdminService {
             String columnName = session.getNumber() + "주차 세션 (" + sessionDate + ")";
             sessionColumnNames.put(columnName, sessionDate);
 
-            // 회원들의 출석 상태를 '결석'으로 초기화하고, 출석 기록을 업데이트
-            initializeMemberAttendance(memberStatisticsMap, columnName, allMemberNames);
-            updateAttendanceRecords(sessionId, memberStatisticsMap, columnName);
-        }
-    }
-
-    // 회원의 출석 상태를 초기화하는 메소드
-    private void initializeMemberAttendance(Map<String, Map<String, String>> memberStatisticsMap, String columnName, List<String> allMemberNames) {
-        for (String memberName : allMemberNames) {
-            memberStatisticsMap
-                    .computeIfAbsent(memberName, k -> new HashMap<>())
-                    .put(columnName, AttendanceResult.ABSENT.getDescription());
+            // 회원들의 출석 기록을 업데이트 하고 기록이 없을 경우 일괄 '결석' 처리
+            updateAttendanceRecords(sessionId, memberStatisticsMap, columnName, allMemberNames);
         }
     }
 
     // 실제 출석 기록을 업데이트하는 메소드
-    private void updateAttendanceRecords(Long sessionId, Map<String, Map<String, String>> memberStatisticsMap, String columnName) {
+    private void updateAttendanceRecords(Long sessionId, Map<String, Map<String, String>> memberStatisticsMap, String columnName, List<String> allMemberNames) {
         List<Attendance> attendances = attendanceRepository.findAllBySessionIdsInQuery(List.of(sessionId));
         List<AttendanceRecordResponse> attendanceRecords = attendanceRecordService.generateAttendanceResponses(attendances);
 
+        // 출석 기록이 있는 회원들의 출석 상태 업데이트
         for (AttendanceRecordResponse record : attendanceRecords) {
             String memberName = record.memberInfo().name();
             String attendanceStatus = determineAttendanceStatus(record.statistic());
-            memberStatisticsMap.get(memberName).put(columnName, attendanceStatus);
+            memberStatisticsMap
+                    .computeIfAbsent(memberName, k -> new HashMap<>())
+                    .put(columnName, attendanceStatus);
+        }
+
+        // 출석 기록이 없는 회원들의 출석 상태를 '결석'으로 설정
+        for (String memberName : allMemberNames) {
+            memberStatisticsMap
+                    .computeIfAbsent(memberName, k -> new HashMap<>())
+                    .putIfAbsent(columnName, AttendanceResult.ABSENT.getDescription());
         }
     }
 
