@@ -149,6 +149,11 @@ public class AttendanceAdminService {
     // 출석 정보를 수집하는 메소드
     private void collectAttendanceRecords(List<Long> sessionIds, Map<String, Map<String, String>> memberStatisticsMap,
                                           LinkedHashMap<String, String> sessionColumnNames) {
+        // 활동 중인 멤버 목록을 한 번만 쿼리
+        List<String> allMemberNames = memberService.findActiveMember().stream()
+                .map(Member::getName)
+                .toList();
+
         for (Long sessionId : sessionIds) {
             Session session = sessionRepository.findById(sessionId)
                     .orElseThrow(() -> new EntityNotFoundException("세션을 찾을 수 없습니다: " + sessionId));
@@ -159,17 +164,13 @@ public class AttendanceAdminService {
             sessionColumnNames.put(columnName, sessionDate);
 
             // 회원들의 출석 상태를 '결석'으로 초기화하고, 출석 기록을 업데이트
-            initializeMemberAttendance(memberStatisticsMap, columnName);
+            initializeMemberAttendance(memberStatisticsMap, columnName, allMemberNames);
             updateAttendanceRecords(sessionId, memberStatisticsMap, columnName);
         }
     }
 
     // 회원의 출석 상태를 초기화하는 메소드
-    private void initializeMemberAttendance(Map<String, Map<String, String>> memberStatisticsMap, String columnName) {
-        List<String> allMemberNames = memberService.findActiveMember().stream()
-                .map(Member::getName)
-                .toList();
-
+    private void initializeMemberAttendance(Map<String, Map<String, String>> memberStatisticsMap, String columnName, List<String> allMemberNames) {
         for (String memberName : allMemberNames) {
             memberStatisticsMap
                     .computeIfAbsent(memberName, k -> new HashMap<>())
