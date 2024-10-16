@@ -1,6 +1,5 @@
 package org.cotato.csquiz.api.session.dto;
 
-import java.util.List;
 import org.cotato.csquiz.domain.generation.entity.SessionImage;
 
 public record SessionListImageInfoResponse(
