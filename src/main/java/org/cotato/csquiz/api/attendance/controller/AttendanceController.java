@@ -77,7 +77,8 @@ public class AttendanceController {
 
     @Operation(summary = "기수별 출석 목록 조회 API")
     @GetMapping
-    public ResponseEntity<AttendancesResponse> findAttendancesByGeneration(@RequestParam("generationId") Long generationId) {
+    public ResponseEntity<AttendancesResponse> findAttendancesByGeneration(
+            @RequestParam("generationId") Long generationId) {
         return ResponseEntity.ok().body(attendanceService.findAttendancesByGenerationId(generationId));
     }
 
@@ -98,8 +99,9 @@ public class AttendanceController {
             }
     )
     @PostMapping(value = "/records/offline")
-    public ResponseEntity<AttendResponse> submitOfflineAttendanceRecord(@RequestBody @Valid OfflineAttendanceRequest request,
-                                                                        @AuthenticationPrincipal Long memberId) {
+    public ResponseEntity<AttendResponse> submitOfflineAttendanceRecord(
+            @RequestBody @Valid OfflineAttendanceRequest request,
+            @AuthenticationPrincipal Long memberId) {
         return ResponseEntity.ok().body(attendanceRecordService.submitRecord(request, memberId));
     }
 
@@ -119,15 +121,17 @@ public class AttendanceController {
                     )
             })
     @PostMapping(value = "/records/online")
-    public ResponseEntity<AttendResponse> submitOnlineAttendanceRecord(@RequestBody @Valid OnlineAttendanceRequest request,
-                                                                       @AuthenticationPrincipal Long memberId) {
+    public ResponseEntity<AttendResponse> submitOnlineAttendanceRecord(
+            @RequestBody @Valid OnlineAttendanceRequest request,
+            @AuthenticationPrincipal Long memberId) {
         return ResponseEntity.ok().body(attendanceRecordService.submitRecord(request, memberId));
     }
 
     @Operation(summary = "부원의 기수별 출결 기록 반환 API")
     @GetMapping("/records/members")
-    public ResponseEntity<MemberAttendanceRecordsResponse> findAllRecordsByGeneration(@RequestParam("generationId") Long generationId ,
-                                                                                      @AuthenticationPrincipal Long memberId) {
+    public ResponseEntity<MemberAttendanceRecordsResponse> findAllRecordsByGeneration(
+            @RequestParam("generationId") Long generationId,
+            @AuthenticationPrincipal Long memberId) {
         return ResponseEntity.ok().body(attendanceRecordService.findAllRecordsBy(generationId, memberId));
     }
 
@@ -135,7 +139,7 @@ public class AttendanceController {
     @GetMapping("/excel")
     public ResponseEntity<byte[]> downloadAttendanceRecordsAsExcelBySessions(
             @RequestParam(name = "sessionIds") List<Long> sessionIds,
-            @RequestParam(name = "fileName", defaultValue = "attendance_summary.xlsx") String fileName) {
+            @RequestParam(name = "fileName", defaultValue = "attendance_summary") String fileName) {
 
         byte[] excelFile = attendanceAdminService.exportAttendanceRecordsToExcelBySessions(sessionIds);
         String finalFileName = attendanceAdminService.getEncodedFileName(fileName);
