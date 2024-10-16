@@ -223,7 +223,7 @@ public class AttendanceAdminService {
         headerRow.createCell(colNum++).setCellValue("대면");
         headerRow.createCell(colNum++).setCellValue("비대면");
         headerRow.createCell(colNum++).setCellValue("지각");
-        headerRow.createCell(colNum++).setCellValue("결석");
+        headerRow.createCell(colNum).setCellValue("결석");
     }
 
     // 회원의 출석 데이터를 추가하는 메서드
@@ -264,7 +264,7 @@ public class AttendanceAdminService {
         row.createCell(colNum++).setCellValue(totalOffline);
         row.createCell(colNum++).setCellValue(totalOnline);
         row.createCell(colNum++).setCellValue(totalLate);
-        row.createCell(colNum++).setCellValue(totalAbsent);
+        row.createCell(colNum).setCellValue(totalAbsent);
     }
 
     // 출석 상태를 결정하는 함수
