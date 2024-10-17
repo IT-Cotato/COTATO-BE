@@ -3,9 +3,8 @@ package org.cotato.csquiz.domain.auth.service;
 import static org.cotato.csquiz.common.util.EmailUtil.createOldMemberConversionEmailBody;
 import static org.cotato.csquiz.common.util.EmailUtil.createSignupApprovedMessageBody;
 import static org.cotato.csquiz.common.util.EmailUtil.createSignupRejectionMessageBody;
+import static org.cotato.csquiz.common.util.EmailUtil.getVerificationMessageBody;
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.CONVERSION_TO_OM_SUBJECT;
-import static org.cotato.csquiz.domain.auth.constant.EmailConstants.MESSAGE_PREFIX;
-import static org.cotato.csquiz.domain.auth.constant.EmailConstants.MESSAGE_SUFFIX;
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.SENDER_EMAIL;
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.SENDER_PERSONAL;
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.SIGNUP_REJECT_SUBJECT;
@@ -113,20 +112,13 @@ public class EmailVerificationService {
 
             message.addRecipients(RecipientType.TO, recipient);
             message.setSubject(subject);
-            message.setText(getVerificationText(verificationCode), "utf-8", "html");
+            message.setText(getVerificationMessageBody(verificationCode), "utf-8", "html");
             message.setFrom(getInternetAddress());
             mailSender.send(message);
             log.info("이메일 전송 완료");
         } catch (MessagingException e) {
             throw new AppException(ErrorCode.EMAIL_SEND_ERROR);
         }
-    }
-
-    private String getVerificationText(String verificationCode) {
-        StringBuilder sb = new StringBuilder();
-        return String.valueOf(sb.append(MESSAGE_PREFIX)
-                .append(verificationCode)
-                .append(MESSAGE_SUFFIX));
     }
 
     private InternetAddress getInternetAddress() {

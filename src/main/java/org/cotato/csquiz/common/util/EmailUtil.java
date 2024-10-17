@@ -5,6 +5,8 @@ import static org.cotato.csquiz.domain.auth.constant.EmailConstants.COTATO_HYPER
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.MEMBER_GENERATION_PREFIX;
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.MEMBER_NAME_SUFFIX;
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.MEMBER_POSITION_PREFIX;
+import static org.cotato.csquiz.domain.auth.constant.EmailConstants.MESSAGE_PREFIX;
+import static org.cotato.csquiz.domain.auth.constant.EmailConstants.MESSAGE_SUFFIX;
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.SIGNUP_FAIL_MESSAGE;
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.SIGNUP_MESSAGE_PREFIX;
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.SIGNUP_SUCCESS_MESSAGE;
@@ -37,6 +39,13 @@ public class EmailUtil {
                 .append(getMemberName(recipientMember.getName()))
                 .append(SIGNUP_FAIL_MESSAGE)
                 .append(COTATO_HYPERLINK));
+    }
+
+    public static String getVerificationMessageBody(String verificationCode) {
+        StringBuilder sb = new StringBuilder();
+        return String.valueOf(sb.append(MESSAGE_PREFIX)
+                .append(verificationCode)
+                .append(MESSAGE_SUFFIX));
     }
 
     private static String getMemberName(String memberName) {
