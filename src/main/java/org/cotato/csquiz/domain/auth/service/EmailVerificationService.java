@@ -52,7 +52,9 @@ public class EmailVerificationService {
         emailRedisRepository.saveEmail(type, recipient);
         verificationCodeRedisRepository.saveCodeWithEmail(type, recipient, verificationCode);
 
-        sendEmailWithVerificationCode(recipient, verificationCode, subject);
+        String verificationMessage = getVerificationMessageBody(verificationCode);
+
+        sendEmail(recipient, verificationMessage, subject);
     }
 
     public void sendSignUpApprovedToEmail(Member recipientMember) {
@@ -98,21 +100,6 @@ public class EmailVerificationService {
             message.addRecipients(RecipientType.TO, recipient);
             message.setSubject(subject);
             message.setText(messageBody, "utf-8", "html");
-            message.setFrom(getInternetAddress());
-            mailSender.send(message);
-            log.info("이메일 전송 완료");
-        } catch (MessagingException e) {
-            throw new AppException(ErrorCode.EMAIL_SEND_ERROR);
-        }
-    }
-
-    private void sendEmailWithVerificationCode(String recipient, String verificationCode, String subject) {
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-
-            message.addRecipients(RecipientType.TO, recipient);
-            message.setSubject(subject);
-            message.setText(getVerificationMessageBody(verificationCode), "utf-8", "html");
             message.setFrom(getInternetAddress());
             mailSender.send(message);
             log.info("이메일 전송 완료");
