@@ -1,19 +1,14 @@
 package org.cotato.csquiz.domain.auth.service;
 
+import static org.cotato.csquiz.common.util.EmailUtil.createOldMemberConversionEmailBody;
+import static org.cotato.csquiz.common.util.EmailUtil.createSignupApprovedMessageBody;
+import static org.cotato.csquiz.common.util.EmailUtil.createSignupRejectionMessageBody;
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.CONVERSION_TO_OM_SUBJECT;
-import static org.cotato.csquiz.domain.auth.constant.EmailConstants.CONVERSION_TO_OM_MESSAGE;
-import static org.cotato.csquiz.domain.auth.constant.EmailConstants.COTATO_HYPERLINK;
-import static org.cotato.csquiz.domain.auth.constant.EmailConstants.MEMBER_GENERATION_PREFIX;
-import static org.cotato.csquiz.domain.auth.constant.EmailConstants.MEMBER_NAME_SUFFIX;
-import static org.cotato.csquiz.domain.auth.constant.EmailConstants.MEMBER_POSITION_PREFIX;
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.MESSAGE_PREFIX;
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.MESSAGE_SUFFIX;
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.SENDER_EMAIL;
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.SENDER_PERSONAL;
-import static org.cotato.csquiz.domain.auth.constant.EmailConstants.SIGNUP_FAIL_MESSAGE;
-import static org.cotato.csquiz.domain.auth.constant.EmailConstants.SIGNUP_MESSAGE_PREFIX;
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.SIGNUP_REJECT_SUBJECT;
-import static org.cotato.csquiz.domain.auth.constant.EmailConstants.SIGNUP_SUCCESS_MESSAGE;
 import static org.cotato.csquiz.domain.auth.constant.EmailConstants.SIGNUP_SUCCESS_SUBJECT;
 
 import jakarta.mail.Message.RecipientType;
@@ -70,16 +65,6 @@ public class EmailVerificationService {
         log.info("가입 승인 완료 이메일 전송 완료");
     }
 
-    private String createSignupApprovedMessageBody(Member recipientMember) {
-        StringBuilder sb = new StringBuilder();
-        return String.valueOf(sb.append(SIGNUP_MESSAGE_PREFIX)
-                .append(getMemberName(recipientMember.getName()))
-                .append(SIGNUP_SUCCESS_MESSAGE)
-                .append(String.format(MEMBER_GENERATION_PREFIX, recipientMember.getPassedGenerationNumber()))
-                .append(String.format(MEMBER_POSITION_PREFIX, recipientMember.getPosition().name()))
-                .append(COTATO_HYPERLINK));
-    }
-
     public void sendSignupRejectionToEmail(Member recipientMember) {
         emailFormValidator.validateEmailForm(recipientMember.getEmail());
 
@@ -89,14 +74,6 @@ public class EmailVerificationService {
         log.info("가입 승인 거절 이메일 전송 완료");
     }
 
-    private String createSignupRejectionMessageBody(Member recipientMember) {
-        StringBuilder sb = new StringBuilder();
-        return String.valueOf(sb.append(SIGNUP_MESSAGE_PREFIX)
-                .append(getMemberName(recipientMember.getName()))
-                .append(SIGNUP_FAIL_MESSAGE)
-                .append(COTATO_HYPERLINK));
-    }
-
     public void sendOldMemberConversionToEmail(Member recipientMember) {
         emailFormValidator.validateEmailForm(recipientMember.getEmail());
 
@@ -104,18 +81,6 @@ public class EmailVerificationService {
 
         sendEmail(recipientMember.getEmail(), conversionMessageBody, CONVERSION_TO_OM_SUBJECT);
         log.info("OM 전환 이메일 전송 완료");
-    }
-
-    private String createOldMemberConversionEmailBody(Member recipientMember) {
-        StringBuilder sb = new StringBuilder();
-        return String.valueOf(sb.append(SIGNUP_MESSAGE_PREFIX)
-                .append(getMemberName(recipientMember.getName()))
-                .append(CONVERSION_TO_OM_MESSAGE)
-                .append(COTATO_HYPERLINK));
-    }
-
-    private String getMemberName(String memberName) {
-        return String.format(MEMBER_NAME_SUFFIX, memberName);
     }
 
     private String getVerificationCode() {
