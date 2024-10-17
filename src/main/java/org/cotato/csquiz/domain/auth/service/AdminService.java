@@ -32,7 +32,7 @@ public class AdminService {
     private final GenerationRepository generationRepository;
     private final RefusedMemberRepository refusedMemberRepository;
     private final MemberService memberService;
-    private final EmailVerificationService emailVerificationService;
+    private final EmailNotificationService emailNotificationService;
 
     public List<ApplyMemberInfoResponse> findApplicantList() {
         return createApplyInfoList(memberRepository.findAllByRole(MemberRole.GENERAL));
@@ -55,7 +55,7 @@ public class AdminService {
             memberRepository.save(member);
         }
 
-        emailVerificationService.sendSignUpApprovedToEmail(member);
+        emailNotificationService.sendSignUpApprovedToEmail(member);
     }
 
     @Transactional
@@ -70,7 +70,7 @@ public class AdminService {
             deleteRefusedMember(member);
         }
 
-        emailVerificationService.sendSignUpApprovedToEmail(member);
+        emailNotificationService.sendSignUpApprovedToEmail(member);
     }
 
     @Transactional
@@ -83,7 +83,7 @@ public class AdminService {
             addRefusedMember(member);
         }
 
-        emailVerificationService.sendSignupRejectionToEmail(member);
+        emailNotificationService.sendSignupRejectionToEmail(member);
     }
 
     private Member findMember(Long memberId) {
@@ -126,7 +126,7 @@ public class AdminService {
             member.updateRole(MemberRole.OLD_MEMBER);
             memberRepository.save(member);
 
-            emailVerificationService.sendOldMemberConversionToEmail(member);
+            emailNotificationService.sendOldMemberConversionToEmail(member);
         }
     }
 
