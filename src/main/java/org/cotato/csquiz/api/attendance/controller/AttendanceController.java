@@ -138,11 +138,10 @@ public class AttendanceController {
     @Operation(summary = "세션별 출석 기록 엑셀 다운로드 API")
     @GetMapping("/excel")
     public ResponseEntity<byte[]> downloadAttendanceRecordsAsExcelBySessions(
-            @RequestParam(name = "sessionIds") List<Long> sessionIds,
-            @RequestParam(name = "fileName", defaultValue = "attendance_summary") String fileName) {
+            @RequestParam(name = "sessionIds") List<Long> sessionIds) {
 
         byte[] excelFile = attendanceAdminService.exportAttendanceRecordsToExcelBySessions(sessionIds);
-        String finalFileName = attendanceAdminService.getEncodedFileName(fileName);
+        String finalFileName = attendanceAdminService.getEncodedFileName(sessionIds);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + finalFileName + "\"");

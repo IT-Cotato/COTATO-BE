@@ -4,8 +4,6 @@ package org.cotato.csquiz.domain.attendance.service;
 import jakarta.persistence.EntityNotFoundException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -30,6 +28,7 @@ import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
+import org.cotato.csquiz.domain.attendance.util.AttendanceExcelUtil;
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.enums.MemberRoleGroup;
@@ -139,14 +138,10 @@ public class AttendanceAdminService {
         }
     }
 
-    // 파일명 인코딩 메서드
-    public String getEncodedFileName(String fileName) {
-        try {
-            String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
-            return encodedFileName + ".xlsx";
-        } catch (Exception e) {
-            throw new AppException(ErrorCode.FILE_NAME_ENCODING_FAIL);
-        }
+    public String getEncodedFileName(List<Long> sessionIds) {
+        List<Session> sessions = sessionRepository.findAllById(sessionIds);
+        String dynamicFileName = AttendanceExcelUtil.generateDynamicFileName(sessions); // 파일명 생성
+        return AttendanceExcelUtil.getEncodedFileName(dynamicFileName);  // 인코딩 처리
     }
 
     // 출석 정보를 수집하는 메소드
