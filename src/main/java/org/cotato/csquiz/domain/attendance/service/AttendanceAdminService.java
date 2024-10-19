@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -88,7 +89,7 @@ public class AttendanceAdminService {
                 .stream()
                 .collect(Collectors.toMap(
                         AttendanceRecord::getMemberId,
-                        record -> record
+                        Function.identity()
                 ));
 
         Attendance attendance = attendanceRepository.findById(attendanceId)
