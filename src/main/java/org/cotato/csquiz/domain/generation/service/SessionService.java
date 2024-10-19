@@ -179,6 +179,6 @@ public class SessionService {
         List<SessionImage> sessionImages = sessionImageRepository.findAllBySession(session);
         Optional<Attendance> maybeAttendance = attendanceRepository.findBySessionId(sessionId);
         return maybeAttendance.map(attendance -> SessionWithAttendanceResponse.of(session, sessionImages, attendance))
-                .orElseGet(() -> SessionWithAttendanceResponse.of(session, sessionImages, null));
+                .orElseGet(() -> SessionWithAttendanceResponse.of(session, sessionImages));
     }
 }
