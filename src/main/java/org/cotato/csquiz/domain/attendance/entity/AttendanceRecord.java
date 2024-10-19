@@ -94,7 +94,7 @@ public class AttendanceRecord extends BaseTimeEntity {
             null,
             memberId,
             attendance,
-            LocalDateTime.now()
+            null
         );
     }
 
