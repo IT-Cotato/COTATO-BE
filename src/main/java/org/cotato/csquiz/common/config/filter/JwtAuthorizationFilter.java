@@ -33,11 +33,11 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private static final String SESSION_PATH = "/v1/api/session";
     private static final String POLICIES_PATH = "/v2/api/policies";
     private static final String PROJECTS_LIST = "/v2/api/projects";
-    private static final String PROJECT_DETAIL = "/v2/api/projects/{projectId:\\d+}";
+    private static final String PROJECT_DETAIL = "/v2/api/projects";
     private static final String CURRENT_GENERATION = "/v1/api/generation/current";
+    private static final String INTEGER_REGEX = "/{id:\\d+}";
 
     private final JwtTokenProvider jwtTokenProvider;
-    private static final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -66,8 +66,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        log.info("요청 경로: {}", path);
-        log.info("요청 메서드: {}", request.getMethod());
+        log.info("요청 경로 및 메서드: {}, {}", path, request.getMethod());
         return path.startsWith(AUTH_PATH) || path.equals(LOGIN_PATH)
                 || path.startsWith(SWAGGER_PATH) || path.equals(SWAGGER_FAVICON)
                 || path.startsWith(SWAGGER_PATH_3) || path.startsWith(WS)
@@ -75,6 +74,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 || path.equals(POLICIES_PATH)
                 || path.equals(CURRENT_GENERATION)
                 || path.equals(PROJECTS_LIST) && HttpMethod.GET.name().equals(request.getMethod())
-                || pathMatcher.match(PROJECT_DETAIL, path);
+                || new AntPathMatcher().match(PROJECT_DETAIL + INTEGER_REGEX, path)
+                || (new AntPathMatcher().match(SESSION_PATH + INTEGER_REGEX, path) && request.getMethod().equals(HttpMethod.GET.name()))
+                ;
     }
 }

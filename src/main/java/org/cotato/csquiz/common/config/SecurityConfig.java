@@ -91,6 +91,7 @@ public class SecurityConfig {
                                 .requestMatchers("/v1/api/record/reply").hasAnyRole("MEMBER", "EDUCATION", "OPERATION", "ADMIN")
                                 .requestMatchers("/v1/api/record/**").hasAnyRole("EDUCATION", "ADMIN")
                                 .requestMatchers("/v1/api/session/cs-on").hasAnyRole("EDUCATION", "ADMIN")
+                                .requestMatchers(new AntPathRequestMatcher("/v1/api/session/**", HttpMethod.GET.name())).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/v1/api/session", "GET")).authenticated()
                                 .requestMatchers("/v1/api/session/**").hasAnyRole("ADMIN")
                                 .requestMatchers("/v2/api/attendances/records").hasAnyRole("OPERATION", "ADMIN")
