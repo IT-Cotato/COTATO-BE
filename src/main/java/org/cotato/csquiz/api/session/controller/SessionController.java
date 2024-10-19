@@ -32,11 +32,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @Tag(name = "세션 정보", description = "세션 관련 API 입니다.")
 @RequestMapping("/v1/api/session")
 @RequiredArgsConstructor
-@Slf4j
 public class SessionController {
 
     private final SessionService sessionService;
