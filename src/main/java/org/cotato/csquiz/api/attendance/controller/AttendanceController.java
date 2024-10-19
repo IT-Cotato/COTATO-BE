@@ -80,11 +80,9 @@ public class AttendanceController {
     public ResponseEntity<Void> updateAttendanceRecords(
             @PathVariable("attendance-id") Long attendanceId,
             @RequestBody @Valid List<UpdateAttendanceRecordInfoRequest> request) {
-
         attendanceAdminService.updateAttendanceRecords(attendanceId, request);
         return ResponseEntity.noContent().build();
     }
-
 
     @Operation(summary = "기수별 출석 목록 조회 API")
     @GetMapping
