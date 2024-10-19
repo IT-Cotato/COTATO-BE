@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.attendance.dto.AttendanceDeadLineDto;
 import org.cotato.csquiz.api.attendance.dto.AttendanceRecordResponse;
+import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRecordRequest.UpdateAttendanceRecordInfoRequest;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
@@ -71,6 +72,10 @@ public class AttendanceAdminService {
         attendance.updateLocation(location);
 
         attendanceRecordService.updateAttendanceStatus(attendanceSession.getSessionDateTime(), attendance);
+    }
+
+    @Transactional
+    public void updateAttendanceRecords(Long attendanceId, List<UpdateAttendanceRecordInfoRequest> updateAttendanceRecordInfoRequests) {
     }
 
     public List<AttendanceRecordResponse> findAttendanceRecords(Long generationId, Integer month) {
