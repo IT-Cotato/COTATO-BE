@@ -1,25 +1,17 @@
 package org.cotato.csquiz.domain.auth.service;
 
-import static org.cotato.csquiz.domain.auth.constant.EmailConstants.MESSAGE_PREFIX;
-import static org.cotato.csquiz.domain.auth.constant.EmailConstants.MESSAGE_SUFFIX;
-import static org.cotato.csquiz.domain.auth.constant.EmailConstants.SENDER_EMAIL;
-import static org.cotato.csquiz.domain.auth.constant.EmailConstants.SENDER_PERSONAL;
+import static org.cotato.csquiz.common.util.EmailUtil.getVerificationMessageBody;
 
-import jakarta.mail.Message.RecipientType;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeMessage;
-import java.io.UnsupportedEncodingException;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.cotato.csquiz.common.email.EmailService;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.domain.auth.cache.EmailRedisRepository;
 import org.cotato.csquiz.domain.auth.enums.EmailType;
 import org.cotato.csquiz.domain.auth.utils.EmailFormValidator;
 import org.cotato.csquiz.domain.auth.cache.VerificationCodeRedisRepository;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +24,7 @@ public class EmailVerificationService {
     private static final int CODE_LENGTH = 6;
     private static final int CODE_BOUNDARY = 10;
 
-    private final JavaMailSender mailSender;
+    private final EmailService emailService;
     private final VerificationCodeRedisRepository verificationCodeRedisRepository;
     private final EmailFormValidator emailFormValidator;
     private final EmailRedisRepository emailRedisRepository;
@@ -46,7 +38,9 @@ public class EmailVerificationService {
         emailRedisRepository.saveEmail(type, recipient);
         verificationCodeRedisRepository.saveCodeWithEmail(type, recipient, verificationCode);
 
-        sendEmailWithVerificationCode(recipient, verificationCode, subject);
+        String verificationMessage = getVerificationMessageBody(verificationCode);
+
+        emailService.sendEmail(recipient, verificationMessage, subject);
     }
 
     private String getVerificationCode() {
@@ -56,36 +50,6 @@ public class EmailVerificationService {
             builder.append(random.nextInt(CODE_BOUNDARY));
         }
         return String.valueOf(builder);
-    }
-
-    private void sendEmailWithVerificationCode(String recipient, String verificationCode, String subject) {
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-
-            message.addRecipients(RecipientType.TO, recipient);
-            message.setSubject(subject);
-            message.setText(getVerificationText(verificationCode), "utf-8", "html");
-            message.setFrom(getInternetAddress());
-            mailSender.send(message);
-            log.info("이메일 전송 완료");
-        } catch (MessagingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String getVerificationText(String verificationCode) {
-        StringBuilder sb = new StringBuilder();
-        return String.valueOf(sb.append(MESSAGE_PREFIX)
-                .append(verificationCode)
-                .append(MESSAGE_SUFFIX));
-    }
-
-    private InternetAddress getInternetAddress() {
-        try {
-            return new InternetAddress(SENDER_EMAIL, SENDER_PERSONAL);
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public void verifyCode(EmailType type, String email, String code) {
