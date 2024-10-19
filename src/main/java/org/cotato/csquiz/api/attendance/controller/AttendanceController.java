@@ -15,7 +15,7 @@ import org.cotato.csquiz.api.attendance.dto.AttendancesResponse;
 import org.cotato.csquiz.api.attendance.dto.MemberAttendanceRecordsResponse;
 import org.cotato.csquiz.api.attendance.dto.OfflineAttendanceRequest;
 import org.cotato.csquiz.api.attendance.dto.OnlineAttendanceRequest;
-import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRecordRequest;
+import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRecordInfoRequest;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
 import org.cotato.csquiz.api.attendance.dto.AttendanceTimeResponse;
 import org.cotato.csquiz.domain.attendance.service.AttendanceAdminService;
@@ -79,10 +79,9 @@ public class AttendanceController {
     @PatchMapping("/{attendance-id}/records")
     public ResponseEntity<Void> updateAttendanceRecords(
             @PathVariable("attendance-id") Long attendanceId,
-            @RequestBody @Valid UpdateAttendanceRecordRequest request) {
+            @RequestBody @Valid List<UpdateAttendanceRecordInfoRequest> request) {
 
-        attendanceAdminService.updateAttendanceRecords(attendanceId, request.updateRecordInfos());
-
+        attendanceAdminService.updateAttendanceRecords(attendanceId, request);
         return ResponseEntity.noContent().build();
     }
 
