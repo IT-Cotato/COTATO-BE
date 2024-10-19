@@ -13,6 +13,7 @@ import org.cotato.csquiz.api.session.dto.AddSessionResponse;
 import org.cotato.csquiz.api.session.dto.CsEducationOnSessionNumberResponse;
 import org.cotato.csquiz.api.session.dto.DeleteSessionImageRequest;
 import org.cotato.csquiz.api.session.dto.SessionListResponse;
+import org.cotato.csquiz.api.session.dto.SessionWithAttendanceResponse;
 import org.cotato.csquiz.api.session.dto.UpdateSessionImageOrderRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionRequest;
 import org.cotato.csquiz.domain.generation.service.SessionImageService;
@@ -24,21 +25,28 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @Tag(name = "세션 정보", description = "세션 관련 API 입니다.")
 @RequestMapping("/v1/api/session")
 @RequiredArgsConstructor
-@Slf4j
 public class SessionController {
 
     private final SessionService sessionService;
     private final SessionImageService sessionImageService;
+
+    @Operation(summary = "세션 단건 조회 API")
+    @GetMapping("/{id}")
+    public ResponseEntity<SessionWithAttendanceResponse> findSession(@PathVariable("id") Long sessionId) {
+        return ResponseEntity.ok().body(sessionService.findSession(sessionId));
+    }
 
     @Operation(summary = "세션 목록 반환 API")
     @GetMapping
@@ -46,7 +54,7 @@ public class SessionController {
         return ResponseEntity.status(HttpStatus.OK).body(sessionService.findSessionsByGenerationId(generationId));
     }
 
-    @Operation(summary = "CS ON인 세션 목록 반환 API")
+    @Operation(summary = "CS ON인 세션 목록 반환 API", description = "세션과 교육 연계 제거 시 삭제 예정")
     @GetMapping("/cs-on")
     public ResponseEntity<List<CsEducationOnSessionNumberResponse>> findAllCsOnSessionsByGenerationId(
             @RequestParam Long generationId) {
