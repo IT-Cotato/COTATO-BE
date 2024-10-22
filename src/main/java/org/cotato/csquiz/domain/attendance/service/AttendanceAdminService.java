@@ -9,13 +9,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.attendance.dto.AttendanceDeadLineDto;
 import org.cotato.csquiz.api.attendance.dto.AttendanceRecordResponse;
-import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRecordInfoRequest;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.attendance.embedded.Location;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.entity.AttendanceRecord;
+import org.cotato.csquiz.domain.attendance.enums.AttendanceRecordResult;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRecordRepository;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
@@ -78,16 +78,14 @@ public class AttendanceAdminService {
     }
 
     @Transactional
-    public void updateAttendanceRecords(Long attendanceId,
-                                        UpdateAttendanceRecordInfoRequest updateAttendanceRecordInfo) {
+    public void updateAttendanceRecords(Long attendanceId, Long memberId, AttendanceRecordResult attendanceResult) {
         Attendance attendance = attendanceRepository.findById(attendanceId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석이 존재하지 않습니다"));
 
-        AttendanceRecord memberAttendanceRecord = attendanceRecordRepository.findByMemberIdAndAttendanceId(
-                        updateAttendanceRecordInfo.memberId(), attendanceId)
-                .orElseGet(() -> AttendanceRecord.absentRecord(attendance, updateAttendanceRecordInfo.memberId()));
+        AttendanceRecord memberAttendanceRecord = attendanceRecordRepository.findByMemberIdAndAttendanceId(memberId, attendanceId)
+                .orElseGet(() -> AttendanceRecord.absentRecord(attendance, memberId));
 
-        memberAttendanceRecord.updateByAttendanceRecordResult(updateAttendanceRecordInfo.attendanceResult());
+        memberAttendanceRecord.updateByAttendanceRecordResult(attendanceResult);
         attendanceRecordRepository.save(memberAttendanceRecord);
     }
 

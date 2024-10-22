@@ -80,7 +80,7 @@ public class AttendanceController {
     public ResponseEntity<Void> updateAttendanceRecords(
             @PathVariable("attendance-id") Long attendanceId,
             @RequestBody @Valid UpdateAttendanceRecordInfoRequest request) {
-        attendanceAdminService.updateAttendanceRecords(attendanceId, request);
+        attendanceAdminService.updateAttendanceRecords(attendanceId, request.memberId(), request.attendanceResult());
         return ResponseEntity.noContent().build();
     }
 
