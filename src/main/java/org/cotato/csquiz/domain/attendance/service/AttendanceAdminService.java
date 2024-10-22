@@ -85,7 +85,7 @@ public class AttendanceAdminService {
 
         AttendanceRecord memberAttendanceRecord = attendanceRecordRepository.findByMemberIdAndAttendanceId(
                         updateAttendanceRecordInfo.memberId(), attendanceId)
-                .orElse(AttendanceRecord.absentRecord(attendance, updateAttendanceRecordInfo.memberId()));
+                .orElseGet(() -> AttendanceRecord.absentRecord(attendance, updateAttendanceRecordInfo.memberId()));
 
         memberAttendanceRecord.updateByAttendanceRecordResult(updateAttendanceRecordInfo.attendanceResult());
         attendanceRecordRepository.save(memberAttendanceRecord);
