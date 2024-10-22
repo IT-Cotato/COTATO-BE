@@ -5,9 +5,6 @@ import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.attendance.dto.AttendanceDeadLineDto;
@@ -82,27 +79,16 @@ public class AttendanceAdminService {
 
     @Transactional
     public void updateAttendanceRecords(Long attendanceId,
-                                        List<UpdateAttendanceRecordInfoRequest> updateAttendanceRecordInfos) {
-        //멤버 아이디별 출석 기록 매핑
-        Map<Long, AttendanceRecord> recordMapByMemberId = attendanceRecordRepository.findAllByAttendanceId(attendanceId)
-                .stream()
-                .collect(Collectors.toMap(
-                        AttendanceRecord::getMemberId,
-                        Function.identity()
-                ));
-
+                                        UpdateAttendanceRecordInfoRequest updateAttendanceRecordInfo) {
         Attendance attendance = attendanceRepository.findById(attendanceId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석이 존재하지 않습니다"));
 
-        updateAttendanceRecordInfos.forEach(updateRecordInfo -> {
-            AttendanceRecord memberAttendanceRecord = recordMapByMemberId.getOrDefault(
-                    updateRecordInfo.memberId(),
-                    AttendanceRecord.absentRecord(attendance, updateRecordInfo.memberId())
-            );
+        AttendanceRecord memberAttendanceRecord = attendanceRecordRepository.findByMemberIdAndAttendanceId(
+                        updateAttendanceRecordInfo.memberId(), attendanceId)
+                .orElse(AttendanceRecord.absentRecord(attendance, updateAttendanceRecordInfo.memberId()));
 
-            memberAttendanceRecord.updateByAttendanceRecordResult(updateRecordInfo.attendanceResult());
-            attendanceRecordRepository.save(memberAttendanceRecord);
-        });
+        memberAttendanceRecord.updateByAttendanceRecordResult(updateAttendanceRecordInfo.attendanceResult());
+        attendanceRecordRepository.save(memberAttendanceRecord);
     }
 
     public List<AttendanceRecordResponse> findAttendanceRecords(Long generationId, Integer month) {

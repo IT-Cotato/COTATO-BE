@@ -79,7 +79,7 @@ public class AttendanceController {
     @PatchMapping("/{attendance-id}/records")
     public ResponseEntity<Void> updateAttendanceRecords(
             @PathVariable("attendance-id") Long attendanceId,
-            @RequestBody @Valid List<UpdateAttendanceRecordInfoRequest> request) {
+            @RequestBody @Valid UpdateAttendanceRecordInfoRequest request) {
         attendanceAdminService.updateAttendanceRecords(attendanceId, request);
         return ResponseEntity.noContent().build();
     }
