@@ -1,6 +1,10 @@
 package org.cotato.csquiz.domain.auth.enums;
 
 import java.util.Arrays;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.common.error.ErrorCode;
@@ -18,13 +22,17 @@ public enum MemberRole {
     EDUCATION("ROLE_EDUCATION","교육팀"),
     OPERATION("ROLE_OPERATION", "운영지원팀");
 
+    private static final Map<String, MemberRole> ROLE_KEY_MAP = Stream.of(values())
+            .collect(Collectors.toUnmodifiableMap(MemberRole::getKey, Function.identity()));
+
     private final String key;
     private final String description;
 
     public static MemberRole fromKey(final String key) {
-        return Arrays.stream(MemberRole.values())
-                .filter(memberRole -> memberRole.getKey().equals(key))
-                .findFirst()
-                .orElseThrow(() -> new AppException(ErrorCode.ENUM_NOT_RESOLVED));
+        MemberRole result = ROLE_KEY_MAP.get(key);
+        if (result == null) {
+            throw new IllegalArgumentException(String.format("요청한 key(%s)를 찾을 수 없습니다.", key));
+        }
+        return result;
     }
 }
