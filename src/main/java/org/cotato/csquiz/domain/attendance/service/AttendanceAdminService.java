@@ -167,7 +167,7 @@ public class AttendanceAdminService {
     // 실제 출석 기록을 업데이트하는 메소드
     private void updateAttendanceRecords(Long sessionId, Map<Long, Map<String, String>> memberStatisticsMap,
                                          String columnName, List<Member> allMembers) {
-        List<Attendance> attendances = attendanceRepository.findAllBySessionIdsInQuery(List.of(sessionId));
+        List<Attendance> attendances = attendanceRepository.findAllBySessionId(sessionId);
         List<AttendanceRecordResponse> attendanceRecords = attendanceRecordService.generateAttendanceResponses(
                 attendances);
 

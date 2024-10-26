@@ -16,4 +16,5 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
     Optional<Attendance> findByAttendanceDeadLineDate(@Param("time") LocalDateTime time);
 
     Optional<Attendance> findBySessionId(Long sessionId);
+    List<Attendance> findAllBySessionId(Long sessionId);
 }
