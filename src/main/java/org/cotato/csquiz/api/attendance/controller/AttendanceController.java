@@ -140,7 +140,7 @@ public class AttendanceController {
     public ResponseEntity<byte[]> downloadAttendanceRecordsAsExcelBySessions(
             @RequestParam(name = "sessionIds") List<Long> sessionIds) {
 
-        byte[] excelFile = attendanceAdminService.exportAttendanceRecordsToExcelBySessions(sessionIds);
+        byte[] excelFile = attendanceAdminService.createExcelForSessionAttendance(sessionIds);
         String finalFileName = attendanceAdminService.getEncodedFileName(sessionIds);
 
         HttpHeaders headers = new HttpHeaders();

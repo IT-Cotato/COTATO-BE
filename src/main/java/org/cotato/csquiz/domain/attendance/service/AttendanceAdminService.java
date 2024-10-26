@@ -120,12 +120,10 @@ public class AttendanceAdminService {
         return attendanceRecordService.generateAttendanceResponses(List.of(attendance));
     }
 
-    public byte[] exportAttendanceRecordsToExcelBySessions(List<Long> sessionIds) {
-        try (Workbook workbook = new XSSFWorkbook()) {
-
-            // 세션별 출석 데이터를 저장할 구조체
-            Map<Long, Map<String, String>> memberStatisticsMap = new HashMap<>();
-            LinkedHashMap<String, String> sessionColumnNames = new LinkedHashMap<>();
+    public byte[] createExcelForSessionAttendance(List<Long> sessionIds) {
+        // 세션별 출석 데이터를 저장할 구조체
+        LinkedHashMap<Long, Map<String, String>> memberStatisticsMap = new LinkedHashMap<>();
+        LinkedHashMap<String, String> sessionColumnNames = new LinkedHashMap<>();
 
             // 모든 세션에 대한 출석 정보 수집
             collectAttendanceRecords(sessionIds, memberStatisticsMap, sessionColumnNames);
