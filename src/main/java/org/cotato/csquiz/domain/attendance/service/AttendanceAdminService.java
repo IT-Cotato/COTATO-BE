@@ -2,21 +2,14 @@ package org.cotato.csquiz.domain.attendance.service;
 
 
 import jakarta.persistence.EntityNotFoundException;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.cotato.csquiz.api.attendance.dto.AttendanceDeadLineDto;
 import org.cotato.csquiz.api.attendance.dto.AttendanceRecordResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceStatistic;
@@ -31,7 +24,6 @@ import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.attendance.util.AttendanceExcelUtil;
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
 import org.cotato.csquiz.domain.auth.entity.Member;
-import org.cotato.csquiz.domain.auth.enums.MemberRoleGroup;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
 import org.cotato.csquiz.domain.auth.service.MemberService;
 import org.cotato.csquiz.domain.generation.entity.Session;
@@ -125,45 +117,42 @@ public class AttendanceAdminService {
         LinkedHashMap<Long, Map<String, String>> memberStatisticsMap = new LinkedHashMap<>();
         LinkedHashMap<String, String> sessionColumnNames = new LinkedHashMap<>();
 
-            // 모든 세션에 대한 출석 정보 수집
-            collectAttendanceRecords(sessionIds, memberStatisticsMap, sessionColumnNames);
+        // 모든 세션에 대한 출석 정보 수집
+        getAttendanceRecordsBySession(sessionIds, memberStatisticsMap, sessionColumnNames);
 
-            // 엑셀 파일 생성 및 데이터 추가
-            return generateExcelFile(workbook, sessionColumnNames, memberStatisticsMap);
-
-        } catch (IOException e) {
-            throw new AppException(ErrorCode.FILE_GENERATION_FAIL);
-        }
+        // 엑셀 파일 생성 및 반환
+        return AttendanceExcelUtil.createExcelFile(sessionColumnNames, memberStatisticsMap, memberRepository);
     }
 
     public String getEncodedFileName(List<Long> sessionIds) {
         List<Session> sessions = sessionRepository.findAllById(sessionIds);
-        String dynamicFileName = AttendanceExcelUtil.generateDynamicFileName(sessions); // 파일명 생성
+        String dynamicFileName = AttendanceExcelUtil.createDynamicFileName(sessions); // 파일명 생성
         return AttendanceExcelUtil.getEncodedFileName(dynamicFileName);  // 인코딩 처리
     }
 
     // 출석 정보를 수집하는 메소드
-    private void collectAttendanceRecords(List<Long> sessionIds, Map<Long, Map<String, String>> memberStatisticsMap,
-                                          LinkedHashMap<String, String> sessionColumnNames) {
+    private void getAttendanceRecordsBySession(List<Long> sessionIds,
+                                               LinkedHashMap<Long, Map<String, String>> memberStatisticsMap,
+                                               LinkedHashMap<String, String> sessionColumnNames) {
         // 활동 중인 멤버 목록을 한 번만 쿼리
         List<Member> allMembers = memberService.findActiveMember();
 
-        for (Long sessionId : sessionIds) {
-            Session session = sessionRepository.findById(sessionId)
-                    .orElseThrow(() -> new EntityNotFoundException("세션을 찾을 수 없습니다: " + sessionId));
+        // 모든 세션을 한 번의 쿼리로 조회
+        List<Session> sessions = sessionRepository.findAllById(sessionIds);
 
+        for (Session session : sessions) {
             // 세션 이름을 생성하고 열 이름에 추가
             String sessionDate = session.getSessionDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             String columnName = session.getNumber() + "주차 세션 (" + sessionDate + ")";
             sessionColumnNames.put(columnName, sessionDate);
 
             // 회원들의 출석 기록을 업데이트 하고 기록이 없을 경우 일괄 '결석' 처리
-            updateAttendanceRecords(sessionId, memberStatisticsMap, columnName, allMembers);
+            updateAttendanceRecords(session.getId(), memberStatisticsMap, columnName, allMembers);
         }
     }
 
     // 실제 출석 기록을 업데이트하는 메소드
-    private void updateAttendanceRecords(Long sessionId, Map<Long, Map<String, String>> memberStatisticsMap,
+    private void updateAttendanceRecords(Long sessionId, LinkedHashMap<Long, Map<String, String>> memberStatisticsMap,
                                          String columnName, List<Member> allMembers) {
         List<Attendance> attendances = attendanceRepository.findAllBySessionId(sessionId);
         List<AttendanceRecordResponse> attendanceRecords = attendanceRecordService.generateAttendanceResponses(
@@ -172,22 +161,26 @@ public class AttendanceAdminService {
         // 출석 기록이 있는 회원들의 출석 상태 업데이트
         for (AttendanceRecordResponse record : attendanceRecords) {
             Long memberId = record.memberInfo().memberId();
-            String attendanceStatus = determineAttendanceStatus(record.statistic());
+            String attendanceStatus = getAttendanceStatus(record.statistic());
             memberStatisticsMap
-                    .computeIfAbsent(memberId, k -> new HashMap<>())
+                    .computeIfAbsent(memberId, k -> new LinkedHashMap<>())
                     .put(columnName, attendanceStatus);
         }
 
         // 출석 기록이 없는 회원들의 출석 상태를 '결석'으로 설정
         for (Member member : allMembers) {
             memberStatisticsMap
-                    .computeIfAbsent(member.getId(), k -> new HashMap<>())
+                    .computeIfAbsent(member.getId(), k -> new LinkedHashMap<>())
                     .putIfAbsent(columnName, AttendanceResult.ABSENT.getDescription());
         }
     }
 
     // 출석 상태를 결정하는 함수
-    private String determineAttendanceStatus(AttendanceStatistic statistic) {
+    private String getAttendanceStatus(AttendanceStatistic statistic) {
+        if (statistic == null) {
+            return AttendanceResult.ABSENT.getDescription();
+        }
+
         if (statistic.offline() > 0) {
             return AttendanceType.OFFLINE.getDescription();
         } else if (statistic.online() > 0) {
