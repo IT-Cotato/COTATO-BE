@@ -15,6 +15,7 @@ import org.cotato.csquiz.api.attendance.dto.AttendancesResponse;
 import org.cotato.csquiz.api.attendance.dto.MemberAttendanceRecordsResponse;
 import org.cotato.csquiz.api.attendance.dto.OfflineAttendanceRequest;
 import org.cotato.csquiz.api.attendance.dto.OnlineAttendanceRequest;
+import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRecordRequest;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
 import org.cotato.csquiz.api.attendance.dto.AttendanceTimeResponse;
 import org.cotato.csquiz.domain.attendance.service.AttendanceAdminService;
@@ -72,6 +73,15 @@ public class AttendanceController {
     public ResponseEntity<List<AttendanceRecordResponse>> findAttendanceRecordsByAttendance(
             @PathVariable("attendance-id") Long attendanceId) {
         return ResponseEntity.ok().body(attendanceAdminService.findAttendanceRecordsByAttendance(attendanceId));
+    }
+
+    @Operation(summary = "회원 출결사항 수정 API")
+    @PatchMapping("/{attendance-id}/records")
+    public ResponseEntity<Void> updateAttendanceRecords(
+            @PathVariable("attendance-id") Long attendanceId,
+            @RequestBody @Valid UpdateAttendanceRecordRequest request) {
+        attendanceAdminService.updateAttendanceRecords(attendanceId, request.memberId(), request.attendanceResult());
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "기수별 출석 목록 조회 API")
