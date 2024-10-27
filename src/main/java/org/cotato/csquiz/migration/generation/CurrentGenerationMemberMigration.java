@@ -1,6 +1,5 @@
 package org.cotato.csquiz.migration.generation;
 
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.domain.auth.entity.Member;
@@ -26,17 +25,13 @@ public class CurrentGenerationMemberMigration implements MigrationJob {
     @Override
     @Transactional
     public void migrate() {
-        List<GenerationMember> generationMembers = new ArrayList<>();
-
         Generation generation = generationRepository.findByNumber(CURRENT_GENERATION)
                 .orElseThrow(() -> new IllegalStateException("해당 기수가 존재하지 않습니다."));
 
-        List<Member> activeMembers = memberService.findActiveMember();
-        for (Member activeMember : activeMembers) {
-            GenerationMember generationMember = GenerationMember.of(generation, activeMember);
-            generationMembers.add(generationMember);
-        }
+        List<GenerationMember> currentGenerationMembers = memberService.findActiveMember().stream()
+                .map(member -> GenerationMember.of(generation, member))
+                .toList();
 
-        generationMemberRepository.saveAll(generationMembers);
+        generationMemberRepository.saveAll(currentGenerationMembers);
     }
 }
