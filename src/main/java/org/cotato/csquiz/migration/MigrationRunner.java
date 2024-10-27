@@ -22,7 +22,7 @@ public class MigrationRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         for (MigrationJob migrationJob : migrationJobs) {
-            Optional<MigrationLog> maybeMigration = migrationLogRepository.findByName(migrationJob);
+            Optional<MigrationLog> maybeMigration = migrationLogRepository.findByName(migrationJob.getName());
             if (maybeMigration.isPresent()) {
                 log.info("[Migration] Already Done: {}", migrationJob.getName());
                 continue;
