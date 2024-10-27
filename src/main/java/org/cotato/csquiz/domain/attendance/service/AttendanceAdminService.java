@@ -154,9 +154,11 @@ public class AttendanceAdminService {
     // 실제 출석 기록을 업데이트하는 메소드
     private void updateAttendanceRecords(Long sessionId, LinkedHashMap<Long, Map<String, String>> memberStatisticsMap,
                                          String columnName, List<Member> allMembers) {
-        List<Attendance> attendances = attendanceRepository.findAllBySessionId(sessionId);
+        Attendance attendance = attendanceRepository.findBySessionId(sessionId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 세션에 대한 출석 정보가 존재하지 않습니다."));
+
         List<AttendanceRecordResponse> attendanceRecords = attendanceRecordService.generateAttendanceResponses(
-                attendances);
+                List.of(attendance));
 
         // 출석 기록이 있는 회원들의 출석 상태 업데이트
         for (AttendanceRecordResponse record : attendanceRecords) {
