@@ -2,8 +2,8 @@ package org.cotato.csquiz.domain.auth.repository;
 
 import java.util.List;
 import java.util.Optional;
-import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.cotato.csquiz.domain.auth.entity.Member;
+import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -14,8 +14,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByEmail(String email);
 
     Optional<Member> findByPhoneNumber(String phone);
-
-    Optional<Member> findById(Long id);
 
     List<Member> findAllByRole(MemberRole memberRole);
 
