@@ -84,10 +84,10 @@ public class AttendanceExcelUtil {
                                                       LinkedHashMap<Long, Map<String, String>> memberStatisticsMap,
                                                       LinkedHashMap<String, String> sessionColumnNames,
                                                       MemberRepository memberRepository) {
-        int rowNum = 1;
-        for (Long memberId : memberStatisticsMap.keySet().stream().sorted().toList()) {
-            Row row = sheet.createRow(rowNum++);
         int rowNumber = 1;
+        List<Long> sortedMemberIds = memberStatisticsMap.keySet().stream().sorted().toList();
+
+        for (Long memberId : sortedMemberIds) {
             Row row = sheet.createRow(rowNumber++);
             String memberName = memberRepository.findById(memberId)
                     .map(Member::getName)
