@@ -96,7 +96,7 @@ public class AttendanceExcelUtil {
     }
 
     // 회원의 출석 데이터를 행에 추가하는 메서드
-    private static void addMemberAttendanceData(Row row, String memberName, Map<String, String> sessionStats,
+    private static void addMemberAttendanceData(Row row, String memberName, Map<String, String> sessionStatus,
                                                 Map<String, String> sessionColumnNames) {
         // 회원 이름을 첫 번째 열에 추가
         row.createCell(0).setCellValue(memberName);
@@ -111,7 +111,7 @@ public class AttendanceExcelUtil {
         int totalAbsent = 0;
 
         for (String columnName : sessionColumnNames.keySet()) {
-            String status = sessionStats.getOrDefault(columnName, AttendanceResult.ABSENT.getDescription());
+            String status = sessionStatus.getOrDefault(columnName, AttendanceResult.ABSENT.getDescription());
             row.createCell(colNum++).setCellValue(status);
 
             // 출석 상태에 따라 카운트 처리 (적절한 Enum을 사용)
