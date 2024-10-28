@@ -43,4 +43,14 @@ public class GenerationMember extends BaseTimeEntity {
     @Column(name = "role")
     @ColumnDefault(value = "'MEMBER'")
     private MemberRole role = MemberRole.MEMBER;
+
+    private GenerationMember(Generation generation, Member member, MemberRole role) {
+        this.generation = generation;
+        this.member = member;
+        this.role = role;
+    }
+
+    public static GenerationMember of(Generation generation, Member member) {
+        return new GenerationMember(generation, member, member.getRole());
+    }
 }
