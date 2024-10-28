@@ -3,7 +3,6 @@ package org.cotato.csquiz.domain.auth.service.component;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-
 import java.util.List;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.generation.entity.Generation;
@@ -14,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.annotation.Transactional;
 
 @ExtendWith(SpringExtension.class)
 class MemberReaderTest {
