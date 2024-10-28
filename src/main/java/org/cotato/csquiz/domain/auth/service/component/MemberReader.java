@@ -9,9 +9,11 @@ import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.GenerationMember;
 import org.cotato.csquiz.domain.generation.repository.GenerationMemberRepository;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MemberReader {
 
     private final MemberRepository memberRepository;

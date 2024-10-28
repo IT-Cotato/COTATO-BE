@@ -6,9 +6,11 @@ import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.repository.GenerationRepository;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class GenerationReader {
 
     private final GenerationRepository generationRepository;
