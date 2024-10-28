@@ -67,16 +67,16 @@ public class AttendanceExcelUtil {
         Row headerRow = sheet.createRow(0);
         headerRow.createCell(0).setCellValue(MemberRoleGroup.ACTIVE_MEMBERS.getDescription());
 
-        int colNum = 1;
+        int columnNumber = 1;
         for (String columnName : sessionColumnNames.keySet()) {
-            headerRow.createCell(colNum++).setCellValue(columnName);
+            headerRow.createCell(columnNumber++).setCellValue(columnName);
         }
 
-        headerRow.createCell(colNum++).setCellValue(AttendanceResult.PRESENT.getDescription());
-        headerRow.createCell(colNum++).setCellValue(AttendanceType.OFFLINE.getDescription());
-        headerRow.createCell(colNum++).setCellValue(AttendanceType.ONLINE.getDescription());
-        headerRow.createCell(colNum++).setCellValue(AttendanceResult.LATE.getDescription());
-        headerRow.createCell(colNum).setCellValue(AttendanceResult.ABSENT.getDescription());
+        headerRow.createCell(columnNumber++).setCellValue(AttendanceResult.PRESENT.getDescription());
+        headerRow.createCell(columnNumber++).setCellValue(AttendanceType.OFFLINE.getDescription());
+        headerRow.createCell(columnNumber++).setCellValue(AttendanceType.ONLINE.getDescription());
+        headerRow.createCell(columnNumber++).setCellValue(AttendanceResult.LATE.getDescription());
+        headerRow.createCell(columnNumber).setCellValue(AttendanceResult.ABSENT.getDescription());
     }
 
     // 데이터 행을 생성하는 메서드
@@ -87,6 +87,8 @@ public class AttendanceExcelUtil {
         int rowNum = 1;
         for (Long memberId : memberStatisticsMap.keySet().stream().sorted().toList()) {
             Row row = sheet.createRow(rowNum++);
+        int rowNumber = 1;
+            Row row = sheet.createRow(rowNumber++);
             String memberName = memberRepository.findById(memberId)
                     .map(Member::getName)
                     .orElseThrow(() -> new EntityNotFoundException("회원 정보를 찾을 수 없습니다: " + memberId));
@@ -102,7 +104,7 @@ public class AttendanceExcelUtil {
         row.createCell(0).setCellValue(memberName);
 
         // 세션 데이터는 두 번째 열부터 시작
-        int colNum = 1;
+        int columnNumber = 1;
 
         int totalAttendance = 0;
         int totalOffline = 0;
@@ -112,7 +114,7 @@ public class AttendanceExcelUtil {
 
         for (String columnName : sessionColumnNames.keySet()) {
             String status = sessionStatus.getOrDefault(columnName, AttendanceResult.ABSENT.getDescription());
-            row.createCell(colNum++).setCellValue(status);
+            row.createCell(columnNumber++).setCellValue(status);
 
             // 출석 상태에 따라 카운트 처리 (적절한 Enum을 사용)
             if (status.equals(AttendanceType.OFFLINE.getDescription())) {
@@ -129,10 +131,10 @@ public class AttendanceExcelUtil {
         }
 
         // 출석 카운트 데이터를 추가
-        row.createCell(colNum++).setCellValue(totalAttendance);
-        row.createCell(colNum++).setCellValue(totalOffline);
-        row.createCell(colNum++).setCellValue(totalOnline);
-        row.createCell(colNum++).setCellValue(totalLate);
-        row.createCell(colNum).setCellValue(totalAbsent);
+        row.createCell(columnNumber++).setCellValue(totalAttendance);
+        row.createCell(columnNumber++).setCellValue(totalOffline);
+        row.createCell(columnNumber++).setCellValue(totalOnline);
+        row.createCell(columnNumber++).setCellValue(totalLate);
+        row.createCell(columnNumber).setCellValue(totalAbsent);
     }
 }
