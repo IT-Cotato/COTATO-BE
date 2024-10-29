@@ -1,6 +1,7 @@
 package org.cotato.csquiz.domain.auth.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,9 @@ import org.cotato.csquiz.common.s3.S3Uploader;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.enums.MemberRoleGroup;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
+import org.cotato.csquiz.domain.auth.service.component.MemberReader;
+import org.cotato.csquiz.domain.generation.entity.Generation;
+import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,10 +32,10 @@ import org.springframework.web.multipart.MultipartFile;
 public class MemberService {
 
     private static final String PROFILE_BUCKET_DIRECTORY = "profile";
-
+    private final MemberReader memberReader;
+    private final GenerationReader generationReader;
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final JwtTokenProvider jwtTokenProvider;
     private final EncryptService encryptService;
     private final ValidateService validateService;
     private final S3Uploader s3Uploader;
@@ -126,6 +130,7 @@ public class MemberService {
     }
 
     public List<Member> findActiveMember() {
-        return memberRepository.findAllByRoleInQuery(MemberRoleGroup.ACTIVE_MEMBERS.getRoles());
+        Generation currentGeneration = generationReader.findByDate(LocalDate.now());
+        return memberReader.findAllGenerationMember(currentGeneration);
     }
 }
