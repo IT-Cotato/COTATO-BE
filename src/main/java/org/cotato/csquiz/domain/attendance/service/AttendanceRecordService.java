@@ -60,6 +60,7 @@ public class AttendanceRecordService {
 
         //멤버의 출석기록이 있으면 출석기록 리스트를 없으면 빈 리스트로 응답 DTO를 만듦
         return activeMembers.stream()
+                .sorted(Comparator.comparing(Member::getName))
                 .map(member -> AttendanceRecordResponse.of(
                         member,
                         AttendanceStatistic.of(recordsByMemberId.getOrDefault(member.getId(), List.of()),
