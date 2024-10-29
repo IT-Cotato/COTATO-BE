@@ -89,14 +89,8 @@ public class AttendanceAdminService {
         attendanceRecordRepository.save(memberAttendanceRecord);
     }
 
-    public List<AttendanceRecordResponse> findAttendanceRecords(Long generationId, Integer month) {
-        List<Session> sessions = sessionRepository.findAllByGenerationId(generationId);
-        if (month != null) {
-            sessions = sessions.stream()
-                    .filter(session -> session.getSessionDateTime().getMonthValue() == month)
-                    .toList();
-        }
-        List<Long> sessionIds = sessions.stream()
+    public List<AttendanceRecordResponse> findAttendanceRecords(Long generationId) {
+        List<Long> sessionIds = sessionRepository.findAllByGenerationId(generationId).stream()
                 .map(Session::getId)
                 .toList();
 
