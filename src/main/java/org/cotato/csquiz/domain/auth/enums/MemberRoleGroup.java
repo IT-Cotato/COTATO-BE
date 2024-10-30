@@ -8,8 +8,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum MemberRoleGroup {
 
-    ACTIVE_MEMBERS("현재 활동 중인 멤버", List.of(MemberRole.MEMBER, MemberRole.ADMIN, MemberRole.EDUCATION)),
-    CLIENTS("교육 중 문제 풀이가 가능한 멤버", List.of(MemberRole.MEMBER, MemberRole.ADMIN)),
+    ACTIVE_MEMBERS("현재 활동 중인 멤버", List.of(MemberRole.MEMBER, MemberRole.ADMIN, MemberRole.EDUCATION, MemberRole.OPERATION)),
+    CLIENTS("교육 중 문제 풀이가 가능한 멤버", List.of(MemberRole.MEMBER, MemberRole.ADMIN, MemberRole.OPERATION)),
     MANAGERS("교육 진행 관리자", List.of(MemberRole.EDUCATION, MemberRole.ADMIN));
 
     private final String description;

@@ -49,7 +49,7 @@ public class MemberController {
     @Operation(summary = "멤버 전화번호 수정 API")
     @PatchMapping("/phone-number")
     public ResponseEntity<Void> updatePhoneNumber(@AuthenticationPrincipal Long memberId,
-            @RequestBody @Valid UpdatePhoneNumberRequest request) {
+                                                  @RequestBody @Valid UpdatePhoneNumberRequest request) {
         memberService.updatePhoneNumber(memberId, request.phoneNumber());
         return ResponseEntity.noContent().build();
     }
@@ -57,19 +57,17 @@ public class MemberController {
     @Operation(summary = "멤버 프로필 사진 수정 API")
     @PatchMapping(value = "/profile-image", consumes = "multipart/form-data")
     public ResponseEntity<Void> updateProfileImage(
-            @RequestHeader("Authorization") String authorizationHeader,
+            @AuthenticationPrincipal Long memberId,
             @ModelAttribute @Valid UpdateProfileImageRequest request) throws ImageException {
-        String accessToken = jwtTokenProvider.getBearer(authorizationHeader);
-        memberService.updateMemberProfileImage(accessToken, request.image());
+        memberService.updateMemberProfileImage(memberId, request.image());
         return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "멤버 프로필 사진 삭제 API")
     @DeleteMapping("/profile-image")
     public ResponseEntity<Void> deleteProfileImage(
-            @RequestHeader("Authorization") String authorizationHeader) {
-        String accessToken = jwtTokenProvider.getBearer(authorizationHeader);
-        memberService.deleteMemberProfileImage(accessToken);
+            @AuthenticationPrincipal Long memberId) {
+        memberService.deleteMemberProfileImage(memberId);
         return ResponseEntity.noContent().build();
     }
 

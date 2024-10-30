@@ -14,6 +14,9 @@ import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.attendance.embedded.Location;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
+import org.cotato.csquiz.domain.attendance.entity.AttendanceRecord;
+import org.cotato.csquiz.domain.attendance.enums.AttendanceRecordResult;
+import org.cotato.csquiz.domain.attendance.repository.AttendanceRecordRepository;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
 import org.cotato.csquiz.domain.generation.entity.Session;
@@ -28,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AttendanceAdminService {
 
     private final AttendanceRepository attendanceRepository;
+    private final AttendanceRecordRepository attendanceRecordRepository;
     private final AttendanceRecordService attendanceRecordService;
     private final SessionRepository sessionRepository;
 
@@ -73,14 +77,20 @@ public class AttendanceAdminService {
         attendanceRecordService.updateAttendanceStatus(attendanceSession.getSessionDateTime(), attendance);
     }
 
-    public List<AttendanceRecordResponse> findAttendanceRecords(Long generationId, Integer month) {
-        List<Session> sessions = sessionRepository.findAllByGenerationId(generationId);
-        if (month != null) {
-            sessions = sessions.stream()
-                    .filter(session -> session.getSessionDateTime().getMonthValue() == month)
-                    .toList();
-        }
-        List<Long> sessionIds = sessions.stream()
+    @Transactional
+    public void updateAttendanceRecords(Long attendanceId, Long memberId, AttendanceRecordResult attendanceResult) {
+        Attendance attendance = attendanceRepository.findById(attendanceId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 출석이 존재하지 않습니다"));
+
+        AttendanceRecord memberAttendanceRecord = attendanceRecordRepository.findByMemberIdAndAttendanceId(memberId, attendanceId)
+                .orElseGet(() -> AttendanceRecord.absentRecord(attendance, memberId));
+
+        memberAttendanceRecord.updateByAttendanceRecordResult(attendanceResult);
+        attendanceRecordRepository.save(memberAttendanceRecord);
+    }
+
+    public List<AttendanceRecordResponse> findAttendanceRecords(Long generationId) {
+        List<Long> sessionIds = sessionRepository.findAllByGenerationId(generationId).stream()
                 .map(Session::getId)
                 .toList();
 
