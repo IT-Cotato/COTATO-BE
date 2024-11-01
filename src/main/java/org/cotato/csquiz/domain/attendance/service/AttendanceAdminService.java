@@ -112,13 +112,17 @@ public class AttendanceAdminService {
         return attendanceRecordService.generateAttendanceResponses(List.of(attendance));
     }
 
+    @Transactional
     public byte[] createExcelForSessionAttendance(List<Long> attendanceIds) {
+        // 활동 부원 목록을 한 번만 가져와 고정
+        List<Member> activeMembers = memberService.findActiveMember();
+
         // 세션별 출석 데이터를 저장할 구조체
         LinkedHashMap<Long, Map<String, String>> memberStatisticsMap = new LinkedHashMap<>();
         LinkedHashMap<String, String> sessionColumnNames = new LinkedHashMap<>();
 
         // 모든 세션에 대한 출석 정보 수집
-        getAttendanceRecords(attendanceIds, memberStatisticsMap, sessionColumnNames);
+        getAttendanceRecords(attendanceIds, memberStatisticsMap, sessionColumnNames, activeMembers);
 
         // 엑셀 파일 생성 및 반환
         return AttendanceExcelUtil.createExcelFile(sessionColumnNames, memberStatisticsMap, memberRepository);
@@ -139,15 +143,14 @@ public class AttendanceAdminService {
     // 출석 정보를 수집하는 메소드
     private void getAttendanceRecords(List<Long> attendanceIds,
                                       LinkedHashMap<Long, Map<String, String>> memberStatisticsMap,
-                                      LinkedHashMap<String, String> sessionColumnNames) {
-        // 활동 중인 멤버 목록을 한 번만 쿼리
-        List<Member> allMembers = memberService.findActiveMember();
+                                      LinkedHashMap<String, String> sessionColumnNames,
+                                      List<Member> activeMembers) {
         List<Attendance> attendances = attendanceRepository.findAllById(attendanceIds);
 
         for (Attendance attendance : attendances) {
             String columnName = generateSessionColumnName(attendance.getSessionId(), sessionColumnNames);
             // 회원들의 출석 기록을 업데이트 하고 기록이 없을 경우 일괄 '결석' 처리
-            updateAttendanceRecords(attendance.getId(), memberStatisticsMap, columnName, allMembers);
+            updateAttendanceRecords(attendance.getId(), memberStatisticsMap, columnName, activeMembers);
         }
     }
 
