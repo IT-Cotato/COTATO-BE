@@ -1,6 +1,5 @@
 package org.cotato.csquiz.domain.attendance.service;
 
-
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
