@@ -112,50 +112,62 @@ public class AttendanceAdminService {
         return attendanceRecordService.generateAttendanceResponses(List.of(attendance));
     }
 
-    public byte[] createExcelForSessionAttendance(List<Long> sessionIds) {
+    public byte[] createExcelForSessionAttendance(List<Long> attendanceIds) {
         // 세션별 출석 데이터를 저장할 구조체
         LinkedHashMap<Long, Map<String, String>> memberStatisticsMap = new LinkedHashMap<>();
         LinkedHashMap<String, String> sessionColumnNames = new LinkedHashMap<>();
 
         // 모든 세션에 대한 출석 정보 수집
-        getAttendanceRecordsBySession(sessionIds, memberStatisticsMap, sessionColumnNames);
+        getAttendanceRecords(attendanceIds, memberStatisticsMap, sessionColumnNames);
 
         // 엑셀 파일 생성 및 반환
         return AttendanceExcelUtil.createExcelFile(sessionColumnNames, memberStatisticsMap, memberRepository);
     }
 
-    public String getEncodedFileName(List<Long> sessionIds) {
+    public String getEncodedFileName(List<Long> attendanceIds) {
+        List<Attendance> attendances = attendanceRepository.findAllById(attendanceIds);
+        List<Long> sessionIds = attendances.stream()
+                .map(Attendance::getSessionId)
+                .distinct()
+                .toList();
         List<Session> sessions = sessionRepository.findAllById(sessionIds);
+
         String dynamicFileName = AttendanceExcelUtil.createDynamicFileName(sessions); // 파일명 생성
         return AttendanceExcelUtil.getEncodedFileName(dynamicFileName);  // 인코딩 처리
     }
 
     // 출석 정보를 수집하는 메소드
-    private void getAttendanceRecordsBySession(List<Long> sessionIds,
-                                               LinkedHashMap<Long, Map<String, String>> memberStatisticsMap,
-                                               LinkedHashMap<String, String> sessionColumnNames) {
+    private void getAttendanceRecords(List<Long> attendanceIds,
+                                      LinkedHashMap<Long, Map<String, String>> memberStatisticsMap,
+                                      LinkedHashMap<String, String> sessionColumnNames) {
         // 활동 중인 멤버 목록을 한 번만 쿼리
         List<Member> allMembers = memberService.findActiveMember();
+        List<Attendance> attendances = attendanceRepository.findAllById(attendanceIds);
 
-        // 모든 세션을 한 번의 쿼리로 조회
-        List<Session> sessions = sessionRepository.findAllById(sessionIds);
-
-        for (Session session : sessions) {
-            // 세션 이름을 생성하고 열 이름에 추가
-            String sessionDate = session.getSessionDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            String columnName = session.getNumber() + "주차 세션 (" + sessionDate + ")";
-            sessionColumnNames.put(columnName, sessionDate);
-
+        for (Attendance attendance : attendances) {
+            String columnName = generateSessionColumnName(attendance.getSessionId(), sessionColumnNames);
             // 회원들의 출석 기록을 업데이트 하고 기록이 없을 경우 일괄 '결석' 처리
-            updateAttendanceRecords(session.getId(), memberStatisticsMap, columnName, allMembers);
+            updateAttendanceRecords(attendance.getId(), memberStatisticsMap, columnName, allMembers);
         }
     }
 
+    private String generateSessionColumnName(Long sessionId, LinkedHashMap<String, String> sessionColumnNames) {
+        Session session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 세션 정보를 찾을 수 없습니다."));
+
+        String sessionDate = session.getSessionDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String columnName = session.getNumber() + "주차 세션 (" + sessionDate + ")";
+
+        sessionColumnNames.put(columnName, sessionDate);
+        return columnName;
+    }
+
     // 실제 출석 기록을 업데이트하는 메소드
-    private void updateAttendanceRecords(Long sessionId, LinkedHashMap<Long, Map<String, String>> memberStatisticsMap,
+    private void updateAttendanceRecords(Long attendanceId,
+                                         LinkedHashMap<Long, Map<String, String>> memberStatisticsMap,
                                          String columnName, List<Member> allMembers) {
-        Attendance attendance = attendanceRepository.findBySessionId(sessionId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 세션에 대한 출석 정보가 존재하지 않습니다."));
+        Attendance attendance = attendanceRepository.findById(attendanceId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 출석 정보가 존재하지 않습니다."));
 
         List<AttendanceRecordResponse> attendanceRecords = attendanceRecordService.generateAttendanceResponses(
                 List.of(attendance));
