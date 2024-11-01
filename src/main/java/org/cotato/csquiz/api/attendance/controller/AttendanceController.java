@@ -138,7 +138,6 @@ public class AttendanceController {
     @Operation(summary = "세션별 출석 기록 엑셀 다운로드 API")
     @GetMapping("/excel")
     public ResponseEntity<byte[]> downloadAttendanceRecordsAsExcelBySessions(
-            @RequestParam(name = "sessionIds") List<Long> sessionIds) {
             @RequestParam(name = "attendanceIds") List<Long> attendanceIds) {
 
         byte[] excelFile = attendanceAdminService.createExcelForSessionAttendance(attendanceIds);
