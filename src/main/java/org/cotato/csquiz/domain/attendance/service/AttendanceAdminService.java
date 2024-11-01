@@ -19,8 +19,10 @@ import org.cotato.csquiz.domain.attendance.enums.AttendanceRecordResult;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRecordRepository;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
+import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
+import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class AttendanceAdminService {
 
+    private final GenerationReader generationReader;
     private final AttendanceRepository attendanceRepository;
     private final AttendanceRecordRepository attendanceRecordRepository;
     private final AttendanceRecordService attendanceRecordService;
@@ -90,19 +93,19 @@ public class AttendanceAdminService {
     }
 
     public List<AttendanceRecordResponse> findAttendanceRecords(Long generationId) {
-        List<Long> sessionIds = sessionRepository.findAllByGenerationId(generationId).stream()
-                .map(Session::getId)
-                .toList();
-
+        List<Long> sessionIds = sessionRepository.findAllByGenerationId(generationId).stream().map(Session::getId).toList();
         List<Attendance> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds);
+        Generation generation = generationReader.findById(generationId);
 
-        return attendanceRecordService.generateAttendanceResponses(attendances);
+        return attendanceRecordService.generateAttendanceResponses(attendances, generation);
     }
 
     public List<AttendanceRecordResponse> findAttendanceRecordsByAttendance(Long attendanceId) {
         Attendance attendance = attendanceRepository.findById(attendanceId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석이 존재하지 않습니다"));
+        Session session = sessionRepository.findById(attendance.getSessionId())
+                .orElseThrow(() -> new EntityNotFoundException("해당 세션을 찾을 수 없습니다."));
 
-        return attendanceRecordService.generateAttendanceResponses(List.of(attendance));
+        return attendanceRecordService.generateAttendanceResponses(List.of(attendance), session.getGeneration());
     }
 }
