@@ -19,4 +19,8 @@ public class GenerationReader {
         return generationRepository.findByCurrentDate(date)
                 .orElseThrow(() -> new EntityNotFoundException(date + "해당 날짜에 해당하는 기수를 찾을 수 없습니다."));
     }
+
+    public Generation findById(Long generationId) {
+        return generationRepository.findById(generationId).orElseThrow(() -> new EntityNotFoundException("해당 기수를 찾을 수 없습니다."));
+    }
 }

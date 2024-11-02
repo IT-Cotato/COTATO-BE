@@ -112,6 +112,12 @@ public class SessionService {
         updateSessionDateTime(session, request.sessionDateTime(), request.attendTime().attendanceDeadLine(),
                 request.attendTime().lateDeadLine());
         sessionRepository.save(session);
+
+        Attendance attendance = attendanceRepository.findBySessionId(session.getId())
+                .orElseThrow(() -> new EntityNotFoundException("해당 세션을 찾을 수 없습니다."));
+
+        attendance.updateLocation(request.location());
+        attendanceRepository.save(attendance);
     }
 
     @Transactional

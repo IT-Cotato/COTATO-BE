@@ -28,7 +28,8 @@ import org.cotato.csquiz.domain.attendance.repository.AttendanceRecordRepository
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
 import org.cotato.csquiz.domain.auth.entity.Member;
-import org.cotato.csquiz.domain.auth.service.MemberService;
+import org.cotato.csquiz.domain.auth.service.component.MemberReader;
+import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
 import org.springframework.stereotype.Service;
@@ -42,21 +43,18 @@ public class AttendanceRecordService {
 
     private final AttendanceRecordRepository attendanceRecordRepository;
     private final AttendanceRepository attendanceRepository;
-    private final MemberService memberService;
     private final RequestAttendanceService requestAttendanceService;
     private final SessionRepository sessionRepository;
+    private final MemberReader memberReader;
 
-    public List<AttendanceRecordResponse> generateAttendanceResponses(List<Attendance> attendances) {
-        List<Long> attendanceIds = attendances.stream()
-                .map(Attendance::getId)
-                .toList();
 
-        //출석기록을 memberId 기준으로 그룹화하여 각 멤버의 출석 기록 리스트를 맵으로 저장
+    public List<AttendanceRecordResponse> generateAttendanceResponses(List<Attendance> attendances, Generation generation) {
+        List<Long> attendanceIds = attendances.stream().map(Attendance::getId).toList();
+
         Map<Long, List<AttendanceRecord>> recordsByMemberId = attendanceRecordRepository.findAllByAttendanceIdsInQuery(attendanceIds).stream()
                 .collect(Collectors.groupingBy(AttendanceRecord::getMemberId));
 
-        //멤버의 출석기록이 있으면 출석기록 리스트를 없으면 빈 리스트로 응답 DTO를 만듦
-        return memberService.findActiveMember().stream()
+        return memberReader.findAllGenerationMember(generation).stream()
                 .sorted(Comparator.comparing(Member::getName))
                 .map(member -> AttendanceRecordResponse.of(
                         member,
@@ -142,13 +140,13 @@ public class AttendanceRecordService {
     public void updateUnrecordedAttendanceRecord(Long sessionId) {
         Attendance attendance = attendanceRepository.findBySessionId(sessionId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 세션에 대한 출석이 생성되지 않았습니다."));
-
+        Session session = sessionRepository.findById(sessionId).orElseThrow(() -> new EntityNotFoundException("해당 세션을 찾을 수 없습니다."));
         // 출결 입력을 한 부원
         Set<Long> attendedMember = attendanceRecordRepository.findAllByAttendanceId(attendance.getId()).stream()
                 .map(AttendanceRecord::getMemberId)
                 .collect(Collectors.toUnmodifiableSet());
 
-        List<AttendanceRecord> unrecordedMemberIds = memberService.findActiveMember().stream()
+        List<AttendanceRecord> unrecordedMemberIds = memberReader.findAllGenerationMember(session.getGeneration()).stream()
                 .map(Member::getId)
                 .filter(id -> !attendedMember.contains(id))
                 .map(id -> AttendanceRecord.absentRecord(attendance, id))
