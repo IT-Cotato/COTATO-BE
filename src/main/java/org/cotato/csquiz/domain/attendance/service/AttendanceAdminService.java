@@ -111,7 +111,6 @@ public class AttendanceAdminService {
         return attendanceRecordService.generateAttendanceResponses(List.of(attendance));
     }
 
-    @Transactional
     public byte[] createExcelForSessionAttendance(List<Long> attendanceIds) {
         // 활동 부원 목록을 한 번만 가져와 고정
         List<Member> activeMembers = memberService.findActiveMember();
