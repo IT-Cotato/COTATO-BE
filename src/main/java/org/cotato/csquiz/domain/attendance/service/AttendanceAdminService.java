@@ -7,6 +7,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.attendance.dto.AttendanceDeadLineDto;
@@ -114,13 +115,15 @@ public class AttendanceAdminService {
     public byte[] createExcelForSessionAttendance(List<Long> attendanceIds) {
         // 활동 부원 목록을 한 번만 가져와 고정
         List<Member> activeMembers = memberService.findActiveMember();
+        Map<Long, String> memberNameMap = activeMembers.stream()
+                .collect(Collectors.toMap(Member::getId, Member::getName));
 
         LinkedHashMap<String, String> sessionColumnNames = generateSessionColumns(attendanceIds);
         LinkedHashMap<Long, Map<String, String>> memberStatisticsMap = generateMemberStatisticsMap(attendanceIds,
                 activeMembers);
 
         // 엑셀 파일 생성 및 반환
-        return AttendanceExcelUtil.createExcelFile(sessionColumnNames, memberStatisticsMap, memberRepository);
+        return AttendanceExcelUtil.createExcelFile(sessionColumnNames, memberStatisticsMap, memberNameMap);
     }
 
     public String getEncodedFileName(List<Long> attendanceIds) {
@@ -155,7 +158,8 @@ public class AttendanceAdminService {
     }
 
     // 멤버 출석 통계를 생성하는 메서드
-    private LinkedHashMap<Long, Map<String, String>> generateMemberStatisticsMap(List<Long> attendanceIds, List<Member> activeMembers) {
+    private LinkedHashMap<Long, Map<String, String>> generateMemberStatisticsMap(List<Long> attendanceIds,
+                                                                                 List<Member> activeMembers) {
         LinkedHashMap<Long, Map<String, String>> memberStatisticsMap = new LinkedHashMap<>();
         activeMembers.forEach(member -> memberStatisticsMap.put(member.getId(), new LinkedHashMap<>()));
 

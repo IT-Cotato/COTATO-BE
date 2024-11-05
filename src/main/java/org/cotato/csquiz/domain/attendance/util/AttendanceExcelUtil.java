@@ -16,9 +16,7 @@ import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
-import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.enums.MemberRoleGroup;
-import org.cotato.csquiz.domain.auth.repository.MemberRepository;
 import org.cotato.csquiz.domain.generation.entity.Session;
 
 public class AttendanceExcelUtil {
@@ -43,17 +41,13 @@ public class AttendanceExcelUtil {
     // 엑셀 파일 생성 메서드
     public static byte[] createExcelFile(LinkedHashMap<String, String> sessionColumnNames,
                                          LinkedHashMap<Long, Map<String, String>> memberStatisticsMap,
-                                         MemberRepository memberRepository) {
+                                         Map<Long, String> memberNameMap) {
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet();
 
-            // 헤더 생성
             createHeaderRow(sheet, sessionColumnNames);
+            createMemberAttendanceDataRows(sheet, memberStatisticsMap, sessionColumnNames, memberNameMap);
 
-            // 데이터 생성
-            createMemberAttendanceDataRows(sheet, memberStatisticsMap, sessionColumnNames, memberRepository);
-
-            // 엑셀 파일을 ByteArray로 반환
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             workbook.write(outputStream);
             return outputStream.toByteArray();
@@ -83,15 +77,17 @@ public class AttendanceExcelUtil {
     public static void createMemberAttendanceDataRows(Sheet sheet,
                                                       LinkedHashMap<Long, Map<String, String>> memberStatisticsMap,
                                                       LinkedHashMap<String, String> sessionColumnNames,
-                                                      MemberRepository memberRepository) {
+                                                      Map<Long, String> memberNameMap) {
         int rowNumber = 1;
         List<Long> sortedMemberIds = memberStatisticsMap.keySet().stream().sorted().toList();
 
         for (Long memberId : sortedMemberIds) {
             Row row = sheet.createRow(rowNumber++);
-            String memberName = memberRepository.findById(memberId)
-                    .map(Member::getName)
-                    .orElseThrow(() -> new EntityNotFoundException("회원 정보를 찾을 수 없습니다: " + memberId));
+
+            String memberName = memberNameMap.get(memberId);
+            if (memberName == null) {
+                throw new EntityNotFoundException("회원 정보를 찾을 수 없습니다: " + memberId);
+            }
 
             addMemberAttendanceData(row, memberName, memberStatisticsMap.get(memberId), sessionColumnNames);
         }
