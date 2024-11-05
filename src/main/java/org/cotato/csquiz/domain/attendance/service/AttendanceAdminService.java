@@ -120,8 +120,13 @@ public class AttendanceAdminService {
         LinkedHashMap<Long, Map<String, String>> memberStatisticsMap = generateMemberStatisticsMap(attendanceIds,
                 activeMembers);
 
+        // 출석 상태 카운트를 사전에 생성하여 전달
+        LinkedHashMap<Long, int[]> attendanceCountsMap = generateAttendanceCounts(memberStatisticsMap,
+                sessionColumnNames);
+
         // 엑셀 파일 생성 및 반환
-        return AttendanceExcelUtil.createExcelFile(sessionColumnNames, memberStatisticsMap, memberNameMap);
+        return AttendanceExcelUtil.createExcelFile(sessionColumnNames, memberStatisticsMap, memberNameMap,
+                attendanceCountsMap);
     }
 
     public String getEncodedFileName(List<Long> attendanceIds) {
@@ -212,5 +217,43 @@ public class AttendanceAdminService {
         } else {
             return AttendanceResult.ABSENT.getDescription();
         }
+    }
+
+    private LinkedHashMap<Long, int[]> generateAttendanceCounts(
+            LinkedHashMap<Long, Map<String, String>> memberStatisticsMap,
+            LinkedHashMap<String, String> sessionColumnNames) {
+
+        LinkedHashMap<Long, int[]> attendanceCountsMap = new LinkedHashMap<>();
+
+        for (Long memberId : memberStatisticsMap.keySet()) {
+            int totalAttendance = 0;
+            int totalOffline = 0;
+            int totalOnline = 0;
+            int totalLate = 0;
+            int totalAbsent = 0;
+
+            Map<String, String> sessionStatus = memberStatisticsMap.get(memberId);
+
+            for (String columnName : sessionColumnNames.keySet()) {
+                String status = sessionStatus.getOrDefault(columnName, AttendanceResult.ABSENT.getDescription());
+
+                if (status.equals(AttendanceType.OFFLINE.getDescription())) {
+                    totalAttendance++;
+                    totalOffline++;
+                } else if (status.equals(AttendanceType.ONLINE.getDescription())) {
+                    totalAttendance++;
+                    totalOnline++;
+                } else if (status.equals(AttendanceResult.LATE.getDescription())) {
+                    totalLate++;
+                } else if (status.equals(AttendanceResult.ABSENT.getDescription())) {
+                    totalAbsent++;
+                }
+            }
+
+            attendanceCountsMap.put(memberId,
+                    new int[]{totalAttendance, totalOffline, totalOnline, totalLate, totalAbsent});
+        }
+
+        return attendanceCountsMap;
     }
 }

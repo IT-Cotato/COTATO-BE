@@ -41,12 +41,14 @@ public class AttendanceExcelUtil {
     // 엑셀 파일 생성 메서드
     public static byte[] createExcelFile(LinkedHashMap<String, String> sessionColumnNames,
                                          LinkedHashMap<Long, Map<String, String>> memberStatisticsMap,
-                                         Map<Long, String> memberNameMap) {
+                                         Map<Long, String> memberNameMap,
+                                         LinkedHashMap<Long, int[]> attendanceCountsMap) {
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet();
 
             createHeaderRow(sheet, sessionColumnNames);
-            createMemberAttendanceDataRows(sheet, memberStatisticsMap, sessionColumnNames, memberNameMap);
+            createMemberAttendanceDataRows(sheet, memberStatisticsMap, sessionColumnNames, memberNameMap,
+                    attendanceCountsMap);
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             workbook.write(outputStream);
@@ -77,60 +79,43 @@ public class AttendanceExcelUtil {
     public static void createMemberAttendanceDataRows(Sheet sheet,
                                                       LinkedHashMap<Long, Map<String, String>> memberStatisticsMap,
                                                       LinkedHashMap<String, String> sessionColumnNames,
-                                                      Map<Long, String> memberNameMap) {
+                                                      Map<Long, String> memberNameMap,
+                                                      LinkedHashMap<Long, int[]> attendanceCountsMap) {
         int rowNumber = 1;
-        List<Long> sortedMemberIds = memberStatisticsMap.keySet().stream().sorted().toList();
 
-        for (Long memberId : sortedMemberIds) {
-            Row row = sheet.createRow(rowNumber++);
-
+        for (Map.Entry<Long, Map<String, String>> entry : memberStatisticsMap.entrySet()) {
+            Long memberId = entry.getKey();
             String memberName = memberNameMap.get(memberId);
+            int[] attendanceCounts = attendanceCountsMap.get(memberId);
+
             if (memberName == null) {
-                throw new EntityNotFoundException("회원 정보를 찾을 수 없습니다: " + memberId);
+                throw new EntityNotFoundException("회원 정보를 찾을 수 없습니다" );
+            }
+            if (attendanceCounts == null) {
+                throw new EntityNotFoundException("출석 통계 정보를 찾을 수 없습니다");
             }
 
-            addMemberAttendanceData(row, memberName, memberStatisticsMap.get(memberId), sessionColumnNames);
+            Row row = sheet.createRow(rowNumber++);
+            addMemberAttendanceData(row, memberName, entry.getValue(), sessionColumnNames,
+                    attendanceCountsMap.get(memberId));
         }
     }
 
     // 회원의 출석 데이터를 행에 추가하는 메서드
     private static void addMemberAttendanceData(Row row, String memberName, Map<String, String> sessionStatus,
-                                                Map<String, String> sessionColumnNames) {
-        // 회원 이름을 첫 번째 열에 추가
+                                                Map<String, String> sessionColumnNames, int[] attendanceCounts) {
         row.createCell(0).setCellValue(memberName);
 
-        // 세션 데이터는 두 번째 열부터 시작
         int columnNumber = 1;
-
-        int totalAttendance = 0;
-        int totalOffline = 0;
-        int totalOnline = 0;
-        int totalLate = 0;
-        int totalAbsent = 0;
-
         for (String columnName : sessionColumnNames.keySet()) {
             String status = sessionStatus.getOrDefault(columnName, AttendanceResult.ABSENT.getDescription());
             row.createCell(columnNumber++).setCellValue(status);
-
-            // 출석 상태에 따라 카운트 처리 (적절한 Enum을 사용)
-            if (status.equals(AttendanceType.OFFLINE.getDescription())) {
-                totalAttendance++;
-                totalOffline++;
-            } else if (status.equals(AttendanceType.ONLINE.getDescription())) {
-                totalAttendance++;
-                totalOnline++;
-            } else if (status.equals(AttendanceResult.LATE.getDescription())) {
-                totalLate++;
-            } else if (status.equals(AttendanceResult.ABSENT.getDescription())) {
-                totalAbsent++;
-            }
         }
 
-        // 출석 카운트 데이터를 추가
-        row.createCell(columnNumber++).setCellValue(totalAttendance);
-        row.createCell(columnNumber++).setCellValue(totalOffline);
-        row.createCell(columnNumber++).setCellValue(totalOnline);
-        row.createCell(columnNumber++).setCellValue(totalLate);
-        row.createCell(columnNumber).setCellValue(totalAbsent);
+        row.createCell(columnNumber++).setCellValue(attendanceCounts[0]);
+        row.createCell(columnNumber++).setCellValue(attendanceCounts[1]);
+        row.createCell(columnNumber++).setCellValue(attendanceCounts[2]);
+        row.createCell(columnNumber++).setCellValue(attendanceCounts[3]);
+        row.createCell(columnNumber).setCellValue(attendanceCounts[4]);
     }
 }
