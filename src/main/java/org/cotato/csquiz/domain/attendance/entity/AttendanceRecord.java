@@ -128,4 +128,8 @@ public class AttendanceRecord extends BaseTimeEntity {
                 updateAttendanceResult(AttendanceResult.LATE);
         }
     }
+
+    public boolean isAttendanceResultNotAbsent() {
+        return attendanceResult != AttendanceResult.ABSENT;
+    }
 }
