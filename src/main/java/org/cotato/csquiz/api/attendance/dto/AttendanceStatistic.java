@@ -29,13 +29,7 @@ public record AttendanceStatistic(
                 onlineCount,
                 offLineCount,
                 countByStatus.getOrDefault(AttendanceResult.LATE, List.of()).size(),
-                totalAttendance - filterNotAbsentRecord(attendanceRecords).size()
+                totalAttendance - attendanceRecords.size()
         );
-    }
-
-    private static List<AttendanceRecord> filterNotAbsentRecord(List<AttendanceRecord> attendanceRecords) {
-        return attendanceRecords.stream()
-                .filter(AttendanceRecord::isAttendanceResultNotAbsent)
-                .toList();
     }
 }
