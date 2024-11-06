@@ -14,7 +14,7 @@ import org.cotato.csquiz.api.attendance.dto.AttendancesResponse;
 import org.cotato.csquiz.api.attendance.dto.MemberAttendanceRecordsResponse;
 import org.cotato.csquiz.api.attendance.dto.OfflineAttendanceRequest;
 import org.cotato.csquiz.api.attendance.dto.OnlineAttendanceRequest;
-import org.cotato.csquiz.api.attendance.dto.SingleAttendanceRecordResponse;
+import org.cotato.csquiz.api.attendance.dto.AttendanceRecordResponse;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRecordRequest;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
 import org.cotato.csquiz.domain.attendance.service.AttendanceAdminService;
@@ -68,7 +68,7 @@ public class AttendanceController {
 
     @Operation(summary = "회원 출결사항 출석 단위 조회 API")
     @GetMapping("/{attendance-id}/records")
-    public ResponseEntity<List<SingleAttendanceRecordResponse>> findAttendanceRecordsByAttendance(
+    public ResponseEntity<List<AttendanceRecordResponse>> findAttendanceRecordsByAttendance(
             @PathVariable("attendance-id") Long attendanceId) {
         return ResponseEntity.ok().body(attendanceAdminService.findAttendanceRecordsByAttendance(attendanceId));
     }

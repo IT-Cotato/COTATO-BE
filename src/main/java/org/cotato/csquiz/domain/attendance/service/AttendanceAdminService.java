@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.attendance.dto.AttendanceDeadLineDto;
 import org.cotato.csquiz.api.attendance.dto.GenerationMemberAttendanceRecordResponse;
-import org.cotato.csquiz.api.attendance.dto.SingleAttendanceRecordResponse;
+import org.cotato.csquiz.api.attendance.dto.AttendanceRecordResponse;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
@@ -101,7 +101,7 @@ public class AttendanceAdminService {
         return attendanceRecordService.generateAttendanceResponses(attendances, generation);
     }
 
-    public List<SingleAttendanceRecordResponse> findAttendanceRecordsByAttendance(Long attendanceId) {
+    public List<AttendanceRecordResponse> findAttendanceRecordsByAttendance(Long attendanceId) {
         Attendance attendance = attendanceRepository.findById(attendanceId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석이 존재하지 않습니다"));
         Session session = sessionRepository.findById(attendance.getSessionId())

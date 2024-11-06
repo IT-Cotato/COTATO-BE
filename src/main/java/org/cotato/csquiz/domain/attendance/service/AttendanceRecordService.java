@@ -18,7 +18,7 @@ import org.cotato.csquiz.api.attendance.dto.GenerationMemberAttendanceRecordResp
 import org.cotato.csquiz.api.attendance.dto.AttendanceStatistic;
 import org.cotato.csquiz.api.attendance.dto.MemberAttendResponse;
 import org.cotato.csquiz.api.attendance.dto.MemberAttendanceRecordsResponse;
-import org.cotato.csquiz.api.attendance.dto.SingleAttendanceRecordResponse;
+import org.cotato.csquiz.api.attendance.dto.AttendanceRecordResponse;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
@@ -67,8 +67,8 @@ public class AttendanceRecordService {
                 .toList();
     }
 
-    public List<SingleAttendanceRecordResponse> generateSingleAttendanceResponses(Attendance attendance,
-                                                                                  Generation generation) {
+    public List<AttendanceRecordResponse> generateSingleAttendanceResponses(Attendance attendance,
+                                                                            Generation generation) {
         Map<Long, AttendanceRecord> recordByMemberId = attendanceRecordRepository.findAllByAttendanceId(
                         attendance.getId())
                 .stream()
@@ -78,7 +78,7 @@ public class AttendanceRecordService {
                 ));
         return memberReader.findAllGenerationMember(generation).stream()
                 .sorted(Comparator.comparing(Member::getName))
-                .map(member -> SingleAttendanceRecordResponse.of(
+                .map(member -> AttendanceRecordResponse.of(
                         member,
                         attendanceRecordToRecordResult(recordByMemberId.getOrDefault(member.getId(), null))
                 ))
