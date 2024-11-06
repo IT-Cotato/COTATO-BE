@@ -8,7 +8,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.attendance.dto.AttendanceDeadLineDto;
-import org.cotato.csquiz.api.attendance.dto.AttendanceRecordResponse;
+import org.cotato.csquiz.api.attendance.dto.AttendanceRecordStatisticResponse;
+import org.cotato.csquiz.api.attendance.dto.SingleAttendanceRecordResponse;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
@@ -92,7 +93,7 @@ public class AttendanceAdminService {
         attendanceRecordRepository.save(memberAttendanceRecord);
     }
 
-    public List<AttendanceRecordResponse> findAttendanceRecords(Long generationId) {
+    public List<AttendanceRecordStatisticResponse> findAttendanceRecords(Long generationId) {
         List<Long> sessionIds = sessionRepository.findAllByGenerationId(generationId).stream().map(Session::getId).toList();
         List<Attendance> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds);
         Generation generation = generationReader.findById(generationId);
@@ -100,7 +101,7 @@ public class AttendanceAdminService {
         return attendanceRecordService.generateAttendanceResponses(attendances, generation);
     }
 
-    public List<AttendanceRecordResponse> findAttendanceRecordsByAttendance(Long attendanceId) {
+    public List<SingleAttendanceRecordResponse> findAttendanceRecordsByAttendance(Long attendanceId) {
         Attendance attendance = attendanceRepository.findById(attendanceId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석이 존재하지 않습니다"));
         Session session = sessionRepository.findById(attendance.getSessionId())

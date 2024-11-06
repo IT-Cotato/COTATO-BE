@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.attendance.dto.AttendResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceParams;
-import org.cotato.csquiz.api.attendance.dto.AttendanceRecordResponse;
+import org.cotato.csquiz.api.attendance.dto.AttendanceRecordStatisticResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceStatistic;
 import org.cotato.csquiz.api.attendance.dto.MemberAttendResponse;
 import org.cotato.csquiz.api.attendance.dto.MemberAttendanceRecordsResponse;
@@ -48,7 +48,7 @@ public class AttendanceRecordService {
     private final MemberReader memberReader;
 
 
-    public List<AttendanceRecordResponse> generateAttendanceResponses(List<Attendance> attendances, Generation generation) {
+    public List<AttendanceRecordStatisticResponse> generateAttendanceResponses(List<Attendance> attendances, Generation generation) {
         List<Long> attendanceIds = attendances.stream().map(Attendance::getId).toList();
 
         Map<Long, List<AttendanceRecord>> recordsByMemberId = attendanceRecordRepository.findAllByAttendanceIdsInQuery(attendanceIds).stream()
@@ -56,7 +56,7 @@ public class AttendanceRecordService {
 
         return memberReader.findAllGenerationMember(generation).stream()
                 .sorted(Comparator.comparing(Member::getName))
-                .map(member -> AttendanceRecordResponse.of(
+                .map(member -> AttendanceRecordStatisticResponse.of(
                         member,
                         AttendanceStatistic.of(recordsByMemberId.getOrDefault(member.getId(), List.of()),
                                 attendances.size()
