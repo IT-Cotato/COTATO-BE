@@ -8,7 +8,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.attendance.dto.AttendanceDeadLineDto;
-import org.cotato.csquiz.api.attendance.dto.AttendanceRecordStatisticResponse;
+import org.cotato.csquiz.api.attendance.dto.GenerationMemberAttendanceRecordResponse;
 import org.cotato.csquiz.api.attendance.dto.SingleAttendanceRecordResponse;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
 import org.cotato.csquiz.common.error.ErrorCode;
@@ -93,7 +93,7 @@ public class AttendanceAdminService {
         attendanceRecordRepository.save(memberAttendanceRecord);
     }
 
-    public List<AttendanceRecordStatisticResponse> findAttendanceRecords(Long generationId) {
+    public List<GenerationMemberAttendanceRecordResponse> findAttendanceRecords(Long generationId) {
         List<Long> sessionIds = sessionRepository.findAllByGenerationId(generationId).stream().map(Session::getId).toList();
         List<Attendance> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds);
         Generation generation = generationReader.findById(generationId);
