@@ -18,11 +18,13 @@ import org.cotato.csquiz.api.attendance.dto.AttendanceRecordStatisticResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceStatistic;
 import org.cotato.csquiz.api.attendance.dto.MemberAttendResponse;
 import org.cotato.csquiz.api.attendance.dto.MemberAttendanceRecordsResponse;
+import org.cotato.csquiz.api.attendance.dto.SingleAttendanceRecordResponse;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.entity.AttendanceRecord;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceOpenStatus;
+import org.cotato.csquiz.domain.attendance.enums.AttendanceRecordResult;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRecordRepository;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
@@ -63,6 +65,34 @@ public class AttendanceRecordService {
                         )
                 ))
                 .toList();
+    }
+
+    public List<SingleAttendanceRecordResponse> generateSingleAttendanceResponses(Attendance attendance,
+                                                                                  Generation generation) {
+        Map<Long, AttendanceRecord> recordByMemberId = attendanceRecordRepository.findAllByAttendanceId(
+                        attendance.getId())
+                .stream()
+                .collect(Collectors.toMap(
+                        AttendanceRecord::getMemberId,
+                        Function.identity()
+                ));
+        return memberReader.findAllGenerationMember(generation).stream()
+                .sorted(Comparator.comparing(Member::getName))
+                .map(member -> SingleAttendanceRecordResponse.of(
+                        member,
+                        attendanceRecordToRecordResult(recordByMemberId.getOrDefault(member.getId(), null))
+                ))
+                .toList();
+    }
+
+    //AttendanceRecord의 출석정보가 AttendanceRecordResult로 바뀌면 로직 수정 TODO
+    private AttendanceRecordResult attendanceRecordToRecordResult(AttendanceRecord record) {
+        if (record == null){
+            return AttendanceRecordResult.ABSENT;
+        }
+        return AttendanceRecordResult.convertWithTypeAndResult(
+                record.getAttendanceType(),
+                record.getAttendanceResult());
     }
 
     @Transactional

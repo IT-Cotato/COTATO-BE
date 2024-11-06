@@ -107,6 +107,6 @@ public class AttendanceAdminService {
         Session session = sessionRepository.findById(attendance.getSessionId())
                 .orElseThrow(() -> new EntityNotFoundException("해당 세션을 찾을 수 없습니다."));
 
-        return attendanceRecordService.generateAttendanceResponses(List.of(attendance), session.getGeneration());
+        return attendanceRecordService.generateSingleAttendanceResponses(attendance, session.getGeneration());
     }
 }
