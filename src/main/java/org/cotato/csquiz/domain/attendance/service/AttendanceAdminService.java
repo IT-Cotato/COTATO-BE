@@ -169,16 +169,16 @@ public class AttendanceAdminService {
         List<Attendance> attendances = attendanceRepository.findAllById(attendanceIds);
         for (Attendance attendance : attendances) {
             String columnName = generateSessionColumnName(attendance.getSessionId());
-            updateAttendanceRecords(attendance.getId(), memberStatisticsMap, columnName, activeMembers);
+            generateExcelAttendanceRecordsData(attendance.getId(), memberStatisticsMap, columnName, activeMembers);
         }
 
         return memberStatisticsMap;
     }
 
     // 실제 출석 기록을 업데이트하는 메소드
-    private void updateAttendanceRecords(Long attendanceId,
-                                         LinkedHashMap<Long, Map<String, String>> memberStatisticsMap,
-                                         String columnName, List<Member> allMembers) {
+    private void generateExcelAttendanceRecordsData(Long attendanceId,
+                                                    LinkedHashMap<Long, Map<String, String>> memberStatisticsMap,
+                                                    String columnName, List<Member> allMembers) {
         Attendance attendance = attendanceRepository.findById(attendanceId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석 정보가 존재하지 않습니다."));
 
