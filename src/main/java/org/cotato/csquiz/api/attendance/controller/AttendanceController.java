@@ -1,5 +1,7 @@
 package org.cotato.csquiz.api.attendance.controller;
 
+import static org.cotato.csquiz.domain.attendance.util.AttendanceExcelHeaderUtil.createExcelDownloadHeaders;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -143,8 +145,7 @@ public class AttendanceController {
         byte[] excelFile = attendanceAdminService.createExcelForSessionAttendance(attendanceIds);
         String finalFileName = attendanceAdminService.getEncodedFileName(attendanceIds);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + finalFileName + "\"");
+        HttpHeaders headers = createExcelDownloadHeaders(finalFileName);
 
         return ResponseEntity.ok().headers(headers).body(excelFile);
     }
