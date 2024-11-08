@@ -210,13 +210,14 @@ public class AttendanceAdminService {
 
         if (statistic.offline() > 0) {
             return AttendanceType.OFFLINE.getDescription();
-        } else if (statistic.online() > 0) {
-            return AttendanceType.ONLINE.getDescription();
-        } else if (statistic.late() > 0) {
-            return AttendanceResult.LATE.getDescription();
-        } else {
-            return AttendanceResult.ABSENT.getDescription();
         }
+        if (statistic.online() > 0) {
+            return AttendanceType.ONLINE.getDescription();
+        }
+        if (statistic.late() > 0) {
+            return AttendanceResult.LATE.getDescription();
+        }
+        return AttendanceResult.ABSENT.getDescription();
     }
 
     private LinkedHashMap<Long, int[]> generateAttendanceCounts(
