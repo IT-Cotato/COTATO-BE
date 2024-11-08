@@ -1,7 +1,5 @@
 package org.cotato.csquiz.api.attendance.controller;
 
-import static org.cotato.csquiz.domain.attendance.util.AttendanceExcelHeaderUtil.createExcelDownloadHeaders;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,6 +20,7 @@ import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
 import org.cotato.csquiz.domain.attendance.service.AttendanceAdminService;
 import org.cotato.csquiz.domain.attendance.service.AttendanceRecordService;
 import org.cotato.csquiz.domain.attendance.service.AttendanceService;
+import org.cotato.csquiz.domain.attendance.util.AttendanceExcelHeaderUtil;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -145,7 +144,7 @@ public class AttendanceController {
         byte[] excelFile = attendanceAdminService.createExcelForSessionAttendance(attendanceIds);
         String finalFileName = attendanceAdminService.getEncodedFileName(attendanceIds);
 
-        HttpHeaders headers = createExcelDownloadHeaders(finalFileName);
+        HttpHeaders headers = AttendanceExcelHeaderUtil.createExcelDownloadHeaders(finalFileName);
 
         return ResponseEntity.ok().headers(headers).body(excelFile);
     }
