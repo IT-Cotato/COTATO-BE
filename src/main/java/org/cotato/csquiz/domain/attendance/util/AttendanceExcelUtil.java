@@ -39,7 +39,7 @@ public class AttendanceExcelUtil {
     }
 
     // 엑셀 파일 생성 메서드
-    public static byte[] createExcelFile(LinkedHashMap<String, String> sessionColumnNames,
+    public static byte[] createExcelFile(Map<String, String> sessionColumnNames,
                                          LinkedHashMap<Long, Map<String, String>> memberStatisticsMap,
                                          Map<Long, String> memberNameMap,
                                          LinkedHashMap<Long, int[]> attendanceCountsMap) {
@@ -59,7 +59,7 @@ public class AttendanceExcelUtil {
     }
 
     // 헤더 행을 생성하는 메서드
-    public static void createHeaderRow(Sheet sheet, LinkedHashMap<String, String> sessionColumnNames) {
+    public static void createHeaderRow(Sheet sheet, Map<String, String> sessionColumnNames) {
         Row headerRow = sheet.createRow(0);
         headerRow.createCell(0).setCellValue(MemberRoleGroup.ACTIVE_MEMBERS.getDescription());
 
@@ -78,7 +78,7 @@ public class AttendanceExcelUtil {
     // 데이터 행을 생성하는 메서드
     public static void createMemberAttendanceDataRows(Sheet sheet,
                                                       LinkedHashMap<Long, Map<String, String>> memberStatisticsMap,
-                                                      LinkedHashMap<String, String> sessionColumnNames,
+                                                      Map<String, String> sessionColumnNames,
                                                       Map<Long, String> memberNameMap,
                                                       LinkedHashMap<Long, int[]> attendanceCountsMap) {
         int rowNumber = 1;

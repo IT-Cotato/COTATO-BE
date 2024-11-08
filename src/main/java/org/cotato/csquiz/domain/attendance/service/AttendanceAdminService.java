@@ -116,7 +116,7 @@ public class AttendanceAdminService {
         Map<Long, String> memberNameMap = activeMembers.stream()
                 .collect(Collectors.toMap(Member::getId, Member::getName));
 
-        LinkedHashMap<String, String> sessionColumnNames = generateSessionColumns(attendanceIds);
+        Map<String, String> sessionColumnNames = new LinkedHashMap<>(generateSessionColumns(attendanceIds));
         LinkedHashMap<Long, Map<String, String>> memberStatisticsMap = generateMemberStatisticsMap(attendanceIds,
                 activeMembers);
 
@@ -141,8 +141,8 @@ public class AttendanceAdminService {
         return AttendanceExcelUtil.getEncodedFileName(dynamicFileName);  // 인코딩 처리
     }
 
-    private LinkedHashMap<String, String> generateSessionColumns(List<Long> attendanceIds) {
-        LinkedHashMap<String, String> sessionColumnNames = new LinkedHashMap<>();
+    private Map<String, String> generateSessionColumns(List<Long> attendanceIds) {
+        Map<String, String> sessionColumnNames = new LinkedHashMap<>();
         List<Attendance> attendances = attendanceRepository.findAllById(attendanceIds);
 
         for (Attendance attendance : attendances) {
@@ -222,7 +222,7 @@ public class AttendanceAdminService {
 
     private LinkedHashMap<Long, int[]> generateAttendanceCounts(
             LinkedHashMap<Long, Map<String, String>> memberStatisticsMap,
-            LinkedHashMap<String, String> sessionColumnNames) {
+            Map<String, String> sessionColumnNames) {
 
         LinkedHashMap<Long, int[]> attendanceCountsMap = new LinkedHashMap<>();
 
