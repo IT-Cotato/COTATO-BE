@@ -111,7 +111,6 @@ public class AttendanceAdminService {
     }
 
     public byte[] createExcelForSessionAttendance(List<Long> attendanceIds) {
-        // 활동 부원 목록을 한 번만 가져와 고정
         List<Member> activeMembers = memberService.findActiveMember();
         Map<Long, String> memberNameMap = activeMembers.stream()
                 .collect(Collectors.toMap(Member::getId, Member::getName));
@@ -120,11 +119,9 @@ public class AttendanceAdminService {
         LinkedHashMap<Long, Map<String, String>> attendanceStatusByMemberId = generateMemberStatisticsMap(attendanceIds,
                 activeMembers);
 
-        // 출석 상태 카운트를 사전에 생성하여 전달
         LinkedHashMap<Long, List<Integer>> attendanceCountByMemberId = generateAttendanceCounts(attendanceStatusByMemberId,
                 columnNameBySessionId);
 
-        // 엑셀 파일 생성 및 반환
         return AttendanceExcelUtil.createExcelFile(columnNameBySessionId, attendanceStatusByMemberId, memberNameMap,
                 attendanceCountByMemberId);
     }
@@ -136,8 +133,8 @@ public class AttendanceAdminService {
                 .toList();
         List<Session> sessions = sessionRepository.findAllById(sessionIds);
 
-        String dynamicFileName = AttendanceExcelUtil.createDynamicFileName(sessions); // 파일명 생성
-        return AttendanceExcelUtil.getEncodedFileName(dynamicFileName);  // 인코딩 처리
+        String dynamicFileName = AttendanceExcelUtil.createDynamicFileName(sessions);
+        return AttendanceExcelUtil.getEncodedFileName(dynamicFileName);
     }
 
     private Map<String, String> generateSessionColumns(List<Long> attendanceIds) {
@@ -159,7 +156,6 @@ public class AttendanceAdminService {
         return session.getNumber() + "주차 세션 (" + sessionDate + ")";
     }
 
-    // 멤버 출석 통계를 생성하는 메서드
     private LinkedHashMap<Long, Map<String, String>> generateMemberStatisticsMap(List<Long> attendanceIds,
                                                                                  List<Member> activeMembers) {
         LinkedHashMap<Long, Map<String, String>> memberStatisticsMap = new LinkedHashMap<>();
@@ -174,7 +170,6 @@ public class AttendanceAdminService {
         return memberStatisticsMap;
     }
 
-    // 실제 출석 기록을 업데이트하는 메소드
     private void generateExcelAttendanceRecordsData(Long attendanceId,
                                                     LinkedHashMap<Long, Map<String, String>> memberStatisticsMap,
                                                     String columnName, List<Member> allMembers) {
@@ -184,7 +179,6 @@ public class AttendanceAdminService {
         List<AttendanceRecordResponse> attendanceRecords = attendanceRecordService.generateAttendanceResponses(
                 List.of(attendance));
 
-        // 출석 기록이 있는 회원들의 출석 상태 업데이트
         for (AttendanceRecordResponse record : attendanceRecords) {
             Long memberId = record.memberInfo().memberId();
             String attendanceStatus = getAttendanceStatus(record.statistic());
@@ -193,7 +187,6 @@ public class AttendanceAdminService {
                     .put(columnName, attendanceStatus);
         }
 
-        // 출석 기록이 없는 회원들의 출석 상태를 '결석'으로 설정
         for (Member member : allMembers) {
             memberStatisticsMap
                     .computeIfAbsent(member.getId(), k -> new LinkedHashMap<>())
@@ -201,7 +194,6 @@ public class AttendanceAdminService {
         }
     }
 
-    // 출석 상태를 결정하는 함수
     private String getAttendanceStatus(AttendanceStatistic statistic) {
         if (statistic == null) {
             return AttendanceResult.ABSENT.getDescription();

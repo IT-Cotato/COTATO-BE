@@ -6,7 +6,6 @@ public class AttendanceExcelHeaderUtil {
     private static final String ATTACHMENT_FORMAT = "attachment; filename=\"%s\"";
 
     private AttendanceExcelHeaderUtil() {
-        // Utility class
     }
 
     public static HttpHeaders createExcelDownloadHeaders(String fileName) {

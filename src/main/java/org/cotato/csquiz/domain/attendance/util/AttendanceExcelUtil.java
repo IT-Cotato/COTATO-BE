@@ -33,12 +33,10 @@ public class AttendanceExcelUtil {
         return String.format("출결기록_%d기_%s주차_출석.xlsx", generationNumber, sessionRange);
     }
 
-    // 파일명 인코딩 메서드
     public static String getEncodedFileName(String dynamicFileName) {
         return URLEncoder.encode(dynamicFileName, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
     }
 
-    // 엑셀 파일 생성 메서드
     public static byte[] createExcelFile(Map<String, String> sessionColumnNames,
                                          LinkedHashMap<Long, Map<String, String>> memberStatisticsMap,
                                          Map<Long, String> memberNameMap,
@@ -58,7 +56,6 @@ public class AttendanceExcelUtil {
         }
     }
 
-    // 헤더 행을 생성하는 메서드
     public static void createHeaderRow(Sheet sheet, Map<String, String> sessionColumnNames) {
         Row headerRow = sheet.createRow(0);
         headerRow.createCell(0).setCellValue(MemberRoleGroup.ACTIVE_MEMBERS.getDescription());
@@ -75,7 +72,6 @@ public class AttendanceExcelUtil {
         headerRow.createCell(columnNumber).setCellValue(AttendanceResult.ABSENT.getDescription());
     }
 
-    // 데이터 행을 생성하는 메서드
     public static void createMemberAttendanceDataRows(Sheet sheet,
                                                       LinkedHashMap<Long, Map<String, String>> memberStatisticsMap,
                                                       Map<String, String> sessionColumnNames,
@@ -89,7 +85,7 @@ public class AttendanceExcelUtil {
             List<Integer> attendanceCounts = attendanceCountsMap.get(memberId);
 
             if (memberName == null) {
-                throw new EntityNotFoundException("회원 정보를 찾을 수 없습니다" );
+                throw new EntityNotFoundException("회원 정보를 찾을 수 없습니다");
             }
             if (attendanceCounts == null) {
                 throw new EntityNotFoundException("출석 통계 정보를 찾을 수 없습니다");
@@ -101,9 +97,9 @@ public class AttendanceExcelUtil {
         }
     }
 
-    // 회원의 출석 데이터를 행에 추가하는 메서드
     private static void addMemberAttendanceData(Row row, String memberName, Map<String, String> sessionStatus,
-                                                Map<String, String> sessionColumnNames, List<Integer> attendanceCounts) {
+                                                Map<String, String> sessionColumnNames,
+                                                List<Integer> attendanceCounts) {
         row.createCell(0).setCellValue(memberName);
 
         int columnNumber = 1;
