@@ -56,12 +56,12 @@ public class AttendanceExcelUtil {
         }
     }
 
-    public static void createHeaderRow(Sheet sheet, Map<String, String> sessionColumnNames) {
+    public static void createHeaderRow(Sheet sheet, Map<String, String> columnNameBySessionId) {
         Row headerRow = sheet.createRow(0);
         headerRow.createCell(0).setCellValue(MemberRoleGroup.ACTIVE_MEMBERS.getDescription());
 
         int columnNumber = 1;
-        for (String columnName : sessionColumnNames.keySet()) {
+        for (String columnName : columnNameBySessionId.keySet()) {
             headerRow.createCell(columnNumber++).setCellValue(columnName);
         }
 
@@ -73,16 +73,16 @@ public class AttendanceExcelUtil {
     }
 
     public static void createMemberAttendanceDataRows(Sheet sheet,
-                                                      LinkedHashMap<Long, Map<String, String>> memberStatisticsMap,
-                                                      Map<String, String> sessionColumnNames,
+                                                      LinkedHashMap<Long, Map<String, String>> attendanceStatusByMemberId,
+                                                      Map<String, String> columnNameBySessionId,
                                                       Map<Long, String> memberNameMap,
-                                                      LinkedHashMap<Long, List<Integer>> attendanceCountsMap) {
+                                                      LinkedHashMap<Long, List<Integer>> attendanceCountByMemberId) {
         int rowNumber = 1;
 
-        for (Map.Entry<Long, Map<String, String>> entry : memberStatisticsMap.entrySet()) {
+        for (Map.Entry<Long, Map<String, String>> entry : attendanceStatusByMemberId.entrySet()) {
             Long memberId = entry.getKey();
             String memberName = memberNameMap.get(memberId);
-            List<Integer> attendanceCounts = attendanceCountsMap.get(memberId);
+            List<Integer> attendanceCounts = attendanceCountByMemberId.get(memberId);
 
             if (memberName == null) {
                 throw new EntityNotFoundException("회원 정보를 찾을 수 없습니다");
@@ -92,18 +92,18 @@ public class AttendanceExcelUtil {
             }
 
             Row row = sheet.createRow(rowNumber++);
-            addMemberAttendanceData(row, memberName, entry.getValue(), sessionColumnNames,
-                    attendanceCountsMap.get(memberId));
+            addMemberAttendanceData(row, memberName, entry.getValue(), columnNameBySessionId,
+                    attendanceCountByMemberId.get(memberId));
         }
     }
 
     private static void addMemberAttendanceData(Row row, String memberName, Map<String, String> sessionStatus,
-                                                Map<String, String> sessionColumnNames,
+                                                Map<String, String> columnNameBySessionId,
                                                 List<Integer> attendanceCounts) {
         row.createCell(0).setCellValue(memberName);
 
         int columnNumber = 1;
-        for (String columnName : sessionColumnNames.keySet()) {
+        for (String columnName : columnNameBySessionId.keySet()) {
             String status = sessionStatus.getOrDefault(columnName, AttendanceResult.ABSENT.getDescription());
             row.createCell(columnNumber++).setCellValue(status);
         }
