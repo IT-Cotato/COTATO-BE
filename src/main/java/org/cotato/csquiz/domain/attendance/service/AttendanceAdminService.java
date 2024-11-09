@@ -226,14 +226,15 @@ public class AttendanceAdminService {
 
         LinkedHashMap<Long, int[]> attendanceCountByMemberId = new LinkedHashMap<>();
 
-        for (Long memberId : memberStatisticsMap.keySet()) {
+        for (Map.Entry<Long, Map<String, String>> entry : attendanceStatusByMemberId.entrySet()) {
+            Long memberId = entry.getKey();
+            Map<String, String> sessionStatus = entry.getValue();
+
             int totalAttendance = 0;
             int totalOffline = 0;
             int totalOnline = 0;
             int totalLate = 0;
             int totalAbsent = 0;
-
-            Map<String, String> sessionStatus = memberStatisticsMap.get(memberId);
 
             for (String columnName : columnNameBySessionId.keySet()) {
                 String status = sessionStatus.getOrDefault(columnName, AttendanceResult.ABSENT.getDescription());
