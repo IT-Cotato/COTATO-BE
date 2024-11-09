@@ -37,16 +37,16 @@ public class AttendanceExcelUtil {
         return URLEncoder.encode(dynamicFileName, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
     }
 
-    public static byte[] createExcelFile(Map<String, String> sessionColumnNames,
-                                         LinkedHashMap<Long, Map<String, String>> memberStatisticsMap,
+    public static byte[] createExcelFile(Map<String, String> columnNameBySessionId,
+                                         LinkedHashMap<Long, Map<String, String>> attendanceStatusByMemberId,
                                          Map<Long, String> memberNameMap,
-                                         LinkedHashMap<Long, List<Integer>> attendanceCountsMap) {
+                                         LinkedHashMap<Long, List<Integer>> attendanceCountByMemberId) {
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet();
 
-            createHeaderRow(sheet, sessionColumnNames);
-            createMemberAttendanceDataRows(sheet, memberStatisticsMap, sessionColumnNames, memberNameMap,
-                    attendanceCountsMap);
+            createHeaderRow(sheet, columnNameBySessionId);
+            createMemberAttendanceDataRows(sheet, attendanceStatusByMemberId, columnNameBySessionId, memberNameMap,
+                    attendanceCountByMemberId);
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             workbook.write(outputStream);

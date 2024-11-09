@@ -116,7 +116,7 @@ public class AttendanceAdminService {
                 .collect(Collectors.toMap(Member::getId, Member::getName));
 
         Map<String, String> columnNameBySessionId = new LinkedHashMap<>(generateSessionColumns(attendanceIds));
-        LinkedHashMap<Long, Map<String, String>> attendanceStatusByMemberId = generateMemberStatisticsMap(attendanceIds,
+        LinkedHashMap<Long, Map<String, String>> attendanceStatusByMemberId = generateAttendanceStatusByMemberId(attendanceIds,
                 activeMembers);
 
         LinkedHashMap<Long, List<Integer>> attendanceCountByMemberId = generateAttendanceCounts(attendanceStatusByMemberId,
@@ -138,14 +138,14 @@ public class AttendanceAdminService {
     }
 
     private Map<String, String> generateSessionColumns(List<Long> attendanceIds) {
-        Map<String, String> sessionColumnNames = new LinkedHashMap<>();
+        Map<String, String> columnNameBySessionId = new LinkedHashMap<>();
         List<Attendance> attendances = attendanceRepository.findAllById(attendanceIds);
 
         for (Attendance attendance : attendances) {
             String columnName = generateSessionColumnName(attendance.getSessionId());
-            sessionColumnNames.put(columnName, columnName);
+            columnNameBySessionId.put(columnName, columnName);
         }
-        return sessionColumnNames;
+        return columnNameBySessionId;
     }
 
     private String generateSessionColumnName(Long sessionId) {
@@ -156,22 +156,22 @@ public class AttendanceAdminService {
         return session.getNumber() + "주차 세션 (" + sessionDate + ")";
     }
 
-    private LinkedHashMap<Long, Map<String, String>> generateMemberStatisticsMap(List<Long> attendanceIds,
-                                                                                 List<Member> activeMembers) {
-        LinkedHashMap<Long, Map<String, String>> memberStatisticsMap = new LinkedHashMap<>();
-        activeMembers.forEach(member -> memberStatisticsMap.put(member.getId(), new LinkedHashMap<>()));
+    private LinkedHashMap<Long, Map<String, String>> generateAttendanceStatusByMemberId(List<Long> attendanceIds,
+                                                                                        List<Member> activeMembers) {
+        LinkedHashMap<Long, Map<String, String>> attendanceStatusByMemberId = new LinkedHashMap<>();
+        activeMembers.forEach(member -> attendanceStatusByMemberId.put(member.getId(), new LinkedHashMap<>()));
 
         List<Attendance> attendances = attendanceRepository.findAllById(attendanceIds);
         for (Attendance attendance : attendances) {
             String columnName = generateSessionColumnName(attendance.getSessionId());
-            generateExcelAttendanceRecordsData(attendance.getId(), memberStatisticsMap, columnName, activeMembers);
+            generateExcelAttendanceRecordsData(attendance.getId(), attendanceStatusByMemberId, columnName, activeMembers);
         }
 
-        return memberStatisticsMap;
+        return attendanceStatusByMemberId;
     }
 
     private void generateExcelAttendanceRecordsData(Long attendanceId,
-                                                    LinkedHashMap<Long, Map<String, String>> memberStatisticsMap,
+                                                    LinkedHashMap<Long, Map<String, String>> attendanceStatusByMemberId,
                                                     String columnName, List<Member> allMembers) {
         Attendance attendance = attendanceRepository.findById(attendanceId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석 정보가 존재하지 않습니다."));
@@ -182,13 +182,13 @@ public class AttendanceAdminService {
         for (AttendanceRecordResponse record : attendanceRecords) {
             Long memberId = record.memberInfo().memberId();
             String attendanceStatus = getAttendanceStatus(record.statistic());
-            memberStatisticsMap
+            attendanceStatusByMemberId
                     .computeIfAbsent(memberId, k -> new LinkedHashMap<>())
                     .put(columnName, attendanceStatus);
         }
 
         for (Member member : allMembers) {
-            memberStatisticsMap
+            attendanceStatusByMemberId
                     .computeIfAbsent(member.getId(), k -> new LinkedHashMap<>())
                     .putIfAbsent(columnName, AttendanceResult.ABSENT.getDescription());
         }
