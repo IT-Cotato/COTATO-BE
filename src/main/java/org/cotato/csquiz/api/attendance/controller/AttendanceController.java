@@ -8,12 +8,13 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.attendance.dto.AttendResponse;
-import org.cotato.csquiz.api.attendance.dto.AttendanceRecordResponse;
+import org.cotato.csquiz.api.attendance.dto.GenerationMemberAttendanceRecordResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceTimeResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendancesResponse;
 import org.cotato.csquiz.api.attendance.dto.MemberAttendanceRecordsResponse;
 import org.cotato.csquiz.api.attendance.dto.OfflineAttendanceRequest;
 import org.cotato.csquiz.api.attendance.dto.OnlineAttendanceRequest;
+import org.cotato.csquiz.api.attendance.dto.AttendanceRecordResponse;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRecordRequest;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
 import org.cotato.csquiz.domain.attendance.service.AttendanceAdminService;
@@ -59,7 +60,7 @@ public class AttendanceController {
 
     @Operation(summary = "회원 출결사항 기수 단위 조회 API")
     @GetMapping("/records")
-    public ResponseEntity<List<AttendanceRecordResponse>> findAttendanceRecords(
+    public ResponseEntity<List<GenerationMemberAttendanceRecordResponse>> findAttendanceRecords(
             @RequestParam(name = "generationId") Long generationId
     ) {
         return ResponseEntity.ok().body(attendanceAdminService.findAttendanceRecords(generationId));

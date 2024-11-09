@@ -8,6 +8,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.attendance.dto.AttendanceDeadLineDto;
+import org.cotato.csquiz.api.attendance.dto.GenerationMemberAttendanceRecordResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceRecordResponse;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
 import org.cotato.csquiz.common.error.ErrorCode;
@@ -92,7 +93,7 @@ public class AttendanceAdminService {
         attendanceRecordRepository.save(memberAttendanceRecord);
     }
 
-    public List<AttendanceRecordResponse> findAttendanceRecords(Long generationId) {
+    public List<GenerationMemberAttendanceRecordResponse> findAttendanceRecords(Long generationId) {
         List<Long> sessionIds = sessionRepository.findAllByGenerationId(generationId).stream().map(Session::getId).toList();
         List<Attendance> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds);
         Generation generation = generationReader.findById(generationId);
@@ -106,6 +107,6 @@ public class AttendanceAdminService {
         Session session = sessionRepository.findById(attendance.getSessionId())
                 .orElseThrow(() -> new EntityNotFoundException("해당 세션을 찾을 수 없습니다."));
 
-        return attendanceRecordService.generateAttendanceResponses(List.of(attendance), session.getGeneration());
+        return attendanceRecordService.generateSingleAttendanceResponses(attendance, session.getGeneration());
     }
 }
