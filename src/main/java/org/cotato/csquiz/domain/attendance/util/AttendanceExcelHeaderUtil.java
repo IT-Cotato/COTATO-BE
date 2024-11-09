@@ -5,9 +5,6 @@ import org.springframework.http.HttpHeaders;
 public class AttendanceExcelHeaderUtil {
     private static final String ATTACHMENT_FORMAT = "attachment; filename=\"%s\"";
 
-    private AttendanceExcelHeaderUtil() {
-    }
-
     public static HttpHeaders createExcelDownloadHeaders(String fileName) {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_DISPOSITION, String.format(ATTACHMENT_FORMAT, fileName));
