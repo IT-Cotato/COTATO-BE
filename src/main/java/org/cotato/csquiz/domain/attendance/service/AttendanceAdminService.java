@@ -121,7 +121,7 @@ public class AttendanceAdminService {
                 activeMembers);
 
         // 출석 상태 카운트를 사전에 생성하여 전달
-        LinkedHashMap<Long, int[]> attendanceCountByMemberId = generateAttendanceCounts(attendanceStatusByMemberId,
+        LinkedHashMap<Long, List<Integer>> attendanceCountByMemberId = generateAttendanceCounts(attendanceStatusByMemberId,
                 columnNameBySessionId);
 
         // 엑셀 파일 생성 및 반환
@@ -133,7 +133,6 @@ public class AttendanceAdminService {
         List<Attendance> attendances = attendanceRepository.findAllById(attendanceIds);
         List<Long> sessionIds = attendances.stream()
                 .map(Attendance::getSessionId)
-                .distinct()
                 .toList();
         List<Session> sessions = sessionRepository.findAllById(sessionIds);
 
@@ -220,11 +219,11 @@ public class AttendanceAdminService {
         return AttendanceResult.ABSENT.getDescription();
     }
 
-    private LinkedHashMap<Long, int[]> generateAttendanceCounts(
+    private LinkedHashMap<Long, List<Integer>> generateAttendanceCounts(
             LinkedHashMap<Long, Map<String, String>> attendanceStatusByMemberId,
             Map<String, String> columnNameBySessionId) {
 
-        LinkedHashMap<Long, int[]> attendanceCountByMemberId = new LinkedHashMap<>();
+        LinkedHashMap<Long, List<Integer>> attendanceCountByMemberId = new LinkedHashMap<>();
 
         for (Map.Entry<Long, Map<String, String>> entry : attendanceStatusByMemberId.entrySet()) {
             Long memberId = entry.getKey();
@@ -253,7 +252,7 @@ public class AttendanceAdminService {
             }
 
             attendanceCountByMemberId.put(memberId,
-                    new int[]{totalAttendance, totalOffline, totalOnline, totalLate, totalAbsent});
+                   List.of(totalAttendance, totalOffline, totalOnline, totalLate, totalAbsent));
         }
 
         return attendanceCountByMemberId;

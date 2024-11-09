@@ -42,7 +42,7 @@ public class AttendanceExcelUtil {
     public static byte[] createExcelFile(Map<String, String> sessionColumnNames,
                                          LinkedHashMap<Long, Map<String, String>> memberStatisticsMap,
                                          Map<Long, String> memberNameMap,
-                                         LinkedHashMap<Long, int[]> attendanceCountsMap) {
+                                         LinkedHashMap<Long, List<Integer>> attendanceCountsMap) {
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet();
 
@@ -80,13 +80,13 @@ public class AttendanceExcelUtil {
                                                       LinkedHashMap<Long, Map<String, String>> memberStatisticsMap,
                                                       Map<String, String> sessionColumnNames,
                                                       Map<Long, String> memberNameMap,
-                                                      LinkedHashMap<Long, int[]> attendanceCountsMap) {
+                                                      LinkedHashMap<Long, List<Integer>> attendanceCountsMap) {
         int rowNumber = 1;
 
         for (Map.Entry<Long, Map<String, String>> entry : memberStatisticsMap.entrySet()) {
             Long memberId = entry.getKey();
             String memberName = memberNameMap.get(memberId);
-            int[] attendanceCounts = attendanceCountsMap.get(memberId);
+            List<Integer> attendanceCounts = attendanceCountsMap.get(memberId);
 
             if (memberName == null) {
                 throw new EntityNotFoundException("회원 정보를 찾을 수 없습니다" );
@@ -103,7 +103,7 @@ public class AttendanceExcelUtil {
 
     // 회원의 출석 데이터를 행에 추가하는 메서드
     private static void addMemberAttendanceData(Row row, String memberName, Map<String, String> sessionStatus,
-                                                Map<String, String> sessionColumnNames, int[] attendanceCounts) {
+                                                Map<String, String> sessionColumnNames, List<Integer> attendanceCounts) {
         row.createCell(0).setCellValue(memberName);
 
         int columnNumber = 1;
@@ -112,10 +112,10 @@ public class AttendanceExcelUtil {
             row.createCell(columnNumber++).setCellValue(status);
         }
 
-        row.createCell(columnNumber++).setCellValue(attendanceCounts[0]);
-        row.createCell(columnNumber++).setCellValue(attendanceCounts[1]);
-        row.createCell(columnNumber++).setCellValue(attendanceCounts[2]);
-        row.createCell(columnNumber++).setCellValue(attendanceCounts[3]);
-        row.createCell(columnNumber).setCellValue(attendanceCounts[4]);
+        row.createCell(columnNumber++).setCellValue(attendanceCounts.get(0));
+        row.createCell(columnNumber++).setCellValue(attendanceCounts.get(1));
+        row.createCell(columnNumber++).setCellValue(attendanceCounts.get(2));
+        row.createCell(columnNumber++).setCellValue(attendanceCounts.get(3));
+        row.createCell(columnNumber).setCellValue(attendanceCounts.get(4));
     }
 }
