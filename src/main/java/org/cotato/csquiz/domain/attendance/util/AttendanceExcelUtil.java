@@ -40,7 +40,7 @@ public class AttendanceExcelUtil {
     public static byte[] createExcelFile(Map<String, String> columnNameBySessionId,
                                          LinkedHashMap<Long, Map<String, String>> attendanceStatusByMemberId,
                                          Map<Long, String> memberNameMap,
-                                         LinkedHashMap<Long, List<Integer>> attendanceCountByMemberId) {
+                                         LinkedHashMap<Long, Map<String, Integer>> attendanceCountByMemberId) {
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet();
 
@@ -76,13 +76,13 @@ public class AttendanceExcelUtil {
                                                       LinkedHashMap<Long, Map<String, String>> attendanceStatusByMemberId,
                                                       Map<String, String> columnNameBySessionId,
                                                       Map<Long, String> memberNameMap,
-                                                      LinkedHashMap<Long, List<Integer>> attendanceCountByMemberId) {
+                                                      LinkedHashMap<Long, Map<String, Integer>> attendanceCountByMemberId) {
         int rowNumber = 1;
 
         for (Map.Entry<Long, Map<String, String>> entry : attendanceStatusByMemberId.entrySet()) {
             Long memberId = entry.getKey();
             String memberName = memberNameMap.get(memberId);
-            List<Integer> attendanceCounts = attendanceCountByMemberId.get(memberId);
+            Map<String, Integer> attendanceCounts = attendanceCountByMemberId.get(memberId);
 
             if (memberName == null) {
                 throw new EntityNotFoundException("회원 정보를 찾을 수 없습니다");
@@ -92,26 +92,25 @@ public class AttendanceExcelUtil {
             }
 
             Row row = sheet.createRow(rowNumber++);
-            addMemberAttendanceData(row, memberName, entry.getValue(), columnNameBySessionId,
-                    attendanceCountByMemberId.get(memberId));
+            addMemberAttendanceData(row, memberName, entry.getValue(), columnNameBySessionId, attendanceCounts);
         }
     }
 
     private static void addMemberAttendanceData(Row row, String memberName, Map<String, String> sessionStatus,
-                                                Map<String, String> columnNameBySessionId,
-                                                List<Integer> attendanceCounts) {
+                                                Map<String, String> sessionColumnNames,
+                                                Map<String, Integer> attendanceCounts) {
         row.createCell(0).setCellValue(memberName);
 
         int columnNumber = 1;
-        for (String columnName : columnNameBySessionId.keySet()) {
+        for (String columnName : sessionColumnNames.keySet()) {
             String status = sessionStatus.getOrDefault(columnName, AttendanceResult.ABSENT.getDescription());
             row.createCell(columnNumber++).setCellValue(status);
         }
 
-        row.createCell(columnNumber++).setCellValue(attendanceCounts.get(0));
-        row.createCell(columnNumber++).setCellValue(attendanceCounts.get(1));
-        row.createCell(columnNumber++).setCellValue(attendanceCounts.get(2));
-        row.createCell(columnNumber++).setCellValue(attendanceCounts.get(3));
-        row.createCell(columnNumber).setCellValue(attendanceCounts.get(4));
+        row.createCell(columnNumber++).setCellValue(attendanceCounts.getOrDefault("totalAttendance", 0));
+        row.createCell(columnNumber++).setCellValue(attendanceCounts.getOrDefault("totalOffline", 0));
+        row.createCell(columnNumber++).setCellValue(attendanceCounts.getOrDefault("totalOnline", 0));
+        row.createCell(columnNumber++).setCellValue(attendanceCounts.getOrDefault("totalLate", 0));
+        row.createCell(columnNumber).setCellValue(attendanceCounts.getOrDefault("totalAbsent", 0));
     }
 }

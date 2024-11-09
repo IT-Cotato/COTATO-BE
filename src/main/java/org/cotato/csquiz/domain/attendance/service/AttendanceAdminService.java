@@ -119,7 +119,7 @@ public class AttendanceAdminService {
         LinkedHashMap<Long, Map<String, String>> attendanceStatusByMemberId = generateAttendanceStatusByMemberId(attendanceIds,
                 activeMembers);
 
-        LinkedHashMap<Long, List<Integer>> attendanceCountByMemberId = generateAttendanceCounts(attendanceStatusByMemberId,
+        LinkedHashMap<Long, Map<String, Integer>> attendanceCountByMemberId = generateAttendanceCounts(attendanceStatusByMemberId,
                 columnNameBySessionId);
 
         return AttendanceExcelUtil.createExcelFile(columnNameBySessionId, attendanceStatusByMemberId, memberNameMap,
@@ -211,11 +211,11 @@ public class AttendanceAdminService {
         return AttendanceResult.ABSENT.getDescription();
     }
 
-    private LinkedHashMap<Long, List<Integer>> generateAttendanceCounts(
+    private LinkedHashMap<Long, Map<String, Integer>> generateAttendanceCounts(
             LinkedHashMap<Long, Map<String, String>> attendanceStatusByMemberId,
             Map<String, String> columnNameBySessionId) {
 
-        LinkedHashMap<Long, List<Integer>> attendanceCountByMemberId = new LinkedHashMap<>();
+        LinkedHashMap<Long, Map<String, Integer>> attendanceCountByMemberId = new LinkedHashMap<>();
 
         for (Map.Entry<Long, Map<String, String>> entry : attendanceStatusByMemberId.entrySet()) {
             Long memberId = entry.getKey();
@@ -243,8 +243,14 @@ public class AttendanceAdminService {
                 }
             }
 
-            attendanceCountByMemberId.put(memberId,
-                   List.of(totalAttendance, totalOffline, totalOnline, totalLate, totalAbsent));
+            Map<String, Integer> attendanceCounts = new LinkedHashMap<>();
+            attendanceCounts.put("totalAttendance", totalAttendance);
+            attendanceCounts.put("totalOffline", totalOffline);
+            attendanceCounts.put("totalOnline", totalOnline);
+            attendanceCounts.put("totalLate", totalLate);
+            attendanceCounts.put("totalAbsent", totalAbsent);
+
+            attendanceCountByMemberId.put(memberId, attendanceCounts);
         }
 
         return attendanceCountByMemberId;
