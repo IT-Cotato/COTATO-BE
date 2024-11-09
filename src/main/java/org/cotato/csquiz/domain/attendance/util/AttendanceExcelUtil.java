@@ -21,6 +21,12 @@ import org.cotato.csquiz.domain.generation.entity.Session;
 
 public class AttendanceExcelUtil {
 
+    private static final int DEFAULT_TOTAL_ATTENDANCE = 0;
+    private static final int DEFAULT_TOTAL_OFFLINE = 0;
+    private static final int DEFAULT_TOTAL_ONLINE = 0;
+    private static final int DEFAULT_TOTAL_LATE = 0;
+    private static final int DEFAULT_TOTAL_ABSENT = 0;
+
     public static String createDynamicFileName(List<Session> sessions) {
         Integer generationNumber = sessions.get(0).getGeneration().getNumber();
         List<String> sessionNumbers = sessions.stream()
@@ -107,10 +113,10 @@ public class AttendanceExcelUtil {
             row.createCell(columnNumber++).setCellValue(status);
         }
 
-        row.createCell(columnNumber++).setCellValue(attendanceCounts.getOrDefault("totalAttendance", 0));
-        row.createCell(columnNumber++).setCellValue(attendanceCounts.getOrDefault("totalOffline", 0));
-        row.createCell(columnNumber++).setCellValue(attendanceCounts.getOrDefault("totalOnline", 0));
-        row.createCell(columnNumber++).setCellValue(attendanceCounts.getOrDefault("totalLate", 0));
-        row.createCell(columnNumber).setCellValue(attendanceCounts.getOrDefault("totalAbsent", 0));
+        row.createCell(columnNumber++).setCellValue(attendanceCounts.getOrDefault("totalAttendance", DEFAULT_TOTAL_ATTENDANCE));
+        row.createCell(columnNumber++).setCellValue(attendanceCounts.getOrDefault("totalOffline", DEFAULT_TOTAL_OFFLINE));
+        row.createCell(columnNumber++).setCellValue(attendanceCounts.getOrDefault("totalOnline", DEFAULT_TOTAL_ONLINE));
+        row.createCell(columnNumber++).setCellValue(attendanceCounts.getOrDefault("totalLate", DEFAULT_TOTAL_LATE));
+        row.createCell(columnNumber).setCellValue(attendanceCounts.getOrDefault("totalAbsent", DEFAULT_TOTAL_ABSENT));
     }
 }
