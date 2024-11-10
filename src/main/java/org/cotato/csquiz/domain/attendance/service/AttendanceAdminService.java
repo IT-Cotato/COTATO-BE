@@ -112,18 +112,21 @@ public class AttendanceAdminService {
 
     public byte[] createExcelForSessionAttendance(List<Long> attendanceIds) {
         List<Member> activeMembers = memberService.findActiveMember();
-        Map<Long, String> memberNameMap = activeMembers.stream()
+        Map<Long, String> memberNameByMemberId = activeMembers.stream()
                 .collect(Collectors.toMap(Member::getId, Member::getName));
 
-        Map<String, String> columnNameBySessionId = new LinkedHashMap<>(generateSessionColumns(attendanceIds));
-        LinkedHashMap<Long, Map<String, String>> attendanceStatusByMemberId = generateAttendanceStatusByMemberId(attendanceIds,
+        Map<String, String> columnNameBySession = new LinkedHashMap<>(generateSessionColumns(attendanceIds));
+        LinkedHashMap<Long, Map<String, String>> attendanceStatusBySessionByMemberId = generateAttendanceStatusBySessionByMemberId(
+                attendanceIds,
                 activeMembers);
 
-        LinkedHashMap<Long, Map<String, Integer>> attendanceCountByMemberId = generateAttendanceCounts(attendanceStatusByMemberId,
-                columnNameBySessionId);
+        LinkedHashMap<Long, Map<String, Integer>> attendanceCountByAttendanceStatusByMemberId = generateAttendanceCounts(
+                attendanceStatusBySessionByMemberId,
+                columnNameBySession);
 
-        return AttendanceExcelUtil.createExcelFile(columnNameBySessionId, attendanceStatusByMemberId, memberNameMap,
-                attendanceCountByMemberId);
+        return AttendanceExcelUtil.createExcelFile(columnNameBySession, attendanceStatusBySessionByMemberId,
+                memberNameByMemberId,
+                attendanceCountByAttendanceStatusByMemberId);
     }
 
     public String getEncodedFileName(List<Long> attendanceIds) {
@@ -138,14 +141,14 @@ public class AttendanceAdminService {
     }
 
     private Map<String, String> generateSessionColumns(List<Long> attendanceIds) {
-        Map<String, String> columnNameBySessionId = new LinkedHashMap<>();
+        Map<String, String> columnNameBySession = new LinkedHashMap<>();
         List<Attendance> attendances = attendanceRepository.findAllById(attendanceIds);
 
         for (Attendance attendance : attendances) {
             String columnName = generateSessionColumnName(attendance.getSessionId());
-            columnNameBySessionId.put(columnName, columnName);
+            columnNameBySession.put(columnName, columnName);
         }
-        return columnNameBySessionId;
+        return columnNameBySession;
     }
 
     private String generateSessionColumnName(Long sessionId) {
@@ -156,22 +159,24 @@ public class AttendanceAdminService {
         return session.getNumber() + "주차 세션 (" + sessionDate + ")";
     }
 
-    private LinkedHashMap<Long, Map<String, String>> generateAttendanceStatusByMemberId(List<Long> attendanceIds,
-                                                                                        List<Member> activeMembers) {
-        LinkedHashMap<Long, Map<String, String>> attendanceStatusByMemberId = new LinkedHashMap<>();
-        activeMembers.forEach(member -> attendanceStatusByMemberId.put(member.getId(), new LinkedHashMap<>()));
+    private LinkedHashMap<Long, Map<String, String>> generateAttendanceStatusBySessionByMemberId(
+            List<Long> attendanceIds,
+            List<Member> activeMembers) {
+        LinkedHashMap<Long, Map<String, String>> attendanceStatusBySessionByMemberId = new LinkedHashMap<>();
+        activeMembers.forEach(member -> attendanceStatusBySessionByMemberId.put(member.getId(), new LinkedHashMap<>()));
 
         List<Attendance> attendances = attendanceRepository.findAllById(attendanceIds);
         for (Attendance attendance : attendances) {
             String columnName = generateSessionColumnName(attendance.getSessionId());
-            generateExcelAttendanceRecordsData(attendance.getId(), attendanceStatusByMemberId, columnName, activeMembers);
+            generateExcelAttendanceRecordsData(attendance.getId(), attendanceStatusBySessionByMemberId, columnName,
+                    activeMembers);
         }
 
-        return attendanceStatusByMemberId;
+        return attendanceStatusBySessionByMemberId;
     }
 
     private void generateExcelAttendanceRecordsData(Long attendanceId,
-                                                    LinkedHashMap<Long, Map<String, String>> attendanceStatusByMemberId,
+                                                    LinkedHashMap<Long, Map<String, String>> attendanceStatusBySessionByMemberId,
                                                     String columnName, List<Member> allMembers) {
         Attendance attendance = attendanceRepository.findById(attendanceId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석 정보가 존재하지 않습니다."));
@@ -182,13 +187,13 @@ public class AttendanceAdminService {
         for (AttendanceRecordResponse record : attendanceRecords) {
             Long memberId = record.memberInfo().memberId();
             String attendanceStatus = getAttendanceStatus(record.statistic());
-            attendanceStatusByMemberId
+            attendanceStatusBySessionByMemberId
                     .computeIfAbsent(memberId, k -> new LinkedHashMap<>())
                     .put(columnName, attendanceStatus);
         }
 
         for (Member member : allMembers) {
-            attendanceStatusByMemberId
+            attendanceStatusBySessionByMemberId
                     .computeIfAbsent(member.getId(), k -> new LinkedHashMap<>())
                     .putIfAbsent(columnName, AttendanceResult.ABSENT.getDescription());
         }
@@ -212,12 +217,12 @@ public class AttendanceAdminService {
     }
 
     private LinkedHashMap<Long, Map<String, Integer>> generateAttendanceCounts(
-            LinkedHashMap<Long, Map<String, String>> attendanceStatusByMemberId,
-            Map<String, String> columnNameBySessionId) {
+            LinkedHashMap<Long, Map<String, String>> attendanceStatusBySessionByMemberId,
+            Map<String, String> columnNameBySession) {
 
-        LinkedHashMap<Long, Map<String, Integer>> attendanceCountByMemberId = new LinkedHashMap<>();
+        LinkedHashMap<Long, Map<String, Integer>> attendanceCountByAttendanceStatusByMemberId = new LinkedHashMap<>();
 
-        for (Map.Entry<Long, Map<String, String>> entry : attendanceStatusByMemberId.entrySet()) {
+        for (Map.Entry<Long, Map<String, String>> entry : attendanceStatusBySessionByMemberId.entrySet()) {
             Long memberId = entry.getKey();
             Map<String, String> sessionStatus = entry.getValue();
 
@@ -227,7 +232,7 @@ public class AttendanceAdminService {
             int totalLate = 0;
             int totalAbsent = 0;
 
-            for (String columnName : columnNameBySessionId.keySet()) {
+            for (String columnName : columnNameBySession.keySet()) {
                 String status = sessionStatus.getOrDefault(columnName, AttendanceResult.ABSENT.getDescription());
 
                 if (status.equals(AttendanceType.OFFLINE.getDescription())) {
@@ -250,9 +255,9 @@ public class AttendanceAdminService {
             attendanceCounts.put("totalLate", totalLate);
             attendanceCounts.put("totalAbsent", totalAbsent);
 
-            attendanceCountByMemberId.put(memberId, attendanceCounts);
+            attendanceCountByAttendanceStatusByMemberId.put(memberId, attendanceCounts);
         }
 
-        return attendanceCountByMemberId;
+        return attendanceCountByAttendanceStatusByMemberId;
     }
 }
