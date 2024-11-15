@@ -8,6 +8,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.attendance.dto.AttendResponse;
+import org.cotato.csquiz.api.attendance.dto.AttendanceRecordResponse;
 import org.cotato.csquiz.api.attendance.dto.GenerationMemberAttendanceRecordResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceTimeResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendancesResponse;
@@ -20,6 +21,8 @@ import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
 import org.cotato.csquiz.domain.attendance.service.AttendanceAdminService;
 import org.cotato.csquiz.domain.attendance.service.AttendanceRecordService;
 import org.cotato.csquiz.domain.attendance.service.AttendanceService;
+import org.cotato.csquiz.domain.attendance.util.AttendanceExcelHeaderUtil;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -84,7 +87,8 @@ public class AttendanceController {
 
     @Operation(summary = "기수별 출석 목록 조회 API")
     @GetMapping
-    public ResponseEntity<AttendancesResponse> findAttendancesByGeneration(@RequestParam("generationId") Long generationId) {
+    public ResponseEntity<AttendancesResponse> findAttendancesByGeneration(
+            @RequestParam("generationId") Long generationId) {
         return ResponseEntity.ok().body(attendanceService.findAttendancesByGenerationId(generationId));
     }
 
@@ -105,8 +109,9 @@ public class AttendanceController {
             }
     )
     @PostMapping(value = "/records/offline")
-    public ResponseEntity<AttendResponse> submitOfflineAttendanceRecord(@RequestBody @Valid OfflineAttendanceRequest request,
-                                                                        @AuthenticationPrincipal Long memberId) {
+    public ResponseEntity<AttendResponse> submitOfflineAttendanceRecord(
+            @RequestBody @Valid OfflineAttendanceRequest request,
+            @AuthenticationPrincipal Long memberId) {
         return ResponseEntity.ok().body(attendanceRecordService.submitRecord(request, memberId));
     }
 
@@ -126,15 +131,30 @@ public class AttendanceController {
                     )
             })
     @PostMapping(value = "/records/online")
-    public ResponseEntity<AttendResponse> submitOnlineAttendanceRecord(@RequestBody @Valid OnlineAttendanceRequest request,
-                                                                       @AuthenticationPrincipal Long memberId) {
+    public ResponseEntity<AttendResponse> submitOnlineAttendanceRecord(
+            @RequestBody @Valid OnlineAttendanceRequest request,
+            @AuthenticationPrincipal Long memberId) {
         return ResponseEntity.ok().body(attendanceRecordService.submitRecord(request, memberId));
     }
 
     @Operation(summary = "부원의 기수별 출결 기록 반환 API")
     @GetMapping("/records/members")
-    public ResponseEntity<MemberAttendanceRecordsResponse> findAllRecordsByGeneration(@RequestParam("generationId") Long generationId ,
-                                                                                      @AuthenticationPrincipal Long memberId) {
+    public ResponseEntity<MemberAttendanceRecordsResponse> findAllRecordsByGeneration(
+            @RequestParam("generationId") Long generationId,
+            @AuthenticationPrincipal Long memberId) {
         return ResponseEntity.ok().body(attendanceRecordService.findAllRecordsBy(generationId, memberId));
+    }
+
+    @Operation(summary = "세션별 출석 기록 엑셀 다운로드 API")
+    @GetMapping("/excel")
+    public ResponseEntity<byte[]> downloadAttendanceRecordsAsExcelBySessions(
+            @RequestParam(name = "attendanceIds") List<Long> attendanceIds) {
+
+        byte[] excelFile = attendanceAdminService.createExcelForSessionAttendance(attendanceIds);
+        String finalFileName = attendanceAdminService.getEncodedFileName(attendanceIds);
+
+        HttpHeaders headers = AttendanceExcelHeaderUtil.createExcelDownloadHeaders(finalFileName);
+
+        return ResponseEntity.ok().headers(headers).body(excelFile);
     }
 }
