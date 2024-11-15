@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import org.cotato.csquiz.api.session.dto.AddSessionRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionResponse;
 import org.cotato.csquiz.api.session.dto.CsEducationOnSessionNumberResponse;
 import org.cotato.csquiz.api.session.dto.SessionListResponse;
+import org.cotato.csquiz.api.session.dto.SessionWithAttendanceResponse;
 import org.cotato.csquiz.api.session.dto.UpdateSessionRequest;
 import org.cotato.csquiz.common.error.exception.ImageException;
 import org.cotato.csquiz.common.schedule.SchedulerService;
@@ -110,6 +112,12 @@ public class SessionService {
         updateSessionDateTime(session, request.sessionDateTime(), request.attendTime().attendanceDeadLine(),
                 request.attendTime().lateDeadLine());
         sessionRepository.save(session);
+
+        Attendance attendance = attendanceRepository.findBySessionId(session.getId())
+                .orElseThrow(() -> new EntityNotFoundException("해당 세션을 찾을 수 없습니다."));
+
+        attendance.updateLocation(request.location());
+        attendanceRepository.save(attendance);
     }
 
     @Transactional
@@ -170,5 +178,13 @@ public class SessionService {
                 .filter(session -> !educationLinkedSessionIds.contains(session.getId()))
                 .map(CsEducationOnSessionNumberResponse::from)
                 .toList();
+    }
+
+    public SessionWithAttendanceResponse findSession(Long sessionId) {
+        Session session = findSessionById(sessionId);
+        List<SessionImage> sessionImages = sessionImageRepository.findAllBySession(session);
+        Optional<Attendance> maybeAttendance = attendanceRepository.findBySessionId(sessionId);
+        return maybeAttendance.map(attendance -> SessionWithAttendanceResponse.of(session, sessionImages, attendance))
+                .orElseGet(() -> SessionWithAttendanceResponse.of(session, sessionImages));
     }
 }

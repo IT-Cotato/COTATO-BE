@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.attendance.dto.AttendanceDeadLineDto;
+import org.cotato.csquiz.api.attendance.dto.GenerationMemberAttendanceRecordResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceRecordResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceStatistic;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
@@ -20,13 +21,18 @@ import org.cotato.csquiz.domain.attendance.embedded.Location;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
+import org.cotato.csquiz.domain.attendance.entity.AttendanceRecord;
+import org.cotato.csquiz.domain.attendance.enums.AttendanceRecordResult;
+import org.cotato.csquiz.domain.attendance.repository.AttendanceRecordRepository;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.attendance.util.AttendanceExcelUtil;
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.service.MemberService;
+import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
+import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +42,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class AttendanceAdminService {
 
+    private final GenerationReader generationReader;
     private final AttendanceRepository attendanceRepository;
+    private final AttendanceRecordRepository attendanceRecordRepository;
     private final AttendanceRecordService attendanceRecordService;
     private final SessionRepository sessionRepository;
     private final MemberService memberService;
@@ -87,27 +95,33 @@ public class AttendanceAdminService {
         attendanceRecordService.updateAttendanceStatus(attendanceSession.getSessionDateTime(), attendance);
     }
 
-    public List<AttendanceRecordResponse> findAttendanceRecords(Long generationId, Integer month) {
-        List<Session> sessions = sessionRepository.findAllByGenerationId(generationId);
-        if (month != null) {
-            sessions = sessions.stream()
-                    .filter(session -> session.getSessionDateTime().getMonthValue() == month)
-                    .toList();
-        }
-        List<Long> sessionIds = sessions.stream()
-                .map(Session::getId)
-                .toList();
+    @Transactional
+    public void updateAttendanceRecords(Long attendanceId, Long memberId, AttendanceRecordResult attendanceResult) {
+        Attendance attendance = attendanceRepository.findById(attendanceId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 출석이 존재하지 않습니다"));
 
+        AttendanceRecord memberAttendanceRecord = attendanceRecordRepository.findByMemberIdAndAttendanceId(memberId, attendanceId)
+                .orElseGet(() -> AttendanceRecord.absentRecord(attendance, memberId));
+
+        memberAttendanceRecord.updateByAttendanceRecordResult(attendanceResult);
+        attendanceRecordRepository.save(memberAttendanceRecord);
+    }
+
+    public List<GenerationMemberAttendanceRecordResponse> findAttendanceRecords(Long generationId) {
+        List<Long> sessionIds = sessionRepository.findAllByGenerationId(generationId).stream().map(Session::getId).toList();
         List<Attendance> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds);
+        Generation generation = generationReader.findById(generationId);
 
-        return attendanceRecordService.generateAttendanceResponses(attendances);
+        return attendanceRecordService.generateAttendanceResponses(attendances, generation);
     }
 
     public List<AttendanceRecordResponse> findAttendanceRecordsByAttendance(Long attendanceId) {
         Attendance attendance = attendanceRepository.findById(attendanceId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석이 존재하지 않습니다"));
+        Session session = sessionRepository.findById(attendance.getSessionId())
+                .orElseThrow(() -> new EntityNotFoundException("해당 세션을 찾을 수 없습니다."));
 
-        return attendanceRecordService.generateAttendanceResponses(List.of(attendance));
+        return attendanceRecordService.generateSingleAttendanceResponses(attendance, session.getGeneration());
     }
 
     public byte[] createExcelForSessionAttendance(List<Long> attendanceIds) {

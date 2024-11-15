@@ -4,6 +4,7 @@ import static org.cotato.csquiz.domain.attendance.util.AttendanceUtil.getAttenda
 
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,21 +14,24 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.attendance.dto.AttendResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceParams;
-import org.cotato.csquiz.api.attendance.dto.AttendanceRecordResponse;
+import org.cotato.csquiz.api.attendance.dto.GenerationMemberAttendanceRecordResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceStatistic;
 import org.cotato.csquiz.api.attendance.dto.MemberAttendResponse;
 import org.cotato.csquiz.api.attendance.dto.MemberAttendanceRecordsResponse;
+import org.cotato.csquiz.api.attendance.dto.AttendanceRecordResponse;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.entity.AttendanceRecord;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceOpenStatus;
+import org.cotato.csquiz.domain.attendance.enums.AttendanceRecordResult;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRecordRepository;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
 import org.cotato.csquiz.domain.auth.entity.Member;
-import org.cotato.csquiz.domain.auth.service.MemberService;
+import org.cotato.csquiz.domain.auth.service.component.MemberReader;
+import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
 import org.springframework.stereotype.Service;
@@ -41,28 +45,54 @@ public class AttendanceRecordService {
 
     private final AttendanceRecordRepository attendanceRecordRepository;
     private final AttendanceRepository attendanceRepository;
-    private final MemberService memberService;
     private final RequestAttendanceService requestAttendanceService;
     private final SessionRepository sessionRepository;
+    private final MemberReader memberReader;
 
-    public List<AttendanceRecordResponse> generateAttendanceResponses(List<Attendance> attendances) {
-        List<Long> attendanceIds = attendances.stream()
-                .map(Attendance::getId)
-                .toList();
 
-        List<AttendanceRecord> records = attendanceRecordRepository.findAllByAttendanceIdsInQuery(attendanceIds);
+    public List<GenerationMemberAttendanceRecordResponse> generateAttendanceResponses(List<Attendance> attendances, Generation generation) {
+        List<Long> attendanceIds = attendances.stream().map(Attendance::getId).toList();
 
-        Map<Long, List<AttendanceRecord>> recordsByMemberId = records.stream()
+        Map<Long, List<AttendanceRecord>> recordsByMemberId = attendanceRecordRepository.findAllByAttendanceIdsInQuery(attendanceIds).stream()
                 .collect(Collectors.groupingBy(AttendanceRecord::getMemberId));
 
-        Map<Long, Member> memberMap = memberService.findActiveMember().stream()
-                .collect(Collectors.toMap(Member::getId, member -> member));
-
-        return recordsByMemberId.keySet().stream()
-                .filter(memberMap::containsKey)
-                .map(memberId -> AttendanceRecordResponse.of(memberMap.get(memberId),
-                        AttendanceStatistic.of(recordsByMemberId.get(memberId), attendances.size())))
+        return memberReader.findAllGenerationMember(generation).stream()
+                .sorted(Comparator.comparing(Member::getName))
+                .map(member -> GenerationMemberAttendanceRecordResponse.of(
+                        member,
+                        AttendanceStatistic.of(recordsByMemberId.getOrDefault(member.getId(), List.of()),
+                                attendances.size()
+                        )
+                ))
                 .toList();
+    }
+
+    public List<AttendanceRecordResponse> generateSingleAttendanceResponses(Attendance attendance,
+                                                                            Generation generation) {
+        Map<Long, AttendanceRecord> recordByMemberId = attendanceRecordRepository.findAllByAttendanceId(
+                        attendance.getId())
+                .stream()
+                .collect(Collectors.toMap(
+                        AttendanceRecord::getMemberId,
+                        Function.identity()
+                ));
+        return memberReader.findAllGenerationMember(generation).stream()
+                .sorted(Comparator.comparing(Member::getName))
+                .map(member -> AttendanceRecordResponse.of(
+                        member,
+                        attendanceRecordToRecordResult(recordByMemberId.getOrDefault(member.getId(), null))
+                ))
+                .toList();
+    }
+
+    //AttendanceRecord의 출석정보가 AttendanceRecordResult로 바뀌면 로직 수정 TODO
+    private AttendanceRecordResult attendanceRecordToRecordResult(AttendanceRecord record) {
+        if (record == null){
+            return AttendanceRecordResult.ABSENT;
+        }
+        return AttendanceRecordResult.convertWithTypeAndResult(
+                record.getAttendanceType(),
+                record.getAttendanceResult());
     }
 
     @Transactional
@@ -140,13 +170,13 @@ public class AttendanceRecordService {
     public void updateUnrecordedAttendanceRecord(Long sessionId) {
         Attendance attendance = attendanceRepository.findBySessionId(sessionId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 세션에 대한 출석이 생성되지 않았습니다."));
-
+        Session session = sessionRepository.findById(sessionId).orElseThrow(() -> new EntityNotFoundException("해당 세션을 찾을 수 없습니다."));
         // 출결 입력을 한 부원
         Set<Long> attendedMember = attendanceRecordRepository.findAllByAttendanceId(attendance.getId()).stream()
                 .map(AttendanceRecord::getMemberId)
                 .collect(Collectors.toUnmodifiableSet());
 
-        List<AttendanceRecord> unrecordedMemberIds = memberService.findActiveMember().stream()
+        List<AttendanceRecord> unrecordedMemberIds = memberReader.findAllGenerationMember(session.getGeneration()).stream()
                 .map(Member::getId)
                 .filter(id -> !attendedMember.contains(id))
                 .map(id -> AttendanceRecord.absentRecord(attendance, id))
