@@ -194,11 +194,11 @@ public class AttendanceAdminService {
                                                     String columnName, List<Member> allMembers) {
         Attendance attendance = attendanceRepository.findById(attendanceId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석 정보가 존재하지 않습니다."));
+        Session session = sessionRepository.findById(attendance.getSessionId()).orElseThrow(() -> new EntityNotFoundException("출석에 대한 세션 정보를 찾을 수 없습니다."));
 
-        List<AttendanceRecordResponse> attendanceRecords = attendanceRecordService.generateAttendanceResponses(
-                List.of(attendance));
+        List<GenerationMemberAttendanceRecordResponse> attendanceRecords = attendanceRecordService.generateAttendanceResponses(List.of(attendance), session.getGeneration());
 
-        for (AttendanceRecordResponse record : attendanceRecords) {
+        for (GenerationMemberAttendanceRecordResponse record : attendanceRecords) {
             Long memberId = record.memberInfo().memberId();
             String attendanceStatus = getAttendanceStatus(record.statistic());
             attendanceStatusBySessionByMemberId
