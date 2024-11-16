@@ -5,9 +5,13 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import lombok.Builder;
 import org.cotato.csquiz.api.policy.dto.CheckPolicyRequest;
 
+@Builder
 public record JoinRequest(
         @Email(message = "올바른 형식의 메일 주소를 입력해주세요.")
         @NotBlank(message = "공백이 아닌 올바른 형식의 메일 주소를 입력해주세요.")
@@ -22,6 +26,7 @@ public record JoinRequest(
         String phoneNumber,
 
         @Schema(description = "동의 표시한 정책 목록")
+        @NotNull
         List<CheckPolicyRequest> policies
 ) {
 }
