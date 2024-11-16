@@ -49,6 +49,10 @@ dependencies {
     // discord 봇 관련 레포
     implementation group: 'net.dv8tion', name: 'JDA', version: '5.1.1'
 
+    // Apache POI 관련
+    implementation 'org.apache.poi:poi:5.2.3'
+    implementation 'org.apache.poi:poi-ooxml:5.2.3'
+
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     runtimeOnly 'com.mysql:mysql-connector-j'
