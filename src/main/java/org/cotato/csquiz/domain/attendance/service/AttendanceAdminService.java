@@ -2,7 +2,6 @@ package org.cotato.csquiz.domain.attendance.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -50,15 +49,15 @@ public class AttendanceAdminService {
     private final MemberService memberService;
 
     @Transactional
-    public void addAttendance(Session session, Location location, LocalTime attendanceDeadline,
-                              LocalTime lateDeadline) {
+    public void addAttendance(Session session, Location location, LocalDateTime attendanceDeadline,
+                              LocalDateTime lateDeadline) {
         AttendanceUtil.validateAttendanceTime(session.getSessionDateTime(), attendanceDeadline, lateDeadline);
 
         Attendance attendance = Attendance.builder()
                 .session(session)
                 .location(location)
-                .attendanceDeadLine(LocalDateTime.of(session.getSessionDateTime().toLocalDate(), attendanceDeadline))
-                .lateDeadLine(LocalDateTime.of(session.getSessionDateTime().toLocalDate(), lateDeadline))
+                .attendanceDeadLine(attendanceDeadline)
+                .lateDeadLine(lateDeadline)
                 .build();
 
         attendanceRepository.save(attendance);
@@ -86,10 +85,8 @@ public class AttendanceAdminService {
             throw new AppException(ErrorCode.SESSION_DATE_NOT_FOUND);
         }
 
-        attendance.updateDeadLine(LocalDateTime.of(attendanceSession.getSessionDateTime().toLocalDate(),
-                        attendanceDeadLine.attendanceDeadLine()),
-                LocalDateTime.of(attendanceSession.getSessionDateTime().toLocalDate(),
-                        attendanceDeadLine.lateDeadLine()));
+        attendance.updateDeadLine(attendanceDeadLine.attendanceDeadLine(),
+                attendanceDeadLine.lateDeadLine());
         attendance.updateLocation(location);
 
         attendanceRecordService.updateAttendanceStatus(attendanceSession.getSessionDateTime(), attendance);

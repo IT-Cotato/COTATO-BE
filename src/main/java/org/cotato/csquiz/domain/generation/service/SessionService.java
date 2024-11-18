@@ -121,8 +121,8 @@ public class SessionService {
     }
 
     @Transactional
-    public void updateSessionDateTime(Session session, LocalDateTime newDateTime, LocalTime attendanceDeadline,
-                                      LocalTime lateDeadline) {
+    public void updateSessionDateTime(Session session, LocalDateTime newDateTime, LocalDateTime attendanceDeadline,
+                                      LocalDateTime lateDeadline) {
         Attendance attendance = attendanceRepository.findBySessionId(session.getId())
                 .orElseGet(() -> Attendance.builder()
                         .session(session)
@@ -130,15 +130,12 @@ public class SessionService {
 
         // 날짜가 바뀌지 않았고, 출결 시간이 모두 동일한 경우
         if (newDateTime.equals(session.getSessionDateTime()) &&
-                attendance.getAttendanceDeadLine().toLocalTime().equals(attendanceDeadline) &&
-                attendance.getLateDeadLine().toLocalTime().equals(lateDeadline)) {
+                attendance.getAttendanceDeadLine().equals(attendanceDeadline) &&
+                attendance.getLateDeadLine().equals(lateDeadline)) {
             return;
         }
         session.updateSessionDateTime(newDateTime);
-
-        LocalDateTime newAttendanceDeadline = LocalDateTime.of(newDateTime.toLocalDate(), attendanceDeadline);
-        LocalDateTime newLateDeadline = LocalDateTime.of(newDateTime.toLocalDate(), lateDeadline);
-        attendance.updateDeadLine(newAttendanceDeadline, newLateDeadline);
+        attendance.updateDeadLine(attendanceDeadline, lateDeadline);
 
         attendanceRepository.save(attendance);
         attendanceRecordService.updateAttendanceStatus(newDateTime, attendance);
