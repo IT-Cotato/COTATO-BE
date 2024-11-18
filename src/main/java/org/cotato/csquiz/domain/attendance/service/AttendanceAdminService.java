@@ -21,7 +21,7 @@ import org.cotato.csquiz.domain.attendance.embedded.Location;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.entity.AttendanceRecord;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
-import org.cotato.csquiz.domain.attendance.enums.AttendanceRecordCreationType;
+import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRecordRepository;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.attendance.util.AttendanceExcelUtil;
@@ -220,10 +220,10 @@ public class AttendanceAdminService {
         }
 
         if (statistic.offline() > 0) {
-            return AttendanceRecordCreationType.OFFLINE.getDescription();
+            return AttendanceType.OFFLINE.getDescription();
         }
         if (statistic.online() > 0) {
-            return AttendanceRecordCreationType.ONLINE.getDescription();
+            return AttendanceType.ONLINE.getDescription();
         }
         if (statistic.late() > 0) {
             return AttendanceResult.LATE.getDescription();
@@ -250,10 +250,10 @@ public class AttendanceAdminService {
             for (String columnName : columnNameBySession.keySet()) {
                 String status = sessionStatus.getOrDefault(columnName, AttendanceResult.ABSENT.getDescription());
 
-                if (status.equals(AttendanceRecordCreationType.OFFLINE.getDescription())) {
+                if (status.equals(AttendanceType.OFFLINE.getDescription())) {
                     totalAttendance++;
                     totalOffline++;
-                } else if (status.equals(AttendanceRecordCreationType.ONLINE.getDescription())) {
+                } else if (status.equals(AttendanceType.ONLINE.getDescription())) {
                     totalAttendance++;
                     totalOnline++;
                 } else if (status.equals(AttendanceResult.LATE.getDescription())) {

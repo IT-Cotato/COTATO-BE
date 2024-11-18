@@ -16,7 +16,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.csquiz.common.entity.BaseTimeEntity;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
-import org.cotato.csquiz.domain.attendance.enums.AttendanceRecordCreationType;
+import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
 
 @Table(name = "attendance_record",
         indexes = {@Index(name = "member_id_index", columnList = "member_id")},
@@ -32,9 +32,9 @@ public class AttendanceRecord extends BaseTimeEntity {
     @Column(name = "attendance_record_id")
     private Long id;
 
-    @Column(name = "record_creation_tyupe", nullable = false, updatable = false)
+    @Column(name = "attendance_type", nullable = false)
     @Enumerated(EnumType.STRING)
-    private AttendanceRecordCreationType attendanceRecordCreationType;
+    private AttendanceType attendanceType;
 
     @Column(name = "attendance_result", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -52,9 +52,9 @@ public class AttendanceRecord extends BaseTimeEntity {
     @Column(name = "attend_time")
     private LocalDateTime attendTime;
 
-    private AttendanceRecord(AttendanceRecordCreationType attendanceRecordCreationType, AttendanceResult attendanceResult, Double locationAccuracy,
+    private AttendanceRecord(AttendanceType attendanceType, AttendanceResult attendanceResult, Double locationAccuracy,
                              Long memberId, Attendance attendance, LocalDateTime attendTime) {
-        this.attendanceRecordCreationType = attendanceRecordCreationType;
+        this.attendanceType = attendanceType;
         this.attendanceResult = attendanceResult;
         this.locationAccuracy = locationAccuracy;
         this.memberId = memberId;
@@ -65,7 +65,7 @@ public class AttendanceRecord extends BaseTimeEntity {
     public static AttendanceRecord onLineRecord(Attendance attendance, Long memberId, AttendanceResult attendanceResult,
                                                 LocalDateTime attendTime) {
         return new AttendanceRecord(
-                AttendanceRecordCreationType.ONLINE,
+                AttendanceType.ONLINE,
                 attendanceResult,
                 null,
                 memberId,
@@ -77,7 +77,7 @@ public class AttendanceRecord extends BaseTimeEntity {
     public static AttendanceRecord offlineRecord(Attendance attendance, Long memberId, Double locationAccuracy,
                                                  AttendanceResult attendanceResult, LocalDateTime attendTime) {
         return new AttendanceRecord(
-                AttendanceRecordCreationType.OFFLINE,
+                AttendanceType.OFFLINE,
                 attendanceResult,
                 locationAccuracy,
                 memberId,
@@ -88,7 +88,7 @@ public class AttendanceRecord extends BaseTimeEntity {
 
     public static AttendanceRecord absentRecord(Attendance attendance, Long memberId) {
         return new AttendanceRecord(
-            AttendanceRecordCreationType.NO_ATTEND,
+            AttendanceType.NO_ATTEND,
             AttendanceResult.ABSENT,
             null,
             memberId,
@@ -97,8 +97,8 @@ public class AttendanceRecord extends BaseTimeEntity {
         );
     }
 
-    public void updateAttendanceType(AttendanceRecordCreationType attendanceRecordCreationType) {
-        this.attendanceRecordCreationType = attendanceRecordCreationType;
+    public void updateAttendanceType(AttendanceType attendanceType) {
+        this.attendanceType = attendanceType;
     }
 
     public void updateLocationAccuracy(Double accuracy) {

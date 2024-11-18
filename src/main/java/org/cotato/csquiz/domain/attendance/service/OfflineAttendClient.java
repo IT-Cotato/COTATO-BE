@@ -11,7 +11,7 @@ import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.entity.AttendanceRecord;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
-import org.cotato.csquiz.domain.attendance.enums.AttendanceRecordCreationType;
+import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRecordRepository;
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,8 +27,8 @@ public class OfflineAttendClient implements AttendClient {
     private final AttendanceRecordRepository attendanceRecordRepository;
 
     @Override
-    public AttendanceRecordCreationType attendanceType() {
-        return AttendanceRecordCreationType.OFFLINE;
+    public AttendanceType attendanceType() {
+        return AttendanceType.OFFLINE;
     }
 
     @Override

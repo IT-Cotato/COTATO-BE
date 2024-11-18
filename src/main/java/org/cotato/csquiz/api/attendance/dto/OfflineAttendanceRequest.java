@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.csquiz.domain.attendance.embedded.Location;
-import org.cotato.csquiz.domain.attendance.enums.AttendanceRecordCreationType;
+import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
 
 @Getter
 @NoArgsConstructor
@@ -25,8 +25,8 @@ public class OfflineAttendanceRequest implements AttendanceParams {
     private Location location;
 
     @Override
-    public AttendanceRecordCreationType attendanceType() {
-        return AttendanceRecordCreationType.OFFLINE;
+    public AttendanceType attendanceType() {
+        return AttendanceType.OFFLINE;
     }
 
     @Override
