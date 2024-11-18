@@ -48,7 +48,6 @@ public class AttendanceRecordService {
     private final SessionRepository sessionRepository;
     private final MemberReader memberReader;
 
-
     public List<GenerationMemberAttendanceRecordResponse> generateAttendanceResponses(List<Attendance> attendances, Generation generation) {
         List<Long> attendanceIds = attendances.stream().map(Attendance::getId).toList();
 
@@ -59,9 +58,7 @@ public class AttendanceRecordService {
                 .sorted(Comparator.comparing(Member::getName))
                 .map(member -> GenerationMemberAttendanceRecordResponse.of(
                         member,
-                        AttendanceStatistic.of(recordsByMemberId.getOrDefault(member.getId(), List.of()),
-                                attendances.size()
-                        )
+                        AttendanceStatistic.of(recordsByMemberId.getOrDefault(member.getId(), List.of()), attendances.size())
                 ))
                 .toList();
     }
