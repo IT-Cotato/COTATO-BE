@@ -33,6 +33,7 @@ import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.service.component.MemberReader;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
+import org.cotato.csquiz.domain.generation.repository.GenerationMemberRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,7 +49,7 @@ public class AttendanceRecordService {
     private final RequestAttendanceService requestAttendanceService;
     private final SessionRepository sessionRepository;
     private final MemberReader memberReader;
-
+    private final GenerationMemberRepository generationMemberRepository;
 
     public List<GenerationMemberAttendanceRecordResponse> generateAttendanceResponses(List<Attendance> attendances, Generation generation) {
         List<Long> attendanceIds = attendances.stream().map(Attendance::getId).toList();
@@ -102,6 +103,9 @@ public class AttendanceRecordService {
 
         Session session = sessionRepository.findById(attendance.getSessionId())
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석에 대한 세션이 존재하지 않습니다."));
+        Member member = memberReader.findById(memberId);
+
+        checkIsGenerationMember(member, session.getGeneration());
 
         // 해당 출석에 출결 입력이 가능한지 확인하는 과정
         if (getAttendanceOpenStatus(session.getSessionDateTime(), attendance, request.requestTime())
@@ -116,6 +120,12 @@ public class AttendanceRecordService {
         }
 
         return requestAttendanceService.attend(request, session.getSessionDateTime(), memberId, attendance);
+    }
+
+    private void checkIsGenerationMember(Member member, Generation generation) {
+        if (!generationMemberRepository.existsByGenerationAndMember(generation, member)) {
+            throw new AppException(ErrorCode.ATTENDANCE_PERMISSION);
+        }
     }
 
     public MemberAttendanceRecordsResponse findAllRecordsBy(final Long generationId, final Long memberId) {

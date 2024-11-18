@@ -83,6 +83,7 @@ public enum ErrorCode {
     INVALID_ATTEND_TIME(HttpStatus.BAD_REQUEST, "AT-102", "시간 입력 범위가 잘못되었습니다."),
     ALREADY_ATTEND(HttpStatus.CONFLICT, "AT-301", "이미 해당 타입으로 출석한 기록이 있습니다."),
     ATTENDANCE_NOT_OPEN(HttpStatus.BAD_REQUEST, "AT-401", "출석 시간이 아닙니다."),
+    ATTENDANCE_PERMISSION(HttpStatus.BAD_REQUEST, "AT-402", "해당 기수의 부원이 아닙니다."),
 
     //프로젝트 관련
     LOGO_IMAGE_EXIST(HttpStatus.CONFLICT, "PJ-301", "이미 로고 이미지가 존재합니다."),
