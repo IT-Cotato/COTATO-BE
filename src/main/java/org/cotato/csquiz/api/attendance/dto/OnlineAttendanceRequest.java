@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import lombok.Getter;
-import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
+import org.cotato.csquiz.domain.attendance.enums.AttendanceRecordCreationType;
 
 @Getter
 @NotNull
@@ -18,8 +18,8 @@ public class OnlineAttendanceRequest implements AttendanceParams {
     private LocalDateTime requestTime;
 
     @Override
-    public AttendanceType attendanceType() {
-        return AttendanceType.ONLINE;
+    public AttendanceRecordCreationType attendanceType() {
+        return AttendanceRecordCreationType.ONLINE;
     }
 
     @Override

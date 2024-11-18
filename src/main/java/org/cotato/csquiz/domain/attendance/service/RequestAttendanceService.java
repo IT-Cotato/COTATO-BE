@@ -8,14 +8,14 @@ import java.util.stream.Collectors;
 import org.cotato.csquiz.api.attendance.dto.AttendResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceParams;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
-import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
+import org.cotato.csquiz.domain.attendance.enums.AttendanceRecordCreationType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class RequestAttendanceService {
 
-    private final Map<AttendanceType, AttendClient> clients;
+    private final Map<AttendanceRecordCreationType, AttendClient> clients;
 
     @Autowired
     public RequestAttendanceService(List<AttendClient> clients) {

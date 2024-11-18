@@ -15,7 +15,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
-import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
+import org.cotato.csquiz.domain.attendance.enums.AttendanceRecordCreationType;
 import org.cotato.csquiz.domain.auth.enums.MemberRoleGroup;
 import org.cotato.csquiz.domain.generation.entity.Session;
 
@@ -73,8 +73,8 @@ public class AttendanceExcelUtil {
         }
 
         headerRow.createCell(columnNumber++).setCellValue(AttendanceResult.PRESENT.getDescription());
-        headerRow.createCell(columnNumber++).setCellValue(AttendanceType.OFFLINE.getDescription());
-        headerRow.createCell(columnNumber++).setCellValue(AttendanceType.ONLINE.getDescription());
+        headerRow.createCell(columnNumber++).setCellValue(AttendanceRecordCreationType.OFFLINE.getDescription());
+        headerRow.createCell(columnNumber++).setCellValue(AttendanceRecordCreationType.ONLINE.getDescription());
         headerRow.createCell(columnNumber++).setCellValue(AttendanceResult.LATE.getDescription());
         headerRow.createCell(columnNumber).setCellValue(AttendanceResult.ABSENT.getDescription());
     }
