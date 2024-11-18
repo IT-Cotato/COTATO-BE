@@ -6,11 +6,13 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum AttendanceResult {
-    PRESENT("출석", "출석에 성공하셨습니다."),
-    LATE("지각", "기준 시간을 지나 지각 처리 되었습니다."),
-    ABSENT("결석", "지각 마감 시간을 지나 결석 처리 되었습니다.")
+    ONLINE("대면 출석", "대면으로 출석했습니다.", true),
+    OFFLINE("비대면 출석", "비대면으로 출석했습니다.", true),
+    LATE("지각", "기준 시간을 지나 지각 처리 되었습니다.", false),
+    ABSENT("결석", "지각 마감 시간을 지나 결석 처리 되었습니다.", false)
     ;
 
     private final String description;
     private final String message;
+    private final boolean isPresented;
 }
