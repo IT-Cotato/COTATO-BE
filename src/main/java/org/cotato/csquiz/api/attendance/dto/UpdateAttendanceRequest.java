@@ -7,6 +7,7 @@ public record UpdateAttendanceRequest(
         @NotNull
         Long attendanceId,
         Location location,
+        @NotNull
         AttendanceDeadLineDto attendTime
 ) {
     public static UpdateAttendanceRequest of(Long attendanceId, Location location, AttendanceDeadLineDto attendTime) {
