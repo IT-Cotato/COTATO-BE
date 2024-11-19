@@ -5,7 +5,7 @@ import lombok.Builder;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceOpenStatus;
 
 @Builder
-public record AttendanceResponse(
+public record AttendanceWithSessionResponse(
         Long sessionId,
         Long attendanceId,
         String sessionTitle,

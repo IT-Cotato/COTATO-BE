@@ -8,6 +8,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.api.attendance.dto.AttendanceResponse;
+import org.cotato.csquiz.api.attendance.dto.AttendanceWithSessionResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendancesResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceTimeResponse;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
@@ -44,8 +45,8 @@ public class AttendanceService {
 
         LocalDateTime currentTime = LocalDateTime.now();
 
-        List<AttendanceResponse> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds).stream()
-                .map(at -> AttendanceResponse.builder()
+        List<AttendanceWithSessionResponse> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds).stream()
+                .map(at -> AttendanceWithSessionResponse.builder()
                         .attendanceId(at.getId())
                         .sessionId(at.getSessionId())
                         .sessionTitle(sessionMap.get(at.getSessionId()).getTitle())
