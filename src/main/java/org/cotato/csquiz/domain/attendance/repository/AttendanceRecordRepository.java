@@ -20,4 +20,6 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
     List<AttendanceRecord> findAllByAttendanceIdsInQueryAndMemberId(@Param("attendanceIds") List<Long> attendanceIds, @Param("memberId") Long memberId);
   
     List<AttendanceRecord> findAllByAttendanceId(Long attendanceId);
+
+    List<AttendanceRecord> findAllByAttendanceIdAndMemberIdIn(Long id, List<Long> memberIds);
 }

@@ -5,35 +5,28 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.cotato.csquiz.domain.attendance.entity.AttendanceRecord;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
-import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
 
 public record AttendanceStatistic(
-        Integer online,
-        Integer offline,
-        Integer late,
-        Integer absent
+        long online,
+        long offline,
+        long late,
+        long absent
 ) {
-    public static AttendanceStatistic of(List<AttendanceRecord> attendanceRecords, Integer totalAttendance) {
-        Map<AttendanceResult, List<AttendanceRecord>> countByStatus = attendanceRecords.stream()
-                .collect(Collectors.groupingBy(AttendanceRecord::getAttendanceResult));
-        List<AttendanceRecord> presentRecords = countByStatus.getOrDefault(AttendanceResult.PRESENT, List.of());
+    private static final Long ZERO_VALUE = 0L;
 
-        int onlineCount = (int) presentRecords.stream()
-                .filter(record -> AttendanceType.ONLINE == record.getAttendanceType())
-                .count();
-        int offLineCount = (int) presentRecords.stream()
-                .filter(record -> AttendanceType.OFFLINE == record.getAttendanceType())
-                .count();
+    public static AttendanceStatistic of(List<AttendanceRecord> attendanceRecords, Integer totalAttendanceCount) {
+        Map<AttendanceResult, Long> attendanceRecordsByResult = attendanceRecords.stream()
+                .collect(Collectors.groupingBy(AttendanceRecord::getAttendanceResult, Collectors.counting()));
 
         return new AttendanceStatistic(
-                onlineCount,
-                offLineCount,
-                countByStatus.getOrDefault(AttendanceResult.LATE, List.of()).size(),
-                totalAttendance - filterNotAbsentRecord(attendanceRecords).size()
+                attendanceRecordsByResult.getOrDefault(AttendanceResult.ONLINE, ZERO_VALUE),
+                attendanceRecordsByResult.getOrDefault(AttendanceResult.OFFLINE, ZERO_VALUE),
+                attendanceRecordsByResult.getOrDefault(AttendanceResult.LATE, ZERO_VALUE),
+                totalAttendanceCount - countNotAbsents(attendanceRecords).size()
         );
     }
 
-    private static List<AttendanceRecord> filterNotAbsentRecord(List<AttendanceRecord> attendanceRecords) {
+    private static List<AttendanceRecord> countNotAbsents(List<AttendanceRecord> attendanceRecords) {
         return attendanceRecords.stream()
                 .filter(AttendanceRecord::isAttendanceResultNotAbsent)
                 .toList();
