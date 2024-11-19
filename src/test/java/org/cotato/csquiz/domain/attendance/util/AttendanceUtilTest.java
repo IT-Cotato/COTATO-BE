@@ -61,8 +61,8 @@ class AttendanceUtilTest {
     void 지각마감이_세션시작보다_빠를_수_없다() {
         //given
         LocalDateTime sessionStartTime = LocalDateTime.of(LocalDate.now(), LocalTime.of(15, 0));
-        LocalTime attendDeadline = LocalTime.of(19, 40, 0);
-        LocalTime lateDeadline = LocalTime.of(19, 20, 0);
+        LocalDateTime attendDeadline = LocalDateTime.of(LocalDate.now(), LocalTime.of(15, 40));
+        LocalDateTime lateDeadline = LocalDateTime.of(LocalDate.now(), LocalTime.of(15, 20));
 
         //when, then
         assertThatThrownBy(() -> AttendanceUtil.validateAttendanceTime(sessionStartTime, attendDeadline, lateDeadline))
@@ -76,8 +76,8 @@ class AttendanceUtilTest {
     void 지각마감보다_출석마감이_빠르다() {
         //given
         LocalDateTime sessionStartTime = LocalDateTime.of(LocalDate.now(), LocalTime.of(15, 0));
-        LocalTime attendDeadline = LocalTime.of(19, 40, 0);
-        LocalTime lateDeadline = LocalTime.of(19, 20, 0);
+        LocalDateTime attendDeadline = LocalDateTime.of(LocalDate.now(), LocalTime.of(15, 40));
+        LocalDateTime lateDeadline = LocalDateTime.of(LocalDate.now(), LocalTime.of(15, 20));
 
         //when, then
         assertThatThrownBy(() -> AttendanceUtil.validateAttendanceTime(sessionStartTime, attendDeadline, lateDeadline))

@@ -34,8 +34,10 @@ public record UpdateSessionRequest(
 ) {
     public UpdateSessionRequest {
         if (Objects.isNull(attendTime)) {
-            attendTime = new AttendanceDeadLineDto(DEFAULT_ATTENDANCE_DEADLINE.getTime(),
-                    DEFAULT_LATE_DEADLINE.getTime());
+            attendTime = new AttendanceDeadLineDto(
+                    LocalDateTime.of(sessionDateTime.toLocalDate(), DEFAULT_ATTENDANCE_DEADLINE.getTime()),
+                    LocalDateTime.of(sessionDateTime.toLocalDate(), DEFAULT_LATE_DEADLINE.getTime())
+            );
         }
     }
 }
