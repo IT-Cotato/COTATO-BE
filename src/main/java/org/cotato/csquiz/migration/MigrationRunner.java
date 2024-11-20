@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-@Profile({"dev", "prod"})
+@Profile({"stage", "prod"})
 @RequiredArgsConstructor
 public class MigrationRunner implements ApplicationRunner {
 

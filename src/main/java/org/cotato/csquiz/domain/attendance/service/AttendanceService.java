@@ -8,15 +8,18 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.api.attendance.dto.AttendanceResponse;
+import org.cotato.csquiz.api.attendance.dto.AttendanceWithSessionResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendancesResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceTimeResponse;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
+import org.cotato.csquiz.domain.attendance.service.component.AttendanceReader;
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.domain.generation.repository.GenerationRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
+import org.cotato.csquiz.domain.generation.service.component.SessionReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,9 +27,17 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AttendanceService {
 
+    private final AttendanceReader attendanceReader;
+    private final SessionReader sessionReader;
     private final AttendanceRepository attendanceRepository;
     private final SessionRepository sessionRepository;
     private final GenerationRepository generationRepository;
+
+    public AttendanceResponse getAttendance(final Long attendanceId) {
+        Attendance attendance = attendanceReader.findById(attendanceId);
+        Session session = sessionReader.findById(attendanceId);
+        return AttendanceResponse.of(attendance, session);
+    }
 
     @Transactional(readOnly = true)
     public AttendancesResponse findAttendancesByGenerationId(final Long generationId) {
@@ -44,8 +55,8 @@ public class AttendanceService {
 
         LocalDateTime currentTime = LocalDateTime.now();
 
-        List<AttendanceResponse> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds).stream()
-                .map(at -> AttendanceResponse.builder()
+        List<AttendanceWithSessionResponse> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds).stream()
+                .map(at -> AttendanceWithSessionResponse.builder()
                         .attendanceId(at.getId())
                         .sessionId(at.getSessionId())
                         .sessionTitle(sessionMap.get(at.getSessionId()).getTitle())

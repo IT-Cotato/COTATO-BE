@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.attendance.dto.AttendResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceRecordResponse;
+import org.cotato.csquiz.api.attendance.dto.AttendanceResponse;
 import org.cotato.csquiz.api.attendance.dto.GenerationMemberAttendanceRecordResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceTimeResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendancesResponse;
@@ -46,6 +47,12 @@ public class AttendanceController {
     private final AttendanceAdminService attendanceAdminService;
     private final AttendanceService attendanceService;
     private final AttendanceRecordService attendanceRecordService;
+
+    @Operation(summary = "출석 단건 조회")
+    @GetMapping("/{attendanceId}")
+    public ResponseEntity<AttendanceResponse> getAttendance(@PathVariable("attendanceId") Long attendanceId) {
+        return ResponseEntity.ok().body(attendanceService.getAttendance(attendanceId));
+    }
 
     @Operation(summary = "출석 정보 변경 API")
     @PatchMapping
