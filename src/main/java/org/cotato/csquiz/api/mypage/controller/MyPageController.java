@@ -2,7 +2,7 @@ package org.cotato.csquiz.api.mypage.controller;
 
 import org.cotato.csquiz.api.mypage.dto.HallOfFameResponse;
 import org.cotato.csquiz.common.config.jwt.JwtTokenProvider;
-import org.cotato.csquiz.domain.education.service.HallOfFameService;
+import org.cotato.csquiz.domain.education.service.MyPageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v1/api/mypage")
 public class MyPageController {
 
-    private final HallOfFameService hallOfFameService;
+    private final MyPageService myPageService;
     private final JwtTokenProvider jwtTokenProvider;
 
     @GetMapping("/hall-of-fame")
@@ -26,6 +26,6 @@ public class MyPageController {
                                                              @RequestHeader("Authorization") String authorizationHeader) {
         String accessToken = jwtTokenProvider.getBearer(authorizationHeader);
 
-        return ResponseEntity.ok(hallOfFameService.findHallOfFame(generationId, jwtTokenProvider.getMemberId(accessToken)));
+        return ResponseEntity.ok(myPageService.findHallOfFame(generationId, jwtTokenProvider.getMemberId(accessToken)));
     }
 }

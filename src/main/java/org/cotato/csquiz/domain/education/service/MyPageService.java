@@ -31,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Slf4j
-public class HallOfFameService {
+public class MyPageService {
 
     private static final int SHOW_PEOPLE_COUNT = 5;
     private final MemberService memberService;
