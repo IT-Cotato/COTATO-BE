@@ -7,6 +7,6 @@ import lombok.Builder;
 public record AttendancesResponse(
         Long generationId,
         Long generationNumber,
-        List<AttendanceResponse> attendances
+        List<AttendanceWithSessionResponse> attendances
 ) {
 }
