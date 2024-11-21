@@ -81,4 +81,18 @@ public class SseSender {
             throw new AppException(ErrorCode.SSE_SEND_FAIL);
         }
     }
+
+    public void sendEvents(Attendance attendance) {
+        Set<DataWithMediaType> data = SseEmitter.event()
+                .name(ATTENDANCE_STATUS)
+                .data(AttendanceStatusInfo.builder()
+                        .attendanceId(attendance.getId())
+                        .openStatus(AttendanceOpenStatus.OPEN)
+                        .build())
+                .build();
+        List<SseEmitter> sseEmitters = sseAttendanceRepository.findAll();
+        for (SseEmitter sseEmitter : sseEmitters) {
+            send(sseEmitter, data);
+        }
+    }
 }
