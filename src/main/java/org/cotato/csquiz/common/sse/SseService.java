@@ -1,7 +1,10 @@
 package org.cotato.csquiz.common.sse;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.cotato.csquiz.domain.attendance.entity.Attendance;
+import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -12,6 +15,7 @@ public class SseService {
 
     private static final Long DEFAULT_TIMEOUT = 60 * 1000 * 60L;
 
+    private final AttendanceRepository attendanceRepository;
     private final SseAttendanceRepository sseAttendanceRepository;
     private final SseSender sseSender;
 
@@ -36,5 +40,11 @@ public class SseService {
             log.info("---- [memberId]: {} on timeout callback ----", memberId);
             sseEmitter.complete();
         });
+    }
+
+    public void sendEvent(final Long attendanceId) {
+        Attendance attendance = attendanceRepository.findById(attendanceId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 출석을 찾을 수 없습니다."));
+        sseSender.sendEvents(attendance);
     }
 }
