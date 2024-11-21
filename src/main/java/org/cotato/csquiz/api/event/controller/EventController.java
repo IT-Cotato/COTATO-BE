@@ -31,7 +31,7 @@ public class EventController {
 
     @Operation(summary = "출결 이벤트 발송 API")
     @PostMapping("/attendances/{attendanceId}/test")
-    public ResponseEntity<Void> sendEvent(@PathVariable("attendanceId") Long attendanceId, @AuthenticationPrincipal Member member) {
+    public ResponseEntity<Void> sendEvent(@PathVariable("attendanceId") Long attendanceId) {
         sseService.sendEvent(attendanceId);
         return ResponseEntity.ok().build();
     }
