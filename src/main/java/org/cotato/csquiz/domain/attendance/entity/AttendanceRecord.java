@@ -15,7 +15,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.csquiz.common.entity.BaseTimeEntity;
-import org.cotato.csquiz.domain.attendance.enums.AttendanceRecordResult;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
 
@@ -89,7 +88,7 @@ public class AttendanceRecord extends BaseTimeEntity {
 
     public static AttendanceRecord absentRecord(Attendance attendance, Long memberId) {
         return new AttendanceRecord(
-            AttendanceType.ABSENT,
+            AttendanceType.NO_ATTEND,
             AttendanceResult.ABSENT,
             null,
             memberId,
@@ -110,26 +109,7 @@ public class AttendanceRecord extends BaseTimeEntity {
         this.attendanceResult = attendanceResult;
     }
 
-    public void updateByAttendanceRecordResult(AttendanceRecordResult result) {
-        switch (result) {
-            case ONLINE:
-                updateAttendanceType(AttendanceType.ONLINE);
-                updateAttendanceResult(AttendanceResult.PRESENT);
-                break;
-            case OFFLINE:
-                updateAttendanceType(AttendanceType.OFFLINE);
-                updateAttendanceResult(AttendanceResult.PRESENT);
-                break;
-            case ABSENT:
-                updateAttendanceType(AttendanceType.ABSENT);
-                updateAttendanceResult(AttendanceResult.ABSENT);
-                break;
-            case LATE:
-                updateAttendanceResult(AttendanceResult.LATE);
-        }
-    }
-
     public boolean isAttendanceResultNotAbsent() {
-        return attendanceResult != AttendanceResult.ABSENT;
+        return !attendanceResult.isPresented();
     }
 }

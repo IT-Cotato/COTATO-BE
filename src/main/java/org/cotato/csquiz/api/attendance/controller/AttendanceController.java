@@ -9,13 +9,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.attendance.dto.AttendResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceRecordResponse;
+import org.cotato.csquiz.api.attendance.dto.AttendanceResponse;
 import org.cotato.csquiz.api.attendance.dto.GenerationMemberAttendanceRecordResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceTimeResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendancesResponse;
 import org.cotato.csquiz.api.attendance.dto.MemberAttendanceRecordsResponse;
 import org.cotato.csquiz.api.attendance.dto.OfflineAttendanceRequest;
 import org.cotato.csquiz.api.attendance.dto.OnlineAttendanceRequest;
-import org.cotato.csquiz.api.attendance.dto.AttendanceRecordResponse;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRecordRequest;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
 import org.cotato.csquiz.domain.attendance.service.AttendanceAdminService;
@@ -47,6 +47,12 @@ public class AttendanceController {
     private final AttendanceAdminService attendanceAdminService;
     private final AttendanceService attendanceService;
     private final AttendanceRecordService attendanceRecordService;
+
+    @Operation(summary = "출석 단건 조회")
+    @GetMapping("/{attendanceId}")
+    public ResponseEntity<AttendanceResponse> getAttendance(@PathVariable("attendanceId") Long attendanceId) {
+        return ResponseEntity.ok().body(attendanceService.getAttendance(attendanceId));
+    }
 
     @Operation(summary = "출석 정보 변경 API")
     @PatchMapping

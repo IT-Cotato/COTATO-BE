@@ -14,17 +14,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.attendance.dto.AttendResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceParams;
-import org.cotato.csquiz.api.attendance.dto.GenerationMemberAttendanceRecordResponse;
+import org.cotato.csquiz.api.attendance.dto.AttendanceRecordResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceStatistic;
+import org.cotato.csquiz.api.attendance.dto.GenerationMemberAttendanceRecordResponse;
 import org.cotato.csquiz.api.attendance.dto.MemberAttendResponse;
 import org.cotato.csquiz.api.attendance.dto.MemberAttendanceRecordsResponse;
-import org.cotato.csquiz.api.attendance.dto.AttendanceRecordResponse;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.entity.AttendanceRecord;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceOpenStatus;
-import org.cotato.csquiz.domain.attendance.enums.AttendanceRecordResult;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRecordRepository;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
@@ -33,6 +32,7 @@ import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.service.component.MemberReader;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
+import org.cotato.csquiz.domain.generation.repository.GenerationMemberRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,7 +48,7 @@ public class AttendanceRecordService {
     private final RequestAttendanceService requestAttendanceService;
     private final SessionRepository sessionRepository;
     private final MemberReader memberReader;
-
+    private final GenerationMemberRepository generationMemberRepository;
 
     public List<GenerationMemberAttendanceRecordResponse> generateAttendanceResponses(List<Attendance> attendances, Generation generation) {
         List<Long> attendanceIds = attendances.stream().map(Attendance::getId).toList();
@@ -60,39 +60,22 @@ public class AttendanceRecordService {
                 .sorted(Comparator.comparing(Member::getName))
                 .map(member -> GenerationMemberAttendanceRecordResponse.of(
                         member,
-                        AttendanceStatistic.of(recordsByMemberId.getOrDefault(member.getId(), List.of()),
-                                attendances.size()
-                        )
+                        AttendanceStatistic.of(recordsByMemberId.getOrDefault(member.getId(), List.of()), attendances.size())
                 ))
                 .toList();
     }
 
-    public List<AttendanceRecordResponse> generateSingleAttendanceResponses(Attendance attendance,
-                                                                            Generation generation) {
-        Map<Long, AttendanceRecord> recordByMemberId = attendanceRecordRepository.findAllByAttendanceId(
-                        attendance.getId())
-                .stream()
-                .collect(Collectors.toMap(
-                        AttendanceRecord::getMemberId,
-                        Function.identity()
-                ));
-        return memberReader.findAllGenerationMember(generation).stream()
-                .sorted(Comparator.comparing(Member::getName))
-                .map(member -> AttendanceRecordResponse.of(
-                        member,
-                        attendanceRecordToRecordResult(recordByMemberId.getOrDefault(member.getId(), null))
-                ))
-                .toList();
-    }
+    public List<AttendanceRecordResponse> generateSingleAttendanceResponses(Attendance attendance, Generation generation) {
+        Map<Long, Member> memberById =  memberReader.findAllGenerationMember(generation).stream()
+                .collect(Collectors.toMap(Member::getId, Function.identity()));
 
-    //AttendanceRecord의 출석정보가 AttendanceRecordResult로 바뀌면 로직 수정 TODO
-    private AttendanceRecordResult attendanceRecordToRecordResult(AttendanceRecord record) {
-        if (record == null){
-            return AttendanceRecordResult.ABSENT;
-        }
-        return AttendanceRecordResult.convertWithTypeAndResult(
-                record.getAttendanceType(),
-                record.getAttendanceResult());
+        Map<Long, AttendanceResult> attendanceResultByMemberId = attendanceRecordRepository.findAllByAttendanceIdAndMemberIdIn(
+                        attendance.getId(), memberById.keySet().stream().toList()).stream()
+                .collect(Collectors.toMap(AttendanceRecord::getMemberId, AttendanceRecord::getAttendanceResult));
+
+        return memberById.keySet().stream()
+                .map(memberId -> AttendanceRecordResponse.of(memberById.get(memberId), attendanceResultByMemberId.getOrDefault(memberId, null)))
+                .toList();
     }
 
     @Transactional
@@ -102,6 +85,9 @@ public class AttendanceRecordService {
 
         Session session = sessionRepository.findById(attendance.getSessionId())
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석에 대한 세션이 존재하지 않습니다."));
+        Member member = memberReader.findById(memberId);
+
+        checkIsGenerationMember(member, session.getGeneration());
 
         // 해당 출석에 출결 입력이 가능한지 확인하는 과정
         if (getAttendanceOpenStatus(session.getSessionDateTime(), attendance, request.requestTime())
@@ -116,6 +102,12 @@ public class AttendanceRecordService {
         }
 
         return requestAttendanceService.attend(request, session.getSessionDateTime(), memberId, attendance);
+    }
+
+    private void checkIsGenerationMember(Member member, Generation generation) {
+        if (!generationMemberRepository.existsByGenerationAndMember(generation, member)) {
+            throw new AppException(ErrorCode.ATTENDANCE_PERMISSION);
+        }
     }
 
     public MemberAttendanceRecordsResponse findAllRecordsBy(final Long generationId, final Long memberId) {

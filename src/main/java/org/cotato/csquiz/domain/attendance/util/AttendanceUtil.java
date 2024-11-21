@@ -46,8 +46,8 @@ public class AttendanceUtil {
         return AttendanceOpenStatus.ABSENT;
     }
 
-    public static void validateAttendanceTime(LocalDateTime sessionStartTime, LocalTime attendDeadLine, LocalTime lateDeadLine) {
-        if (!sessionStartTime.toLocalTime().isBefore(attendDeadLine)) {
+    public static void validateAttendanceTime(LocalDateTime sessionStartTime, LocalDateTime attendDeadLine, LocalDateTime lateDeadLine) {
+        if (!sessionStartTime.isBefore(attendDeadLine)) {
             throw new AppException(ErrorCode.INVALID_ATTEND_TIME);
         }
 
