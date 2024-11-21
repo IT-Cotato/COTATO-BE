@@ -59,10 +59,10 @@ public class Member extends BaseTimeEntity {
     @Column(name = "member_profile_image")
     private S3Info profileImage;
 
-    @Column(name = "introduction", length = 200)
+    @Column(name = "introduction")
     private String introduction;
 
-    @Column(name = "university", length = 50)
+    @Column(name = "university")
     private String university;
 
     @Builder
