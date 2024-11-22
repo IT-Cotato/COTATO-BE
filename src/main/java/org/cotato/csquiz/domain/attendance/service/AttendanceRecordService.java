@@ -101,7 +101,7 @@ public class AttendanceRecordService {
             throw new AppException(ErrorCode.ALREADY_ATTEND);
         }
 
-        return requestAttendanceService.attend(request, session.getSessionDateTime(), memberId, attendance);
+        return requestAttendanceService.attend(request, session, memberId, attendance);
     }
 
     private void checkIsGenerationMember(Member member, Generation generation) {
@@ -146,12 +146,12 @@ public class AttendanceRecordService {
     }
 
     @Transactional
-    public void updateAttendanceStatus(LocalDateTime sessionStartTime, Attendance attendance) {
+    public void updateAttendanceStatus(Session session, Attendance attendance) {
         List<AttendanceRecord> attendanceRecords = attendanceRecordRepository.findAllByAttendanceId(attendance.getId());
 
         for (AttendanceRecord attendanceRecord : attendanceRecords) {
-            AttendanceResult attendanceResult = AttendanceUtil.calculateAttendanceStatus(sessionStartTime, attendance,
-                    attendanceRecord.getAttendTime());
+            AttendanceResult attendanceResult = AttendanceUtil.calculateAttendanceStatus(session, attendance,
+                    attendanceRecord.getAttendTime(), attendanceRecord.getAttendanceType());
             attendanceRecord.updateAttendanceResult(attendanceResult);
         }
 

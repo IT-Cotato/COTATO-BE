@@ -88,7 +88,7 @@ public class AttendanceAdminService {
                 attendanceDeadLine.lateDeadLine());
         attendance.updateLocation(location);
 
-        attendanceRecordService.updateAttendanceStatus(attendanceSession.getSessionDateTime(), attendance);
+        attendanceRecordService.updateAttendanceStatus(attendanceSession, attendance);
     }
 
     @Transactional

@@ -10,6 +10,7 @@ import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRecordRepository;
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
+import org.cotato.csquiz.domain.generation.entity.Session;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -24,8 +25,8 @@ public class OnlineAttendClient implements AttendClient {
     }
 
     @Override
-    public AttendResponse request(AttendanceParams params, LocalDateTime sessionStartTime, Long memberId, Attendance attendance) {
-        AttendanceResult attendanceResult = AttendanceUtil.calculateAttendanceStatus(sessionStartTime, attendance, params.requestTime());
+    public AttendResponse request(AttendanceParams params, Session session, Long memberId, Attendance attendance) {
+        AttendanceResult attendanceResult = AttendanceUtil.calculateAttendanceStatus(session, attendance, params.requestTime(), attendanceType());
 
         attendanceRecordRepository.save(AttendanceRecord.onLineRecord(attendance, memberId, attendanceResult, params.requestTime()));
 
