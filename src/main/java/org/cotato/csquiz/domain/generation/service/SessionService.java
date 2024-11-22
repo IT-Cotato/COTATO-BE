@@ -2,7 +2,6 @@ package org.cotato.csquiz.domain.generation.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -138,7 +137,7 @@ public class SessionService {
         attendance.updateDeadLine(attendanceDeadline, lateDeadline);
 
         attendanceRepository.save(attendance);
-        attendanceRecordService.updateAttendanceStatus(newDateTime, attendance);
+        attendanceRecordService.updateAttendanceStatus(session, attendance);
     }
 
     public List<SessionListResponse> findSessionsByGenerationId(Long generationId) {

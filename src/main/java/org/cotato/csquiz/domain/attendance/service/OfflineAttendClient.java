@@ -14,6 +14,7 @@ import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRecordRepository;
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
+import org.cotato.csquiz.domain.generation.entity.Session;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -32,10 +33,10 @@ public class OfflineAttendClient implements AttendClient {
     }
 
     @Override
-    public AttendResponse request(AttendanceParams params, LocalDateTime sessionStartTime, Long memberId, Attendance attendance) {
+    public AttendResponse request(AttendanceParams params, Session session, Long memberId, Attendance attendance) {
         OfflineAttendanceRequest request = (OfflineAttendanceRequest) params;
 
-        AttendanceResult attendanceResult = AttendanceUtil.calculateAttendanceStatus(sessionStartTime, attendance, params.requestTime());
+        AttendanceResult attendanceResult = AttendanceUtil.calculateAttendanceStatus(session, attendance, params.requestTime(),attendanceType());
 
         log.info("[출결 위치 로그: 위도 {}, 경도 {}]", request.getLocation().getLatitude(), request.getLocation().getLongitude());
         Double accuracy = attendance.getLocation().calculateAccuracy(request.getLocation());
