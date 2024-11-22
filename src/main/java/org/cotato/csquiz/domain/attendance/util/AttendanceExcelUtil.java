@@ -21,6 +21,7 @@ import org.cotato.csquiz.domain.generation.entity.Session;
 
 public class AttendanceExcelUtil {
 
+    private static final String PRESENT = "출석";
     private static final int DEFAULT_TOTAL_ATTENDANCE = 0;
     private static final int DEFAULT_TOTAL_OFFLINE = 0;
     private static final int DEFAULT_TOTAL_ONLINE = 0;
@@ -72,7 +73,7 @@ public class AttendanceExcelUtil {
             headerRow.createCell(columnNumber++).setCellValue(columnName);
         }
 
-        headerRow.createCell(columnNumber++).setCellValue(AttendanceResult.PRESENT.getDescription());
+        headerRow.createCell(columnNumber++).setCellValue(PRESENT);
         headerRow.createCell(columnNumber++).setCellValue(AttendanceType.OFFLINE.getDescription());
         headerRow.createCell(columnNumber++).setCellValue(AttendanceType.ONLINE.getDescription());
         headerRow.createCell(columnNumber++).setCellValue(AttendanceResult.LATE.getDescription());

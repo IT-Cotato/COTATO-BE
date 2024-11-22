@@ -1,24 +1,26 @@
 package org.cotato.csquiz.domain.attendance.util;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceOpenStatus;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
+import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
+import org.cotato.csquiz.domain.generation.entity.Session;
 
 public class AttendanceUtil {
     // 출석 시간에 따른 지각 여부 구분하기
-    public static AttendanceResult calculateAttendanceStatus(LocalDateTime sessionDateTime, Attendance attendance,
-                                                             LocalDateTime attendTime) {
+    public static AttendanceResult calculateAttendanceStatus(Session session, Attendance attendance,
+                                                             LocalDateTime attendTime, AttendanceType attendanceType) {
+        LocalDateTime sessionDateTime = session.getSessionDateTime();
         // 입력한 날짜와 세션 날짜가 다르거나, 시작 전이라면
         if (!attendTime.toLocalDate().equals(sessionDateTime.toLocalDate()) || attendTime.isBefore(sessionDateTime)) {
             throw new AppException(ErrorCode.ATTENDANCE_NOT_OPEN);
         }
 
         if (attendTime.isAfter(sessionDateTime) && attendTime.isBefore(attendance.getAttendanceDeadLine())) {
-            return AttendanceResult.PRESENT;
+            return AttendanceResult.getAttendanceResult(attendanceType);
         }
         if (attendTime.isBefore(attendance.getLateDeadLine())) {
             return AttendanceResult.LATE;

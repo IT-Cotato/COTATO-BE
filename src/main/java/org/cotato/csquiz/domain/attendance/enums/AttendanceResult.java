@@ -6,7 +6,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum AttendanceResult {
-    PRESENT("출석", "출석", true), // Todo https://youthing.atlassian.net/jira/software/projects/COT/boards/2?selectedIssue=COT-64&sprints=3
     ONLINE("대면 출석", "대면으로 출석했습니다.", true),
     OFFLINE("비대면 출석", "비대면으로 출석했습니다.", true),
     LATE("지각", "기준 시간을 지나 지각 처리 되었습니다.", false),
@@ -16,4 +15,16 @@ public enum AttendanceResult {
     private final String description;
     private final String message;
     private final boolean isPresented;
+
+    public static AttendanceResult getAttendanceResult(AttendanceType attendanceType) {
+        switch (attendanceType) {
+            case ONLINE -> {
+                return ONLINE;
+            }
+            case OFFLINE -> {
+                return OFFLINE;
+            }
+        }
+        return ABSENT;
+    }
 }
