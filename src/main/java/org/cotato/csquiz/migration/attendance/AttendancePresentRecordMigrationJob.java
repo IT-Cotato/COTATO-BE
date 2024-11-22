@@ -20,7 +20,7 @@ public class AttendancePresentRecordMigrationJob implements MigrationJob {
     @Transactional
     public void migrate() {
         List<AttendanceRecord> presentRecords = attendanceRecordRepository.findAll().stream()
-                .filter(record -> record.getAttendanceResult() == AttendanceResult.PRESENT)
+//                .filter(record -> record.getAttendanceResult() == AttendanceResult.PRESENT) // migration 완료로 인한 주석 처리
                 .collect(Collectors.toList());
 
         presentRecords.forEach(record -> {
