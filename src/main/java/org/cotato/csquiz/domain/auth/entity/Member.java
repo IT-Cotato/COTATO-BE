@@ -59,6 +59,12 @@ public class Member extends BaseTimeEntity {
     @Column(name = "member_profile_image")
     private S3Info profileImage;
 
+    @Column(name = "introduction", columnDefinition = "TEXT")
+    private String introduction;
+
+    @Column(name = "university")
+    private String university;
+
     @Builder
     public Member(String email, String password, String name, String phoneNumber) {
         this.email = email;
@@ -89,5 +95,13 @@ public class Member extends BaseTimeEntity {
 
     public void updateProfileImage(S3Info s3Info) {
         this.profileImage = s3Info;
+    }
+
+    public void updateIntroduction(String introduction) {
+        this.introduction = introduction;
+    }
+
+    public void updateUniversity(String university) {
+        this.university = university;
     }
 }

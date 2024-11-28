@@ -22,13 +22,13 @@ public record AttendanceStatistic(
                 attendanceRecordsByResult.getOrDefault(AttendanceResult.ONLINE, ZERO_VALUE),
                 attendanceRecordsByResult.getOrDefault(AttendanceResult.OFFLINE, ZERO_VALUE),
                 attendanceRecordsByResult.getOrDefault(AttendanceResult.LATE, ZERO_VALUE),
-                totalAttendanceCount - countNotAbsents(attendanceRecords).size()
+                totalAttendanceCount - getPresentCount(attendanceRecords)
         );
     }
 
-    private static List<AttendanceRecord> countNotAbsents(List<AttendanceRecord> attendanceRecords) {
+    private static long getPresentCount(List<AttendanceRecord> attendanceRecords) {
         return attendanceRecords.stream()
-                .filter(AttendanceRecord::isAttendanceResultNotAbsent)
-                .toList();
+                .filter(AttendanceRecord::isPresent)
+                .count();
     }
 }
