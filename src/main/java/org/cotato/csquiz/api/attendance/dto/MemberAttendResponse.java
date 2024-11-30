@@ -1,6 +1,7 @@
 package org.cotato.csquiz.api.attendance.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.time.LocalDateTime;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.entity.AttendanceRecord;
@@ -11,11 +12,11 @@ import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
 import org.cotato.csquiz.domain.generation.entity.Session;
 
 public record MemberAttendResponse(
-        @Schema(description = "세션 PK")
+        @Schema(description = "세션 PK", requiredMode = RequiredMode.REQUIRED)
         Long sessionId,
-        @Schema(description = "출석 PK")
+        @Schema(description = "출석 PK", requiredMode = RequiredMode.REQUIRED)
         Long attendanceId,
-        @Schema(description = "멤버 PK")
+        @Schema(description = "멤버 PK", requiredMode = RequiredMode.REQUIRED)
         Long memberId,
         @Schema(description = "세션 타이틀", example = "3주차 세션")
         String sessionTitle,
@@ -25,9 +26,9 @@ public record MemberAttendResponse(
                 "CLOSED", "OPEN"
         })
         AttendanceOpenStatus openStatus,
-        @Schema(description = "출결 형식", nullable = true)
+        @Schema(description = "출결 형식", nullable = true, requiredMode = RequiredMode.NOT_REQUIRED)
         AttendanceType attendanceType,
-        @Schema(description = "마감된 출석에 대한 출결 결과", nullable = true)
+        @Schema(description = "마감된 출석에 대한 출결 결과", nullable = true, requiredMode = RequiredMode.NOT_REQUIRED)
         AttendanceResult result
 ) {
     public static MemberAttendResponse unrecordedAttendance(Session session, Attendance attendance, Long memberId) {
