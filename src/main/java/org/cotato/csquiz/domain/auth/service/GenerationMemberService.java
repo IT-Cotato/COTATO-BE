@@ -27,8 +27,7 @@ public class GenerationMemberService {
     @Transactional
     public void addGenerationMember(Long generationId, List<Long> memberIds) {
         Generation generation = generationReader.findById(generationId);
-        List<Member> members = memberReader.findAllByIds(memberIds);
-
+        List<Member> members = memberReader.validateAndFindAllByIds(memberIds);
         if (generationMemberReader.existsByGenerationIdAndMemberIn(generation, members)) {
             throw new AppException(ErrorCode.GENERATION_MEMBER_EXIST);
         }
