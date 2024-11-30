@@ -29,7 +29,7 @@ public class CurrentGenerationMemberMigration implements MigrationJob {
                 .orElseThrow(() -> new IllegalStateException("해당 기수가 존재하지 않습니다."));
 
         List<GenerationMember> currentGenerationMembers = memberService.findActiveMember().stream()
-                .map(member -> GenerationMember.migrate(generation, member))
+                .map(member -> GenerationMember.of(generation, member))
                 .toList();
 
         generationMemberRepository.saveAll(currentGenerationMembers);
