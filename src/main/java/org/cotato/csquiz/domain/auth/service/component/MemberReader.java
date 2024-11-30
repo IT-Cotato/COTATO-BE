@@ -30,7 +30,7 @@ public class MemberReader {
                 .toList();
     }
 
-    public List<Member> validateAndFindAllByIds(List<Long> memberIds) {
+    public List<Member> findAllByIdsInWithValidation(List<Long> memberIds) {
         List<Member> members = memberRepository.findAllById(memberIds);
         if (members.size() != memberIds.size()) {
             throw new EntityNotFoundException("일부 부원이 존재하지 않습니다");
