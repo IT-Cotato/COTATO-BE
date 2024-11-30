@@ -2,6 +2,7 @@ package org.cotato.csquiz.domain.generation.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
 
 @Getter
 @RequiredArgsConstructor
@@ -14,4 +15,30 @@ public enum SessionType {
 
     private final String description;
     private final boolean createAttendance;
+
+    public static SessionType getSessionType(boolean isOffline, boolean isOnline) {
+        if (isOffline && isOnline) {
+            return ALL;
+        }
+        if (!isOffline && isOnline) {
+            return ONLINE;
+        }
+        if (isOffline) {
+            return OFFLINE;
+        }
+        return NO_ATTEND;
+    }
+
+    public boolean isSameType(AttendanceType attendanceType) {
+        if (attendanceType == null) {
+            return false;
+        }
+
+        return switch (attendanceType) {
+            case OFFLINE -> this == OFFLINE || this == ALL;
+            case ONLINE -> this == ONLINE || this == ALL;
+            default -> false;
+        };
+    }
+
 }
