@@ -4,7 +4,9 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 public record CreateGenerationMemberRequest(
-        @NotNull(message = "요청 리스트를 입력해주세요")
-        List<CreateGenerationMember> members
+        @NotNull(message = "기수를 입력해 주세요")
+        Long generationId,
+        @NotNull(message = "멤버 pk를 입력해 주세요")
+        List<Long> memberIds
 ) {
 }

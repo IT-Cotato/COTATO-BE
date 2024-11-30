@@ -10,4 +10,6 @@ public interface GenerationMemberRepository extends JpaRepository<GenerationMemb
     List<GenerationMember> findAllByGeneration(Generation generation);
 
     boolean existsByGenerationAndMember(Generation generation, Member member);
+
+    boolean existsByGenerationAndMemberIn(Generation generation, List<Member> member);
 }

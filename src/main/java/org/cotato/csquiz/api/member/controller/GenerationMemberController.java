@@ -23,7 +23,7 @@ public class GenerationMemberController {
 
     @PostMapping
     public ResponseEntity<Void> addGenerationMember(@RequestBody @Valid CreateGenerationMemberRequest request) {
-        generationMemberService.addGenerationMember(request.members());
+        generationMemberService.addGenerationMember(request.generationId(), request.memberIds());
         return ResponseEntity.noContent().build();
     }
 

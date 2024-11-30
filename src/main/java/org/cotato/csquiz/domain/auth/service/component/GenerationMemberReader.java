@@ -1,6 +1,7 @@
 package org.cotato.csquiz.domain.auth.service.component;
 
 import jakarta.persistence.EntityNotFoundException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.generation.entity.Generation;
@@ -16,8 +17,8 @@ public class GenerationMemberReader {
 
     private final GenerationMemberRepository generationMemberRepository;
 
-    public boolean isExist(Generation generation, Member member) {
-        return generationMemberRepository.existsByGenerationAndMember(generation, member);
+    public boolean existsByGenerationIdAndMemberIn(Generation generation, List<Member> members) {
+        return generationMemberRepository.existsByGenerationAndMemberIn(generation, members);
     }
 
     public GenerationMember findById(Long id) {

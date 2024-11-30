@@ -2,7 +2,6 @@ package org.cotato.csquiz.domain.auth.service;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.cotato.csquiz.api.member.dto.CreateGenerationMember;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.auth.entity.Member;
@@ -26,21 +25,18 @@ public class GenerationMemberService {
     private final GenerationReader generationReader;
 
     @Transactional
-    public void addGenerationMember(List<CreateGenerationMember> createGenerationMembers) {
-        List<GenerationMember> newGenerationMembers = createGenerationMembers.stream()
-                .map(this::buildGenerationMember)
-                .toList();
-        generationMemberRepository.saveAll(newGenerationMembers);
-    }
+    public void addGenerationMember(Long generationId, List<Long> memberIds) {
+        Generation generation = generationReader.findById(generationId);
+        List<Member> members = memberReader.findAllByIds(memberIds);
 
-    private GenerationMember buildGenerationMember(CreateGenerationMember createGenerationMember) {
-        Member member = memberReader.findById(createGenerationMember.memberId());
-        Generation generation = generationReader.findById(createGenerationMember.generationId());
-
-        if (generationMemberReader.isExist(generation, member)) {
+        if (generationMemberReader.existsByGenerationIdAndMemberIn(generation, members)) {
             throw new AppException(ErrorCode.GENERATION_MEMBER_EXIST);
         }
-        return GenerationMember.of(generation, member);
+
+        List<GenerationMember> newGenerationMembers = members.stream()
+                .map(member -> GenerationMember.of(generation, member))
+                .toList();
+        generationMemberRepository.saveAll(newGenerationMembers);
     }
 
     @Transactional
