@@ -82,10 +82,12 @@ public class SessionService {
             sessionImageService.addSessionImages(request.images(), savedSession);
         }
 
-        attendanceAdminService.addAttendance(session, Location.location(request.latitude(), request.longitude()),
-                request.attendanceDeadLine(), request.lateDeadLine());
-        schedulerService.scheduleSessionNotification(savedSession.getSessionDateTime());
-        schedulerService.scheduleAbsentRecords(savedSession.getSessionDateTime(), savedSession.getId());
+        if (sessionType.isCreateAttendance()) {
+            attendanceAdminService.addAttendance(session, Location.location(request.latitude(), request.longitude()),
+                    request.attendanceDeadLine(), request.lateDeadLine());
+            schedulerService.scheduleSessionNotification(savedSession.getSessionDateTime());
+            schedulerService.scheduleAbsentRecords(savedSession.getSessionDateTime(), savedSession.getId());
+        }
 
         return AddSessionResponse.from(savedSession);
     }
