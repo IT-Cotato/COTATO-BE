@@ -37,9 +37,9 @@ public class GenerationMemberService {
         generationMemberRepository.save(GenerationMember.of(generation, member));
     }
 
-    private void checkGenerationMemberExist(Generation generation, Member member) {
-        if (generationMemberRepository.existsByGenerationAndMember(generation, member)) {
-            throw new AppException(ErrorCode.GENERATION_MEMBER_EXIST);
-        }
+    @Transactional
+    public void updateGenerationMemberRole(Long generationMemberId, MemberRole memberRole) {
+        GenerationMember generationMember = generationMemberReader.findById(generationMemberId);
+        generationMember.updateMemberRole(memberRole);
     }
 }

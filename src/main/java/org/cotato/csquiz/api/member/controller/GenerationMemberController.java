@@ -8,6 +8,7 @@ import org.cotato.csquiz.api.member.dto.CreateGenerationMemberRequest;
 import org.cotato.csquiz.api.member.dto.UpdateGenerationMemberRoleRequest;
 import org.cotato.csquiz.domain.auth.service.GenerationMemberService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +26,13 @@ public class GenerationMemberController {
     @PostMapping
     public ResponseEntity<Void> addGenerationMember(@Valid @RequestBody CreateGenerationMemberRequest request) {
         generationMemberService.addGenerationMember(request.memberId(), request.generationId());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping
+    public ResponseEntity<Void> updateGenerationMemberRole(
+            @Valid @RequestBody UpdateGenerationMemberRoleRequest request) {
+        generationMemberService.updateGenerationMemberRole(request.generationMemberId(), request.role());
         return ResponseEntity.noContent().build();
     }
 }
