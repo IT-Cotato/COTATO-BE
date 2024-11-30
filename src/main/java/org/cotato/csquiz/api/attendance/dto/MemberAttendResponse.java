@@ -24,11 +24,11 @@ public record MemberAttendResponse(
         @Schema(description = "출결 진행 여부", examples = {
                 "CLOSED", "OPEN"
         })
-        AttendanceOpenStatus isOpened,
+        AttendanceOpenStatus openStatus,
         @Schema(description = "출결 형식", nullable = true)
         AttendanceType attendanceType,
         @Schema(description = "마감된 출석에 대한 출결 결과", nullable = true)
-        AttendanceResult attendanceResult
+        AttendanceResult result
 ) {
     public static MemberAttendResponse unrecordedAttendance(Session session, Attendance attendance, Long memberId) {
         return new MemberAttendResponse(

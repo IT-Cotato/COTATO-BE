@@ -4,6 +4,6 @@ import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 
 public record UpdateAttendanceRecordRequest(
         Long memberId,
-        AttendanceResult attendanceResult
+        AttendanceResult result
 ) {
 }
