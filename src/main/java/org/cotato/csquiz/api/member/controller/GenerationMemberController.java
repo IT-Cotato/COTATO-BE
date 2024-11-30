@@ -22,14 +22,14 @@ public class GenerationMemberController {
     private final GenerationMemberService generationMemberService;
 
     @PostMapping
-    public ResponseEntity<Void> addGenerationMember(@Valid @RequestBody CreateGenerationMemberRequest request) {
-        generationMemberService.addGenerationMember(request.memberId(), request.generationId());
+    public ResponseEntity<Void> addGenerationMember(@RequestBody @Valid CreateGenerationMemberRequest request) {
+        generationMemberService.addGenerationMember(request.members());
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping
     public ResponseEntity<Void> updateGenerationMemberRole(
-            @Valid @RequestBody UpdateGenerationMemberRoleRequest request) {
+            @RequestBody @Valid UpdateGenerationMemberRoleRequest request) {
         generationMemberService.updateGenerationMemberRole(request.generationMemberId(), request.role());
         return ResponseEntity.noContent().build();
     }

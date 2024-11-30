@@ -1,7 +1,8 @@
 package org.cotato.csquiz.domain.auth.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.cotato.csquiz.api.member.dto.CreateGenerationMember;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.auth.entity.Member;
@@ -16,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class GenerationMemberService {
 
@@ -26,14 +26,21 @@ public class GenerationMemberService {
     private final GenerationReader generationReader;
 
     @Transactional
-    public void addGenerationMember(Long memberId, Long generationId) {
-        Member member = memberReader.findById(memberId);
-        Generation generation = generationReader.findById(generationId);
+    public void addGenerationMember(List<CreateGenerationMember> createGenerationMembers) {
+        List<GenerationMember> newGenerationMembers = createGenerationMembers.stream()
+                .map(this::buildGenerationMember)
+                .toList();
+        generationMemberRepository.saveAll(newGenerationMembers);
+    }
+
+    private GenerationMember buildGenerationMember(CreateGenerationMember createGenerationMember) {
+        Member member = memberReader.findById(createGenerationMember.memberId());
+        Generation generation = generationReader.findById(createGenerationMember.generationId());
 
         if (generationMemberReader.isExist(generation, member)) {
             throw new AppException(ErrorCode.GENERATION_MEMBER_EXIST);
         }
-        generationMemberRepository.save(GenerationMember.of(generation, member));
+        return GenerationMember.of(generation, member);
     }
 
     @Transactional
