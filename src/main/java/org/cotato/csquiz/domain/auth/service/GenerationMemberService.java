@@ -15,7 +15,6 @@ import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
