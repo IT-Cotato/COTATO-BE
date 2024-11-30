@@ -45,6 +45,9 @@ public enum ErrorCode {
     GENERATION_NUMBER_DUPLICATED(HttpStatus.CONFLICT, "G-201", "같은 숫자의 기수가 있습니다"),
     SESSION_DATE_NOT_FOUND(HttpStatus.NOT_FOUND, "G-202", "세션 날짜가 존재하지 않습니다"),
 
+    //기수별 활동 부원 도메인
+    GENERATION_MEMBER_EXIST(HttpStatus.CONFLICT, "GM-301", "일부 부원이 해당 기수에 활동부원입니다"),
+
     // 교육 도메인
     REGRADE_FAIL(HttpStatus.BAD_REQUEST, "E-201", "재채점 할 기록이 없습니다."),
     EDUCATION_DUPLICATED(HttpStatus.CONFLICT, "E-301", "이미 교육이 존재합니다"),
