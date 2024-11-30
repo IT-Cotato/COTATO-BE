@@ -28,6 +28,7 @@ import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.domain.generation.entity.SessionImage;
 import org.cotato.csquiz.domain.generation.enums.CSEducation;
+import org.cotato.csquiz.domain.generation.enums.SessionType;
 import org.cotato.csquiz.domain.generation.repository.GenerationRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionImageRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
@@ -58,12 +59,14 @@ public class SessionService {
         int sessionNumber = calculateLastSessionNumber(findGeneration);
         log.info("해당 기수에 추가된 마지막 세션 : {}", sessionNumber);
 
+        SessionType sessionType = SessionType.getSessionType(request.isOffline(), request.isOnline());
         Session session = Session.builder()
                 .number(sessionNumber + 1)
                 .description(request.description())
                 .generation(findGeneration)
                 .title(request.title())
                 .placeName(request.placeName())
+                .sessionType(sessionType)
                 .sessionDateTime(request.sessionDateTime())
                 .sessionContents(SessionContents.builder()
                         .csEducation(request.csEducation())
