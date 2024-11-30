@@ -108,6 +108,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST, "/v2/api/projects").hasRole("ADMIN")
                                 .requestMatchers(HttpMethod.POST, "v2/api/projects/images").hasRole("ADMIN")
                                 .requestMatchers(HttpMethod.GET, "/v2/api/projects/**").permitAll()
+                                .requestMatchers("/v2/api/generation-member/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 );
         return http.build();

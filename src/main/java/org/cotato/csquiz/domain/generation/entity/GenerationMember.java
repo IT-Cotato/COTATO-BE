@@ -50,7 +50,7 @@ public class GenerationMember extends BaseTimeEntity {
     }
 
     public static GenerationMember of(Generation generation, Member member) {
-        return new GenerationMember(generation, member, member.getRole());
+        return new GenerationMember(generation, member, MemberRole.MEMBER);
     }
 
     public static GenerationMember migrate(Generation generation, Member member) {
