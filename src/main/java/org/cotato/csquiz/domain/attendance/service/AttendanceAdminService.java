@@ -29,6 +29,7 @@ import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.service.MemberService;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
+import org.cotato.csquiz.domain.generation.enums.SessionType;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
 import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
 import org.springframework.stereotype.Service;
@@ -51,7 +52,9 @@ public class AttendanceAdminService {
     public void addAttendance(Session session, Location location, LocalDateTime attendanceDeadline,
                               LocalDateTime lateDeadline) {
         AttendanceUtil.validateAttendanceTime(session.getSessionDateTime(), attendanceDeadline, lateDeadline);
-
+        if (session.hasOfflineSession()) {
+            checkLocation(location);
+        }
         Attendance attendance = Attendance.builder()
                 .session(session)
                 .location(location)
@@ -60,6 +63,12 @@ public class AttendanceAdminService {
                 .build();
 
         attendanceRepository.save(attendance);
+    }
+
+    private void checkLocation(Location location) {
+        if (location == null) {
+            throw new AppException(ErrorCode.INVALID_LOCATION);
+        }
     }
 
     @Transactional
