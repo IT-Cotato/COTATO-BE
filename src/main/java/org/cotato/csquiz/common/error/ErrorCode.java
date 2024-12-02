@@ -45,6 +45,9 @@ public enum ErrorCode {
     GENERATION_NUMBER_DUPLICATED(HttpStatus.CONFLICT, "G-201", "같은 숫자의 기수가 있습니다"),
     SESSION_DATE_NOT_FOUND(HttpStatus.NOT_FOUND, "G-202", "세션 날짜가 존재하지 않습니다"),
 
+    //기수별 활동 부원 도메인
+    GENERATION_MEMBER_EXIST(HttpStatus.CONFLICT, "GM-301", "일부 부원이 해당 기수에 활동부원입니다"),
+
     // 교육 도메인
     REGRADE_FAIL(HttpStatus.BAD_REQUEST, "E-201", "재채점 할 기록이 없습니다."),
     EDUCATION_DUPLICATED(HttpStatus.CONFLICT, "E-301", "이미 교육이 존재합니다"),
@@ -81,6 +84,8 @@ public enum ErrorCode {
     //출석 관련 AT
     OFFLINE_ATTEND_FAIL(HttpStatus.BAD_REQUEST, "AT-101", "거리 부적합으로 인한 대면 출석 실패"),
     INVALID_ATTEND_TIME(HttpStatus.BAD_REQUEST, "AT-102", "시간 입력 범위가 잘못되었습니다."),
+    INVALID_ATTEND_TYPE(HttpStatus.BAD_REQUEST, "AT-103", "해당 세션에 맞는 타입으로 출결 입력을 진행해주세요."),
+    INVALID_LOCATION(HttpStatus.BAD_REQUEST, "AT-104", "위치 정보를 입력해주세요."),
     ALREADY_ATTEND(HttpStatus.CONFLICT, "AT-301", "이미 해당 타입으로 출석한 기록이 있습니다."),
     ATTENDANCE_NOT_OPEN(HttpStatus.BAD_REQUEST, "AT-401", "출석 시간이 아닙니다."),
     ATTENDANCE_PERMISSION(HttpStatus.BAD_REQUEST, "AT-402", "해당 기수의 부원이 아닙니다."),
