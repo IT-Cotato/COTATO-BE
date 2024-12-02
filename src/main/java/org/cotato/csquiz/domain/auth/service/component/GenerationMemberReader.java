@@ -25,4 +25,9 @@ public class GenerationMemberReader {
         return generationMemberRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("기수별 활동 부원이 존재하지 않습니다"));
     }
+
+    public List<GenerationMember> findAllByIds(List<Long> generationMemberIds) {
+        return generationMemberRepository.findAllById(generationMemberIds);
+
+    }
 }
