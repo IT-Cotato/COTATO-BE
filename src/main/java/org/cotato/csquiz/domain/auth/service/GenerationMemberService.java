@@ -45,7 +45,7 @@ public class GenerationMemberService {
     }
 
     @Transactional
-    public void deleteGenerationMember(List<Long> generationMemberIds) {
+    public void deleteGenerationMembers(List<Long> generationMemberIds) {
         generationMemberRepository.deleteAllByIdsInQuery(generationMemberIds);
     }
 }

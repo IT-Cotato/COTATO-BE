@@ -38,7 +38,7 @@ public class GenerationMemberController {
 
     @DeleteMapping
     public ResponseEntity<Void> deleteGenerationMember(@RequestBody @Valid DeleteGenerationMemberRequest request) {
-        generationMemberService.deleteGenerationMember(request.generationMemberIds());
+        generationMemberService.deleteGenerationMembers(request.generationMemberIds());
         return ResponseEntity.noContent().build();
     }
 }
