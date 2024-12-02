@@ -46,7 +46,6 @@ public class GenerationMemberService {
 
     @Transactional
     public void deleteGenerationMember(List<Long> generationMemberIds) {
-        generationMemberRepository.deleteAll(generationMemberReader
-                .findAllByIdsWithValidation(generationMemberIds));
+        generationMemberRepository.deleteAllByIdsInQuery(generationMemberIds);
     }
 }
