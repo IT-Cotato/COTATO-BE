@@ -52,7 +52,7 @@ public class AttendanceAdminService {
     public void addAttendance(Session session, Location location, LocalDateTime attendanceDeadline,
                               LocalDateTime lateDeadline) {
         AttendanceUtil.validateAttendanceTime(session.getSessionDateTime(), attendanceDeadline, lateDeadline);
-        if (session.getSessionType() == SessionType.OFFLINE) {
+        if (session.hasOfflineSession()) {
             checkLocation(location);
         }
         Attendance attendance = Attendance.builder()

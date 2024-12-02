@@ -101,4 +101,8 @@ public class Session extends BaseTimeEntity {
     public void updateSessionPlace(String placeName) {
         this.placeName = placeName;
     }
+
+    public boolean hasOfflineSession() {
+        return this.sessionType == SessionType.OFFLINE || this.sessionType == SessionType.ALL;
+    }
 }
