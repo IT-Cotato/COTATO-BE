@@ -40,5 +40,4 @@ public enum SessionType {
             default -> false;
         };
     }
-
 }
