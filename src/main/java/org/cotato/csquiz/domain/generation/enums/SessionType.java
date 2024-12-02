@@ -20,7 +20,7 @@ public enum SessionType {
         if (isOffline && isOnline) {
             return ALL;
         }
-        if (!isOffline && isOnline) {
+        if (isOnline) {
             return ONLINE;
         }
         if (isOffline) {
