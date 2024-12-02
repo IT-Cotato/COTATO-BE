@@ -1,5 +1,6 @@
 package org.cotato.csquiz.domain.auth.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.common.error.ErrorCode;
@@ -42,5 +43,19 @@ public class GenerationMemberService {
     public void updateGenerationMemberRole(Long generationMemberId, MemberRole memberRole) {
         GenerationMember generationMember = generationMemberReader.findById(generationMemberId);
         generationMember.updateMemberRole(memberRole);
+    }
+
+    @Transactional
+    public void deleteGenerationMembers(List<Long> generationMemberIds) {
+        checkGenerationMembersExist(generationMemberIds);
+        generationMemberRepository.deleteAllByIdsInQuery(generationMemberIds);
+    }
+
+    private void checkGenerationMembersExist(List<Long> generationMemberIds) {
+        List<GenerationMember> generationMembers = generationMemberReader.findAllByIds(
+                generationMemberIds);
+        if (generationMembers.size() != generationMemberIds.size()) {
+            throw new EntityNotFoundException("특정 멤버가 존재하지 않습니다");
+        }
     }
 }
