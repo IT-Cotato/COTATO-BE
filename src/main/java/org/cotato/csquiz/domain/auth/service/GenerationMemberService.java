@@ -43,4 +43,10 @@ public class GenerationMemberService {
         GenerationMember generationMember = generationMemberReader.findById(generationMemberId);
         generationMember.updateMemberRole(memberRole);
     }
+
+    @Transactional
+    public void deleteGenerationMember(List<Long> generationMemberIds) {
+        generationMemberRepository.deleteAll(generationMemberReader
+                .findAllByIdsWithValidation(generationMemberIds));
+    }
 }

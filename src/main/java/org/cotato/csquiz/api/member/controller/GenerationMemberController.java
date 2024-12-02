@@ -4,9 +4,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.api.member.dto.CreateGenerationMemberRequest;
+import org.cotato.csquiz.api.member.dto.DeleteGenerationMemberRequest;
 import org.cotato.csquiz.api.member.dto.UpdateGenerationMemberRoleRequest;
 import org.cotato.csquiz.domain.auth.service.GenerationMemberService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,6 +33,12 @@ public class GenerationMemberController {
     public ResponseEntity<Void> updateGenerationMemberRole(
             @RequestBody @Valid UpdateGenerationMemberRoleRequest request) {
         generationMemberService.updateGenerationMemberRole(request.generationMemberId(), request.role());
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> deleteGenerationMember(@RequestBody @Valid DeleteGenerationMemberRequest request) {
+        generationMemberService.deleteGenerationMember(request.generationMemberIds());
         return ResponseEntity.noContent().build();
     }
 }
