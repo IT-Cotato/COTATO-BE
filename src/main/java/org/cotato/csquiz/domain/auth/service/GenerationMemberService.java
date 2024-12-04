@@ -1,8 +1,11 @@
 package org.cotato.csquiz.domain.auth.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.cotato.csquiz.api.member.dto.GenerationMemberInfo;
+import org.cotato.csquiz.api.member.dto.GenerationMemberInfoResponse;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.auth.entity.Member;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class GenerationMemberService {
 
@@ -24,6 +28,15 @@ public class GenerationMemberService {
     private final GenerationMemberReader generationMemberReader;
     private final MemberReader memberReader;
     private final GenerationReader generationReader;
+
+    public GenerationMemberInfoResponse findGenerationMemberByGeneration(Long generationId) {
+        Generation generation = generationReader.findById(generationId);
+        List<GenerationMemberInfo> generationMemberInfos = generationMemberReader.findAllByGenerationWithMember(generation).stream()
+                .sorted(Comparator.comparing(GenerationMember::getMemberName))
+                .map(GenerationMemberInfo::from)
+                .toList();
+        return GenerationMemberInfoResponse.from(generationMemberInfos);
+    }
 
     @Transactional
     public void addGenerationMember(Long generationId, List<Long> memberIds) {

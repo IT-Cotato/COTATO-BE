@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "출결 기록", description = "출결 기록 관련 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v2/api/attendances/record")
+@RequestMapping("/v2/api/attendances/records")
 public class AttendanceRecordController {
 
     private final AttendanceRecordService attendanceRecordService;
@@ -44,7 +44,7 @@ public class AttendanceRecordController {
                     )
             }
     )
-    @PostMapping(value = "/records/offline")
+    @PostMapping(value = "/offline")
     public ResponseEntity<AttendResponse> submitOfflineAttendanceRecord(
             @RequestBody @Valid OfflineAttendanceRequest request,
             @AuthenticationPrincipal Long memberId) {
@@ -66,7 +66,7 @@ public class AttendanceRecordController {
                             description = "출석 시간이 아님"
                     )
             })
-    @PostMapping(value = "/records/online")
+    @PostMapping(value = "/online")
     public ResponseEntity<AttendResponse> submitOnlineAttendanceRecord(
             @RequestBody @Valid OnlineAttendanceRequest request,
             @AuthenticationPrincipal Long memberId) {
@@ -74,7 +74,7 @@ public class AttendanceRecordController {
     }
 
     @Operation(summary = "부원의 기수별 출결 기록 반환 API")
-    @GetMapping("/records/members")
+    @GetMapping("/members")
     public ResponseEntity<MemberAttendanceRecordsResponse> findAllRecordsByGeneration(
             @RequestParam("generationId") Long generationId,
             @AuthenticationPrincipal Long memberId) {
