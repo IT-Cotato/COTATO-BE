@@ -56,4 +56,8 @@ public class GenerationMember extends BaseTimeEntity {
     public void updateMemberRole(MemberRole memberRole) {
         this.role = memberRole;
     }
+
+    public String getMemberName() {
+        return member.getName();
+    }
 }
