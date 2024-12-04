@@ -28,6 +28,9 @@ public class GenerationMemberReader {
 
     public List<GenerationMember> findAllByIds(List<Long> generationMemberIds) {
         return generationMemberRepository.findAllById(generationMemberIds);
+    }
 
+    public List<GenerationMember> findAllByGeneration(Generation generation) {
+        return generationMemberRepository.findAllByGeneration(generation);
     }
 }
