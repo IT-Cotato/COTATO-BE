@@ -1,6 +1,7 @@
 package org.cotato.csquiz.domain.auth.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.api.member.dto.GenerationMemberInfo;
@@ -30,7 +31,8 @@ public class GenerationMemberService {
 
     public GenerationMemberInfoResponse findGenerationMemberByGeneration(Long generationId) {
         Generation generation = generationReader.findById(generationId);
-        List<GenerationMemberInfo> generationMemberInfos = generationMemberReader.findAllByGeneration(generation).stream()
+        List<GenerationMemberInfo> generationMemberInfos = generationMemberReader.findAllByGenerationWithMember(generation).stream()
+                .sorted(Comparator.comparing(GenerationMember::getMemberName))
                 .map(GenerationMemberInfo::from)
                 .toList();
         return GenerationMemberInfoResponse.from(generationMemberInfos);

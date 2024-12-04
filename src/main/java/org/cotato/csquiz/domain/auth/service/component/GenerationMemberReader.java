@@ -30,7 +30,7 @@ public class GenerationMemberReader {
         return generationMemberRepository.findAllById(generationMemberIds);
     }
 
-    public List<GenerationMember> findAllByGeneration(Generation generation) {
-        return generationMemberRepository.findAllByGeneration(generation);
+    public List<GenerationMember> findAllByGenerationWithMember(Generation generation) {
+        return generationMemberRepository.findAllByGenerationWithMember(generation);
     }
 }

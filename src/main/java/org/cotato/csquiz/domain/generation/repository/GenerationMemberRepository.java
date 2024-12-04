@@ -13,6 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 public interface GenerationMemberRepository extends JpaRepository<GenerationMember, Long> {
     List<GenerationMember> findAllByGeneration(Generation generation);
 
+    @Query("select gm from GenerationMember gm join fetch gm.member m where gm.generation = :generation")
+    List<GenerationMember> findAllByGenerationWithMember(@Param("generation") Generation generation);
+
     @Transactional
     @Modifying
     @Query("delete from GenerationMember g where g.id in :ids")
