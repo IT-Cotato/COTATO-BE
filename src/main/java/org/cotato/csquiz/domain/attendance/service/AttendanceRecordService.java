@@ -35,6 +35,7 @@ import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.domain.generation.repository.GenerationMemberRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
 import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
+import org.cotato.csquiz.domain.generation.service.component.SessionReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,6 +51,7 @@ public class AttendanceRecordService {
     private final SessionRepository sessionRepository;
     private final MemberReader memberReader;
     private final GenerationReader generationReader;
+    private final SessionReader sessionReader;
     private final GenerationMemberRepository generationMemberRepository;
 
     public List<GenerationMemberAttendanceRecordResponse> findAttendanceRecords(Long generationId) {
@@ -77,7 +79,7 @@ public class AttendanceRecordService {
         Session session = sessionRepository.findById(attendance.getSessionId())
                 .orElseThrow(() -> new EntityNotFoundException("해당 세션을 찾을 수 없습니다."));
 
-        Map<Long, Member> memberById =  memberReader.findAllGenerationMember(session.getGeneration()).stream()
+        Map<Long, Member> memberById = memberReader.findAllGenerationMember(session.getGeneration()).stream()
                 .collect(Collectors.toMap(Member::getId, Function.identity()));
 
         Map<Long, AttendanceResult> attendanceResultByMemberId = attendanceRecordRepository.findAllByAttendanceIdAndMemberIdIn(
@@ -188,7 +190,7 @@ public class AttendanceRecordService {
     public void updateUnrecordedAttendanceRecord(Long sessionId) {
         Attendance attendance = attendanceRepository.findBySessionId(sessionId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 세션에 대한 출석이 생성되지 않았습니다."));
-        Session session = sessionRepository.findById(sessionId).orElseThrow(() -> new EntityNotFoundException("해당 세션을 찾을 수 없습니다."));
+        Session session = sessionReader.findById(sessionId);
         // 출결 입력을 한 부원
         Set<Long> attendedMember = attendanceRecordRepository.findAllByAttendanceId(attendance.getId()).stream()
                 .map(AttendanceRecord::getMemberId)
@@ -210,7 +212,11 @@ public class AttendanceRecordService {
 
         AttendanceRecord attendanceRecord = attendanceRecordRepository.findByMemberIdAndAttendanceId(memberId, attendanceId)
                 .orElseGet(() -> AttendanceRecord.absentRecord(attendance, memberId));
+        Session session = sessionReader.findById(attendance.getSessionId());
 
+        if (!session.getSessionType().isSameType(attendanceRecord.getAttendanceType())) {
+            throw new AppException(ErrorCode.INVALID_RECORD_UPDATE);
+        }
         // Todo https://github.com/IT-Cotato/COTATO-BE/issues/204
         attendanceRecord.updateAttendanceResult(attendanceResult);
 
