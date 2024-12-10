@@ -32,6 +32,7 @@ import org.cotato.csquiz.domain.generation.enums.SessionType;
 import org.cotato.csquiz.domain.generation.repository.GenerationRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionImageRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
+import org.cotato.csquiz.domain.generation.service.component.SessionReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,7 +50,7 @@ public class SessionService {
     private final SessionImageService sessionImageService;
     private final SchedulerService schedulerService;
     private final AttendanceRepository attendanceRepository;
-    private final AttendanceRecordService attendanceRecordService;
+    private final SessionReader sessionReader;
 
     @Transactional
     public AddSessionResponse addSession(AddSessionRequest request) throws ImageException {
@@ -100,7 +101,7 @@ public class SessionService {
 
     @Transactional
     public void updateSession(UpdateSessionRequest request) {
-        Session session = findSessionById(request.sessionId());
+        Session session = sessionReader.findById(request.sessionId());
 
         session.updateDescription(request.description());
         session.updateSessionTitle(request.title());
@@ -165,11 +166,6 @@ public class SessionService {
                 .toList();
     }
 
-    public Session findSessionById(Long sessionId) {
-        return sessionRepository.findById(sessionId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 세션을 찾을 수 없습니다."));
-    }
-
     public List<CsEducationOnSessionNumberResponse> findAllNotLinkedCsOnSessionsByGenerationId(Long generationId) {
         Generation generation = generationRepository.findById(generationId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 기수를 찾을 수 없습니다."));
@@ -187,7 +183,7 @@ public class SessionService {
     }
 
     public SessionWithAttendanceResponse findSession(Long sessionId) {
-        Session session = findSessionById(sessionId);
+        Session session = sessionReader.findById(sessionId);
         List<SessionImage> sessionImages = sessionImageRepository.findAllBySession(session);
         Optional<Attendance> maybeAttendance = attendanceRepository.findBySessionId(sessionId);
         return maybeAttendance.map(attendance -> SessionWithAttendanceResponse.of(session, sessionImages, attendance))
