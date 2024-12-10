@@ -23,6 +23,8 @@ public record UpdateSessionRequest(
         String placeName,
         Location location,
         AttendanceDeadLineDto attendTime,
+        boolean isOffline,
+        boolean isOnline,
         @NotNull
         ItIssue itIssue,
         @NotNull

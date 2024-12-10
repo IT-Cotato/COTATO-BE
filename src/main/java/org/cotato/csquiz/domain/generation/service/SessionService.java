@@ -117,8 +117,8 @@ public class SessionService {
                 request.attendTime().lateDeadLine());
         sessionRepository.save(session);
 
-        Attendance attendance = attendanceRepository.findBySessionId(session.getId())
-                .orElseThrow(() -> new EntityNotFoundException("해당 세션을 찾을 수 없습니다."));
+        SessionType sessionType = SessionType.getSessionType(request.isOffline(), request.isOnline());
+        session.updateSessionType(sessionType);
 
         attendance.updateLocation(request.location());
         attendanceRepository.save(attendance);
