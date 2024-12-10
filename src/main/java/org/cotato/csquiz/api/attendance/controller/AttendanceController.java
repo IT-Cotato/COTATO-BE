@@ -48,7 +48,7 @@ public class AttendanceController {
     @Operation(summary = "출석 정보 변경 API")
     @PatchMapping
     public ResponseEntity<Void> updateAttendance(@RequestBody @Valid UpdateAttendanceRequest request) {
-        attendanceAdminService.updateAttendanceByAttendanceId(request);
+        attendanceService.updateAttendance(request.attendanceId(), request.location(), request.attendTime().attendanceDeadLine(), request.attendTime().lateDeadLine());
         return ResponseEntity.noContent().build();
     }
 
