@@ -13,7 +13,7 @@ import org.cotato.csquiz.api.attendance.dto.AttendancesResponse;
 import org.cotato.csquiz.api.attendance.dto.GenerationMemberAttendanceRecordResponse;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRecordRequest;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
-import org.cotato.csquiz.domain.attendance.service.AttendanceAdminService;
+import org.cotato.csquiz.domain.attendance.service.AttendanceExcelService;
 import org.cotato.csquiz.domain.attendance.service.AttendanceRecordService;
 import org.cotato.csquiz.domain.attendance.service.AttendanceService;
 import org.cotato.csquiz.domain.attendance.util.AttendanceExcelHeaderUtil;
@@ -37,7 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v2/api/attendances")
 public class AttendanceController {
 
-    private final AttendanceAdminService attendanceAdminService;
+    private final AttendanceExcelService attendanceExcelService;
     private final AttendanceRecordService attendanceRecordService;
     private final AttendanceService attendanceService;
 
@@ -97,8 +97,8 @@ public class AttendanceController {
     public ResponseEntity<byte[]> downloadAttendanceRecordsAsExcelBySessions(
             @RequestParam(name = "attendanceIds") List<Long> attendanceIds) {
 
-        byte[] excelFile = attendanceAdminService.createExcelForSessionAttendance(attendanceIds);
-        String finalFileName = attendanceAdminService.getEncodedFileName(attendanceIds);
+        byte[] excelFile = attendanceExcelService.createExcelForSessionAttendance(attendanceIds);
+        String finalFileName = attendanceExcelService.getEncodedFileName(attendanceIds);
 
         HttpHeaders headers = AttendanceExcelHeaderUtil.createExcelDownloadHeaders(finalFileName);
 
