@@ -1,7 +1,6 @@
 package org.cotato.csquiz.domain.generation.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,7 +19,6 @@ import org.cotato.csquiz.domain.attendance.embedded.Location;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.attendance.service.AttendanceAdminService;
-import org.cotato.csquiz.domain.attendance.service.AttendanceRecordService;
 import org.cotato.csquiz.domain.education.entity.Education;
 import org.cotato.csquiz.domain.education.service.EducationService;
 import org.cotato.csquiz.domain.generation.embedded.SessionContents;
@@ -107,48 +105,24 @@ public class SessionService {
         session.updateSessionTitle(request.title());
         session.updateSessionPlace(request.placeName());
 
-        session.updateSessionContents(SessionContents.builder()
-                .csEducation(request.csEducation())
-                .devTalk(request.devTalk())
-                .itIssue(request.itIssue())
-                .networking(request.networking())
-                .build());
+        session.updateSessionContents(SessionContents.of(request.itIssue(), request.networking(), request.csEducation(), request.devTalk()));
 
-        updateSessionDateTime(session, request.sessionDateTime(), request.attendTime().attendanceDeadLine(),
-                request.attendTime().lateDeadLine());
-        sessionRepository.save(session);
-
+        session.updateSessionDateTime(request.sessionDateTime());
         SessionType sessionType = SessionType.getSessionType(request.isOffline(), request.isOnline());
         session.updateSessionType(sessionType);
+        sessionRepository.save(session);
 
-        attendanceRepository.findBySessionId(session.getId()).ifPresentOrElse(attendance -> {
-                    attendance.updateLocation(request.location());
-                    attendance.updateDeadLine(request.attendTime().attendanceDeadLine(), request.attendTime().lateDeadLine());
-                    attendanceRepository.save(attendance);
-                },
-            () -> attendanceAdminService.addAttendance(session, request.location(), request.attendTime().attendanceDeadLine(), request.attendTime().lateDeadLine())
-        );
-    }
-
-    @Transactional
-    public void updateSessionDateTime(Session session, LocalDateTime newDateTime, LocalDateTime attendanceDeadline,
-                                      LocalDateTime lateDeadline) {
+        // Todo https://www.notion.so/youthhing/ApplicationEventPublisher-15887d592b6e803eb7c7c1ce2da22b8c?pvs=4
         Attendance attendance = attendanceRepository.findBySessionId(session.getId())
                 .orElseGet(() -> Attendance.builder()
                         .session(session)
+                        .attendanceDeadLine(request.attendTime().attendanceDeadLine())
+                        .lateDeadLine(request.attendTime().lateDeadLine())
                         .build());
-
-        // 날짜가 바뀌지 않았고, 출결 시간이 모두 동일한 경우
-        if (newDateTime.equals(session.getSessionDateTime()) &&
-                attendance.getAttendanceDeadLine().equals(attendanceDeadline) &&
-                attendance.getLateDeadLine().equals(lateDeadline)) {
-            return;
+        if (sessionType.hasOffline()) {
+            attendance.updateLocation(request.location());
         }
-        session.updateSessionDateTime(newDateTime);
-        attendance.updateDeadLine(attendanceDeadline, lateDeadline);
-
         attendanceRepository.save(attendance);
-        attendanceRecordService.updateAttendanceStatus(session, attendance);
     }
 
     public List<SessionListResponse> findSessionsByGenerationId(Long generationId) {
