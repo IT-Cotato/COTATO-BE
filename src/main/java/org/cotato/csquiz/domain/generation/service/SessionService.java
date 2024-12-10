@@ -120,8 +120,13 @@ public class SessionService {
         SessionType sessionType = SessionType.getSessionType(request.isOffline(), request.isOnline());
         session.updateSessionType(sessionType);
 
-        attendance.updateLocation(request.location());
-        attendanceRepository.save(attendance);
+        attendanceRepository.findBySessionId(session.getId()).ifPresentOrElse(attendance -> {
+                    attendance.updateLocation(request.location());
+                    attendance.updateDeadLine(request.attendTime().attendanceDeadLine(), request.attendTime().lateDeadLine());
+                    attendanceRepository.save(attendance);
+                },
+            () -> attendanceAdminService.addAttendance(session, request.location(), request.attendTime().attendanceDeadLine(), request.attendTime().lateDeadLine())
+        );
     }
 
     @Transactional
