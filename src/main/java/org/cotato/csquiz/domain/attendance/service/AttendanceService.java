@@ -42,6 +42,28 @@ public class AttendanceService {
         return AttendanceResponse.of(attendance, session);
     }
 
+    @Transactional
+    public void createAttendance(Session session, Location location, LocalDateTime attendanceDeadline, LocalDateTime lateDeadline) {
+        AttendanceUtil.validateAttendanceTime(session.getSessionDateTime(), attendanceDeadline, lateDeadline);
+        if (session.hasOfflineSession()) {
+            checkLocation(location);
+        }
+        Attendance attendance = Attendance.builder()
+                .session(session)
+                .location(location)
+                .attendanceDeadLine(attendanceDeadline)
+                .lateDeadLine(lateDeadline)
+                .build();
+
+        attendanceRepository.save(attendance);
+    }
+
+    private void checkLocation(Location location) {
+        if (location == null) {
+            throw new AppException(ErrorCode.INVALID_LOCATION);
+        }
+    }
+
     @Transactional(readOnly = true)
     public AttendancesResponse findAttendancesByGenerationId(final Long generationId) {
         Generation findGeneration = generationRepository.findById(generationId)

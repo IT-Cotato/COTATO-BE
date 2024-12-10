@@ -19,8 +19,8 @@ import org.cotato.csquiz.common.schedule.SchedulerService;
 import org.cotato.csquiz.domain.attendance.embedded.Location;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
-import org.cotato.csquiz.domain.attendance.service.AttendanceAdminService;
 import org.cotato.csquiz.domain.attendance.service.AttendanceRecordService;
+import org.cotato.csquiz.domain.attendance.service.AttendanceService;
 import org.cotato.csquiz.domain.education.entity.Education;
 import org.cotato.csquiz.domain.education.service.EducationService;
 import org.cotato.csquiz.domain.generation.embedded.SessionContents;
@@ -44,7 +44,7 @@ public class SessionService {
     private final SessionRepository sessionRepository;
     private final GenerationRepository generationRepository;
     private final SessionImageRepository sessionImageRepository;
-    private final AttendanceAdminService attendanceAdminService;
+    private final AttendanceService attendanceService;
     private final EducationService educationService;
     private final SessionImageService sessionImageService;
     private final SchedulerService schedulerService;
@@ -83,7 +83,7 @@ public class SessionService {
         }
 
         if (sessionType.isCreateAttendance()) {
-            attendanceAdminService.addAttendance(session, Location.location(request.latitude(), request.longitude()),
+            attendanceService.createAttendance(session, Location.location(request.latitude(), request.longitude()),
                     request.attendanceDeadLine(), request.lateDeadLine());
             schedulerService.scheduleSessionNotification(savedSession.getSessionDateTime());
             schedulerService.scheduleAbsentRecords(savedSession.getSessionDateTime(), savedSession.getId());

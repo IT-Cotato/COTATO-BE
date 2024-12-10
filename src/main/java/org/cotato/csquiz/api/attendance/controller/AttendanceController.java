@@ -14,6 +14,7 @@ import org.cotato.csquiz.api.attendance.dto.GenerationMemberAttendanceRecordResp
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRecordRequest;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
 import org.cotato.csquiz.domain.attendance.service.AttendanceAdminService;
+import org.cotato.csquiz.domain.attendance.service.AttendanceRecordService;
 import org.cotato.csquiz.domain.attendance.service.AttendanceService;
 import org.cotato.csquiz.domain.attendance.util.AttendanceExcelHeaderUtil;
 import org.springframework.http.HttpHeaders;
@@ -37,6 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AttendanceController {
 
     private final AttendanceAdminService attendanceAdminService;
+    private final AttendanceRecordService attendanceRecordService;
     private final AttendanceService attendanceService;
 
     @Operation(summary = "출석 단건 조회")
