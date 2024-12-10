@@ -70,7 +70,7 @@ public class SessionController {
     }
 
     @Operation(summary = "세션 수정 API")
-    @PatchMapping(value = "/update")
+    @PatchMapping
     public ResponseEntity<Void> updateSession(@RequestBody @Valid UpdateSessionRequest request) {
         sessionService.updateSession(request);
         return ResponseEntity.noContent().build();
