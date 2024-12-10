@@ -176,4 +176,18 @@ public class AttendanceRecordService {
 
         attendanceRecordRepository.saveAll(unrecordedMemberIds);
     }
+
+    @Transactional
+    public void updateAttendanceRecords(Long attendanceId, Long memberId, AttendanceResult attendanceResult) {
+        Attendance attendance = attendanceRepository.findById(attendanceId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 출석이 존재하지 않습니다"));
+
+        AttendanceRecord attendanceRecord = attendanceRecordRepository.findByMemberIdAndAttendanceId(memberId, attendanceId)
+                .orElseGet(() -> AttendanceRecord.absentRecord(attendance, memberId));
+
+        // Todo https://github.com/IT-Cotato/COTATO-BE/issues/204
+        attendanceRecord.updateAttendanceResult(attendanceResult);
+
+        attendanceRecordRepository.save(attendanceRecord);
+    }
 }
