@@ -65,7 +65,7 @@ public class AttendanceController {
     public ResponseEntity<List<GenerationMemberAttendanceRecordResponse>> findAttendanceRecords(
             @RequestParam(name = "generationId") Long generationId
     ) {
-        return ResponseEntity.ok().body(attendanceAdminService.findAttendanceRecords(generationId));
+        return ResponseEntity.ok().body(attendanceRecordService.findAttendanceRecords(generationId));
     }
 
     @Operation(summary = "회원 출결사항 출석 단위 조회 API")

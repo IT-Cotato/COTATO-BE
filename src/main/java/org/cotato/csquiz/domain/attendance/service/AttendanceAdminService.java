@@ -18,10 +18,8 @@ import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.attendance.util.AttendanceExcelUtil;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.service.MemberService;
-import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
-import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,19 +29,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class AttendanceAdminService {
 
-    private final GenerationReader generationReader;
     private final AttendanceRepository attendanceRepository;
     private final AttendanceRecordService attendanceRecordService;
     private final SessionRepository sessionRepository;
     private final MemberService memberService;
-
-    public List<GenerationMemberAttendanceRecordResponse> findAttendanceRecords(Long generationId) {
-        List<Long> sessionIds = sessionRepository.findAllByGenerationId(generationId).stream().map(Session::getId).toList();
-        List<Attendance> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds);
-        Generation generation = generationReader.findById(generationId);
-
-        return attendanceRecordService.generateAttendanceResponses(attendances, generation);
-    }
 
     public List<AttendanceRecordResponse> findAttendanceRecordsByAttendance(Long attendanceId) {
         Attendance attendance = attendanceRepository.findById(attendanceId)

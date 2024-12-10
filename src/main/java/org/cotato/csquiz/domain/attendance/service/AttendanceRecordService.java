@@ -34,6 +34,7 @@ import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.domain.generation.repository.GenerationMemberRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
+import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,11 +49,31 @@ public class AttendanceRecordService {
     private final RequestAttendanceService requestAttendanceService;
     private final SessionRepository sessionRepository;
     private final MemberReader memberReader;
+    private final GenerationReader generationReader;
     private final GenerationMemberRepository generationMemberRepository;
 
-    public List<GenerationMemberAttendanceRecordResponse> generateAttendanceResponses(List<Attendance> attendances, Generation generation) {
+    public List<GenerationMemberAttendanceRecordResponse> findAttendanceRecords(Long generationId) {
+        List<Long> sessionIds = sessionRepository.findAllByGenerationId(generationId).stream().map(Session::getId).toList();
+        List<Attendance> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds);
+        Generation generation = generationReader.findById(generationId);
+
         List<Long> attendanceIds = attendances.stream().map(Attendance::getId).toList();
 
+        Map<Long, List<AttendanceRecord>> recordsByMemberId = attendanceRecordRepository.findAllByAttendanceIdsInQuery(attendanceIds).stream()
+                .collect(Collectors.groupingBy(AttendanceRecord::getMemberId));
+
+        return memberReader.findAllGenerationMember(generation).stream()
+                .sorted(Comparator.comparing(Member::getName))
+                .map(member -> GenerationMemberAttendanceRecordResponse.of(
+                        member,
+                        AttendanceStatistic.of(recordsByMemberId.getOrDefault(member.getId(), List.of()), attendances.size())
+                ))
+                .toList();
+    }
+
+    // Todo: 엑셀 코드 수정하면서 같이 제거
+    public List<GenerationMemberAttendanceRecordResponse> generateAttendanceResponses(List<Attendance> attendances, Generation generation) {
+        List<Long> attendanceIds = attendances.stream().map(Attendance::getId).toList();
         Map<Long, List<AttendanceRecord>> recordsByMemberId = attendanceRecordRepository.findAllByAttendanceIdsInQuery(attendanceIds).stream()
                 .collect(Collectors.groupingBy(AttendanceRecord::getMemberId));
 
