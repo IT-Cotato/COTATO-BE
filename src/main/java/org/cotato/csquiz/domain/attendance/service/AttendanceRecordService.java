@@ -71,6 +71,24 @@ public class AttendanceRecordService {
                 .toList();
     }
 
+    public List<AttendanceRecordResponse> findAttendanceRecordsByAttendance(Long attendanceId) {
+        Attendance attendance = attendanceRepository.findById(attendanceId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 출석이 존재하지 않습니다"));
+        Session session = sessionRepository.findById(attendance.getSessionId())
+                .orElseThrow(() -> new EntityNotFoundException("해당 세션을 찾을 수 없습니다."));
+
+        Map<Long, Member> memberById =  memberReader.findAllGenerationMember(session.getGeneration()).stream()
+                .collect(Collectors.toMap(Member::getId, Function.identity()));
+
+        Map<Long, AttendanceResult> attendanceResultByMemberId = attendanceRecordRepository.findAllByAttendanceIdAndMemberIdIn(
+                        attendance.getId(), memberById.keySet().stream().toList()).stream()
+                .collect(Collectors.toMap(AttendanceRecord::getMemberId, AttendanceRecord::getAttendanceResult));
+
+        return memberById.keySet().stream()
+                .map(memberId -> AttendanceRecordResponse.of(memberById.get(memberId), attendanceResultByMemberId.getOrDefault(memberId, null)))
+                .toList();
+    }
+
     // Todo: 엑셀 코드 수정하면서 같이 제거
     public List<GenerationMemberAttendanceRecordResponse> generateAttendanceResponses(List<Attendance> attendances, Generation generation) {
         List<Long> attendanceIds = attendances.stream().map(Attendance::getId).toList();
@@ -83,19 +101,6 @@ public class AttendanceRecordService {
                         member,
                         AttendanceStatistic.of(recordsByMemberId.getOrDefault(member.getId(), List.of()), attendances.size())
                 ))
-                .toList();
-    }
-
-    public List<AttendanceRecordResponse> generateSingleAttendanceResponses(Attendance attendance, Generation generation) {
-        Map<Long, Member> memberById =  memberReader.findAllGenerationMember(generation).stream()
-                .collect(Collectors.toMap(Member::getId, Function.identity()));
-
-        Map<Long, AttendanceResult> attendanceResultByMemberId = attendanceRecordRepository.findAllByAttendanceIdAndMemberIdIn(
-                        attendance.getId(), memberById.keySet().stream().toList()).stream()
-                .collect(Collectors.toMap(AttendanceRecord::getMemberId, AttendanceRecord::getAttendanceResult));
-
-        return memberById.keySet().stream()
-                .map(memberId -> AttendanceRecordResponse.of(memberById.get(memberId), attendanceResultByMemberId.getOrDefault(memberId, null)))
                 .toList();
     }
 

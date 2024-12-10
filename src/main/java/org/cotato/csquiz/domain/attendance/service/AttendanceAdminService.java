@@ -34,15 +34,6 @@ public class AttendanceAdminService {
     private final SessionRepository sessionRepository;
     private final MemberService memberService;
 
-    public List<AttendanceRecordResponse> findAttendanceRecordsByAttendance(Long attendanceId) {
-        Attendance attendance = attendanceRepository.findById(attendanceId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 출석이 존재하지 않습니다"));
-        Session session = sessionRepository.findById(attendance.getSessionId())
-                .orElseThrow(() -> new EntityNotFoundException("해당 세션을 찾을 수 없습니다."));
-
-        return attendanceRecordService.generateSingleAttendanceResponses(attendance, session.getGeneration());
-    }
-
     public byte[] createExcelForSessionAttendance(List<Long> attendanceIds) {
         List<Member> activeMembers = memberService.findActiveMember();
         Map<Long, String> memberNameByMemberId = activeMembers.stream()

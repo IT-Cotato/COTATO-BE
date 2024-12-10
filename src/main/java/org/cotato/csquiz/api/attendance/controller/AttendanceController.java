@@ -72,7 +72,7 @@ public class AttendanceController {
     @GetMapping("/{attendance-id}/records")
     public ResponseEntity<List<AttendanceRecordResponse>> findAttendanceRecordsByAttendance(
             @PathVariable("attendance-id") Long attendanceId) {
-        return ResponseEntity.ok().body(attendanceAdminService.findAttendanceRecordsByAttendance(attendanceId));
+        return ResponseEntity.ok().body(attendanceRecordService.findAttendanceRecordsByAttendance(attendanceId));
     }
 
     @Operation(summary = "회원 출결사항 수정 API")
