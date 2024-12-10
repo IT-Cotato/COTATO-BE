@@ -119,6 +119,7 @@ public class SessionService {
                         .attendanceDeadLine(request.attendTime().attendanceDeadLine())
                         .lateDeadLine(request.attendTime().lateDeadLine())
                         .build());
+        attendance.updateDeadLine(request.attendTime().attendanceDeadLine(), request.attendTime().lateDeadLine());
         if (sessionType.hasOffline()) {
             attendance.updateLocation(request.location());
         }
