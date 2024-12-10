@@ -105,4 +105,8 @@ public class Session extends BaseTimeEntity {
     public boolean hasOfflineSession() {
         return this.sessionType == SessionType.OFFLINE || this.sessionType == SessionType.ALL;
     }
+
+    public void updateSessionType(SessionType sessionType) {
+        this.sessionType = sessionType;
+    }
 }
