@@ -29,7 +29,7 @@ public class RandomQuiz extends BaseTimeEntity {
     @Column(name = "question", nullable = false, columnDefinition = "TEXT")
     private String question;
 
-    @Column(name = "image")
+    @Embedded
     private S3Info image;
 
     @Embedded
