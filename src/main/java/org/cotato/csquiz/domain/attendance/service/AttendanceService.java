@@ -11,6 +11,9 @@ import org.cotato.csquiz.api.attendance.dto.AttendanceResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceWithSessionResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendancesResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceTimeResponse;
+import org.cotato.csquiz.common.error.ErrorCode;
+import org.cotato.csquiz.common.error.exception.AppException;
+import org.cotato.csquiz.domain.attendance.embedded.Location;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.attendance.service.component.AttendanceReader;
@@ -37,6 +40,28 @@ public class AttendanceService {
         Attendance attendance = attendanceReader.findById(attendanceId);
         Session session = sessionReader.findById(attendanceId);
         return AttendanceResponse.of(attendance, session);
+    }
+
+    @Transactional
+    public void createAttendance(Session session, Location location, LocalDateTime attendanceDeadline, LocalDateTime lateDeadline) {
+        AttendanceUtil.validateAttendanceTime(session.getSessionDateTime(), attendanceDeadline, lateDeadline);
+        if (session.hasOfflineSession()) {
+            checkLocation(location);
+        }
+        Attendance attendance = Attendance.builder()
+                .session(session)
+                .location(location)
+                .attendanceDeadLine(attendanceDeadline)
+                .lateDeadLine(lateDeadline)
+                .build();
+
+        attendanceRepository.save(attendance);
+    }
+
+    private void checkLocation(Location location) {
+        if (location == null) {
+            throw new AppException(ErrorCode.INVALID_LOCATION);
+        }
     }
 
     @Transactional(readOnly = true)
@@ -78,5 +103,21 @@ public class AttendanceService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석을 찾을 수 없습니다"));
 
         return AttendanceTimeResponse.from(attendance);
+    }
+
+    @Transactional
+    public void updateAttendance(final Long attendanceId, final Location location, final LocalDateTime attendDeadline, final LocalDateTime lateDeadline) {
+        Attendance attendance = attendanceRepository.findById(attendanceId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 출석 정보가 존재하지 않습니다"));
+        Session attendanceSession = sessionReader.findById(attendance.getSessionId());
+
+        AttendanceUtil.validateAttendanceTime(attendanceSession.getSessionDateTime(), attendDeadline, lateDeadline);
+
+        if (attendanceSession.getSessionDateTime() == null) {
+            throw new AppException(ErrorCode.SESSION_DATE_NOT_FOUND);
+        }
+
+        attendance.updateDeadLine(attendDeadline, lateDeadline);
+        attendance.updateLocation(location);
     }
 }
