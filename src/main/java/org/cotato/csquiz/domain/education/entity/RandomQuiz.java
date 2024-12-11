@@ -3,6 +3,8 @@ package org.cotato.csquiz.domain.education.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -23,7 +25,8 @@ public class RandomQuiz extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "category")
+    @Column(name = "category", nullable = false)
+    @Enumerated(EnumType.STRING)
     private QuizCategory category;
 
     @Column(name = "question", nullable = false, columnDefinition = "TEXT")
