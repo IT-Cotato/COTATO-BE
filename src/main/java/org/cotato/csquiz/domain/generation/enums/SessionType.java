@@ -40,4 +40,8 @@ public enum SessionType {
             default -> false;
         };
     }
+
+    public boolean hasOffline() {
+        return this == OFFLINE || this == ALL;
+    }
 }
