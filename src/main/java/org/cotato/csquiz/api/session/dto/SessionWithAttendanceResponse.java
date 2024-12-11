@@ -1,5 +1,6 @@
 package org.cotato.csquiz.api.session.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.cotato.csquiz.api.attendance.dto.AttendanceTimeResponse;
@@ -9,11 +10,14 @@ import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.domain.generation.entity.SessionImage;
 
 public record SessionWithAttendanceResponse(
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
         Long sessionId,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
         Integer sessionNumber,
         String title,
         List<SessionListImageInfoResponse> sessionImages,
         String description,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
         Long generationId,
         String placeName,
         LocalDateTime sessionDateTime,
