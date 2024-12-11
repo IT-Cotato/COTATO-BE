@@ -10,8 +10,8 @@ public enum QuizCategory {
     OOP("객체지향"),
     WEB("웹"),
     SECURITY("보안"),
-    OTHER("기타"),
     PL("프로그래밍 언어"),
+    OTHER("기타"),
     ;
 
     private final String description;
