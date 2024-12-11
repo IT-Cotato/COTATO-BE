@@ -12,14 +12,14 @@ import lombok.NoArgsConstructor;
 public class Choices {
 
     @Column(nullable = false)
-    private String choice1;
+    private String firstChoice;
 
     @Column(nullable = false)
-    private String choice2;
+    private String secondChoice;
 
     @Column(nullable = false)
-    private String choice3;
+    private String thirdChoice;
 
     @Column(nullable = false)
-    private String choice4;
+    private String fourthChoice;
 }
