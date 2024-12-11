@@ -2,8 +2,6 @@ package org.cotato.csquiz.domain.education.service;
 
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.api.quiz.dto.RandomTutorialQuizResponse;
-import org.cotato.csquiz.domain.education.entity.RandomQuiz;
-import org.cotato.csquiz.domain.education.repository.RandomQuizRepository;
 import org.cotato.csquiz.domain.education.service.component.RandomQuizReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
