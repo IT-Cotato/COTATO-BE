@@ -18,6 +18,8 @@ public record SessionWithAttendanceResponse(
         String placeName,
         LocalDateTime sessionDateTime,
         SessionContents sessionContents,
+        boolean isOffline,
+        boolean isOnline,
         AttendanceTimeResponse attendance
 ) {
     public static SessionWithAttendanceResponse of(Session session, List<SessionImage> sessionImages, Attendance attendance) {
@@ -31,6 +33,8 @@ public record SessionWithAttendanceResponse(
             session.getPlaceName(),
             session.getSessionDateTime(),
             session.getSessionContents(),
+            session.getSessionType().hasOffline(),
+            session.getSessionType().hasOnline(),
             AttendanceTimeResponse.from(attendance)
         );
     }
@@ -46,6 +50,8 @@ public record SessionWithAttendanceResponse(
                 session.getPlaceName(),
                 session.getSessionDateTime(),
                 session.getSessionContents(),
+                session.getSessionType().hasOffline(),
+                session.getSessionType().hasOnline(),
                 null
         );
     }
