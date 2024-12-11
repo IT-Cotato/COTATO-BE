@@ -1,7 +1,6 @@
 package org.cotato.csquiz.api.quiz.dto;
 
 import java.util.List;
-import org.cotato.csquiz.domain.education.embedded.Choices;
 import org.cotato.csquiz.domain.education.entity.RandomQuiz;
 
 public record RandomTutorialQuizResponse(
@@ -15,14 +14,7 @@ public record RandomTutorialQuizResponse(
                 randomQuiz.getId(),
                 randomQuiz.getQuestion(),
                 randomQuiz.getImage() != null ? randomQuiz.getImage().getUrl() : null,
-                buildChoiceList(randomQuiz.getChoices())
+                randomQuiz.getChoices().buildChoiceList()
         );
-    }
-
-    private static List<String> buildChoiceList(Choices choices) {
-        return List.of(choices.getFirstChoice(),
-                choices.getSecondChoice(),
-                choices.getThirdChoice(),
-                choices.getFourthChoice());
     }
 }
