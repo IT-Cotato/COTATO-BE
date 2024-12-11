@@ -20,9 +20,9 @@ public record RandomTutorialQuizResponse(
     }
 
     private static List<String> buildChoiceList(Choices choices) {
-        return List.of(choices.getChoice1(),
-                choices.getChoice2(),
-                choices.getChoice3(),
-                choices.getChoice4());
+        return List.of(choices.getFirstChoice(),
+                choices.getSecondChoice(),
+                choices.getThirdChoice(),
+                choices.getFourthChoice());
     }
 }
