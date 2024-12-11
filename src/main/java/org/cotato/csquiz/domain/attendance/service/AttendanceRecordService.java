@@ -34,7 +34,6 @@ import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.domain.generation.repository.GenerationMemberRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
-import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,14 +48,9 @@ public class AttendanceRecordService {
     private final RequestAttendanceService requestAttendanceService;
     private final SessionRepository sessionRepository;
     private final MemberReader memberReader;
-    private final GenerationReader generationReader;
     private final GenerationMemberRepository generationMemberRepository;
 
-    public List<GenerationMemberAttendanceRecordResponse> findAttendanceRecords(Long generationId) {
-        List<Long> sessionIds = sessionRepository.findAllByGenerationId(generationId).stream().map(Session::getId).toList();
-        List<Attendance> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds);
-        Generation generation = generationReader.findById(generationId);
-
+    public List<GenerationMemberAttendanceRecordResponse> generateAttendanceResponses(List<Attendance> attendances, Generation generation) {
         List<Long> attendanceIds = attendances.stream().map(Attendance::getId).toList();
 
         Map<Long, List<AttendanceRecord>> recordsByMemberId = attendanceRecordRepository.findAllByAttendanceIdsInQuery(attendanceIds).stream()
@@ -71,13 +65,8 @@ public class AttendanceRecordService {
                 .toList();
     }
 
-    public List<AttendanceRecordResponse> findAttendanceRecordsByAttendance(Long attendanceId) {
-        Attendance attendance = attendanceRepository.findById(attendanceId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 출석이 존재하지 않습니다"));
-        Session session = sessionRepository.findById(attendance.getSessionId())
-                .orElseThrow(() -> new EntityNotFoundException("해당 세션을 찾을 수 없습니다."));
-
-        Map<Long, Member> memberById =  memberReader.findAllGenerationMember(session.getGeneration()).stream()
+    public List<AttendanceRecordResponse> generateSingleAttendanceResponses(Attendance attendance, Generation generation) {
+        Map<Long, Member> memberById =  memberReader.findAllGenerationMember(generation).stream()
                 .collect(Collectors.toMap(Member::getId, Function.identity()));
 
         Map<Long, AttendanceResult> attendanceResultByMemberId = attendanceRecordRepository.findAllByAttendanceIdAndMemberIdIn(
@@ -86,21 +75,6 @@ public class AttendanceRecordService {
 
         return memberById.keySet().stream()
                 .map(memberId -> AttendanceRecordResponse.of(memberById.get(memberId), attendanceResultByMemberId.getOrDefault(memberId, null)))
-                .toList();
-    }
-
-    // Todo: 엑셀 코드 수정하면서 같이 제거
-    public List<GenerationMemberAttendanceRecordResponse> generateAttendanceResponses(List<Attendance> attendances, Generation generation) {
-        List<Long> attendanceIds = attendances.stream().map(Attendance::getId).toList();
-        Map<Long, List<AttendanceRecord>> recordsByMemberId = attendanceRecordRepository.findAllByAttendanceIdsInQuery(attendanceIds).stream()
-                .collect(Collectors.groupingBy(AttendanceRecord::getMemberId));
-
-        return memberReader.findAllGenerationMember(generation).stream()
-                .sorted(Comparator.comparing(Member::getName))
-                .map(member -> GenerationMemberAttendanceRecordResponse.of(
-                        member,
-                        AttendanceStatistic.of(recordsByMemberId.getOrDefault(member.getId(), List.of()), attendances.size())
-                ))
                 .toList();
     }
 
@@ -201,19 +175,5 @@ public class AttendanceRecordService {
                 .toList();
 
         attendanceRecordRepository.saveAll(unrecordedMemberIds);
-    }
-
-    @Transactional
-    public void updateAttendanceRecords(Long attendanceId, Long memberId, AttendanceResult attendanceResult) {
-        Attendance attendance = attendanceRepository.findById(attendanceId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 출석이 존재하지 않습니다"));
-
-        AttendanceRecord attendanceRecord = attendanceRecordRepository.findByMemberIdAndAttendanceId(memberId, attendanceId)
-                .orElseGet(() -> AttendanceRecord.absentRecord(attendance, memberId));
-
-        // Todo https://github.com/IT-Cotato/COTATO-BE/issues/204
-        attendanceRecord.updateAttendanceResult(attendanceResult);
-
-        attendanceRecordRepository.save(attendanceRecord);
     }
 }
