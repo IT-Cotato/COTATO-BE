@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 public enum QuizCategory {
     NETWORK("네트워크"),
     DB("데이터 베이스"),
-    OS("OS"),
+    OS("운영 체제"),
     OTHER("기타"),
     ;
 
