@@ -44,8 +44,4 @@ public enum SessionType {
     public boolean hasOffline() {
         return this == OFFLINE || this == ALL;
     }
-
-    public boolean hasOnline() {
-        return this == ONLINE || this == ALL;
-    }
 }
