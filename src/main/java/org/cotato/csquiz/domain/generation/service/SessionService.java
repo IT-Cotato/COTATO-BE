@@ -18,7 +18,6 @@ import org.cotato.csquiz.common.schedule.SchedulerService;
 import org.cotato.csquiz.domain.attendance.embedded.Location;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
-import org.cotato.csquiz.domain.attendance.service.AttendanceRecordService;
 import org.cotato.csquiz.domain.attendance.service.AttendanceService;
 import org.cotato.csquiz.domain.education.entity.Education;
 import org.cotato.csquiz.domain.education.service.EducationService;
@@ -100,7 +99,7 @@ public class SessionService {
 
     @Transactional
     public void updateSession(UpdateSessionRequest request) {
-        Session session = sessionReader.findById(request.sessionId());
+        Session session = sessionReader.findByIdWithPessimisticXLock(request.sessionId());
 
         session.updateDescription(request.description());
         session.updateSessionTitle(request.title());

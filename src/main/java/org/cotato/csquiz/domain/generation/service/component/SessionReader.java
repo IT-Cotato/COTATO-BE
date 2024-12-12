@@ -19,6 +19,12 @@ public class SessionReader {
         return sessionRepository.findById(sessionId).orElseThrow(() -> new EntityNotFoundException("해당 세션을 찾을 수 없습니다."));
     }
 
+    public Session findByIdWithPessimisticXLock(Long sessionId) {
+        return sessionRepository.findByIdWithPessimisticXLock(sessionId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 세션을 찾을 수 없습니다."));
+    }
+    
+
     @Transactional(readOnly = true)
     public List<Session> findAllByGenerationId(final Long generationId) {
         return sessionRepository.findAllByGenerationId(generationId);
