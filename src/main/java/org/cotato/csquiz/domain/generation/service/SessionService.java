@@ -20,7 +20,6 @@ import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.attendance.service.AttendanceService;
 import org.cotato.csquiz.domain.attendance.service.component.AttendanceReader;
-import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
 import org.cotato.csquiz.domain.education.entity.Education;
 import org.cotato.csquiz.domain.education.service.EducationService;
 import org.cotato.csquiz.domain.generation.embedded.SessionContents;
@@ -117,8 +116,6 @@ public class SessionService {
         sessionRepository.save(session);
 
         // Todo https://www.notion.so/youthhing/ApplicationEventPublisher-15887d592b6e803eb7c7c1ce2da22b8c?pvs=4
-        AttendanceUtil.validateAttendanceTime(request.sessionDateTime(), request.attendTime().attendanceDeadLine(),
-                request.attendTime().lateDeadLine());
         Attendance attendance = attendanceReader.findBySessionIdWithPessimisticXLock(session.getId())
                 .orElseGet(() -> Attendance.builder()
                         .session(session)
