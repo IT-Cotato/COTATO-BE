@@ -19,6 +19,7 @@ import org.cotato.csquiz.domain.attendance.embedded.Location;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.attendance.service.AttendanceService;
+import org.cotato.csquiz.domain.attendance.service.component.AttendanceReader;
 import org.cotato.csquiz.domain.education.entity.Education;
 import org.cotato.csquiz.domain.education.service.EducationService;
 import org.cotato.csquiz.domain.generation.embedded.SessionContents;
@@ -49,6 +50,7 @@ public class SessionService {
     private final SchedulerService schedulerService;
     private final AttendanceRepository attendanceRepository;
     private final SessionReader sessionReader;
+    private final AttendanceReader attendanceReader;
 
     @Transactional
     public AddSessionResponse addSession(AddSessionRequest request) throws ImageException {
@@ -105,7 +107,8 @@ public class SessionService {
         session.updateSessionTitle(request.title());
         session.updateSessionPlace(request.placeName());
 
-        session.updateSessionContents(SessionContents.of(request.itIssue(), request.networking(), request.csEducation(), request.devTalk()));
+        session.updateSessionContents(
+                SessionContents.of(request.itIssue(), request.networking(), request.csEducation(), request.devTalk()));
 
         session.updateSessionDateTime(request.sessionDateTime());
         SessionType sessionType = SessionType.getSessionType(request.isOffline(), request.isOnline());
@@ -113,7 +116,7 @@ public class SessionService {
         sessionRepository.save(session);
 
         // Todo https://www.notion.so/youthhing/ApplicationEventPublisher-15887d592b6e803eb7c7c1ce2da22b8c?pvs=4
-        Attendance attendance = attendanceRepository.findBySessionId(session.getId())
+        Attendance attendance = attendanceReader.findBySessionIdWithPessimisticXLock(session.getId())
                 .orElseGet(() -> Attendance.builder()
                         .session(session)
                         .attendanceDeadLine(request.attendTime().attendanceDeadLine())
