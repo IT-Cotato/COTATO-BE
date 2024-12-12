@@ -7,14 +7,16 @@ public record RandomTutorialQuizResponse(
         Long id,
         String question,
         String imageUrl,
-        List<String> choices
+        List<String> choices,
+        Integer answerNumber
 ) {
     public static RandomTutorialQuizResponse from(final RandomQuiz randomQuiz) {
         return new RandomTutorialQuizResponse(
                 randomQuiz.getId(),
                 randomQuiz.getQuestion(),
                 randomQuiz.getImage() != null ? randomQuiz.getImage().getUrl() : null,
-                randomQuiz.getChoices().buildChoiceList()
+                randomQuiz.getChoices().buildChoiceList(),
+                randomQuiz.getAnswerNumber()
         );
     }
 }
