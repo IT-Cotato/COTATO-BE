@@ -15,7 +15,7 @@ public record RandomTutorialQuizResponse(
                 randomQuiz.getId(),
                 randomQuiz.getQuestion(),
                 randomQuiz.getImage() != null ? randomQuiz.getImage().getUrl() : null,
-                randomQuiz.getChoices().buildChoiceList(),
+                randomQuiz.getChoices().getChoices(),
                 randomQuiz.getAnswerNumber()
         );
     }

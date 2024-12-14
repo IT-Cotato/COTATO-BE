@@ -24,7 +24,7 @@ public class Choices {
     @Column(nullable = false)
     private String fourthChoice;
 
-    public List<String> buildChoiceList() {
+    public List<String> getChoices() {
         return List.of(firstChoice, secondChoice, thirdChoice, fourthChoice);
     }
 }
