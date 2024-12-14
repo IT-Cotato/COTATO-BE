@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "CS 퀴즈 탭 정보", description = "외부인용 CS 퀴즈 탭 관련 API 입니다.")
 @RestController
-@RequestMapping("/v3/api/random-quiz")
+@RequestMapping("/v2/api/random-quizzes")
 @RequiredArgsConstructor
 public class RandomQuizController {
 
