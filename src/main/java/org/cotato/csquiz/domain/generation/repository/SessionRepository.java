@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface SessionRepository extends JpaRepository<Session, Long> {
     List<Session> findAllByGeneration(Generation generation);
@@ -18,6 +19,7 @@ public interface SessionRepository extends JpaRepository<Session, Long> {
 
     List<Session> findAllByGenerationAndSessionContentsCsEducation(Generation generation, CSEducation csEducation);
 
+    @Transactional(readOnly = true)
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT s FROM Session s WHERE s.id = :sessionId")
     Optional<Session> findByIdWithPessimisticXLock(@Param("sessionId") Long sessionId);
