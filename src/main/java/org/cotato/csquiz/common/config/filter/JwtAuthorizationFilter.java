@@ -35,7 +35,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private static final String PROJECTS_LIST = "/v2/api/projects";
     private static final String PROJECT_DETAIL = "/v2/api/projects";
     private static final String CURRENT_GENERATION = "/v1/api/generation/current";
-    private static final String RANDOM_QUIZ_PATH = "/v3/api/random-quiz";
+    private static final String RANDOM_QUIZ_PATH = "/v2/api/random-quizzes";
     private static final String INTEGER_REGEX = "/{id:\\d+}";
 
     private final JwtTokenProvider jwtTokenProvider;
