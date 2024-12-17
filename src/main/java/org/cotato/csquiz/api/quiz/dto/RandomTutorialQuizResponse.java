@@ -13,8 +13,8 @@ public record RandomTutorialQuizResponse(
         return new RandomTutorialQuizResponse(
                 randomQuiz.getId(),
                 randomQuiz.getQuestion(),
-                randomQuiz.getImage() != null ? randomQuiz.getImage().getUrl() : null,
-                randomQuiz.getChoices().getChoices()
+                randomQuiz.getImageUrl(),
+                randomQuiz.getChoices()
         );
     }
 }
