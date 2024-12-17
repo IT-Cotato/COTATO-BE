@@ -28,4 +28,9 @@ public class RandomQuizReader {
         Page<RandomQuiz> quizPage = randomQuizRepository.findAll(PageRequest.of(randomPage, 1));
         return quizPage.getContent().get(0);
     }
+
+    public RandomQuiz findById(Long id) {
+        return randomQuizRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("해당 퀴즈가 존재하지 않습니다."));
+    }
 }
