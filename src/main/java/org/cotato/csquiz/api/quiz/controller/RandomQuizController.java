@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "CS 퀴즈 탭 정보", description = "외부인용 CS 퀴즈 탭 관련 API 입니다.")
@@ -31,9 +32,9 @@ public class RandomQuizController {
     }
 
     @Operation(summary = "외부인용 랜덤 퀴즈 제출 API")
-    @PostMapping("/{quizId}/reply")
+    @GetMapping("/{quizId}/reply")
     public ResponseEntity<RandomQuizReplyResponse> replyToRandomQuiz(@PathVariable(name = "quizId") final Long randomQuizId,
-                                                                     @Valid @RequestBody RandomQuizReplyRequest request) {
-        return ResponseEntity.ok().body(randomQuizService.replyToRandomQuiz(randomQuizId, request.input()));
+                                                                     @RequestParam(name = "input") Integer input) {
+        return ResponseEntity.ok().body(randomQuizService.replyToRandomQuiz(randomQuizId, input));
     }
 }
