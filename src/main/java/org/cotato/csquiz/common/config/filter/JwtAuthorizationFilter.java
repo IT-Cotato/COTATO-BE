@@ -35,6 +35,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private static final String PROJECTS_LIST = "/v2/api/projects";
     private static final String PROJECT_DETAIL = "/v2/api/projects";
     private static final String CURRENT_GENERATION = "/v1/api/generation/current";
+    private static final String RANDOM_QUIZ_PATH = "/v2/api/random-quizzes";
     private static final String INTEGER_REGEX = "/{id:\\d+}";
 
     private final JwtTokenProvider jwtTokenProvider;
@@ -70,6 +71,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         return path.startsWith(AUTH_PATH) || path.equals(LOGIN_PATH)
                 || path.startsWith(SWAGGER_PATH) || path.equals(SWAGGER_FAVICON)
                 || path.startsWith(SWAGGER_PATH_3) || path.startsWith(WS)
+                || path.startsWith(RANDOM_QUIZ_PATH)
                 || path.equals(GENERATION_PATH) || path.equals(SESSION_PATH)
                 || path.equals(POLICIES_PATH)
                 || path.equals(CURRENT_GENERATION)

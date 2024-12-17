@@ -8,6 +8,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.util.List;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -40,4 +42,18 @@ public class RandomQuiz extends BaseTimeEntity {
 
     @Column(name = "answer_number", nullable = false)
     private Integer answerNumber;
+
+    public List<String> getChoices() {
+        if (Objects.isNull(choices)) {
+            throw new IllegalStateException("선택지가 없는 경우가 존재합니다.");
+        }
+        return choices.getChoices();
+    }
+
+    public String getImageUrl() {
+        if (Objects.isNull(image)) {
+            return null;
+        }
+        return image.getUrl();
+    }
 }
