@@ -32,8 +32,8 @@ public class RandomQuizController {
 
     @Operation(summary = "외부인용 랜덤 퀴즈 제출 API")
     @PostMapping("/{quizId}/reply")
-    public ResponseEntity<RandomQuizReplyResponse> replyToRandomQuiz(@PathVariable(name = "quizId") final Long quizId,
+    public ResponseEntity<RandomQuizReplyResponse> replyToRandomQuiz(@PathVariable(name = "quizId") final Long randomQuizId,
                                                                      @Valid @RequestBody RandomQuizReplyRequest request) {
-        return ResponseEntity.ok().body(randomQuizService.replyToRandomQuiz(quizId, request.input()));
+        return ResponseEntity.ok().body(randomQuizService.replyToRandomQuiz(randomQuizId, request.input()));
     }
 }
