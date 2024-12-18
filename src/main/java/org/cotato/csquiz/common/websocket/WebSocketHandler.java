@@ -4,10 +4,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentHashMap.KeySetView;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.SetUtils;
 import org.cotato.csquiz.api.socket.dto.CsQuizStopResponse;
 import org.cotato.csquiz.api.socket.dto.EducationResultResponse;
 import org.cotato.csquiz.api.socket.dto.QuizStartResponse;
@@ -114,13 +118,14 @@ public class WebSocketHandler extends TextWebSocketHandler {
         log.info("[문제 {} 접근 허용]", quizId);
         log.info("[연결된 사용자 : {}]", CLIENTS.keySet());
 
+        KeySetView<String, WebSocketSession> beforeUsers = CLIENTS.keySet();
         Collection<CompletableFuture<Void>> tasks = new ArrayList<>();
         for (WebSocketSession clientSession : CLIENTS.values()) {
             tasks.add(socketSender.sendMessage(clientSession, response));
         }
 
         CompletableFuture.allOf(tasks.toArray(new CompletableFuture[0])).join();
-        log.info("[문제 전송 후 사용자 : {}]", CLIENTS.keySet());
+        logConnectionFailedUser(beforeUsers, CLIENTS.keySet());
     }
 
     public void startQuiz(Long quizId) {
@@ -131,12 +136,25 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
         log.info("[문제 {} 풀이 허용]", quizId);
         log.info("[연결된 사용자 : {}]", CLIENTS.keySet());
+
+        KeySetView<String, WebSocketSession> beforeUsers = CLIENTS.keySet();
         Collection<CompletableFuture<Void>> tasks = new ArrayList<>();
         for (WebSocketSession clientSession : CLIENTS.values()) {
             tasks.add(socketSender.sendMessage(clientSession, response));
         }
         CompletableFuture.allOf(tasks.toArray(new CompletableFuture[0])).join();
-        log.info("[풀이 신호 전송 후 사용자 : {}]", CLIENTS.keySet());
+
+        logConnectionFailedUser(beforeUsers, CLIENTS.keySet());
+    }
+
+    private void logConnectionFailedUser(KeySetView<String, WebSocketSession> beforeUsers, KeySetView<String, WebSocketSession> strings) {
+        Set<String> disconnectedUser = SetUtils.difference(beforeUsers, strings).toSet();
+        if (!CollectionUtils.isEmpty(disconnectedUser)) {
+            log.info("disconnected user exists");
+            disconnectedUser.forEach(memberId -> {
+                log.info("disconnected member id: <{}>", memberId);
+            });
+        }
     }
 
     public void stopQuiz(Long quizId) {
