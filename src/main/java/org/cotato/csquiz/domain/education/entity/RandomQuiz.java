@@ -56,4 +56,8 @@ public class RandomQuiz extends BaseTimeEntity {
         }
         return image.getUrl();
     }
+
+    public boolean isCorrect(Integer input) {
+        return answerNumber.equals(input);
+    }
 }
