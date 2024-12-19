@@ -3,7 +3,6 @@ package org.cotato.csquiz.domain.attendance.service;
 import static org.cotato.csquiz.domain.attendance.util.AttendanceUtil.getAttendanceOpenStatus;
 
 import jakarta.persistence.EntityNotFoundException;
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -33,8 +32,8 @@ import org.cotato.csquiz.domain.auth.service.component.MemberReader;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.domain.generation.repository.GenerationMemberRepository;
-import org.cotato.csquiz.domain.generation.repository.SessionRepository;
 import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
+import org.cotato.csquiz.domain.generation.service.component.SessionReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,13 +46,13 @@ public class AttendanceRecordService {
     private final AttendanceRecordRepository attendanceRecordRepository;
     private final AttendanceRepository attendanceRepository;
     private final RequestAttendanceService requestAttendanceService;
-    private final SessionRepository sessionRepository;
     private final MemberReader memberReader;
     private final GenerationReader generationReader;
+    private final SessionReader sessionReader;
     private final GenerationMemberRepository generationMemberRepository;
 
     public List<GenerationMemberAttendanceRecordResponse> findAttendanceRecords(Long generationId) {
-        List<Long> sessionIds = sessionRepository.findAllByGenerationId(generationId).stream().map(Session::getId).toList();
+        List<Long> sessionIds = sessionReader.findAllByGenerationId(generationId).stream().map(Session::getId).toList();
         List<Attendance> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds);
         Generation generation = generationReader.findById(generationId);
 
@@ -74,10 +73,9 @@ public class AttendanceRecordService {
     public List<AttendanceRecordResponse> findAttendanceRecordsByAttendance(Long attendanceId) {
         Attendance attendance = attendanceRepository.findById(attendanceId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석이 존재하지 않습니다"));
-        Session session = sessionRepository.findById(attendance.getSessionId())
-                .orElseThrow(() -> new EntityNotFoundException("해당 세션을 찾을 수 없습니다."));
+        Session session = sessionReader.findById(attendance.getSessionId());
 
-        Map<Long, Member> memberById =  memberReader.findAllGenerationMember(session.getGeneration()).stream()
+        Map<Long, Member> memberById = memberReader.findAllGenerationMember(session.getGeneration()).stream()
                 .collect(Collectors.toMap(Member::getId, Function.identity()));
 
         Map<Long, AttendanceResult> attendanceResultByMemberId = attendanceRecordRepository.findAllByAttendanceIdAndMemberIdIn(
@@ -109,8 +107,7 @@ public class AttendanceRecordService {
         Attendance attendance = attendanceRepository.findById(request.attendanceId())
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석이 존재하지 않습니다."));
 
-        Session session = sessionRepository.findById(attendance.getSessionId())
-                .orElseThrow(() -> new EntityNotFoundException("해당 출석에 대한 세션이 존재하지 않습니다."));
+        Session session = sessionReader.findById(attendance.getSessionId());
         Member member = memberReader.findById(memberId);
 
         checkIsGenerationMember(member, session.getGeneration());
@@ -137,7 +134,7 @@ public class AttendanceRecordService {
     }
 
     public MemberAttendanceRecordsResponse findAllRecordsBy(final Long generationId, final Long memberId) {
-        List<Session> sessions = sessionRepository.findAllByGenerationId(generationId);
+        List<Session> sessions = sessionReader.findAllByGenerationId(generationId);
 
         Map<Long, Session> sessionMap = sessions.stream()
                 .collect(Collectors.toUnmodifiableMap(Session::getId, Function.identity()));
@@ -188,7 +185,7 @@ public class AttendanceRecordService {
     public void updateUnrecordedAttendanceRecord(Long sessionId) {
         Attendance attendance = attendanceRepository.findBySessionId(sessionId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 세션에 대한 출석이 생성되지 않았습니다."));
-        Session session = sessionRepository.findById(sessionId).orElseThrow(() -> new EntityNotFoundException("해당 세션을 찾을 수 없습니다."));
+        Session session = sessionReader.findById(sessionId);
         // 출결 입력을 한 부원
         Set<Long> attendedMember = attendanceRecordRepository.findAllByAttendanceId(attendance.getId()).stream()
                 .map(AttendanceRecord::getMemberId)
@@ -210,7 +207,11 @@ public class AttendanceRecordService {
 
         AttendanceRecord attendanceRecord = attendanceRecordRepository.findByMemberIdAndAttendanceId(memberId, attendanceId)
                 .orElseGet(() -> AttendanceRecord.absentRecord(attendance, memberId));
+        Session session = sessionReader.findById(attendance.getSessionId());
 
+        if (!session.getSessionType().isSameType(attendanceRecord.getAttendanceType())) {
+            throw new AppException(ErrorCode.INVALID_RECORD_UPDATE);
+        }
         // Todo https://github.com/IT-Cotato/COTATO-BE/issues/204
         attendanceRecord.updateAttendanceResult(attendanceResult);
 
