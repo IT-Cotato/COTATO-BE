@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -82,7 +83,8 @@ public class AttendanceService {
 
         List<AttendanceWithSessionResponse> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds).stream()
                 .map(at -> {
-                    final Session session = sessionById .get(at.getSessionId());
+                    final Session session = Optional.ofNullable(sessionById.get(at.getSessionId()))
+                                .orElseThrow(() -> new EntityNotFoundException("출석에 연결된 세션을 찾을 수 없습니다."));
 
                     return AttendanceWithSessionResponse.builder()
                         .attendanceId(at.getId())
