@@ -71,7 +71,7 @@ public class AttendanceService {
 
         List<Session> sessions = sessionRepository.findAllByGenerationId(generationId);
 
-        Map<Long, Session> sessionMap = sessions.stream()
+        Map<Long, Session> sessionById = sessions.stream()
                 .collect(Collectors.toMap(Session::getId, Function.identity()));
 
         List<Long> sessionIds = sessions.stream()
@@ -82,7 +82,7 @@ public class AttendanceService {
 
         List<AttendanceWithSessionResponse> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds).stream()
                 .map(at -> {
-                    final Session session = sessionMap .get(at.getSessionId());
+                    final Session session = sessionById .get(at.getSessionId());
 
                     return AttendanceWithSessionResponse.builder()
                         .attendanceId(at.getId())
