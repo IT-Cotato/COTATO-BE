@@ -81,13 +81,18 @@ public class AttendanceService {
         LocalDateTime currentTime = LocalDateTime.now();
 
         List<AttendanceWithSessionResponse> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds).stream()
-                .map(at -> AttendanceWithSessionResponse.builder()
+                .map(at -> {
+                    final Session session = sessionMap .get(at.getSessionId());
+
+                    return AttendanceWithSessionResponse.builder()
                         .attendanceId(at.getId())
+                        .sessionType(session.getSessionType())
                         .sessionId(at.getSessionId())
-                        .sessionTitle(sessionMap.get(at.getSessionId()).getTitle())
-                        .sessionDateTime(sessionMap.get(at.getSessionId()).getSessionDateTime())
-                        .openStatus(AttendanceUtil.getAttendanceOpenStatus(sessionMap.get(at.getSessionId()).getSessionDateTime(), at, currentTime))
-                        .build())
+                        .sessionTitle(session.getTitle())
+                        .sessionDateTime(session.getSessionDateTime())
+                        .openStatus(AttendanceUtil.getAttendanceOpenStatus(session.getSessionDateTime(), at, currentTime))
+                        .build();
+                })
                 .toList();
 
         return AttendancesResponse.builder()
