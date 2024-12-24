@@ -79,8 +79,6 @@ public class AttendanceService {
                 .map(Session::getId)
                 .toList();
 
-        LocalDateTime currentTime = LocalDateTime.now();
-
         List<AttendanceWithSessionResponse> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds).stream()
                 .map(at -> {
                     final Session session = Optional.ofNullable(sessionById.get(at.getSessionId()))
@@ -92,7 +90,6 @@ public class AttendanceService {
                         .sessionId(at.getSessionId())
                         .sessionTitle(session.getTitle())
                         .sessionDateTime(session.getSessionDateTime())
-                        .openStatus(AttendanceUtil.getAttendanceOpenStatus(session.getSessionDateTime(), at, currentTime))
                         .build();
                 })
                 .toList();
