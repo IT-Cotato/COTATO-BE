@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -71,23 +72,26 @@ public class AttendanceService {
 
         List<Session> sessions = sessionRepository.findAllByGenerationId(generationId);
 
-        Map<Long, Session> sessionMap = sessions.stream()
+        Map<Long, Session> sessionById = sessions.stream()
                 .collect(Collectors.toMap(Session::getId, Function.identity()));
 
         List<Long> sessionIds = sessions.stream()
                 .map(Session::getId)
                 .toList();
 
-        LocalDateTime currentTime = LocalDateTime.now();
-
         List<AttendanceWithSessionResponse> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds).stream()
-                .map(at -> AttendanceWithSessionResponse.builder()
+                .map(at -> {
+                    final Session session = Optional.ofNullable(sessionById.get(at.getSessionId()))
+                                .orElseThrow(() -> new EntityNotFoundException("출석에 연결된 세션을 찾을 수 없습니다."));
+
+                    return AttendanceWithSessionResponse.builder()
                         .attendanceId(at.getId())
+                        .sessionType(session.getSessionType())
                         .sessionId(at.getSessionId())
-                        .sessionTitle(sessionMap.get(at.getSessionId()).getTitle())
-                        .sessionDateTime(sessionMap.get(at.getSessionId()).getSessionDateTime())
-                        .openStatus(AttendanceUtil.getAttendanceOpenStatus(sessionMap.get(at.getSessionId()).getSessionDateTime(), at, currentTime))
-                        .build())
+                        .sessionTitle(session.getTitle())
+                        .sessionDateTime(session.getSessionDateTime())
+                        .build();
+                })
                 .toList();
 
         return AttendancesResponse.builder()

@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceOpenStatus;
+import org.cotato.csquiz.domain.generation.enums.SessionType;
 
 @Builder
 public record AttendanceWithSessionResponse(
@@ -12,8 +13,11 @@ public record AttendanceWithSessionResponse(
         Long sessionId,
         @Schema(requiredMode = RequiredMode.REQUIRED)
         Long attendanceId,
+        @Schema(requiredMode = RequiredMode.NOT_REQUIRED)
         String sessionTitle,
+        @Schema(requiredMode = RequiredMode.NOT_REQUIRED)
         LocalDateTime sessionDateTime,
-        AttendanceOpenStatus openStatus
+        @Schema(requiredMode = RequiredMode.REQUIRED)
+        SessionType sessionType
 ) {
 }

@@ -1,7 +1,9 @@
 package org.cotato.csquiz.domain.education.service;
 
 import lombok.RequiredArgsConstructor;
+import org.cotato.csquiz.api.quiz.dto.RandomQuizReplyResponse;
 import org.cotato.csquiz.api.quiz.dto.RandomTutorialQuizResponse;
+import org.cotato.csquiz.domain.education.entity.RandomQuiz;
 import org.cotato.csquiz.domain.education.service.component.RandomQuizReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,5 +17,10 @@ public class RandomQuizService {
 
     public RandomTutorialQuizResponse pickRandomQuiz() {
         return RandomTutorialQuizResponse.from(randomQuizReader.getRandomQuiz());
+    }
+
+    public RandomQuizReplyResponse replyToRandomQuiz(final Long quizId, final Integer input) {
+        RandomQuiz randomQuiz = randomQuizReader.findById(quizId);
+        return RandomQuizReplyResponse.from(randomQuiz.isCorrect(input));
     }
 }
