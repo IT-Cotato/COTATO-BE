@@ -108,12 +108,6 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public void checkMemberExist(Long id) {
-        if (!memberRepository.existsById(id)) {
-            throw new FilterAuthenticationException("존재하지 않는 회원입니다.");
-        }
-    }
-
     public String createSocketToken(Long id, String role) {
         Claims claims = Jwts.claims();
         claims.put("id", id);
@@ -154,6 +148,6 @@ public class JwtTokenProvider {
 
     public Member getMemberByToken(String token) {
         Long memberId = getMemberId(token);
-        return memberRepository.findById(memberId).orElseThrow();
+        return memberRepository.findById(memberId).orElseThrow(() -> new FilterAuthenticationException("존재하지 않는 회원입니다."));
     }
 }
