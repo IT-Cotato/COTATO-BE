@@ -8,6 +8,7 @@ import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceOpenStatus;
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
 import org.cotato.csquiz.domain.generation.entity.Session;
+import org.cotato.csquiz.domain.generation.enums.SessionType;
 
 public record AttendanceResponse(
         @Schema(description = "출석 PK", requiredMode = RequiredMode.REQUIRED)
@@ -20,6 +21,8 @@ public record AttendanceResponse(
         Location location,
         @Schema(description = "세션 PK", requiredMode = RequiredMode.REQUIRED)
         Long sessionId,
+        @Schema(description = "출결 옵션", requiredMode = RequiredMode.REQUIRED)
+        SessionType sessionType,
         @Schema(description = "출석 오픈 상태", requiredMode = RequiredMode.REQUIRED)
         AttendanceOpenStatus openStatus
 ) {
@@ -30,6 +33,7 @@ public record AttendanceResponse(
                 attendance.getLateDeadLine(),
                 attendance.getLocation(),
                 attendance.getSessionId(),
+                session.getSessionType(),
                 AttendanceUtil.getAttendanceOpenStatus(session.getSessionDateTime(), attendance, LocalDateTime.now())
         );
     }
