@@ -42,7 +42,6 @@ public class AuthController {
     @PostMapping("/reissue")
     public ResponseEntity<ReissueResponse> tokenReissue(@CookieValue(name = "refreshToken") String refreshToken,
                                                         HttpServletResponse response) {
-        log.info("[액세스 토큰 재발급 컨트롤러]: 쿠키 존재 여부, {}", !refreshToken.isEmpty());
         return ResponseEntity.ok().body(authService.reissue(refreshToken, response));
     }
 
@@ -55,7 +54,6 @@ public class AuthController {
 
     @PostMapping(value = "/verification", params = "type=sign-up")
     public ResponseEntity<Void> sendSignUpVerificationCode(@Valid @RequestBody SendEmailRequest request) {
-        log.info("[회원 가입 시 이메일 인증 요청 컨트롤러]: 요청된 이메일 {}", request.email());
         authService.sendSignUpEmail(request);
         return ResponseEntity.noContent().build();
     }
@@ -63,7 +61,6 @@ public class AuthController {
     @GetMapping(value = "/verification", params = "type=sign-up")
     public ResponseEntity<Void> verifyCode(@RequestParam(name = "email") String email,
                                            @RequestParam(name = "code") String code) {
-        log.info("[회원 가입 시 인증 코드 확인 컨트롤러]: {}", email);
         authService.verifySingUpCode(email, code);
         return ResponseEntity.noContent().build();
     }
@@ -83,7 +80,6 @@ public class AuthController {
     @GetMapping("/email")
     public ResponseEntity<MemberEmailResponse> findEmail(@RequestParam(name = "name") String name,
                                                          @RequestParam("phone") String phoneNumber) {
-        log.info("아이디 찾기 컨트롤러: {}", name);
         return ResponseEntity.ok(authService.findMemberEmail(name, phoneNumber));
     }
 }

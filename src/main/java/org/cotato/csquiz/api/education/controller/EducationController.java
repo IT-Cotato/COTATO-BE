@@ -70,20 +70,17 @@ public class EducationController {
 
     @PostMapping("/kings")
     public ResponseEntity<Void> calculateKingMembers(@RequestParam("educationId") Long educationId) {
-        log.info("[{} 교육 결승진출자 계산하기]", educationId);
         kingMemberService.saveKingMember(educationId);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/winner")
     public ResponseEntity<WinnerInfoResponse> findWinner(@RequestParam("educationId") Long educationId) {
-        log.info("[{} 교육 우승자 조회 컨트롤러]", educationId);
         return ResponseEntity.ok().body(kingMemberService.findWinner(educationId));
     }
 
     @PostMapping("/winner")
     public ResponseEntity<Void> calculateWinner(@RequestParam("educationId") Long educationId) {
-        log.info("[{} 교육 우승자 계산]", educationId);
         kingMemberService.calculateWinner(educationId);
         return ResponseEntity.noContent().build();
     }
