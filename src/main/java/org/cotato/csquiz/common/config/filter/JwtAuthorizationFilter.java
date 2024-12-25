@@ -10,6 +10,8 @@ import jodd.net.HttpMethod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.common.config.jwt.JwtTokenProvider;
+import org.cotato.csquiz.domain.auth.entity.Member;
+import org.cotato.csquiz.domain.auth.service.component.MemberReader;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -40,6 +42,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
 
+    private final MemberReader memberReader;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -52,14 +56,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     }
 
     private void setAuthentication(String accessToken) {
-        Long memberId = jwtTokenProvider.getMemberId(accessToken);
-        String role = jwtTokenProvider.getRole(accessToken);
-        log.info("[인증 필터 인증 진행, {}]", memberId);
+        Member member = jwtTokenProvider.getMemberByToken(accessToken);
+        String role = member.getRole().toString();
+//        log.info("[인증 필터 인증 진행, {}]", memberId);
         log.info("Member Role: {}", role);
 
-        jwtTokenProvider.checkMemberExist(memberId);
-
-        Authentication authenticationToken = new UsernamePasswordAuthenticationToken(memberId, "",
+        Authentication authenticationToken = new UsernamePasswordAuthenticationToken(member, "",
                 List.of(new SimpleGrantedAuthority(role)));
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
     }
