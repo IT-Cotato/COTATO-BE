@@ -1,26 +1,29 @@
 package org.cotato.csquiz.common.websocket;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentHashMap.KeySetView;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.SetUtils;
 import org.cotato.csquiz.api.socket.dto.CsQuizStopResponse;
 import org.cotato.csquiz.api.socket.dto.EducationResultResponse;
 import org.cotato.csquiz.api.socket.dto.QuizStartResponse;
 import org.cotato.csquiz.api.socket.dto.QuizStatusResponse;
 import org.cotato.csquiz.api.socket.dto.QuizStopResponse;
-import org.cotato.csquiz.domain.education.entity.Quiz;
 import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.cotato.csquiz.domain.auth.enums.MemberRoleGroup;
-import org.cotato.csquiz.common.error.exception.AppException;
-import org.cotato.csquiz.domain.education.repository.QuizRepository;
+import org.cotato.csquiz.domain.education.entity.Quiz;
 import org.cotato.csquiz.domain.education.enums.QuizStatus;
-import org.cotato.csquiz.common.error.ErrorCode;
-import java.io.IOException;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.cotato.csquiz.domain.education.repository.QuizRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
-import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
@@ -39,8 +42,10 @@ public class WebSocketHandler extends TextWebSocketHandler {
     private static final String EDUCATION_ID_KEY = "educationId";
     private static final String ROLE_KEY = "role";
     private static final CloseStatus ATTEMPT_NEW_CONNECTION = new CloseStatus(4001, "new connection request");
-    private final ObjectMapper objectMapper = new ObjectMapper();
+
     private final QuizRepository quizRepository;
+
+    private final SocketSender socketSender;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws IOException {
@@ -85,7 +90,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
                 .orElse(QuizStatusResponse.builder()
                         .command(SHOW_COMMAND)
                         .build());
-        sendMessage(session, response);
+        socketSender.sendMessage(session, response);
     }
 
     @Override
@@ -112,10 +117,15 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
         log.info("[문제 {} 접근 허용]", quizId);
         log.info("[연결된 사용자 : {}]", CLIENTS.keySet());
+
+        KeySetView<String, WebSocketSession> beforeUsers = CLIENTS.keySet();
+        Collection<CompletableFuture<Void>> tasks = new ArrayList<>();
         for (WebSocketSession clientSession : CLIENTS.values()) {
-            sendMessage(clientSession, response);
+            tasks.add(socketSender.sendMessage(clientSession, response));
         }
-        log.info("[문제 전송 후 사용자 : {}]", CLIENTS.keySet());
+
+        CompletableFuture.allOf(tasks.toArray(new CompletableFuture[0])).join();
+        logConnectionFailedUser(beforeUsers, CLIENTS.keySet());
     }
 
     public void startQuiz(Long quizId) {
@@ -126,24 +136,41 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
         log.info("[문제 {} 풀이 허용]", quizId);
         log.info("[연결된 사용자 : {}]", CLIENTS.keySet());
+
+        KeySetView<String, WebSocketSession> beforeUsers = CLIENTS.keySet();
+        Collection<CompletableFuture<Void>> tasks = new ArrayList<>();
         for (WebSocketSession clientSession : CLIENTS.values()) {
-            sendMessage(clientSession, response);
+            tasks.add(socketSender.sendMessage(clientSession, response));
         }
-        log.info("[풀이 신호 전송 후 사용자 : {}]", CLIENTS.keySet());
+        CompletableFuture.allOf(tasks.toArray(new CompletableFuture[0])).join();
+
+        logConnectionFailedUser(beforeUsers, CLIENTS.keySet());
+    }
+
+    private void logConnectionFailedUser(KeySetView<String, WebSocketSession> beforeUsers, KeySetView<String, WebSocketSession> strings) {
+        Set<String> disconnectedUser = SetUtils.difference(beforeUsers, strings).toSet();
+        if (!CollectionUtils.isEmpty(disconnectedUser)) {
+            log.info("disconnected user exists");
+            disconnectedUser.forEach(memberId -> {
+                log.info("disconnected member id: <{}>", memberId);
+            });
+        }
     }
 
     public void stopQuiz(Long quizId) {
         QuizStopResponse response = QuizStopResponse.from(quizId);
+        Collection<CompletableFuture<Void>> tasks = new ArrayList<>();
         for (WebSocketSession clientSession : CLIENTS.values()) {
-            sendMessage(clientSession, response);
+            tasks.add(socketSender.sendMessage(clientSession, response));
         }
+        CompletableFuture.allOf(tasks.toArray(new CompletableFuture[0])).join();
     }
 
     public void sendKingMemberCommand(Long educationId) {
         EducationResultResponse response = EducationResultResponse.of(KING_COMMAND, educationId);
 
         for (WebSocketSession clientSession : CLIENTS.values()) {
-            sendMessage(clientSession, response);
+            socketSender.sendMessage(clientSession, response);
         }
     }
 
@@ -151,28 +178,18 @@ public class WebSocketHandler extends TextWebSocketHandler {
         EducationResultResponse response = EducationResultResponse.of(WINNER_COMMAND, educationId);
 
         for (WebSocketSession clientSession : CLIENTS.values()) {
-            sendMessage(clientSession, response);
+            socketSender.sendMessage(clientSession, response);
         }
     }
 
     public void stopEducation(Long educationId) {
         CsQuizStopResponse response = CsQuizStopResponse.from(EXIT_COMMAND, educationId);
         for (WebSocketSession clientSession : CLIENTS.values()) {
-            sendMessage(clientSession, response);
+            socketSender.sendMessage(clientSession, response);
         }
     }
 
     private String findAttributeByToken(WebSocketSession session, String key) {
         return session.getAttributes().get(key).toString();
-    }
-
-    private void sendMessage(WebSocketSession session, Object sendValue) {
-        try {
-            String json = objectMapper.writeValueAsString(sendValue);
-            TextMessage responseMessage = new TextMessage(json);
-            session.sendMessage(responseMessage);
-        } catch (IOException e) {
-            throw new AppException(ErrorCode.WEBSOCKET_SEND_EXCEPTION);
-        }
     }
 }

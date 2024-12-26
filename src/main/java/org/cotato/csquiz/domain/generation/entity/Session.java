@@ -6,6 +6,8 @@ import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -18,6 +20,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.csquiz.common.entity.BaseTimeEntity;
 import org.cotato.csquiz.domain.generation.embedded.SessionContents;
+import org.cotato.csquiz.domain.generation.enums.SessionType;
 import org.hibernate.annotations.DynamicInsert;
 
 @Entity
@@ -39,6 +42,10 @@ public class Session extends BaseTimeEntity {
 
     @Column(name = "session_description")
     private String description;
+
+    @Column(name = "type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private SessionType sessionType;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "generation_id")
@@ -64,12 +71,13 @@ public class Session extends BaseTimeEntity {
 
     @Builder
     public Session(Integer number, String title, String description, String placeName, LocalDateTime sessionDateTime,
-                   Generation generation, SessionContents sessionContents) {
+                   SessionType sessionType, Generation generation, SessionContents sessionContents) {
         this.number = number;
         this.title = title;
         this.description = description;
         this.placeName = placeName;
         this.sessionDateTime = sessionDateTime;
+        this.sessionType = sessionType;
         this.generation = generation;
         this.sessionContents = sessionContents;
     }
@@ -92,5 +100,13 @@ public class Session extends BaseTimeEntity {
 
     public void updateSessionPlace(String placeName) {
         this.placeName = placeName;
+    }
+
+    public boolean hasOfflineSession() {
+        return this.sessionType == SessionType.OFFLINE || this.sessionType == SessionType.ALL;
+    }
+
+    public void updateSessionType(SessionType sessionType) {
+        this.sessionType = sessionType;
     }
 }

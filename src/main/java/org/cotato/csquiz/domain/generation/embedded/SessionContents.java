@@ -36,4 +36,8 @@ public class SessionContents {
     @Enumerated(EnumType.STRING)
     @ColumnDefault(value = "'DEVTALK_OFF'")
     private DevTalk devTalk;
+
+    public static SessionContents of(ItIssue itIssue, Networking networking, CSEducation csEducation, DevTalk devTalk) {
+        return new SessionContents(itIssue, networking, csEducation, devTalk);
+    }
 }

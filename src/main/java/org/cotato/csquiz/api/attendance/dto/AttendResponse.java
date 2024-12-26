@@ -3,13 +3,13 @@ package org.cotato.csquiz.api.attendance.dto;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 
 public record AttendResponse(
-        AttendanceResult status,
+        AttendanceResult result,
         String message
 ) {
-    public static AttendResponse from(AttendanceResult status) {
+    public static AttendResponse from(AttendanceResult result) {
         return new AttendResponse(
-                status,
-                status.getMessage()
+                result,
+                result.getMessage()
         );
     }
 }

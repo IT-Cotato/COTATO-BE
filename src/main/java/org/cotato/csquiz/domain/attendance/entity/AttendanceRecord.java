@@ -109,7 +109,7 @@ public class AttendanceRecord extends BaseTimeEntity {
         this.attendanceResult = attendanceResult;
     }
 
-    public boolean isAttendanceResultNotAbsent() {
-        return !attendanceResult.isPresented();
+    public boolean isPresent() {
+        return attendanceResult.isPresented();
     }
 }

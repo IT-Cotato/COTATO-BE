@@ -1,7 +1,6 @@
 package org.cotato.csquiz.domain.generation.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,8 +18,9 @@ import org.cotato.csquiz.common.schedule.SchedulerService;
 import org.cotato.csquiz.domain.attendance.embedded.Location;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
-import org.cotato.csquiz.domain.attendance.service.AttendanceAdminService;
-import org.cotato.csquiz.domain.attendance.service.AttendanceRecordService;
+import org.cotato.csquiz.domain.attendance.service.AttendanceService;
+import org.cotato.csquiz.domain.attendance.service.component.AttendanceReader;
+import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
 import org.cotato.csquiz.domain.education.entity.Education;
 import org.cotato.csquiz.domain.education.service.EducationService;
 import org.cotato.csquiz.domain.generation.embedded.SessionContents;
@@ -28,9 +28,11 @@ import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.domain.generation.entity.SessionImage;
 import org.cotato.csquiz.domain.generation.enums.CSEducation;
+import org.cotato.csquiz.domain.generation.enums.SessionType;
 import org.cotato.csquiz.domain.generation.repository.GenerationRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionImageRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
+import org.cotato.csquiz.domain.generation.service.component.SessionReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,12 +45,13 @@ public class SessionService {
     private final SessionRepository sessionRepository;
     private final GenerationRepository generationRepository;
     private final SessionImageRepository sessionImageRepository;
-    private final AttendanceAdminService attendanceAdminService;
+    private final AttendanceService attendanceService;
     private final EducationService educationService;
     private final SessionImageService sessionImageService;
     private final SchedulerService schedulerService;
     private final AttendanceRepository attendanceRepository;
-    private final AttendanceRecordService attendanceRecordService;
+    private final SessionReader sessionReader;
+    private final AttendanceReader attendanceReader;
 
     @Transactional
     public AddSessionResponse addSession(AddSessionRequest request) throws ImageException {
@@ -58,12 +61,14 @@ public class SessionService {
         int sessionNumber = calculateLastSessionNumber(findGeneration);
         log.info("해당 기수에 추가된 마지막 세션 : {}", sessionNumber);
 
+        SessionType sessionType = SessionType.getSessionType(request.isOffline(), request.isOnline());
         Session session = Session.builder()
                 .number(sessionNumber + 1)
                 .description(request.description())
                 .generation(findGeneration)
                 .title(request.title())
                 .placeName(request.placeName())
+                .sessionType(sessionType)
                 .sessionDateTime(request.sessionDateTime())
                 .sessionContents(SessionContents.builder()
                         .csEducation(request.csEducation())
@@ -79,10 +84,12 @@ public class SessionService {
             sessionImageService.addSessionImages(request.images(), savedSession);
         }
 
-        attendanceAdminService.addAttendance(session, Location.location(request.latitude(), request.longitude()),
-                request.attendanceDeadLine(), request.lateDeadLine());
-        schedulerService.scheduleSessionNotification(savedSession.getSessionDateTime());
-        schedulerService.scheduleAbsentRecords(savedSession.getSessionDateTime(), savedSession.getId());
+        if (sessionType.isCreateAttendance()) {
+            attendanceService.createAttendance(session, Location.location(request.latitude(), request.longitude()),
+                    request.attendanceDeadLine(), request.lateDeadLine());
+            schedulerService.scheduleSessionNotification(savedSession.getSessionDateTime());
+            schedulerService.scheduleAbsentRecords(savedSession.getSessionDateTime(), savedSession.getId());
+        }
 
         return AddSessionResponse.from(savedSession);
     }
@@ -95,49 +102,34 @@ public class SessionService {
 
     @Transactional
     public void updateSession(UpdateSessionRequest request) {
-        Session session = findSessionById(request.sessionId());
+        Session session = sessionReader.findByIdWithPessimisticXLock(request.sessionId());
 
         session.updateDescription(request.description());
         session.updateSessionTitle(request.title());
         session.updateSessionPlace(request.placeName());
 
-        session.updateSessionContents(SessionContents.builder()
-                .csEducation(request.csEducation())
-                .devTalk(request.devTalk())
-                .itIssue(request.itIssue())
-                .networking(request.networking())
-                .build());
+        session.updateSessionContents(
+                SessionContents.of(request.itIssue(), request.networking(), request.csEducation(), request.devTalk()));
 
-        updateSessionDateTime(session, request.sessionDateTime(), request.attendTime().attendanceDeadLine(),
-                request.attendTime().lateDeadLine());
+        session.updateSessionDateTime(request.sessionDateTime());
+        SessionType sessionType = SessionType.getSessionType(request.isOffline(), request.isOnline());
+        session.updateSessionType(sessionType);
         sessionRepository.save(session);
 
-        Attendance attendance = attendanceRepository.findBySessionId(session.getId())
-                .orElseThrow(() -> new EntityNotFoundException("해당 세션을 찾을 수 없습니다."));
-
-        attendance.updateLocation(request.location());
-        attendanceRepository.save(attendance);
-    }
-
-    @Transactional
-    public void updateSessionDateTime(Session session, LocalDateTime newDateTime, LocalDateTime attendanceDeadline,
-                                      LocalDateTime lateDeadline) {
-        Attendance attendance = attendanceRepository.findBySessionId(session.getId())
+        // Todo https://www.notion.so/youthhing/ApplicationEventPublisher-15887d592b6e803eb7c7c1ce2da22b8c?pvs=4
+        AttendanceUtil.validateAttendanceTime(request.sessionDateTime(), request.attendTime().attendanceDeadLine(),
+                request.attendTime().lateDeadLine());
+        Attendance attendance = attendanceReader.findBySessionIdWithPessimisticXLock(session.getId())
                 .orElseGet(() -> Attendance.builder()
                         .session(session)
+                        .attendanceDeadLine(request.attendTime().attendanceDeadLine())
+                        .lateDeadLine(request.attendTime().lateDeadLine())
                         .build());
-
-        // 날짜가 바뀌지 않았고, 출결 시간이 모두 동일한 경우
-        if (newDateTime.equals(session.getSessionDateTime()) &&
-                attendance.getAttendanceDeadLine().equals(attendanceDeadline) &&
-                attendance.getLateDeadLine().equals(lateDeadline)) {
-            return;
+        attendance.updateDeadLine(request.attendTime().attendanceDeadLine(), request.attendTime().lateDeadLine());
+        if (sessionType.hasOffline()) {
+            attendance.updateLocation(request.location());
         }
-        session.updateSessionDateTime(newDateTime);
-        attendance.updateDeadLine(attendanceDeadline, lateDeadline);
-
         attendanceRepository.save(attendance);
-        attendanceRecordService.updateAttendanceStatus(session, attendance);
     }
 
     public List<SessionListResponse> findSessionsByGenerationId(Long generationId) {
@@ -153,11 +145,6 @@ public class SessionService {
         return sessions.stream()
                 .map(session -> SessionListResponse.of(session, imagesGroupBySession.getOrDefault(session, List.of())))
                 .toList();
-    }
-
-    public Session findSessionById(Long sessionId) {
-        return sessionRepository.findById(sessionId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 세션을 찾을 수 없습니다."));
     }
 
     public List<CsEducationOnSessionNumberResponse> findAllNotLinkedCsOnSessionsByGenerationId(Long generationId) {
@@ -177,7 +164,7 @@ public class SessionService {
     }
 
     public SessionWithAttendanceResponse findSession(Long sessionId) {
-        Session session = findSessionById(sessionId);
+        Session session = sessionReader.findById(sessionId);
         List<SessionImage> sessionImages = sessionImageRepository.findAllBySession(session);
         Optional<Attendance> maybeAttendance = attendanceRepository.findBySessionId(sessionId);
         return maybeAttendance.map(attendance -> SessionWithAttendanceResponse.of(session, sessionImages, attendance))

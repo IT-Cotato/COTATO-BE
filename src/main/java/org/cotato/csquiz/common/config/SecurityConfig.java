@@ -35,7 +35,8 @@ public class SecurityConfig {
             "/websocket/csquiz",
             "/v2/api/policies",
             "/v2/api/events/**",
-            "/v1/api/generation/current"
+            "/v1/api/generation/current",
+            "/v2/api/random-quizzes/**"
     };
 
     private final JwtTokenProvider jwtTokenProvider;
@@ -108,6 +109,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST, "/v2/api/projects").hasRole("ADMIN")
                                 .requestMatchers(HttpMethod.POST, "v2/api/projects/images").hasRole("ADMIN")
                                 .requestMatchers(HttpMethod.GET, "/v2/api/projects/**").permitAll()
+                                .requestMatchers("/v2/api/generation-member/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 );
         return http.build();
