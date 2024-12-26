@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "기수 관련 API")
 @RestController
-@RequestMapping("/v1/api/generation")
+@RequestMapping("/v1/api/generations")
 @RequiredArgsConstructor
 @Slf4j
 public class GenerationController {
@@ -48,7 +48,7 @@ public class GenerationController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/period")
+    @PatchMapping("/{generationId}/period")
     public ResponseEntity<Void> changeGenerationPeriod(@RequestBody @Valid ChangeGenerationPeriodRequest request) {
         generationService.changeGenerationPeriod(request);
         return ResponseEntity.noContent().build();

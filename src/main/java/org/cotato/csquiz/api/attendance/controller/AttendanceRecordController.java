@@ -10,6 +10,7 @@ import org.cotato.csquiz.api.attendance.dto.MemberAttendanceRecordsResponse;
 import org.cotato.csquiz.api.attendance.dto.OfflineAttendanceRequest;
 import org.cotato.csquiz.api.attendance.dto.OnlineAttendanceRequest;
 import org.cotato.csquiz.domain.attendance.service.AttendanceRecordService;
+import org.cotato.csquiz.domain.auth.entity.Member;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,8 +48,8 @@ public class AttendanceRecordController {
     @PostMapping(value = "/offline")
     public ResponseEntity<AttendResponse> submitOfflineAttendanceRecord(
             @RequestBody @Valid OfflineAttendanceRequest request,
-            @AuthenticationPrincipal Long memberId) {
-        return ResponseEntity.ok().body(attendanceRecordService.submitRecord(request, memberId));
+            @AuthenticationPrincipal Member member) {
+        return ResponseEntity.ok().body(attendanceRecordService.submitRecord(request, member));
     }
 
     @Operation(summary = "비대면 출결 입력 API",
@@ -69,15 +70,15 @@ public class AttendanceRecordController {
     @PostMapping(value = "/online")
     public ResponseEntity<AttendResponse> submitOnlineAttendanceRecord(
             @RequestBody @Valid OnlineAttendanceRequest request,
-            @AuthenticationPrincipal Long memberId) {
-        return ResponseEntity.ok().body(attendanceRecordService.submitRecord(request, memberId));
+            @AuthenticationPrincipal Member member) {
+        return ResponseEntity.ok().body(attendanceRecordService.submitRecord(request, member));
     }
 
     @Operation(summary = "부원의 기수별 출결 기록 반환 API")
     @GetMapping("/members")
     public ResponseEntity<MemberAttendanceRecordsResponse> findAllRecordsByGeneration(
             @RequestParam("generationId") Long generationId,
-            @AuthenticationPrincipal Long memberId) {
-        return ResponseEntity.ok().body(attendanceRecordService.findAllRecordsBy(generationId, memberId));
+            @AuthenticationPrincipal Member member) {
+        return ResponseEntity.ok().body(attendanceRecordService.findAllRecordsBy(generationId, member));
     }
 }

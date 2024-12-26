@@ -1,6 +1,7 @@
 package org.cotato.csquiz.common.websocket;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
@@ -41,6 +42,8 @@ public class WebSocketHandler extends TextWebSocketHandler {
     private static final String MEMBER_ID_KEY = "memberId";
     private static final String EDUCATION_ID_KEY = "educationId";
     private static final String ROLE_KEY = "role";
+
+    private static final String KEY_DELIMITER = "@";
     private static final CloseStatus ATTEMPT_NEW_CONNECTION = new CloseStatus(4001, "new connection request");
 
     private final QuizRepository quizRepository;
