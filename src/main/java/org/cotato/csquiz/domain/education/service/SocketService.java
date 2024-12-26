@@ -34,9 +34,7 @@ public class SocketService {
         webSocketHandler.stopEducation(educationId);
     }
 
-    public SocketTokenDto createSocketToken(final Long memberId) {
-        Member member = memberService.findById(memberId);
-
+    public SocketTokenDto createSocketToken(final Member member) {
         String socketToken = jwtTokenProvider.createSocketToken(member.getId(), member.getRole().getKey());
         log.info("[ 소켓 전용 토큰 발급 완료 ]");
         return SocketTokenDto.from(socketToken);

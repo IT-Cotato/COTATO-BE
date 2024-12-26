@@ -7,6 +7,7 @@ import org.cotato.csquiz.api.socket.dto.EducationCloseRequest;
 import org.cotato.csquiz.api.socket.dto.EducationOpenRequest;
 import org.cotato.csquiz.api.socket.dto.QuizSocketRequest;
 import org.cotato.csquiz.api.socket.dto.SocketTokenDto;
+import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.education.service.EducationService;
 import org.cotato.csquiz.domain.education.service.QuizSolveService;
 import org.cotato.csquiz.domain.education.service.RecordService;
@@ -69,8 +70,8 @@ public class SocketController {
     }
 
     @PostMapping("/token")
-    public ResponseEntity<SocketTokenDto> makeSocketToken(@AuthenticationPrincipal Long memberId) {
-        return ResponseEntity.ok(socketService.createSocketToken(memberId));
+    public ResponseEntity<SocketTokenDto> makeSocketToken(@AuthenticationPrincipal Member member) {
+        return ResponseEntity.ok(socketService.createSocketToken(member));
     }
 
 

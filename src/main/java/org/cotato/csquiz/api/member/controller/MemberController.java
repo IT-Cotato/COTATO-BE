@@ -10,6 +10,7 @@ import org.cotato.csquiz.api.member.dto.UpdatePasswordRequest;
 import org.cotato.csquiz.api.member.dto.UpdatePhoneNumberRequest;
 import org.cotato.csquiz.api.member.dto.UpdateProfileImageRequest;
 import org.cotato.csquiz.common.error.exception.ImageException;
+import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.service.MemberService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -37,34 +38,34 @@ public class MemberController {
     }
 
     @PatchMapping("/update/password")
-    public ResponseEntity<Void> updatePassword(@AuthenticationPrincipal Long memberId,
+    public ResponseEntity<Void> updatePassword(@AuthenticationPrincipal Member member,
                                                @RequestBody @Valid UpdatePasswordRequest request) {
-        memberService.updatePassword(memberId, request.password());
+        memberService.updatePassword(member, request.password());
         return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "멤버 전화번호 수정 API")
     @PatchMapping("/phone-number")
-    public ResponseEntity<Void> updatePhoneNumber(@AuthenticationPrincipal Long memberId,
+    public ResponseEntity<Void> updatePhoneNumber(@AuthenticationPrincipal Member member,
                                                   @RequestBody @Valid UpdatePhoneNumberRequest request) {
-        memberService.updatePhoneNumber(memberId, request.phoneNumber());
+        memberService.updatePhoneNumber(member, request.phoneNumber());
         return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "멤버 프로필 사진 수정 API")
     @PatchMapping(value = "/profile-image", consumes = "multipart/form-data")
     public ResponseEntity<Void> updateProfileImage(
-            @AuthenticationPrincipal Long memberId,
+            @AuthenticationPrincipal Member member,
             @ModelAttribute @Valid UpdateProfileImageRequest request) throws ImageException {
-        memberService.updateMemberProfileImage(memberId, request.image());
+        memberService.updateMemberProfileImage(member, request.image());
         return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "멤버 프로필 사진 삭제 API")
     @DeleteMapping("/profile-image")
     public ResponseEntity<Void> deleteProfileImage(
-            @AuthenticationPrincipal Long memberId) {
-        memberService.deleteMemberProfileImage(memberId);
+            @AuthenticationPrincipal Member member) {
+        memberService.deleteMemberProfileImage(member);
         return ResponseEntity.noContent().build();
     }
 

@@ -103,12 +103,11 @@ public class AttendanceRecordService {
     }
 
     @Transactional
-    public AttendResponse submitRecord(AttendanceParams request, final Long memberId) {
+    public AttendResponse submitRecord(AttendanceParams request, final Member member) {
         Attendance attendance = attendanceRepository.findById(request.attendanceId())
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석이 존재하지 않습니다."));
 
         Session session = sessionReader.findById(attendance.getSessionId());
-        Member member = memberReader.findById(memberId);
 
         checkIsGenerationMember(member, session.getGeneration());
 
@@ -120,11 +119,11 @@ public class AttendanceRecordService {
 
         // 기존 출결 데이터가 존재하는지 확인
         if (attendanceRecordRepository.existsByAttendanceIdAndMemberIdAndAttendanceType(request.attendanceId(),
-                memberId, request.attendanceType())) {
+                member.getId(), request.attendanceType())) {
             throw new AppException(ErrorCode.ALREADY_ATTEND);
         }
 
-        return requestAttendanceService.attend(request, session, memberId, attendance);
+        return requestAttendanceService.attend(request, session, member.getId(), attendance);
     }
 
     private void checkIsGenerationMember(Member member, Generation generation) {
@@ -133,7 +132,7 @@ public class AttendanceRecordService {
         }
     }
 
-    public MemberAttendanceRecordsResponse findAllRecordsBy(final Long generationId, final Long memberId) {
+    public MemberAttendanceRecordsResponse findAllRecordsBy(final Long generationId, final Member member) {
         List<Session> sessions = sessionReader.findAllByGenerationId(generationId);
 
         Map<Long, Session> sessionMap = sessions.stream()
@@ -150,7 +149,7 @@ public class AttendanceRecordService {
                 .toList();
 
         Map<Long, AttendanceRecord> attendanceRecordMap = attendanceRecordRepository.findAllByAttendanceIdsInQueryAndMemberId(
-                        attendanceIds, memberId).stream()
+                        attendanceIds, member.getId()).stream()
                 .collect(Collectors.toUnmodifiableMap(AttendanceRecord::getAttendanceId, Function.identity()));
 
         Map<Boolean, List<Attendance>> recordedAttendance = attendances.stream()
@@ -162,7 +161,7 @@ public class AttendanceRecordService {
                 .collect(Collectors.toList());
 
         responses.addAll(recordedAttendance.get(false).stream()
-                .map(at -> MemberAttendResponse.unrecordedAttendance(sessionMap.get(at.getSessionId()), at, memberId))
+                .map(at -> MemberAttendResponse.unrecordedAttendance(sessionMap.get(at.getSessionId()), at, member.getId()))
                 .toList());
 
         return MemberAttendanceRecordsResponse.of(generationId, responses);
