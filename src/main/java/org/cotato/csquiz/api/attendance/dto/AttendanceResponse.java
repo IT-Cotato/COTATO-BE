@@ -21,6 +21,8 @@ public record AttendanceResponse(
         Location location,
         @Schema(description = "세션 PK", requiredMode = RequiredMode.REQUIRED)
         Long sessionId,
+        @Schema(description = "세션 타이틀", requiredMode = RequiredMode.REQUIRED)
+        String sessionTitle,
         @Schema(description = "출결 옵션", requiredMode = RequiredMode.REQUIRED)
         SessionType sessionType,
         @Schema(description = "출석 오픈 상태", requiredMode = RequiredMode.REQUIRED)
@@ -33,6 +35,7 @@ public record AttendanceResponse(
                 attendance.getLateDeadLine(),
                 attendance.getLocation(),
                 attendance.getSessionId(),
+                session.getTitle(),
                 session.getSessionType(),
                 AttendanceUtil.getAttendanceOpenStatus(session.getSessionDateTime(), attendance, LocalDateTime.now())
         );
