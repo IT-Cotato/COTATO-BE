@@ -39,7 +39,7 @@ public class AttendanceService {
 
     public AttendanceResponse getAttendance(final Long attendanceId) {
         Attendance attendance = attendanceReader.findById(attendanceId);
-        Session session = sessionReader.findById(attendanceId);
+        Session session = sessionReader.findById(attendance.getSessionId());
         return AttendanceResponse.of(attendance, session);
     }
 
