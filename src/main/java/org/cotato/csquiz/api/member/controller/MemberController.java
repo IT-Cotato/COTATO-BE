@@ -10,6 +10,7 @@ import org.cotato.csquiz.api.member.dto.MemberMyPageInfoResponse;
 import org.cotato.csquiz.api.member.dto.UpdatePasswordRequest;
 import org.cotato.csquiz.api.member.dto.UpdatePhoneNumberRequest;
 import org.cotato.csquiz.api.member.dto.UpdateProfileImageRequest;
+import org.cotato.csquiz.api.member.dto.UpdateProfileInfoRequest;
 import org.cotato.csquiz.common.error.exception.ImageException;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.service.MemberService;
@@ -50,6 +51,15 @@ public class MemberController {
     public ResponseEntity<Void> updatePhoneNumber(@AuthenticationPrincipal Member member,
                                                   @RequestBody @Valid UpdatePhoneNumberRequest request) {
         memberService.updatePhoneNumber(member, request.phoneNumber());
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "멤버 프로필 정보 수정 API")
+    @PatchMapping("/profile")
+    public ResponseEntity<Void> updateProfileInfo(@AuthenticationPrincipal Long memberId,
+                                                  @RequestBody @Valid final UpdateProfileInfoRequest request) {
+        memberService.updateMemberProfileInfo(memberId, request.introduction(), request.university(),
+                request.profileLinks());
         return ResponseEntity.noContent().build();
     }
 

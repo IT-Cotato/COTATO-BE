@@ -8,16 +8,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.admin.dto.MemberInfoResponse;
 import org.cotato.csquiz.api.member.dto.MemberInfo;
 import org.cotato.csquiz.api.member.dto.MemberMyPageInfoResponse;
-import org.cotato.csquiz.common.config.jwt.JwtTokenProvider;
+import org.cotato.csquiz.api.member.dto.ProfileLinkRequest;
 import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.common.error.exception.ImageException;
 import org.cotato.csquiz.common.s3.S3Uploader;
 import org.cotato.csquiz.domain.auth.entity.Member;
-import org.cotato.csquiz.domain.auth.enums.MemberRoleGroup;
+import org.cotato.csquiz.domain.auth.entity.ProfileLink;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
 import org.cotato.csquiz.domain.auth.service.component.MemberReader;
+import org.cotato.csquiz.domain.auth.service.component.ProfileLinkWriter;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -34,6 +35,7 @@ public class MemberService {
     private static final String PROFILE_BUCKET_DIRECTORY = "profile";
     private final MemberReader memberReader;
     private final GenerationReader generationReader;
+    private final ProfileLinkWriter profileLinkWriter;
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final EncryptService encryptService;
@@ -73,6 +75,21 @@ public class MemberService {
         String encryptedPhoneNumber = encryptService.encryptPhoneNumber(phoneNumber);
         member.updatePhoneNumber(encryptedPhoneNumber);
         memberRepository.save(member);
+    }
+
+    @Transactional
+    public void updateMemberProfileInfo(final Long memberId, final String introduction, final String university,
+                                        final List<ProfileLinkRequest> profileLinkRequests) {
+        Member member = memberReader.findById(memberId);
+
+        member.updateIntroduction(introduction);
+        member.updateUniversity(university);
+        profileLinkWriter.deleteAllByMember(member);
+
+        List<ProfileLink> profileLinks = profileLinkRequests.stream()
+                .map(lr -> ProfileLink.of(member, lr.linkType(), lr.link()))
+                .toList();
+        profileLinkWriter.createProfileLinks(profileLinks);
     }
 
     @Transactional
