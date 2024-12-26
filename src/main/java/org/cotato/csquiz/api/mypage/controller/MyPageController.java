@@ -1,6 +1,7 @@
 package org.cotato.csquiz.api.mypage.controller;
 
 import org.cotato.csquiz.api.mypage.dto.HallOfFameResponse;
+import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.education.service.MyPageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,7 @@ public class MyPageController {
 
     @GetMapping("/hall-of-fame")
     public ResponseEntity<HallOfFameResponse> findHallOfFame(@RequestParam("generationId") Long generationId,
-                                                             @AuthenticationPrincipal Long memberId) {
-        return ResponseEntity.ok(myPageService.findHallOfFame(generationId, memberId));
+                                                             @AuthenticationPrincipal Member member) {
+        return ResponseEntity.ok(myPageService.findHallOfFame(generationId, member));
     }
 }

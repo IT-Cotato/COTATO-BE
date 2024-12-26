@@ -29,9 +29,9 @@ public class PolicyService {
     private final PolicyRepository policyRepository;
     private final MemberPolicyRepository memberPolicyRepository;
 
-    public FindMemberPolicyResponse findUnCheckedPolicies(final Long memberId) {
+    public FindMemberPolicyResponse findUnCheckedPolicies(final Member member) {
         // 회원이 체크한 정책
-        List<Long> checkedPolicies = memberPolicyRepository.findAllByMemberId(memberId).stream()
+        List<Long> checkedPolicies = memberPolicyRepository.findAllByMemberId(member.getId()).stream()
                 .filter(MemberPolicy::getIsChecked)
                 .map(MemberPolicy::getPolicyId)
                 .toList();
@@ -48,13 +48,11 @@ public class PolicyService {
                 .map(PolicyInfoResponse::from)
                 .toList();
 
-        return FindMemberPolicyResponse.of(memberId, uncheckedEssentialPolicies, uncheckedOptionalPolicies);
+        return FindMemberPolicyResponse.of(member, uncheckedEssentialPolicies, uncheckedOptionalPolicies);
     }
 
     @Transactional
-    public void checkPolicies(Long memberId, List<CheckPolicyRequest> checkedPolicies) {
-        Member findMember = memberService.findById(memberId);
-
+    public void checkPolicies(final Member member, List<CheckPolicyRequest> checkedPolicies) {
         List<Long> policyIds = checkedPolicies.stream()
                 .map(CheckPolicyRequest::policyId)
                 .toList();
@@ -65,14 +63,14 @@ public class PolicyService {
             throw new EntityNotFoundException("해당 정책을 찾을 수 없습니다.");
         }
         // 해당 정책에 이미 체크했는지 확인
-        if (isAlreadyChecked(findMember, policyIds)) {
+        if (isAlreadyChecked(member, policyIds)) {
             throw new AppException(ErrorCode.ALREADY_POLICY_CHECK);
         }
         // 필수 정책에 체크하지 않았는지 확인
         validateCheckEssentialPolicies(getEssentialPolicies(policies), policyIds);
 
         List<MemberPolicy> memberPolicies = checkedPolicies.stream()
-                .map(policyRequest -> MemberPolicy.of(policyRequest.isChecked(), findMember, policyRequest.policyId()))
+                .map(policyRequest -> MemberPolicy.of(policyRequest.isChecked(), member, policyRequest.policyId()))
                 .toList();
 
         memberPolicyRepository.saveAll(memberPolicies);

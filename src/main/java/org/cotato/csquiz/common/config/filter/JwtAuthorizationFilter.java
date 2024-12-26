@@ -10,6 +10,7 @@ import jodd.net.HttpMethod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.common.config.jwt.JwtTokenProvider;
+import org.cotato.csquiz.domain.auth.entity.Member;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -52,14 +53,11 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     }
 
     private void setAuthentication(String accessToken) {
-        Long memberId = jwtTokenProvider.getMemberId(accessToken);
-        String role = jwtTokenProvider.getRole(accessToken);
-        log.info("[인증 필터 인증 진행, {}]", memberId);
-        log.info("Member Role: {}", role);
+        Member member = jwtTokenProvider.getMemberByToken(accessToken);
+        String role = member.getRole().toString();
+        log.info("authenticated member : <{}> , <{}>", member.getId(), member.getName());
 
-        jwtTokenProvider.checkMemberExist(memberId);
-
-        Authentication authenticationToken = new UsernamePasswordAuthenticationToken(memberId, "",
+        Authentication authenticationToken = new UsernamePasswordAuthenticationToken(member, "",
                 List.of(new SimpleGrantedAuthority(role)));
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
     }
