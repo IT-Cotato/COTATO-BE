@@ -29,9 +29,12 @@ public class ProfileLink extends BaseTimeEntity {
 
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)
-    private LinkType role;
+    private LinkType linkType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
+
+    @Column(name = "link", nullable = false, columnDefinition = "TEXT")
+    private String link;
 }
