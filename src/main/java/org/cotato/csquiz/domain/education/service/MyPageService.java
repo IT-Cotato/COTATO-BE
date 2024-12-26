@@ -42,7 +42,7 @@ public class MyPageService {
     private final RecordRepository recordRepository;
     private final ScorerRepository scorerRepository;
 
-    public HallOfFameResponse findHallOfFame(Long generationId, Long memberId) {
+    public HallOfFameResponse findHallOfFame(Long generationId, final Member member) {
         Generation findGeneration = generationRepository.findById(generationId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 기수를 찾을 수 없습니다."));
 
@@ -51,7 +51,6 @@ public class MyPageService {
         log.info("============{}기에 존재하는 모든 정답자 조회================", findGeneration.getNumber());
         List<HallOfFameInfo> answerHallOfFame = createRecordsHallOfFameInfoByGeneration(findGeneration);
 
-        Member member = findMemberById(memberId);
         MyHallOfFameInfo myHallOfFameInfo = createMyHallOfFameInfoByGeneration(member, findGeneration);
 
         return HallOfFameResponse.of(scorerHallOfFame, answerHallOfFame, myHallOfFameInfo);
