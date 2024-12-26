@@ -18,6 +18,7 @@ import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.entity.ProfileLink;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
 import org.cotato.csquiz.domain.auth.service.component.MemberReader;
+import org.cotato.csquiz.domain.auth.service.component.MemberWriter;
 import org.cotato.csquiz.domain.auth.service.component.ProfileLinkWriter;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
@@ -41,6 +42,7 @@ public class MemberService {
     private final EncryptService encryptService;
     private final ValidateService validateService;
     private final S3Uploader s3Uploader;
+    private final MemberWriter memberWriter;
 
     public MemberInfoResponse findMemberInfo(final Member member) {
         String rawBackFourNumber = findBackFourNumber(member);
@@ -78,14 +80,13 @@ public class MemberService {
     }
 
     @Transactional
-    public void updateMemberProfileInfo(final Long memberId, final String introduction, final String university,
+    public void updateMemberProfileInfo(final Member member, final String introduction, final String university,
                                         final List<ProfileLinkRequest> profileLinkRequests) {
-        Member member = memberReader.findById(memberId);
-
         member.updateIntroduction(introduction);
         member.updateUniversity(university);
-        profileLinkWriter.deleteAllByMember(member);
+        memberWriter.save(member);
 
+        profileLinkWriter.deleteAllByMember(member);
         List<ProfileLink> profileLinks = profileLinkRequests.stream()
                 .map(lr -> ProfileLink.of(member, lr.linkType(), lr.link()))
                 .toList();

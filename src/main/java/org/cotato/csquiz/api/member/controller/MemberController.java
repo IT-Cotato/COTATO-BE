@@ -56,9 +56,9 @@ public class MemberController {
 
     @Operation(summary = "멤버 프로필 정보 수정 API")
     @PatchMapping("/profile")
-    public ResponseEntity<Void> updateProfileInfo(@AuthenticationPrincipal Long memberId,
+    public ResponseEntity<Void> updateProfileInfo(@AuthenticationPrincipal Member member,
                                                   @RequestBody @Valid final UpdateProfileInfoRequest request) {
-        memberService.updateMemberProfileInfo(memberId, request.introduction(), request.university(),
+        memberService.updateMemberProfileInfo(member, request.introduction(), request.university(),
                 request.profileLinks());
         return ResponseEntity.noContent().build();
     }
