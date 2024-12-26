@@ -11,7 +11,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.csquiz.common.entity.BaseTimeEntity;
@@ -35,6 +34,16 @@ public class ProfileLink extends BaseTimeEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    @Column(name = "link", nullable = false, columnDefinition = "TEXT")
-    private String link;
+    @Column(name = "url", nullable = false, columnDefinition = "TEXT")
+    private String url;
+
+    private ProfileLink(Member member, LinkType linkType, String link) {
+        this.member = member;
+        this.linkType = linkType;
+        this.url = link;
+    }
+
+    public static ProfileLink of(final Member member, LinkType linkType, String link) {
+        return new ProfileLink(member, linkType, link);
+    }
 }
