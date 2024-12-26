@@ -69,7 +69,7 @@ public class AuthService {
                 .build();
         memberRepository.save(newMember);
 
-        policyService.checkPolicies(newMember.getId(), request.policies());
+        policyService.checkPolicies(newMember, request.policies());
 
         return JoinResponse.from(newMember);
     }

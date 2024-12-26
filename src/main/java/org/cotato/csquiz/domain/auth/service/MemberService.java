@@ -57,14 +57,11 @@ public class MemberService {
     }
 
     @Transactional
-    public void updatePassword(final Long memberId, final String password) {
-        Member findMember = memberRepository.findById(memberId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다."));
-
+    public void updatePassword(final Member member, final String password) {
         validateService.checkPasswordPattern(password);
-        validateIsSameBefore(findMember.getPassword(), password);
+        validateIsSameBefore(member.getPassword(), password);
 
-        findMember.updatePassword(bCryptPasswordEncoder.encode(password));
+        member.updatePassword(bCryptPasswordEncoder.encode(password));
     }
 
     private void validateIsSameBefore(String originPassword, String newPassword) {
@@ -74,41 +71,32 @@ public class MemberService {
     }
 
     @Transactional
-    public void updatePhoneNumber(Long memberId, String phoneNumber) {
-        Member findMember = memberRepository.findById(memberId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다."));
-
+    public void updatePhoneNumber(final Member member, String phoneNumber) {
         String encryptedPhoneNumber = encryptService.encryptPhoneNumber(phoneNumber);
-        findMember.updatePhoneNumber(encryptedPhoneNumber);
+        member.updatePhoneNumber(encryptedPhoneNumber);
     }
 
     @Transactional
-    public void updateMemberProfileImage(Long memberId, MultipartFile image) throws ImageException {
+    public void updateMemberProfileImage(final Member member, MultipartFile image) throws ImageException {
         if (image.isEmpty()) {
             throw new AppException(ErrorCode.FILE_IS_EMPTY);
         }
 
-        Member findMember = memberRepository.findById(memberId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다."));
-
-        if (findMember.getProfileImage() != null) {
-            s3Uploader.deleteFile(findMember.getProfileImage());
+        if (member.getProfileImage() != null) {
+            s3Uploader.deleteFile(member.getProfileImage());
         }
 
         S3Info s3Info = s3Uploader.uploadFiles(image, PROFILE_BUCKET_DIRECTORY);
-        findMember.updateProfileImage(s3Info);
+        member.updateProfileImage(s3Info);
     }
 
     @Transactional
-    public void deleteMemberProfileImage(Long memberId) {
-        Member findMember = memberRepository.findById(memberId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다."));
-
-        if (findMember.getProfileImage() != null) {
-            s3Uploader.deleteFile(findMember.getProfileImage());
+    public void deleteMemberProfileImage(final Member member) {
+        if (member.getProfileImage() != null) {
+            s3Uploader.deleteFile(member.getProfileImage());
         }
 
-        findMember.updateProfileImage(null);
+        member.updateProfileImage(null);
     }
 
     public MemberMyPageInfoResponse findMyPageInfo(Long memberId) {
