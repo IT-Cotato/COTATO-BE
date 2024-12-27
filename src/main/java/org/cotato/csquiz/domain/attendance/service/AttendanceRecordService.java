@@ -209,9 +209,9 @@ public class AttendanceRecordService {
                 .orElseGet(() -> AttendanceRecord.absentRecord(attendance, memberId));
         Session session = sessionReader.findById(attendance.getSessionId());
 
-        if (!session.getSessionType().isSameType(attendanceRecord.getAttendanceType())) {
-            throw new AppException(ErrorCode.INVALID_RECORD_UPDATE);
-        }
+//        if (!session.getSessionType().isSameType(attendanceRecord.getAttendanceType())) {
+//            throw new AppException(ErrorCode.INVALID_RECORD_UPDATE);
+//        }
         // Todo https://github.com/IT-Cotato/COTATO-BE/issues/204
         attendanceRecord.updateAttendanceResult(attendanceResult);
 
