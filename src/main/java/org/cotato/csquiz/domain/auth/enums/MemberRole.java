@@ -18,9 +18,9 @@ public enum MemberRole {
     GENERAL("ROLE_GENERAL", "승인 대기 부원"),
     MEMBER("ROLE_MEMBER", "현재 활동 중인 부원"),
     OLD_MEMBER("ROLE_OM", "활동 후 종료한 부원"),
-    ADMIN("ROLE_ADMIN", "운영진"),
     EDUCATION("ROLE_EDUCATION","교육팀"),
-    OPERATION("ROLE_OPERATION", "운영지원팀");
+    OPERATION("ROLE_OPERATION", "운영지원팀"),
+    ADMIN("ROLE_ADMIN", "운영진");
 
     private static final Map<String, MemberRole> ROLE_KEY_MAP = Stream.of(values())
             .collect(Collectors.toUnmodifiableMap(MemberRole::getKey, Function.identity()));
