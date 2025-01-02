@@ -13,10 +13,12 @@ import org.cotato.csquiz.api.attendance.dto.AttendancesResponse;
 import org.cotato.csquiz.api.attendance.dto.GenerationMemberAttendanceRecordResponse;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRecordRequest;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
+import org.cotato.csquiz.common.role.RoleAuthority;
 import org.cotato.csquiz.domain.attendance.service.AttendanceExcelService;
 import org.cotato.csquiz.domain.attendance.service.AttendanceRecordService;
 import org.cotato.csquiz.domain.attendance.service.AttendanceService;
 import org.cotato.csquiz.domain.attendance.util.AttendanceExcelHeaderUtil;
+import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -69,6 +71,7 @@ public class AttendanceController {
     }
 
     @Operation(summary = "회원 출결사항 출석 단위 조회 API")
+    @RoleAuthority(MemberRole.ADMIN)
     @GetMapping("/{attendance-id}/records")
     public ResponseEntity<List<AttendanceRecordResponse>> findAttendanceRecordsByAttendance(
             @PathVariable("attendance-id") Long attendanceId) {
@@ -76,6 +79,7 @@ public class AttendanceController {
     }
 
     @Operation(summary = "회원 출결사항 수정 API")
+    @RoleAuthority(MemberRole.ADMIN)
     @PatchMapping("/{attendance-id}/records")
     public ResponseEntity<Void> updateAttendanceRecords(
             @PathVariable("attendance-id") Long attendanceId,
