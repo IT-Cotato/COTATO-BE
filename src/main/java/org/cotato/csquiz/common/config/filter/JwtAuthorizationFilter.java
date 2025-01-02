@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import jodd.net.HttpMethod;
 import lombok.RequiredArgsConstructor;
@@ -24,20 +25,22 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
-    private static final String AUTH_PATH = "/v1/api/auth";
+    private static final String AUTH_PATH = "/v1/api/auth/**";
     private static final String LOGIN_PATH = "/login";
-    private static final String SWAGGER_PATH = "/swagger-ui";
-    private static final String SWAGGER_PATH_3 = "/v3/api-docs";
-    private static final String SWAGGER_FAVICON = "/favicon.ico";
-    private static final String WS = "/websocket/csquiz";
-    private static final String GENERATION_PATH = "/v1/api/generation";
-    private static final String SESSION_PATH = "/v1/api/session";
-    private static final String POLICIES_PATH = "/v2/api/policies";
-    private static final String PROJECTS_LIST = "/v2/api/projects";
-    private static final String PROJECT_DETAIL = "/v2/api/projects";
-    private static final String CURRENT_GENERATION = "/v1/api/generation/current";
-    private static final String RANDOM_QUIZ_PATH = "/v2/api/random-quizzes";
-    private static final String INTEGER_REGEX = "/{id:\\d+}";
+
+    private static final String[] WHITE_LIST = {
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/favicon.ico",
+            "/swagger-ui.html",
+            "/v1/api/session/**",
+            "/v1/api/generation",
+            "/v1/api/generation/current",
+            "/websocket/csquiz",
+            "/v2/api/policies",
+            "/v2/api/events/**",
+            "/v2/api/random-quizzes/**"
+    };
 
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -66,16 +69,17 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
         log.info("요청 경로 및 메서드: {}, {}", path, request.getMethod());
-        return path.startsWith(AUTH_PATH) || path.equals(LOGIN_PATH)
-                || path.startsWith(SWAGGER_PATH) || path.equals(SWAGGER_FAVICON)
-                || path.startsWith(SWAGGER_PATH_3) || path.startsWith(WS)
-                || path.startsWith(RANDOM_QUIZ_PATH)
-                || path.equals(GENERATION_PATH) || path.equals(SESSION_PATH)
-                || path.equals(POLICIES_PATH)
-                || path.equals(CURRENT_GENERATION)
-                || path.equals(PROJECTS_LIST) && HttpMethod.GET.name().equals(request.getMethod())
-                || new AntPathMatcher().match(PROJECT_DETAIL + INTEGER_REGEX, path)
-                || (new AntPathMatcher().match(SESSION_PATH + INTEGER_REGEX, path) && request.getMethod().equals(HttpMethod.GET.name()))
-                ;
+        return isAuthPath(request.getRequestURI()) || isWhiteList(request);
+    }
+
+    private boolean isWhiteList(HttpServletRequest request) {
+        AntPathMatcher pathMatcher = new AntPathMatcher();
+        return request.getMethod().equals(HttpMethod.GET.name())
+                && Arrays.stream(WHITE_LIST).anyMatch(pattern -> pathMatcher.match(pattern, request.getRequestURI()));
+    }
+
+    private boolean isAuthPath(String requestURI) {
+        AntPathMatcher pathMatcher = new AntPathMatcher();
+        return pathMatcher.match(AUTH_PATH, requestURI) || pathMatcher.match(LOGIN_PATH, requestURI);
     }
 }
