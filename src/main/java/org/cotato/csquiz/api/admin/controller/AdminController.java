@@ -7,6 +7,8 @@ import org.cotato.csquiz.api.admin.dto.MemberRejectRequest;
 import org.cotato.csquiz.api.admin.dto.UpdateActiveMemberRoleRequest;
 import org.cotato.csquiz.api.admin.dto.UpdateActiveMemberToOldMemberRequest;
 import org.cotato.csquiz.api.admin.dto.UpdateOldMemberRoleRequest;
+import org.cotato.csquiz.common.role.RoleAuthority;
+import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.cotato.csquiz.domain.auth.service.AdminService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -27,16 +29,19 @@ public class AdminController {
 
     private final AdminService adminService;
 
+    @RoleAuthority(MemberRole.ADMIN)
     @GetMapping("/applicants")
     public ResponseEntity<List<ApplyMemberInfoResponse>> findApplicantList() {
         return ResponseEntity.ok().body(adminService.findApplicantList());
     }
 
+    @RoleAuthority(MemberRole.ADMIN)
     @GetMapping("/reject-applicants")
     public ResponseEntity<List<ApplyMemberInfoResponse>> findRejectApplicantList() {
         return ResponseEntity.ok().body(adminService.findRejectApplicantList());
     }
 
+    @RoleAuthority(MemberRole.ADMIN)
     @PatchMapping("/approve")
     public ResponseEntity<Void> approveApplicant(@RequestBody @Valid MemberApproveRequest request) {
         log.info("[가입자 승인 컨트롤러, 요청된 member id : {}]", request.memberId());
@@ -44,6 +49,7 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
+    @RoleAuthority(MemberRole.ADMIN)
     @PatchMapping("/reject")
     public ResponseEntity<Void> rejectApplicant(@RequestBody @Valid MemberRejectRequest request) {
         log.info("[가입자 거절 컨트롤러, 요청된 member id : {}]", request.memberId());
@@ -51,6 +57,7 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
+    @RoleAuthority(MemberRole.ADMIN)
     @PatchMapping("/reapprove")
     public ResponseEntity<Void> reapproveApplicant(@RequestBody @Valid MemberApproveRequest request) {
         log.info("[가입자 재승인 컨트롤러, 요청된 member id : {}]", request.memberId());
@@ -58,11 +65,13 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
+    @RoleAuthority(MemberRole.ADMIN)
     @GetMapping("/active-members")
     public ResponseEntity<List<MemberEnrollInfoResponse>> findCurrentActiveMembers() {
         return ResponseEntity.ok().body(adminService.findCurrentActiveMembers());
     }
 
+    @RoleAuthority(MemberRole.ADMIN)
     @PatchMapping("/active-members/role")
     public ResponseEntity<Void> updateActiveMemberRole(
             @RequestBody @Valid UpdateActiveMemberRoleRequest request) {
@@ -71,6 +80,7 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
+    @RoleAuthority(MemberRole.ADMIN)
     @PatchMapping("/active-members/to-old-members")
     public ResponseEntity<Void> updateActiveMembersToOldMembers(
             @RequestBody @Valid UpdateActiveMemberToOldMemberRequest request) {
@@ -80,11 +90,13 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
+    @RoleAuthority(MemberRole.ADMIN)
     @GetMapping("/old-members")
     public ResponseEntity<List<MemberEnrollInfoResponse>> findOldMembers() {
         return ResponseEntity.ok().body(adminService.findOldMembers());
     }
 
+    @RoleAuthority(MemberRole.ADMIN)
     @PatchMapping("/old-members/role")
     public ResponseEntity<Void> updateOldMemberToActiveGeneration(
             @RequestBody @Valid UpdateOldMemberRoleRequest request) {

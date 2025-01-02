@@ -1,14 +1,11 @@
 package org.cotato.csquiz.domain.auth.enums;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.cotato.csquiz.common.error.ErrorCode;
-import org.cotato.csquiz.common.error.exception.AppException;
 
 @Getter
 @RequiredArgsConstructor
@@ -18,9 +15,10 @@ public enum MemberRole {
     GENERAL("ROLE_GENERAL", "승인 대기 부원"),
     MEMBER("ROLE_MEMBER", "현재 활동 중인 부원"),
     OLD_MEMBER("ROLE_OM", "활동 후 종료한 부원"),
-    ADMIN("ROLE_ADMIN", "운영진"),
     EDUCATION("ROLE_EDUCATION","교육팀"),
-    OPERATION("ROLE_OPERATION", "운영지원팀");
+    OPERATION("ROLE_OPERATION", "운영지원팀"),
+    MANAGER("ROLE_MANAGER", "운영 팀으로 활동하는 부원, 현재 교육팀과 운영지원팀"),
+    ADMIN("ROLE_ADMIN", "운영진");
 
     private static final Map<String, MemberRole> ROLE_KEY_MAP = Stream.of(values())
             .collect(Collectors.toUnmodifiableMap(MemberRole::getKey, Function.identity()));
