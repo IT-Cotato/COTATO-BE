@@ -71,7 +71,6 @@ public class SecurityConfig {
                 .addFilter(corsFilter)
                 .authorizeHttpRequests(request -> request
                                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-                                .requestMatchers("/v1/api/admin/**").hasRole("ADMIN")
                                 .requestMatchers(WHITE_LIST).permitAll()
                                 .requestMatchers("/v1/api/education/result/**")
                                 .hasAnyRole("MEMBER", "EDUCATION", "OPERATION", "ADMIN")
