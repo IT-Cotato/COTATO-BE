@@ -27,15 +27,17 @@ public class SecurityConfig {
 
     private static final String[] WHITE_LIST = {
             "/v1/api/auth/**",
+            "/login",
             "/swagger-ui/**",
             "/v3/api-docs/**",
+            "/favicon.ico",
             "/swagger-ui.html",
             "/v1/api/generation",
+            "/v1/api/generation/current",
             "/v1/api/session",
             "/websocket/csquiz",
             "/v2/api/policies",
             "/v2/api/events/**",
-            "/v1/api/generation/current",
             "/v2/api/random-quizzes/**"
     };
 
