@@ -36,6 +36,7 @@ public class SecurityConfig {
             "/v1/api/generation/current",
             "/v1/api/session",
             "/websocket/csquiz",
+            "/v2/api/projects/**",
             "/v2/api/policies",
             "/v2/api/events/**",
             "/v2/api/random-quizzes/**"
@@ -91,7 +92,6 @@ public class SecurityConfig {
                                 .requestMatchers("/v1/api/record/reply").hasAnyRole("MEMBER", "EDUCATION", "OPERATION", "ADMIN")
                                 .requestMatchers("/v1/api/record/**").hasAnyRole("EDUCATION", "ADMIN")
                                 .requestMatchers("/v1/api/session/cs-on").hasAnyRole("EDUCATION", "ADMIN")
-                                .requestMatchers(new AntPathRequestMatcher("/v1/api/session/**", HttpMethod.GET.name())).permitAll()
                                 .requestMatchers("/v2/api/attendances/info").hasAnyRole("MEMBER", "EDUCATION", "OPERATION", "ADMIN")
                                 .requestMatchers("/v2/api/attendances/records/**")
                                 .hasAnyRole("MEMBER", "EDUCATION", "OPERATION", "ADMIN")
@@ -100,7 +100,6 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET,"/v2/api/events/attendances").hasAnyRole("MEMBER", "ADMIN", "EDUCATION", "OPERATION")
                                 .requestMatchers(HttpMethod.POST, "/v2/api/events/attendances/{attendanceId}/test").hasRole("ADMIN")
                                 .requestMatchers("/v1/api/socket/**").hasAnyRole("EDUCATION", "ADMIN")
-                                .requestMatchers(HttpMethod.GET, "/v2/api/projects/**").permitAll()
                                 .anyRequest().authenticated()
                 );
         return http.build();
