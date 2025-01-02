@@ -11,6 +11,8 @@ import org.cotato.csquiz.api.project.dto.CreateProjectResponse;
 import org.cotato.csquiz.api.project.dto.ProjectDetailResponse;
 import org.cotato.csquiz.api.project.dto.ProjectSummaryResponse;
 import org.cotato.csquiz.common.error.exception.ImageException;
+import org.cotato.csquiz.common.role.RoleAuthority;
+import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.cotato.csquiz.domain.generation.service.ProjectImageService;
 import org.cotato.csquiz.domain.generation.service.ProjectService;
 import org.springframework.http.HttpStatus;
@@ -45,12 +47,14 @@ public class ProjectController {
     }
 
     @Operation(summary = "프로젝트 등록 API")
+    @RoleAuthority(MemberRole.ADMIN)
     @PostMapping
     public ResponseEntity<CreateProjectResponse> createProject(@RequestBody @Valid CreateProjectRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(projectService.createProject(request));
     }
 
     @Operation(summary = "프로젝트 사진 등록 API")
+    @RoleAuthority(MemberRole.ADMIN)
     @PostMapping(value = "/images", consumes = "multipart/form-data")
     public ResponseEntity<Void> createProjectImage(@ModelAttribute CreateProjectImageRequest request)
             throws ImageException {

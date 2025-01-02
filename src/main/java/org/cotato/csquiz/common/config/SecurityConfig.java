@@ -106,8 +106,6 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET,"/v2/api/events/attendances").hasAnyRole("MEMBER", "ADMIN", "EDUCATION", "OPERATION")
                                 .requestMatchers(HttpMethod.POST, "/v2/api/events/attendances/{attendanceId}/test").hasRole("ADMIN")
                                 .requestMatchers("/v1/api/socket/**").hasAnyRole("EDUCATION", "ADMIN")
-                                .requestMatchers(HttpMethod.POST, "/v2/api/projects").hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.POST, "v2/api/projects/images").hasRole("ADMIN")
                                 .requestMatchers(HttpMethod.GET, "/v2/api/projects/**").permitAll()
                                 .requestMatchers("/v2/api/generation-member/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
