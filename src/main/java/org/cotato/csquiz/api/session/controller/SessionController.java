@@ -16,6 +16,8 @@ import org.cotato.csquiz.api.session.dto.SessionListResponse;
 import org.cotato.csquiz.api.session.dto.SessionWithAttendanceResponse;
 import org.cotato.csquiz.api.session.dto.UpdateSessionImageOrderRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionRequest;
+import org.cotato.csquiz.common.role.RoleAuthority;
+import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.cotato.csquiz.domain.generation.service.SessionImageService;
 import org.cotato.csquiz.domain.generation.service.SessionService;
 import org.cotato.csquiz.common.error.exception.ImageException;
@@ -63,6 +65,7 @@ public class SessionController {
     }
 
     @Operation(summary = "Session 추가 API")
+    @RoleAuthority(MemberRole.ADMIN)
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<AddSessionResponse> addSession(@ModelAttribute @Valid AddSessionRequest request)
             throws ImageException {
@@ -70,6 +73,7 @@ public class SessionController {
     }
 
     @Operation(summary = "세션 수정 API")
+    @RoleAuthority(MemberRole.ADMIN)
     @PatchMapping
     public ResponseEntity<Void> updateSession(@RequestBody @Valid UpdateSessionRequest request) {
         sessionService.updateSession(request);
@@ -77,6 +81,7 @@ public class SessionController {
     }
 
     @Operation(summary = "세션 사진 순서 변경 API")
+    @RoleAuthority(MemberRole.ADMIN)
     @PatchMapping("/image/order")
     public ResponseEntity<Void> updateSessionImageOrder(@RequestBody UpdateSessionImageOrderRequest request) {
         sessionImageService.updateSessionImageOrder(request);
@@ -84,6 +89,7 @@ public class SessionController {
     }
 
     @Operation(summary = "세션 사진 추가 API")
+    @RoleAuthority(MemberRole.ADMIN)
     @PostMapping(value = "/image", consumes = "multipart/form-data")
     public ResponseEntity<AddSessionImageResponse> additionalSessionImage(@ModelAttribute @Valid AddSessionImageRequest request)
             throws ImageException {
@@ -91,6 +97,7 @@ public class SessionController {
     }
 
     @Operation(summary = "세션 사진 삭제 API")
+    @RoleAuthority(MemberRole.ADMIN)
     @DeleteMapping(value = "/image")
     public ResponseEntity<Void> deleteSessionImage(@RequestBody DeleteSessionImageRequest request) {
         sessionImageService.deleteSessionImage(request);
