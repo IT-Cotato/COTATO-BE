@@ -92,10 +92,6 @@ public class SecurityConfig {
                                 .requestMatchers("/v1/api/record/**").hasAnyRole("EDUCATION", "ADMIN")
                                 .requestMatchers("/v1/api/session/cs-on").hasAnyRole("EDUCATION", "ADMIN")
                                 .requestMatchers(new AntPathRequestMatcher("/v1/api/session/**", HttpMethod.GET.name())).permitAll()
-                                .requestMatchers("/v2/api/attendances/records").hasAnyRole("OPERATION", "ADMIN")
-                                .requestMatchers("/v2/api/attendances/{attendance-id}/records").hasAnyRole("ADMIN")
-                                .requestMatchers(new AntPathRequestMatcher("/v2/api/attendances", HttpMethod.PATCH.name())).hasAnyRole("OPERATION", "ADMIN")
-                                .requestMatchers("/v2/api/attendances/excel").hasAnyRole("OPERATION", "ADMIN")
                                 .requestMatchers("/v2/api/attendances/info").hasAnyRole("MEMBER", "EDUCATION", "OPERATION", "ADMIN")
                                 .requestMatchers("/v2/api/attendances/records/**")
                                 .hasAnyRole("MEMBER", "EDUCATION", "OPERATION", "ADMIN")
@@ -105,7 +101,6 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST, "/v2/api/events/attendances/{attendanceId}/test").hasRole("ADMIN")
                                 .requestMatchers("/v1/api/socket/**").hasAnyRole("EDUCATION", "ADMIN")
                                 .requestMatchers(HttpMethod.GET, "/v2/api/projects/**").permitAll()
-                                .requestMatchers("/v2/api/generation-member/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 );
         return http.build();
