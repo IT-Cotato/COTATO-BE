@@ -84,7 +84,6 @@ public class SecurityConfig {
                                 .hasAnyRole("MEMBER", "EDUCATION", "OPERATION", "ADMIN")
                                 .requestMatchers(new AntPathRequestMatcher("/v1/api/education", HttpMethod.GET.name())).authenticated()
                                 .requestMatchers("/v1/api/education/**").hasAnyRole("EDUCATION", "ADMIN")
-                                .requestMatchers("/v1/api/generation/**").hasAnyRole("ADMIN")
                                 .requestMatchers("/v1/api/mypage/**").hasAnyRole("MEMBER", "OLD_MEMBER", "EDUCATION", "OPERATION", "ADMIN")
                                 .requestMatchers("/v1/api/quiz/cs-admin/**").hasAnyRole("EDUCATION", "ADMIN")
                                 .requestMatchers("/v1/api/quiz/adds").hasAnyRole("EDUCATION", "ADMIN")
