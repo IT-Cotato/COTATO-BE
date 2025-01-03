@@ -32,9 +32,9 @@ public class RoleInterceptor implements HandlerInterceptor {
         Member member = (Member) authentication.getPrincipal();
 
         RoleAuthority methodAnnotation = handlerMethod.getMethodAnnotation(RoleAuthority.class);
-        MemberRole role = methodAnnotation.value();
+        MemberRole minimumRole = methodAnnotation.value();
 
-        if (role.ordinal() > member.getRole().ordinal()) {
+        if (minimumRole.isLower(member.getRole())) {
             throw new NoPermissionException("cannot process this method with role " + member.getRole());
         }
 
