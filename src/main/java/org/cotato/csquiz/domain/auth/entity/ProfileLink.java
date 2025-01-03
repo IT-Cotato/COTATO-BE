@@ -37,13 +37,13 @@ public class ProfileLink extends BaseTimeEntity {
     @Column(name = "url", nullable = false, columnDefinition = "TEXT")
     private String url;
 
-    private ProfileLink(Member member, LinkType linkType, String link) {
+    private ProfileLink(Member member, LinkType linkType, String url) {
         this.member = member;
         this.linkType = linkType;
-        this.url = link;
+        this.url = url;
     }
 
-    public static ProfileLink of(final Member member, LinkType linkType, String link) {
-        return new ProfileLink(member, linkType, link);
+    public static ProfileLink of(final Member member, LinkType linkType, String url) {
+        return new ProfileLink(member, linkType, url);
     }
 }
