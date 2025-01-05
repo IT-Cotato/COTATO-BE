@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 @Getter
 public enum ErrorCode {
+    NO_PERMISSION_EXCEPTION(HttpStatus.FORBIDDEN, "NP-001", "권한이 없는 유저입니다."),
+
     // Auth 일반적인 인증 문제 Auth JWT 토큰 관련 에러
     TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "T-001", "이미 만료된 토큰입니다."),
     FILTER_EXCEPTION(HttpStatus.UNAUTHORIZED, "T-002", "필터 내부에러 발생"),
@@ -109,7 +111,7 @@ public enum ErrorCode {
     CHANNEL_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "S-011", "디스코드 채널을 찾지 못했습니다."),
     DISCORD_BUTTON_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S-012" , "디스코드 버튼 이벤트 ID를 찾지 못했습니다."),
     EMAIL_SEND_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S-013", "이메일 전송에 실패했습니다."),
-    FILE_GENERATION_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S-014", "엑셀 파일 생성에 실패했습니다.")
+    FILE_GENERATION_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S-014", "엑셀 파일 생성에 실패했습니다."),
     ;
 
     private final HttpStatus httpStatus;
