@@ -11,9 +11,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum MemberRole {
 
-    REFUSED("ROLE_REFUSED", "승인 거절 부원", 6),
-    GENERAL("ROLE_GENERAL", "승인 대기 부원", 5),
-    OLD_MEMBER("ROLE_OM", "활동 후 종료한 부원", 4),
     MEMBER("ROLE_MEMBER", "현재 활동 중인 부원", 3),
     EDUCATION("ROLE_EDUCATION", "교육팀", 2),
     OPERATION("ROLE_OPERATION", "운영지원팀", 2),

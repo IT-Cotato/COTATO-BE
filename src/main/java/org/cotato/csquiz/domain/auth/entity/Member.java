@@ -86,6 +86,15 @@ public class Member extends BaseTimeEntity {
         this.role = role;
     }
 
+    public void updateStatus(MemberStatus memberStatus) {
+        this.status = memberStatus;
+    }
+
+    public void approveMember() {
+        this.status = MemberStatus.APPROVED;
+        this.role = MemberRole.MEMBER;
+    }
+
     public void updatePassword(String password) {
         this.password = password;
     }
