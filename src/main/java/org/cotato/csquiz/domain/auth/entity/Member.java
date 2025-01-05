@@ -16,6 +16,7 @@ import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.domain.auth.enums.MemberPosition;
 import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.cotato.csquiz.common.entity.BaseTimeEntity;
+import org.cotato.csquiz.domain.auth.enums.MemberStatus;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 
@@ -52,6 +53,11 @@ public class Member extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @ColumnDefault(value = "'GENERAL'")
     private MemberRole role;
+
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    @ColumnDefault(value = "'REQUESTED")
+    private MemberStatus status;
 
     @Column(name = "passed_generation_number")
     private Integer passedGenerationNumber;
