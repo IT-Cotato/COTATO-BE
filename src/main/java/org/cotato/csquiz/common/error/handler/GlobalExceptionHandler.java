@@ -5,6 +5,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.sql.SQLException;
 import java.util.List;
+import javax.naming.NoPermissionException;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
@@ -92,5 +93,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         log.error("에러가 발생한 지점 {}, {}", request.getMethod(), request.getRequestURI());
         ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.IMAGE_PROCESSING_FAIL, request);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
+
+    @ExceptionHandler(NoPermissionException.class)
+    public ResponseEntity<ErrorResponse> handleNoPermissionException(NoPermissionException e, HttpServletRequest request){
+        log.error("No Permission Error occurred");
+        log.error("Error Method and Path {}, {}", request.getMethod(), request.getRequestURI());
+        ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.NO_PERMISSION_EXCEPTION, request);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
     }
 }
