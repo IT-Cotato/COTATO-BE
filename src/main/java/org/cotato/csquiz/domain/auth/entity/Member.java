@@ -9,7 +9,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.Email;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.csquiz.common.entity.S3Info;
@@ -71,12 +70,16 @@ public class Member extends BaseTimeEntity {
     @Column(name = "university")
     private String university;
 
-    @Builder
-    public Member(String email, String password, String name, String phoneNumber) {
+    private Member(String email, String password, String name, String phoneNumber, MemberStatus status) {
         this.email = email;
         this.password = password;
         this.name = name;
         this.phoneNumber = phoneNumber;
+        this.status = status;
+    }
+
+    public static Member defaultMember(String email, String password, String name, String phoneNumber) {
+        return new Member(email, password, name, phoneNumber, MemberStatus.REQUESTED);
     }
 
     public void updateRole(MemberRole role) {

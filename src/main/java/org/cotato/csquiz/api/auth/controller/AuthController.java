@@ -36,7 +36,7 @@ public class AuthController {
     @Operation(summary = "회원 가입 API")
     @PostMapping("/join")
     public ResponseEntity<JoinResponse> joinAuth(@RequestBody @Valid JoinRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(authService.createLoginInfo(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.createMember(request));
     }
 
     @PostMapping("/reissue")
