@@ -24,6 +24,7 @@ import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.entity.AttendanceRecord;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceOpenStatus;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
+import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRecordRepository;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
@@ -203,17 +204,24 @@ public class AttendanceRecordService {
     public void updateAttendanceRecords(Long attendanceId, Long memberId, AttendanceResult attendanceResult) {
         Attendance attendance = attendanceRepository.findById(attendanceId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석이 존재하지 않습니다"));
-
+        Member member = memberReader.findById(memberId);
         AttendanceRecord attendanceRecord = attendanceRecordRepository.findByMemberIdAndAttendanceId(memberId, attendanceId)
-                .orElseGet(() -> AttendanceRecord.absentRecord(attendance, memberId));
+                .orElseGet(() -> AttendanceRecord.defaultAttendanceRecord(attendance, member));
         Session session = sessionReader.findById(attendance.getSessionId());
 
-        if (!session.getSessionType().isSameType(attendanceRecord.getAttendanceType())) {
+        if (!changeAbleType(session, attendanceRecord.getAttendanceType())) {
             throw new AppException(ErrorCode.INVALID_RECORD_UPDATE);
         }
-        // Todo https://github.com/IT-Cotato/COTATO-BE/issues/204
+
         attendanceRecord.updateAttendanceResult(attendanceResult);
 
         attendanceRecordRepository.save(attendanceRecord);
+    }
+
+    private boolean changeAbleType(final Session session, final AttendanceType attendanceType) {
+        if (attendanceType == null) {
+            return true;
+        }
+        return session.getSessionType().isSameType(attendanceType);
     }
 }
