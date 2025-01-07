@@ -85,7 +85,6 @@ public class MemberService {
             throws ImageException {
         member.updateIntroduction(introduction);
         member.updateUniversity(university);
-        memberWriter.save(member);
 
         profileLinkWriter.deleteAllByMember(member);
         List<ProfileLink> profileLinks = profileLinkRequests.stream()
@@ -94,7 +93,10 @@ public class MemberService {
         profileLinkWriter.createProfileLinks(profileLinks);
 
         memberWriter.deleteProfileImageIfPresent(member);
-        memberWriter.updateProfileImage(member, profileImage);
+        if (profileImage != null) {
+            memberWriter.updateProfileImage(member, profileImage);
+        }
+        memberWriter.save(member);
     }
 
     @Transactional
