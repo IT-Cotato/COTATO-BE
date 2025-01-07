@@ -55,8 +55,8 @@ public class Member extends BaseTimeEntity {
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    @ColumnDefault(value = "'REQUESTED")
-    private MemberStatus status;
+    @ColumnDefault(value = "'REQUESTED'")
+    private MemberStatus status = MemberStatus.REQUESTED;
 
     @Column(name = "passed_generation_number")
     private Integer passedGenerationNumber;
@@ -121,5 +121,9 @@ public class Member extends BaseTimeEntity {
 
     public void updateUniversity(String university) {
         this.university = university;
+    }
+
+    public boolean isRejectedMember() {
+        return this.status == MemberStatus.REJECTED;
     }
 }
