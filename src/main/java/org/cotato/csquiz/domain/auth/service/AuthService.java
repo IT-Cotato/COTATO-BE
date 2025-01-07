@@ -52,7 +52,7 @@ public class AuthService {
     private int refreshTokenAge;
 
     @Transactional
-    public JoinResponse createLoginInfo(JoinRequest request) {
+    public JoinResponse createMember(final JoinRequest request) {
         validateService.checkDuplicateEmail(request.email());
         validateService.checkPasswordPattern(request.password());
         validateService.checkPhoneNumber(request.phoneNumber());
@@ -61,12 +61,7 @@ public class AuthService {
         validateService.checkDuplicatePhoneNumber(encryptedPhoneNumber);
         log.info("[회원 가입 서비스]: {}, {}", request.email(), request.name());
 
-        Member newMember = Member.builder()
-                .email(request.email())
-                .password(bCryptPasswordEncoder.encode(request.password()))
-                .name(request.name())
-                .phoneNumber(encryptedPhoneNumber)
-                .build();
+        Member newMember = Member.defaultMember(request.email(), bCryptPasswordEncoder.encode(request.password()), request.name(), encryptedPhoneNumber);
         memberRepository.save(newMember);
 
         policyService.checkPolicies(newMember, request.policies());
