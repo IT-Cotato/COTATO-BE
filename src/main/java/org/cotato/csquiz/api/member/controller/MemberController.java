@@ -1,9 +1,6 @@
 package org.cotato.csquiz.api.member.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.Part;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import javax.naming.NoPermissionException;
@@ -65,7 +62,7 @@ public class MemberController {
     @PatchMapping(value = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> updateProfileInfo(@AuthenticationPrincipal Member member,
                                                   @RequestPart final UpdateProfileInfoRequest request,
-                                                  @RequestPart MultipartFile profileImage)
+                                                  @RequestPart(required = false) MultipartFile profileImage)
             throws IOException {
         memberService.updateMemberProfileInfo(member, request.introduction(), request.university(),
                 request.profileLinks(), profileImage);
