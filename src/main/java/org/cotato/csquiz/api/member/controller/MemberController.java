@@ -2,6 +2,7 @@ package org.cotato.csquiz.api.member.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import javax.naming.NoPermissionException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.admin.dto.MemberInfoResponse;
@@ -70,7 +71,11 @@ public class MemberController {
     }
 
     @GetMapping("/{memberId}/mypage")
-    public ResponseEntity<MemberMyPageInfoResponse> findMyPageInfo(@PathVariable("memberId") Long memberId) {
+    public ResponseEntity<MemberMyPageInfoResponse> findMyPageInfo(@AuthenticationPrincipal Member member, @PathVariable("memberId") Long memberId)
+            throws NoPermissionException {
+        if (!member.getId().equals(memberId)) {
+            throw new NoPermissionException("본인 외의 정보는 조회할 수 없습니다.");
+        }
         return ResponseEntity.ok().body(memberService.findMyPageInfo(memberId));
     }
 }
