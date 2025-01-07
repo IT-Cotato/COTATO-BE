@@ -9,6 +9,7 @@ import org.cotato.csquiz.api.admin.dto.UpdateActiveMemberToOldMemberRequest;
 import org.cotato.csquiz.api.admin.dto.UpdateOldMemberRoleRequest;
 import org.cotato.csquiz.common.role.RoleAuthority;
 import org.cotato.csquiz.domain.auth.enums.MemberRole;
+import org.cotato.csquiz.domain.auth.enums.MemberStatus;
 import org.cotato.csquiz.domain.auth.service.AdminService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -32,13 +33,13 @@ public class AdminController {
     @RoleAuthority(MemberRole.ADMIN)
     @GetMapping("/applicants")
     public ResponseEntity<List<ApplyMemberInfoResponse>> findApplicantList() {
-        return ResponseEntity.ok().body(adminService.findApplicantList());
+        return ResponseEntity.ok().body(adminService.getMembers(MemberStatus.REQUESTED));
     }
 
     @RoleAuthority(MemberRole.ADMIN)
     @GetMapping("/reject-applicants")
     public ResponseEntity<List<ApplyMemberInfoResponse>> findRejectApplicantList() {
-        return ResponseEntity.ok().body(adminService.findRejectApplicantList());
+        return ResponseEntity.ok().body(adminService.getMembers(MemberStatus.REJECTED));
     }
 
     @RoleAuthority(MemberRole.ADMIN)
@@ -75,7 +76,6 @@ public class AdminController {
     @PatchMapping("/active-members/role")
     public ResponseEntity<Void> updateActiveMemberRole(
             @RequestBody @Valid UpdateActiveMemberRoleRequest request) {
-        log.info("[현재 활동 중인 부원 역할 업데이트 컨트롤러, 대상 member id : {}]", request.memberId());
         adminService.updateActiveMemberRole(request);
         return ResponseEntity.noContent().build();
     }
