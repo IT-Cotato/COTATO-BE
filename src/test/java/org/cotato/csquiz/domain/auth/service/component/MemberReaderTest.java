@@ -30,13 +30,9 @@ class MemberReaderTest {
                 .number(9)
                 .build();
 
-        Member 신유승 = Member.builder()
-                .name("신유승")
-                .build();
+        Member 신유승 = Member.defaultMember("youth@email.com", "password", "신유승", null);
 
-        Member 남기훈 = Member.builder()
-                .name("남기훈")
-                .build();
+        Member 남기훈 = Member.defaultMember("gikhoon@email.com", "password", "남기훈", null);
 
         List<GenerationMember> generationMembers = List.of(
                 GenerationMember.of(generation, 신유승),
