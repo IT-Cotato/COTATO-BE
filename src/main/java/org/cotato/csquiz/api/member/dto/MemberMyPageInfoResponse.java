@@ -20,7 +20,7 @@ public record MemberMyPageInfoResponse(
                 member.getPassedGenerationNumber(),
                 member.getPosition(),
                 originPhoneNumber,
-                member.getProfileImage() != null ? member.getProfileImage().getUrl() : null
+                member.getProfileImageUrl()
         );
     }
 }
