@@ -7,7 +7,9 @@ import org.cotato.csquiz.api.socket.dto.EducationCloseRequest;
 import org.cotato.csquiz.api.socket.dto.EducationOpenRequest;
 import org.cotato.csquiz.api.socket.dto.QuizSocketRequest;
 import org.cotato.csquiz.api.socket.dto.SocketTokenDto;
+import org.cotato.csquiz.common.role.RoleAuthority;
 import org.cotato.csquiz.domain.auth.entity.Member;
+import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.cotato.csquiz.domain.education.service.EducationService;
 import org.cotato.csquiz.domain.education.service.QuizSolveService;
 import org.cotato.csquiz.domain.education.service.RecordService;
@@ -32,12 +34,14 @@ public class SocketController {
     private final RecordService recordService;
     private final QuizSolveService quizSolveService;
 
+    @RoleAuthority(MemberRole.MANAGER)
     @PatchMapping("/start/csquiz")
     public ResponseEntity<Void> openEducation(@RequestBody @Valid EducationOpenRequest request) {
         educationService.openEducation(request);
         return ResponseEntity.noContent().build();
     }
 
+    @RoleAuthority(MemberRole.MANAGER)
     @PatchMapping("/access")
     public ResponseEntity<Void> accessQuiz(@RequestBody @Valid QuizSocketRequest request) {
         quizSolveService.accessQuiz(request);
@@ -45,24 +49,28 @@ public class SocketController {
         return ResponseEntity.noContent().build();
     }
 
+    @RoleAuthority(MemberRole.MANAGER)
     @PatchMapping("/start")
     public ResponseEntity<Void> startQuizSolve(@RequestBody @Valid QuizSocketRequest request) {
         quizSolveService.startQuizSolve(request);
         return ResponseEntity.noContent().build();
     }
 
+    @RoleAuthority(MemberRole.MANAGER)
     @PatchMapping("/deny")
     public ResponseEntity<Void> denyQuiz(@RequestBody @Valid QuizSocketRequest request) {
         quizSolveService.denyQuiz(request);
         return ResponseEntity.noContent().build();
     }
 
+    @RoleAuthority(MemberRole.MANAGER)
     @PatchMapping("/stop")
     public ResponseEntity<Void> stopQuizSolve(@RequestBody @Valid QuizSocketRequest request) {
         quizSolveService.stopQuizSolve(request);
         return ResponseEntity.noContent().build();
     }
 
+    @RoleAuthority(MemberRole.MANAGER)
     @PatchMapping("/close/csquiz")
     public ResponseEntity<Void> closeEducation(@RequestBody @Valid EducationCloseRequest request) {
         educationService.closeEducation(request);
@@ -74,7 +82,7 @@ public class SocketController {
         return ResponseEntity.ok(socketService.createSocketToken(member));
     }
 
-
+    @RoleAuthority(MemberRole.MANAGER)
     @PostMapping("/kings")
     public ResponseEntity<Void> sendKingCommand(@RequestParam("educationId") Long educationId) {
         log.info("[{} 교육 결승진출자 재전송하기]", educationId);
@@ -82,6 +90,7 @@ public class SocketController {
         return ResponseEntity.noContent().build();
     }
 
+    @RoleAuthority(MemberRole.MANAGER)
     @PostMapping("/winner")
     public ResponseEntity<Void> sendWinnerCommand(@RequestParam("educationId") Long educationId) {
         log.info("[{} 교육 결승진출자 재전송하기]", educationId);

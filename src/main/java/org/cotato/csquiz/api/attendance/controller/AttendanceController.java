@@ -63,6 +63,7 @@ public class AttendanceController {
     }
 
     @Operation(summary = "회원 출결사항 기수 단위 조회 API")
+    @RoleAuthority(MemberRole.MANAGER)
     @GetMapping("/records")
     public ResponseEntity<List<GenerationMemberAttendanceRecordResponse>> findAttendanceRecords(
             @RequestParam(name = "generationId") Long generationId
