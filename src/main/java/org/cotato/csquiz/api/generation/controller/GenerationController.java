@@ -12,6 +12,8 @@ import org.cotato.csquiz.api.generation.dto.AddGenerationResponse;
 import org.cotato.csquiz.api.generation.dto.ChangeGenerationPeriodRequest;
 import org.cotato.csquiz.api.generation.dto.ChangeRecruitingStatusRequest;
 import org.cotato.csquiz.api.generation.dto.GenerationInfoResponse;
+import org.cotato.csquiz.common.role.RoleAuthority;
+import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.cotato.csquiz.domain.generation.service.GenerationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,17 +39,20 @@ public class GenerationController {
         return ResponseEntity.ok().body(generationService.findGenerations());
     }
 
+    @RoleAuthority(MemberRole.ADMIN)
     @PostMapping("/add")
     public ResponseEntity<AddGenerationResponse> addGeneration(@RequestBody @Valid AddGenerationRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(generationService.addGeneration(request));
     }
 
+    @RoleAuthority(MemberRole.ADMIN)
     @PatchMapping("/recruiting")
     public ResponseEntity<Void> changeRecruitingStatus(@RequestBody @Valid ChangeRecruitingStatusRequest request) {
         generationService.changeRecruitingStatus(request);
         return ResponseEntity.noContent().build();
     }
 
+    @RoleAuthority(MemberRole.ADMIN)
     @PatchMapping("/{generationId}/period")
     public ResponseEntity<Void> changeGenerationPeriod(@RequestBody @Valid ChangeGenerationPeriodRequest request) {
         generationService.changeGenerationPeriod(request);
