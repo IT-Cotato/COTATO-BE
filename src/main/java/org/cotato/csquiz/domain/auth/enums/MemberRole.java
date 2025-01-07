@@ -12,8 +12,6 @@ import lombok.RequiredArgsConstructor;
 public enum MemberRole {
 
     MEMBER("ROLE_MEMBER", "현재 활동 중인 부원", 3),
-    EDUCATION("ROLE_EDUCATION", "교육팀", 2),
-    OPERATION("ROLE_OPERATION", "운영지원팀", 2),
     MANAGER("ROLE_MANAGER", "운영 팀으로 활동하는 부원, 현재 교육팀과 운영지원팀", 2),
     ADMIN("ROLE_ADMIN", "운영진", 1);
 
