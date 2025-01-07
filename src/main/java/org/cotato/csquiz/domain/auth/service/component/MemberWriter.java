@@ -29,7 +29,7 @@ public class MemberWriter {
     public void deleteProfileImageIfPresent(final Member member) {
         if (member.getProfileImage() != null) {
             s3Uploader.deleteFile(member.getProfileImage());
+            member.updateProfileImage(null);
         }
-        member.updateProfileImage(null);
     }
 }
