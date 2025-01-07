@@ -81,7 +81,8 @@ public class MemberService {
 
     @Transactional
     public void updateMemberProfileInfo(final Member member, final String introduction, final String university,
-                                        final List<ProfileLinkRequest> profileLinkRequests) {
+                                        final List<ProfileLinkRequest> profileLinkRequests, final MultipartFile profileImage)
+            throws ImageException {
         member.updateIntroduction(introduction);
         member.updateUniversity(university);
         memberWriter.save(member);
@@ -91,6 +92,9 @@ public class MemberService {
                 .map(lr -> ProfileLink.of(member, lr.linkType(), lr.link()))
                 .toList();
         profileLinkWriter.createProfileLinks(profileLinks);
+
+        memberWriter.deleteProfileImageIfPresent(member);
+        memberWriter.updateProfileImage(member, profileImage);
     }
 
     @Transactional

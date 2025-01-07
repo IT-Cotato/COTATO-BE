@@ -1,7 +1,11 @@
 package org.cotato.csquiz.api.member.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.Part;
 import jakarta.validation.Valid;
+import java.io.IOException;
 import javax.naming.NoPermissionException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +18,7 @@ import org.cotato.csquiz.api.member.dto.UpdateProfileInfoRequest;
 import org.cotato.csquiz.common.error.exception.ImageException;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.service.MemberService;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,7 +28,9 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @RestController
@@ -55,11 +62,13 @@ public class MemberController {
     }
 
     @Operation(summary = "멤버 프로필 정보 수정 API")
-    @PatchMapping("/profile")
+    @PatchMapping(value = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> updateProfileInfo(@AuthenticationPrincipal Member member,
-                                                  @RequestBody @Valid final UpdateProfileInfoRequest request) {
+                                                  @RequestPart final UpdateProfileInfoRequest request,
+                                                  @RequestPart MultipartFile profileImage)
+            throws IOException {
         memberService.updateMemberProfileInfo(member, request.introduction(), request.university(),
-                request.profileLinks());
+                request.profileLinks(), profileImage);
         return ResponseEntity.noContent().build();
     }
 
