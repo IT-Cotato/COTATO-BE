@@ -2,6 +2,7 @@ package org.cotato.csquiz.common.schedule;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,8 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.common.sse.SseSender;
 import org.cotato.csquiz.common.util.TimeUtil;
 import org.cotato.csquiz.domain.attendance.service.AttendanceRecordService;
+import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.entity.RefusedMember;
-import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
 import org.cotato.csquiz.domain.auth.repository.RefusedMemberRepository;
 import org.cotato.csquiz.domain.education.service.EducationService;
@@ -42,12 +43,14 @@ public class SchedulerService {
         LocalDateTime now = LocalDateTime.now();
         List<RefusedMember> deleteRefusedMembers = refusedMemberRepository.findAllByCreatedAtBefore(now.minusDays(30));
 
+        List<Member> refusedMembers = new ArrayList<>();
         deleteRefusedMembers.forEach(refusedMember -> {
-            if (refusedMember.getMember().getRole() == MemberRole.REFUSED) {
-                memberRepository.delete(refusedMember.getMember());
+            if (refusedMember.getMember().isRejectedMember()) {
+                refusedMembers.add(refusedMember.getMember());
             }
         });
 
+        memberRepository.deleteAll(refusedMembers);
         refusedMemberRepository.deleteAll(deleteRefusedMembers);
     }
 

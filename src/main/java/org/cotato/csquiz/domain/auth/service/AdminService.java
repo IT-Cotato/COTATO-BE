@@ -13,13 +13,15 @@ import org.cotato.csquiz.api.admin.dto.UpdateOldMemberRoleRequest;
 import org.cotato.csquiz.domain.auth.entity.RefusedMember;
 import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.cotato.csquiz.domain.auth.enums.MemberRoleGroup;
+import org.cotato.csquiz.domain.auth.enums.MemberStatus;
+import org.cotato.csquiz.domain.auth.service.component.MemberReader;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.common.error.ErrorCode;
-import org.cotato.csquiz.domain.generation.repository.GenerationRepository;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
 import org.cotato.csquiz.domain.auth.repository.RefusedMemberRepository;
+import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,70 +31,60 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminService {
 
     private final MemberRepository memberRepository;
-    private final GenerationRepository generationRepository;
     private final RefusedMemberRepository refusedMemberRepository;
     private final MemberService memberService;
     private final EmailNotificationService emailNotificationService;
+    private final GenerationReader generationReader;
+    private final MemberReader memberReader;
 
-    public List<ApplyMemberInfoResponse> findApplicantList() {
-        return createApplyInfoList(memberRepository.findAllByRole(MemberRole.GENERAL));
-    }
-
-    public List<ApplyMemberInfoResponse> findRejectApplicantList() {
-        return createApplyInfoList(memberRepository.findAllByRole(MemberRole.REFUSED));
+    public List<ApplyMemberInfoResponse> getMembers(final MemberStatus status) {
+        return memberRepository.findAllByStatus(status).stream()
+                .map(member -> ApplyMemberInfoResponse.from(member, memberService.findBackFourNumber(member)))
+                .toList();
     }
 
     @Transactional
     public void approveApplicant(MemberApproveRequest request) {
-        Member member = findMember(request.memberId());
-        checkMemberRoleIsGeneral(member);
+        Member member = memberReader.findById(request.memberId());
+        checkMemberStatus(member, MemberStatus.REQUESTED);
 
-        if (member.getRole() == MemberRole.GENERAL) {
-            Generation findGeneration = findGeneration(request.generationId());
-            member.updateRole(MemberRole.MEMBER);
-            member.updateGeneration(findGeneration.getNumber());
-            member.updatePosition(request.position());
-            memberRepository.save(member);
-        }
+        Generation generation = generationReader.findById(request.generationId());
+        member.approveMember();
+        member.updateGeneration(generation.getNumber());
+        member.updatePosition(request.position());
+        memberRepository.save(member);
 
         emailNotificationService.sendSignUpApprovedToEmail(member);
     }
 
     @Transactional
     public void reapproveApplicant(MemberApproveRequest request) {
-        Member member = findMember(request.memberId());
+        Member member = memberReader.findById(request.memberId());
+        checkMemberStatus(member, MemberStatus.REJECTED);
 
-        if (member.getRole() == MemberRole.REFUSED) {
-            Generation findGeneration = findGeneration(request.generationId());
-            member.updateRole(MemberRole.MEMBER);
-            member.updateGeneration(findGeneration.getNumber());
-            member.updatePosition(request.position());
-            deleteRefusedMember(member);
-        }
+        Generation generation = generationReader.findById(request.generationId());
+        member.approveMember();
+
+        member.updateGeneration(generation.getNumber());
+        member.updatePosition(request.position());
+        deleteRefusedMember(member);
 
         emailNotificationService.sendSignUpApprovedToEmail(member);
     }
 
     @Transactional
     public void rejectApplicant(MemberRejectRequest request) {
-        Member member = findMember(request.memberId());
-        checkMemberRoleIsGeneral(member);
-        if (member.getRole() == MemberRole.GENERAL) {
-            member.updateRole(MemberRole.REFUSED);
-            memberRepository.save(member);
-            addRefusedMember(member);
-        }
+        Member member = memberReader.findById(request.memberId());
+        checkMemberStatus(member, MemberStatus.REQUESTED);
+        member.updateStatus(MemberStatus.REJECTED);
+        memberRepository.save(member);
+        addRefusedMember(member);
 
         emailNotificationService.sendSignupRejectionToEmail(member);
     }
 
-    private Member findMember(Long memberId) {
-        return memberRepository.findById(memberId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 회원이 존재하지 않습니다."));
-    }
-
-    private void checkMemberRoleIsGeneral(Member member) {
-        if (member.getRole() != MemberRole.GENERAL) {
+    private void checkMemberStatus(final Member member, final MemberStatus status) {
+        if (member.getStatus() != status) {
             throw new AppException(ErrorCode.ROLE_IS_NOT_MATCH);
         }
     }
@@ -108,7 +100,7 @@ public class AdminService {
 
     @Transactional
     public void updateActiveMemberRole(UpdateActiveMemberRoleRequest request) {
-        Member member = findMember(request.memberId());
+        Member member = memberReader.findById(request.memberId());
         if (!MemberRoleGroup.hasRole(MemberRoleGroup.ACTIVE_MEMBERS, member.getRole())) {
             throw new AppException(ErrorCode.ROLE_IS_NOT_MATCH);
         }
@@ -119,11 +111,12 @@ public class AdminService {
     @Transactional
     public void updateActiveMembersToOldMembers(UpdateActiveMemberToOldMemberRequest request) {
         for (Long memberId : request.memberIds()) {
-            Member member = findMember(memberId);
+            Member member = memberReader.findById(memberId);
+
             if (!MemberRoleGroup.hasRole(MemberRoleGroup.ACTIVE_MEMBERS, member.getRole())) {
                 throw new AppException(ErrorCode.ROLE_IS_NOT_MATCH);
             }
-            member.updateRole(MemberRole.OLD_MEMBER);
+            member.updateStatus(MemberStatus.RETIRED);
             memberRepository.save(member);
 
             emailNotificationService.sendOldMemberConversionToEmail(member);
@@ -131,26 +124,18 @@ public class AdminService {
     }
 
     public List<MemberEnrollInfoResponse> findOldMembers() {
-        List<Member> oldMembers = memberRepository.findAllByRole(MemberRole.OLD_MEMBER);
-        return oldMembers.stream()
+        return memberRepository.findAllByStatus(MemberStatus.RETIRED).stream()
                 .map(MemberEnrollInfoResponse::of)
                 .toList();
     }
 
     @Transactional
     public void updateOldMemberToActiveGeneration(UpdateOldMemberRoleRequest request) {
-        Member member = findMember(request.memberId());
-        checkMemberRoleIsOldMember(member);
-        if (member.getRole() == MemberRole.OLD_MEMBER) {
-            member.updateRole(MemberRole.MEMBER);
-            memberRepository.save(member);
-        }
-    }
+        Member member = memberReader.findById(request.memberId());
+        checkMemberStatus(member, MemberStatus.RETIRED);
 
-    private void checkMemberRoleIsOldMember(Member member) {
-        if (member.getRole() != MemberRole.OLD_MEMBER) {
-            throw new AppException(ErrorCode.ROLE_IS_NOT_OLD_MEMBER);
-        }
+        member.approveMember();
+        memberRepository.save(member);
     }
 
     private void addRefusedMember(Member member) {
@@ -164,16 +149,5 @@ public class AdminService {
         RefusedMember refusedMember = refusedMemberRepository.findByMember(member)
                 .orElseThrow(() -> new EntityNotFoundException("삭제하려는 멤버를 찾을 수 없습니다."));
         refusedMemberRepository.delete(refusedMember);
-    }
-
-    private Generation findGeneration(Long generationId) {
-        return generationRepository.findById(generationId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 기수를 찾을 수 없습니다."));
-    }
-
-    private List<ApplyMemberInfoResponse> createApplyInfoList(List<Member> applicantList) {
-        return applicantList.stream()
-                .map(member -> ApplyMemberInfoResponse.from(member, memberService.findBackFourNumber(member)))
-                .toList();
     }
 }

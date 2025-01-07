@@ -9,13 +9,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.Email;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.domain.auth.enums.MemberPosition;
 import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.cotato.csquiz.common.entity.BaseTimeEntity;
+import org.cotato.csquiz.domain.auth.enums.MemberStatus;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 
@@ -53,6 +53,11 @@ public class Member extends BaseTimeEntity {
     @ColumnDefault(value = "'GENERAL'")
     private MemberRole role;
 
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    @ColumnDefault(value = "'REQUESTED'")
+    private MemberStatus status = MemberStatus.REQUESTED;
+
     @Column(name = "passed_generation_number")
     private Integer passedGenerationNumber;
 
@@ -65,16 +70,29 @@ public class Member extends BaseTimeEntity {
     @Column(name = "university")
     private String university;
 
-    @Builder
-    public Member(String email, String password, String name, String phoneNumber) {
+    private Member(String email, String password, String name, String phoneNumber, MemberStatus status) {
         this.email = email;
         this.password = password;
         this.name = name;
         this.phoneNumber = phoneNumber;
+        this.status = status;
+    }
+
+    public static Member defaultMember(String email, String password, String name, String phoneNumber) {
+        return new Member(email, password, name, phoneNumber, MemberStatus.REQUESTED);
     }
 
     public void updateRole(MemberRole role) {
         this.role = role;
+    }
+
+    public void updateStatus(MemberStatus memberStatus) {
+        this.status = memberStatus;
+    }
+
+    public void approveMember() {
+        this.status = MemberStatus.APPROVED;
+        this.role = MemberRole.MEMBER;
     }
 
     public void updatePassword(String password) {
@@ -103,5 +121,9 @@ public class Member extends BaseTimeEntity {
 
     public void updateUniversity(String university) {
         this.university = university;
+    }
+
+    public boolean isRejectedMember() {
+        return this.status == MemberStatus.REJECTED;
     }
 }
