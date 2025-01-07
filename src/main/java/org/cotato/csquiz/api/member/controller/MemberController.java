@@ -33,8 +33,8 @@ public class MemberController {
 
     @GetMapping("/info")
     public ResponseEntity<MemberInfoResponse> findMemberInfo(
-            @AuthenticationPrincipal Long memberId) {
-        return ResponseEntity.ok().body(memberService.findMemberInfo(memberId));
+            @AuthenticationPrincipal Member member) {
+        return ResponseEntity.ok().body(memberService.findMemberInfo(member));
     }
 
     @PatchMapping("/update/password")
