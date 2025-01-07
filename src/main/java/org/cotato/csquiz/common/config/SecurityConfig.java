@@ -27,15 +27,18 @@ public class SecurityConfig {
 
     private static final String[] WHITE_LIST = {
             "/v1/api/auth/**",
+            "/login",
             "/swagger-ui/**",
             "/v3/api-docs/**",
+            "/favicon.ico",
             "/swagger-ui.html",
             "/v1/api/generation",
+            "/v1/api/generation/current",
             "/v1/api/session",
             "/websocket/csquiz",
+            "/v2/api/projects/**",
             "/v2/api/policies",
             "/v2/api/events/**",
-            "/v1/api/generation/current",
             "/v2/api/random-quizzes/**"
     };
 
@@ -69,7 +72,6 @@ public class SecurityConfig {
                 .addFilter(corsFilter)
                 .authorizeHttpRequests(request -> request
                                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-                                .requestMatchers("/v1/api/admin/**").hasRole("ADMIN")
                                 .requestMatchers(WHITE_LIST).permitAll()
                                 .requestMatchers("/v1/api/education/result/**")
                                 .hasAnyRole("MEMBER", "EDUCATION", "OPERATION", "ADMIN")
@@ -83,7 +85,6 @@ public class SecurityConfig {
                                 .hasAnyRole("MEMBER", "EDUCATION", "OPERATION", "ADMIN")
                                 .requestMatchers(new AntPathRequestMatcher("/v1/api/education", HttpMethod.GET.name())).authenticated()
                                 .requestMatchers("/v1/api/education/**").hasAnyRole("EDUCATION", "ADMIN")
-                                .requestMatchers("/v1/api/generation/**").hasAnyRole("ADMIN")
                                 .requestMatchers("/v1/api/mypage/**").hasAnyRole("MEMBER", "OLD_MEMBER", "EDUCATION", "OPERATION", "ADMIN")
                                 .requestMatchers("/v1/api/quiz/cs-admin/**").hasAnyRole("EDUCATION", "ADMIN")
                                 .requestMatchers("/v1/api/quiz/adds").hasAnyRole("EDUCATION", "ADMIN")
@@ -91,13 +92,6 @@ public class SecurityConfig {
                                 .requestMatchers("/v1/api/record/reply").hasAnyRole("MEMBER", "EDUCATION", "OPERATION", "ADMIN")
                                 .requestMatchers("/v1/api/record/**").hasAnyRole("EDUCATION", "ADMIN")
                                 .requestMatchers("/v1/api/session/cs-on").hasAnyRole("EDUCATION", "ADMIN")
-                                .requestMatchers(new AntPathRequestMatcher("/v1/api/session/**", HttpMethod.GET.name())).permitAll()
-                                .requestMatchers(new AntPathRequestMatcher("/v1/api/session", HttpMethod.GET.name())).authenticated()
-                                .requestMatchers("/v1/api/session/**").hasAnyRole("ADMIN")
-                                .requestMatchers("/v2/api/attendances/records").hasAnyRole("OPERATION", "ADMIN")
-                                .requestMatchers("/v2/api/attendances/{attendance-id}/records").hasAnyRole("ADMIN")
-                                .requestMatchers(new AntPathRequestMatcher("/v2/api/attendances", HttpMethod.PATCH.name())).hasAnyRole("OPERATION", "ADMIN")
-                                .requestMatchers("/v2/api/attendances/excel").hasAnyRole("OPERATION", "ADMIN")
                                 .requestMatchers("/v2/api/attendances/info").hasAnyRole("MEMBER", "EDUCATION", "OPERATION", "ADMIN")
                                 .requestMatchers("/v2/api/attendances/records/**")
                                 .hasAnyRole("MEMBER", "EDUCATION", "OPERATION", "ADMIN")
@@ -106,10 +100,6 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET,"/v2/api/events/attendances").hasAnyRole("MEMBER", "ADMIN", "EDUCATION", "OPERATION")
                                 .requestMatchers(HttpMethod.POST, "/v2/api/events/attendances/{attendanceId}/test").hasRole("ADMIN")
                                 .requestMatchers("/v1/api/socket/**").hasAnyRole("EDUCATION", "ADMIN")
-                                .requestMatchers(HttpMethod.POST, "/v2/api/projects").hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.POST, "v2/api/projects/images").hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.GET, "/v2/api/projects/**").permitAll()
-                                .requestMatchers("/v2/api/generation-member/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 );
         return http.build();
