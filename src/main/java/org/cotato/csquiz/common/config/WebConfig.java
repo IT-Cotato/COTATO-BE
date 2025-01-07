@@ -17,6 +17,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new RoleInterceptor())
                 .addPathPatterns("/**")
+                .excludePathPatterns("/swagger-ui/**")
                 .order(1);
 //        registry.addInterceptor(new IdempotencyInterceptor(idempotencyRedisRepository))
 //                .addPathPatterns("/v1/api/record/reply")
