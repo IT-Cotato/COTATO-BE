@@ -12,6 +12,8 @@ import org.cotato.csquiz.api.education.dto.FindEducationStatusResponse;
 import org.cotato.csquiz.api.education.dto.UpdateEducationRequest;
 import org.cotato.csquiz.api.education.dto.WinnerInfoResponse;
 import org.cotato.csquiz.api.quiz.dto.KingMemberInfo;
+import org.cotato.csquiz.common.role.RoleAuthority;
+import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.cotato.csquiz.domain.education.service.EducationService;
 import org.cotato.csquiz.domain.education.service.KingMemberService;
 import org.springframework.http.HttpStatus;
@@ -45,11 +47,13 @@ public class EducationController {
         return ResponseEntity.ok().body(educationService.findEducationStatus(educationId));
     }
 
+    @RoleAuthority(MemberRole.MANAGER)
     @PostMapping("/add")
     public ResponseEntity<CreateEducationResponse> createEducation(@RequestBody @Valid CreateEducationRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(educationService.createEducation(request));
     }
 
+    @RoleAuthority(MemberRole.MANAGER)
     @PatchMapping("/update")
     public ResponseEntity<Void> updateEducation(@RequestBody @Valid UpdateEducationRequest request) {
         educationService.updateSubjectAndNumber(request);
@@ -68,6 +72,7 @@ public class EducationController {
         return ResponseEntity.ok().body(kingMemberService.findKingMemberInfo(educationId));
     }
 
+    @RoleAuthority(MemberRole.MANAGER)
     @PostMapping("/kings")
     public ResponseEntity<Void> calculateKingMembers(@RequestParam("educationId") Long educationId) {
         kingMemberService.saveKingMember(educationId);
@@ -79,6 +84,7 @@ public class EducationController {
         return ResponseEntity.ok().body(kingMemberService.findWinner(educationId));
     }
 
+    @RoleAuthority(MemberRole.MANAGER)
     @PostMapping("/winner")
     public ResponseEntity<Void> calculateWinner(@RequestParam("educationId") Long educationId) {
         kingMemberService.calculateWinner(educationId);

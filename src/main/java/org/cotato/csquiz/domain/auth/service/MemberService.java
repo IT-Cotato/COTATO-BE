@@ -40,13 +40,10 @@ public class MemberService {
     private final ValidateService validateService;
     private final S3Uploader s3Uploader;
 
-    public MemberInfoResponse findMemberInfo(Long id) {
-        Member findMember = memberRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("해당 이메일을 가진 회원을 찾을 수 없습니다."));
-
-        String rawBackFourNumber = findBackFourNumber(findMember);
-        log.info("이름 + 번호 4자리: {}({})", findMember.getName(), rawBackFourNumber);
-        return MemberInfoResponse.from(findMember, rawBackFourNumber);
+    public MemberInfoResponse findMemberInfo(final Member member) {
+        String rawBackFourNumber = findBackFourNumber(member);
+        log.info("이름 + 번호 4자리: {}({})", member.getName(), rawBackFourNumber);
+        return MemberInfoResponse.from(member, rawBackFourNumber);
     }
 
     public String findBackFourNumber(Member member) {
