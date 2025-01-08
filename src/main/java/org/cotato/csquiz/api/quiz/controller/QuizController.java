@@ -12,6 +12,8 @@ import org.cotato.csquiz.api.quiz.dto.QuizInfoInCsQuizResponse;
 import org.cotato.csquiz.api.quiz.dto.QuizResponse;
 import org.cotato.csquiz.api.quiz.dto.QuizResultInfo;
 import org.cotato.csquiz.common.error.exception.ImageException;
+import org.cotato.csquiz.common.role.RoleAuthority;
+import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.cotato.csquiz.domain.education.service.QuizService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +34,7 @@ public class QuizController {
 
     private final QuizService quizService;
 
+    @RoleAuthority(MemberRole.MANAGER)
     @PostMapping(value = "/adds", consumes = "multipart/form-data")
     public ResponseEntity<Void> addAllQuizzes(@ModelAttribute CreateQuizzesRequest request,
                                               @RequestParam("educationId") Long educationId) throws ImageException {
@@ -51,17 +54,20 @@ public class QuizController {
         return ResponseEntity.ok().body(quizService.findOneQuizForMember(quizId));
     }
 
+    @RoleAuthority(MemberRole.MANAGER)
     @GetMapping("/cs-admin/all")
     public ResponseEntity<AllQuizzesInCsQuizResponse> findAllQuizzesForAdminCsQuiz(
             @RequestParam("educationId") Long educationId) {
         return ResponseEntity.ok(quizService.findAllQuizzesForAdminCsQuiz(educationId));
     }
 
+    @RoleAuthority(MemberRole.MANAGER)
     @GetMapping("/cs-admin")
     public ResponseEntity<QuizInfoInCsQuizResponse> findQuizForAdminCsQuiz(@RequestParam("quizId") Long quizId) {
         return ResponseEntity.ok(quizService.findQuizForAdminCsQuiz(quizId));
     }
 
+    @RoleAuthority(MemberRole.MANAGER)
     @PostMapping("/cs-admin/answer/add")
     public ResponseEntity<Void> addAdditionalAnswer(@RequestBody @Valid AddAdditionalAnswerRequest request) {
         quizService.addAdditionalAnswer(request);
@@ -69,6 +75,7 @@ public class QuizController {
         return ResponseEntity.noContent().build();
     }
 
+    @RoleAuthority(MemberRole.MANAGER)
     @GetMapping("/cs-admin/results")
     public ResponseEntity<List<QuizResultInfo>> quizResults(@RequestParam("educationId") Long educationId) {
         return ResponseEntity.ok(quizService.createQuizResults(educationId));

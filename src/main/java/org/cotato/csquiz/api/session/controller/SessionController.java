@@ -57,6 +57,7 @@ public class SessionController {
     }
 
     @Operation(summary = "CS ON인 세션 목록 반환 API", description = "세션과 교육 연계 제거 시 삭제 예정")
+    @RoleAuthority(MemberRole.MANAGER)
     @GetMapping("/cs-on")
     public ResponseEntity<List<CsEducationOnSessionNumberResponse>> findAllCsOnSessionsByGenerationId(
             @RequestParam Long generationId) {
