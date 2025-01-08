@@ -133,4 +133,8 @@ public class Member extends BaseTimeEntity {
     public boolean isRejectedMember() {
         return this.status == MemberStatus.REJECTED;
     }
+
+    public boolean isDevTeam(){
+        return this.role == MemberRole.DEV;
+    }
 }
