@@ -33,7 +33,6 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 @Slf4j
 public class WebSocketHandler extends TextWebSocketHandler {
     private static final ConcurrentHashMap<String, WebSocketSession> CLIENTS = new ConcurrentHashMap<>();
-    private static final ConcurrentHashMap<String, WebSocketSession> MANAGERS = new ConcurrentHashMap<>();
     private static final String KING_COMMAND = "king";
     private static final String WINNER_COMMAND = "winner";
     private static final String SHOW_COMMAND = "show";
@@ -60,9 +59,6 @@ public class WebSocketHandler extends TextWebSocketHandler {
         if (MemberRoleGroup.hasRole(MemberRoleGroup.CLIENTS, memberRole)) {
             handleSessionReplacement(memberId, CLIENTS);
             CLIENTS.put(memberId, session);
-        } else {
-            handleSessionReplacement(memberId, MANAGERS);
-            MANAGERS.put(memberId, session);
         }
 
         if (MemberRoleGroup.hasRole(MemberRoleGroup.CLIENTS, memberRole)) {
@@ -104,8 +100,6 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
         if (MemberRoleGroup.hasRole(MemberRoleGroup.CLIENTS, memberRole)) {
             CLIENTS.remove(memberId);
-        } else {
-            MANAGERS.remove(memberId);
         }
         log.info("[세션 종료] {}, 종료 코드: {}", memberId, status);
     }

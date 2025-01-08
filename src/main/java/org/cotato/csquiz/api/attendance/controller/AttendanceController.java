@@ -63,6 +63,7 @@ public class AttendanceController {
     }
 
     @Operation(summary = "회원 출결사항 기수 단위 조회 API")
+    @RoleAuthority(MemberRole.MANAGER)
     @GetMapping("/records")
     public ResponseEntity<List<GenerationMemberAttendanceRecordResponse>> findAttendanceRecords(
             @RequestParam(name = "generationId") Long generationId
@@ -71,6 +72,7 @@ public class AttendanceController {
     }
 
     @Operation(summary = "회원 출결사항 출석 단위 조회 API")
+    @RoleAuthority(MemberRole.MANAGER)
     @GetMapping("/{attendance-id}/records")
     public ResponseEntity<List<AttendanceRecordResponse>> findAttendanceRecordsByAttendance(
             @PathVariable("attendance-id") Long attendanceId) {
@@ -78,6 +80,7 @@ public class AttendanceController {
     }
 
     @Operation(summary = "회원 출결사항 수정 API")
+    @RoleAuthority(MemberRole.MANAGER)
     @PatchMapping("/{attendance-id}/records")
     public ResponseEntity<Void> updateAttendanceRecords(
             @PathVariable("attendance-id") Long attendanceId,
