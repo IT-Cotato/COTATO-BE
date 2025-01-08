@@ -24,7 +24,7 @@ public class GenerationMemberAuthValidator {
 
     private void checkIsGenerationMember(Member member, Generation generation) {
         if (!generationMemberRepository.existsByGenerationAndMember(generation, member)) {
-            throw new AppException(ErrorCode.ATTENDANCE_PERMISSION);
+            throw new AppException(ErrorCode.CANNOT_ACCESS_OTHER_GENERATION);
         }
     }
 }
