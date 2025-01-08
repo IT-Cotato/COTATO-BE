@@ -92,7 +92,7 @@ public class AdminService {
     public List<MemberEnrollInfoResponse> findCurrentActiveMembers() {
         List<MemberRole> roles = MemberRoleGroup.ACTIVE_MEMBERS.getRoles();
         List<Member> activeMembers = memberRepository.findAllByRoleInQuery(roles);
-
+        // Todo: 활동 부원 조회는 GenerationMember 기준으로 해야함 issue link : https://youthing.atlassian.net/jira/software/projects/COT/boards/2?selectedIssue=COT-139&sprints=8
         return activeMembers.stream()
                 .map(MemberEnrollInfoResponse::of)
                 .toList();

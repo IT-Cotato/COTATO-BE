@@ -82,6 +82,13 @@ public class Member extends BaseTimeEntity {
         return new Member(email, password, name, phoneNumber, MemberStatus.REQUESTED);
     }
 
+    public String getProfileImageUrl() {
+        if (profileImage == null) {
+            return null;
+        }
+        return profileImage.getUrl();
+    }
+
     public void updateRole(MemberRole role) {
         this.role = role;
     }

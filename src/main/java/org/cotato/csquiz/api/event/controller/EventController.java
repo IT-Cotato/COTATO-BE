@@ -3,8 +3,10 @@ package org.cotato.csquiz.api.event.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.cotato.csquiz.common.role.RoleAuthority;
 import org.cotato.csquiz.common.sse.SseService;
 import org.cotato.csquiz.domain.auth.entity.Member;
+import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,6 +32,7 @@ public class EventController {
     }
 
     @Operation(summary = "출결 이벤트 발송 API")
+    @RoleAuthority(MemberRole.ADMIN)
     @PostMapping("/attendances/{attendanceId}/test")
     public ResponseEntity<Void> sendEvent(@PathVariable("attendanceId") Long attendanceId) {
         sseService.sendEvent(attendanceId);

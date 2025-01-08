@@ -10,6 +10,7 @@ import io.jsonwebtoken.SignatureException;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.cotato.csquiz.domain.auth.enums.MemberRoleGroup;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -62,7 +63,7 @@ public class HandshakeInterceptor extends HttpSessionHandshakeInterceptor {
 
     private void checkRole(String role) {
         MemberRole memberRole = MemberRole.fromKey(role);
-        if (MemberRole.EDUCATION != memberRole && MemberRole.ADMIN != memberRole && MemberRole.MEMBER != memberRole) {
+        if (!MemberRoleGroup.hasRole(MemberRoleGroup.CLIENTS, memberRole)) {
             throw new InterceptorRoleException("해당 역할은 WS 연결이 불가능합니다.");
         }
     }

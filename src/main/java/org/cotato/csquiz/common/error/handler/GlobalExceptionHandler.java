@@ -99,7 +99,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ErrorResponse> handleNoPermissionException(NoPermissionException e, HttpServletRequest request){
         log.error("No Permission Error occurred");
         log.error("Error Method and Path {}, {}", request.getMethod(), request.getRequestURI());
-        ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.NO_PERMISSION_EXCEPTION, request);
+        ErrorResponse errorResponse = ErrorResponse.of(request, ErrorCode.NO_PERMISSION_EXCEPTION, e.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
     }
 }
