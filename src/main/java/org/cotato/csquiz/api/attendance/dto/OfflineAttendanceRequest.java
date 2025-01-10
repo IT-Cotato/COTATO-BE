@@ -1,6 +1,7 @@
 package org.cotato.csquiz.api.attendance.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import lombok.Getter;
@@ -23,6 +24,7 @@ public class OfflineAttendanceRequest implements AttendanceParams {
 
     @Schema(description = "사용자 요청 위치")
     @NotNull(message = "위치를 입력해주세요.")
+    @Valid
     private Location location;
 
     @Override
