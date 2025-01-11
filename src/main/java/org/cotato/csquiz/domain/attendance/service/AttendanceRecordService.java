@@ -27,6 +27,7 @@ import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRecordRepository;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
+import org.cotato.csquiz.domain.auth.component.GenerationMemberAuthValidator;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.service.component.MemberReader;
 import org.cotato.csquiz.domain.generation.entity.Generation;
@@ -50,6 +51,7 @@ public class AttendanceRecordService {
     private final GenerationReader generationReader;
     private final SessionReader sessionReader;
     private final GenerationMemberRepository generationMemberRepository;
+    private final GenerationMemberAuthValidator authValidator;
 
     public List<GenerationMemberAttendanceRecordResponse> findAttendanceRecords(Long generationId) {
         List<Long> sessionIds = sessionReader.findAllByGenerationId(generationId).stream().map(Session::getId).toList();
@@ -109,7 +111,7 @@ public class AttendanceRecordService {
 
         Session session = sessionReader.findById(attendance.getSessionId());
 
-        checkIsGenerationMember(member, session.getGeneration());
+        authValidator.checkGenerationPermission(member, session.getGeneration());
 
         // 해당 출석에 출결 입력이 가능한지 확인하는 과정
         if (getAttendanceOpenStatus(session.getSessionDateTime(), attendance, request.requestTime())
@@ -124,12 +126,6 @@ public class AttendanceRecordService {
         }
 
         return requestAttendanceService.attend(request, session, member.getId(), attendance);
-    }
-
-    private void checkIsGenerationMember(Member member, Generation generation) {
-        if (!generationMemberRepository.existsByGenerationAndMember(generation, member)) {
-            throw new AppException(ErrorCode.ATTENDANCE_PERMISSION);
-        }
     }
 
     public MemberAttendanceRecordsResponse findAllRecordsBy(final Long generationId, final Member member) {
