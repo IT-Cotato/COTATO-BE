@@ -8,9 +8,11 @@ import org.cotato.csquiz.api.record.dto.RegradeRequest;
 import org.cotato.csquiz.api.record.dto.ReplyRequest;
 import org.cotato.csquiz.api.record.dto.ReplyResponse;
 import org.cotato.csquiz.common.role.RoleAuthority;
+import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.cotato.csquiz.domain.education.service.RecordService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,9 +29,9 @@ public class RecordController {
     private final RecordService recordService;
 
     @PostMapping("/reply")
-    public ResponseEntity<ReplyResponse> replyToQuiz(@RequestBody @Valid ReplyRequest request) {
+    public ResponseEntity<ReplyResponse> replyToQuiz(@AuthenticationPrincipal Member member, @RequestBody @Valid ReplyRequest request) {
         log.info("정답 제출 컨트롤러, 제출한 정답 : {}", request.inputs());
-        return ResponseEntity.ok().body(recordService.replyToQuiz(request));
+        return ResponseEntity.ok().body(recordService.replyToQuiz(request, member));
     }
 
     @RoleAuthority(MemberRole.MANAGER)
