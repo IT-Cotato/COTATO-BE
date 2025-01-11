@@ -15,8 +15,8 @@ import org.cotato.csquiz.api.record.dto.ScorerResponse;
 import org.cotato.csquiz.api.socket.dto.QuizSocketRequest;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
+import org.cotato.csquiz.domain.auth.component.GenerationMemberAuthValidator;
 import org.cotato.csquiz.domain.auth.entity.Member;
-import org.cotato.csquiz.domain.auth.repository.MemberRepository;
 import org.cotato.csquiz.domain.auth.service.MemberService;
 import org.cotato.csquiz.domain.education.cache.QuizAnswerRedisRepository;
 import org.cotato.csquiz.domain.education.cache.TicketCountRedisRepository;
@@ -29,6 +29,8 @@ import org.cotato.csquiz.domain.education.repository.QuizRepository;
 import org.cotato.csquiz.domain.education.repository.RecordRepository;
 import org.cotato.csquiz.domain.education.repository.ScorerRepository;
 import org.cotato.csquiz.domain.education.util.AnswerUtil;
+import org.cotato.csquiz.domain.generation.entity.Generation;
+import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,21 +45,23 @@ public class RecordService {
     private final MemberService memberService;
     private final RecordRepository recordRepository;
     private final QuizRepository quizRepository;
-    private final MemberRepository memberRepository;
     private final ScorerRepository scorerRepository;
     private final QuizAnswerRedisRepository quizAnswerRedisRepository;
     private final TicketCountRedisRepository ticketCountRedisRepository;
+    private final GenerationMemberAuthValidator generationMemberAuthValidator;
+    private final GenerationReader generationReader;
 
 
     @Transactional
-    public ReplyResponse replyToQuiz(ReplyRequest request) {
+    public ReplyResponse replyToQuiz(ReplyRequest request, final Member member) {
         Quiz findQuiz = findQuizById(request.quizId());
+        Generation generation = generationReader.findById(findQuiz.getEducation().getGenerationId());
+        generationMemberAuthValidator.checkGenerationPermission(member, generation);
         checkQuizStart(findQuiz);
+
         Long ticketNumber = ticketCountRedisRepository.increment(findQuiz.getId());
 
-        Member findMember = memberRepository.findById(request.memberId())
-                .orElseThrow(() -> new EntityNotFoundException("해당 회원을 찾을 수 없습니다."));
-        checkMemberAlreadyCorrect(findQuiz, findMember);
+        checkMemberAlreadyCorrect(findQuiz, member);
         List<String> inputs = request.inputs().stream()
                 .map(AnswerUtil::processAnswer)
                 .sorted()
@@ -66,7 +70,7 @@ public class RecordService {
         boolean isCorrect = quizAnswerRedisRepository.isCorrect(findQuiz, inputs);
 
         String reply = String.join(INPUT_DELIMITER, inputs);
-        Record createdRecord = Record.of(reply, isCorrect, findMember, findQuiz, ticketNumber);
+        Record createdRecord = Record.of(reply, isCorrect, member, findQuiz, ticketNumber);
 
         if (isCorrect) {
             redissonScorerFacade.checkAndThenUpdateScorer(createdRecord);
