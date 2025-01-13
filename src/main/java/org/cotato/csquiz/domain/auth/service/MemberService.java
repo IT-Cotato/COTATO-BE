@@ -85,7 +85,7 @@ public class MemberService {
 
         profileLinkRepository.deleteAllByMember(member);
         List<ProfileLink> profileLinks = profileLinkRequests.stream()
-                .map(lr -> ProfileLink.of(member, lr.urlType(), lr.link()))
+                .map(lr -> ProfileLink.of(member, lr.urlType(), lr.url()))
                 .toList();
         profileLinkRepository.saveAll(profileLinks);
 
