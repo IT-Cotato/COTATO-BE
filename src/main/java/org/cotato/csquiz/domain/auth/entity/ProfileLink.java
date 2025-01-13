@@ -14,7 +14,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.csquiz.common.entity.BaseTimeEntity;
-import org.cotato.csquiz.domain.auth.enums.LinkType;
+import org.cotato.csquiz.domain.auth.enums.UrlType;
 
 @Entity
 @Getter
@@ -28,7 +28,7 @@ public class ProfileLink extends BaseTimeEntity {
 
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)
-    private LinkType linkType;
+    private UrlType urlType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
@@ -37,13 +37,13 @@ public class ProfileLink extends BaseTimeEntity {
     @Column(name = "url", nullable = false, columnDefinition = "TEXT")
     private String url;
 
-    private ProfileLink(Member member, LinkType linkType, String url) {
+    private ProfileLink(Member member, UrlType urlType, String url) {
         this.member = member;
-        this.linkType = linkType;
+        this.urlType = urlType;
         this.url = url;
     }
 
-    public static ProfileLink of(final Member member, LinkType linkType, String url) {
-        return new ProfileLink(member, linkType, url);
+    public static ProfileLink of(final Member member, UrlType urlType, String url) {
+        return new ProfileLink(member, urlType, url);
     }
 }
