@@ -8,15 +8,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.admin.dto.MemberInfoResponse;
 import org.cotato.csquiz.api.member.dto.MemberInfo;
 import org.cotato.csquiz.api.member.dto.MemberMyPageInfoResponse;
-import org.cotato.csquiz.common.config.jwt.JwtTokenProvider;
-import org.cotato.csquiz.common.entity.S3Info;
+import org.cotato.csquiz.api.member.dto.ProfileLinkRequest;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.common.error.exception.ImageException;
 import org.cotato.csquiz.common.s3.S3Uploader;
 import org.cotato.csquiz.domain.auth.entity.Member;
-import org.cotato.csquiz.domain.auth.enums.MemberRoleGroup;
+import org.cotato.csquiz.domain.auth.entity.ProfileLink;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
+import org.cotato.csquiz.domain.auth.repository.ProfileLinkRepository;
 import org.cotato.csquiz.domain.auth.service.component.MemberReader;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
@@ -39,6 +39,7 @@ public class MemberService {
     private final EncryptService encryptService;
     private final ValidateService validateService;
     private final S3Uploader s3Uploader;
+    private final ProfileLinkRepository profileLinkRepository;
 
     public MemberInfoResponse findMemberInfo(final Member member) {
         String rawBackFourNumber = findBackFourNumber(member);
@@ -76,28 +77,30 @@ public class MemberService {
     }
 
     @Transactional
-    public void updateMemberProfileImage(final Member member, MultipartFile image) throws ImageException {
-        if (image.isEmpty()) {
-            throw new AppException(ErrorCode.FILE_IS_EMPTY);
-        }
+    public void updateMemberProfileInfo(final Member member, final String introduction, final String university,
+                                        final List<ProfileLinkRequest> profileLinkRequests, final MultipartFile profileImage)
+            throws ImageException {
+        member.updateIntroduction(introduction);
+        member.updateUniversity(university);
 
-        if (member.getProfileImage() != null) {
-            s3Uploader.deleteFile(member.getProfileImage());
-        }
+        profileLinkRepository.deleteAllByMember(member);
+        List<ProfileLink> profileLinks = profileLinkRequests.stream()
+                .map(lr -> ProfileLink.of(member, lr.urlType(), lr.url()))
+                .toList();
+        profileLinkRepository.saveAll(profileLinks);
 
-        S3Info s3Info = s3Uploader.uploadFiles(image, PROFILE_BUCKET_DIRECTORY);
-        member.updateProfileImage(s3Info);
+        deleteProfileImage(member);
+        if (profileImage != null) {
+            member.updateProfileImage(s3Uploader.uploadFiles(profileImage, PROFILE_BUCKET_DIRECTORY));
+        }
         memberRepository.save(member);
     }
 
-    @Transactional
-    public void deleteMemberProfileImage(final Member member) {
+    private void deleteProfileImage(final Member member) {
         if (member.getProfileImage() != null) {
             s3Uploader.deleteFile(member.getProfileImage());
+            member.updateProfileImage(null);
         }
-
-        member.updateProfileImage(null);
-        memberRepository.save(member);
     }
 
     public MemberMyPageInfoResponse findMyPageInfo(Long memberId) {
