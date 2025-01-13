@@ -1,4 +1,4 @@
-package org.cotato.csquiz.common.idempotency;
+package org.cotato.csquiz.common.converter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.lang.reflect.Type;
