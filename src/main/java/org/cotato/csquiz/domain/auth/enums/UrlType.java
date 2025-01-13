@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum LinkType {
+public enum UrlType {
     GITHUB("깃허브"),
     BEHANCE("비핸스"),
     BLOG("블로그"),
