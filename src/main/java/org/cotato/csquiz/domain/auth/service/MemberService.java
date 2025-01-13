@@ -90,7 +90,7 @@ public class MemberService {
         List<ProfileLink> profileLinks = profileLinkRequests.stream()
                 .map(lr -> ProfileLink.of(member, lr.linkType(), lr.link()))
                 .toList();
-        profileLinkWriter.createProfileLinks(profileLinks);
+        profileLinkWriter.saveAllProfileLinks(profileLinks);
 
         memberWriter.deleteProfileImage(member);
         if (profileImage != null) {

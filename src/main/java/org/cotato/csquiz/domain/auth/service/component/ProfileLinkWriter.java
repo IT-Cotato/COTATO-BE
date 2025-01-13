@@ -18,7 +18,7 @@ public class ProfileLinkWriter {
         profileLinkRepository.deleteAllByMember(member);
     }
 
-    public void createProfileLinks(List<ProfileLink> profileLinks) {
+    public void saveAllProfileLinks(List<ProfileLink> profileLinks) {
         profileLinkRepository.saveAll(profileLinks);
     }
 }
