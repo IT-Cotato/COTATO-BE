@@ -26,7 +26,7 @@ public class MemberWriter {
         member.updateProfileImage(s3Uploader.uploadFiles(profileImage, PROFILE_BUCKET_DIRECTORY));
     }
 
-    public void deleteProfileImageIfPresent(final Member member) {
+    public void deleteProfileImage(final Member member) {
         if (member.getProfileImage() != null) {
             s3Uploader.deleteFile(member.getProfileImage());
             member.updateProfileImage(null);

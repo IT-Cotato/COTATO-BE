@@ -92,7 +92,7 @@ public class MemberService {
                 .toList();
         profileLinkWriter.createProfileLinks(profileLinks);
 
-        memberWriter.deleteProfileImageIfPresent(member);
+        memberWriter.deleteProfileImage(member);
         if (profileImage != null) {
             memberWriter.updateProfileImage(member, profileImage);
         }
