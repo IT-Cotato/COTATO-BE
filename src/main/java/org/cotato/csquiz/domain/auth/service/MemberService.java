@@ -17,9 +17,9 @@ import org.cotato.csquiz.common.s3.S3Uploader;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.entity.ProfileLink;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
+import org.cotato.csquiz.domain.auth.repository.ProfileLinkRepository;
 import org.cotato.csquiz.domain.auth.service.component.MemberReader;
 import org.cotato.csquiz.domain.auth.service.component.MemberWriter;
-import org.cotato.csquiz.domain.auth.service.component.ProfileLinkWriter;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -36,13 +36,13 @@ public class MemberService {
     private static final String PROFILE_BUCKET_DIRECTORY = "profile";
     private final MemberReader memberReader;
     private final GenerationReader generationReader;
-    private final ProfileLinkWriter profileLinkWriter;
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final EncryptService encryptService;
     private final ValidateService validateService;
     private final S3Uploader s3Uploader;
     private final MemberWriter memberWriter;
+    private final ProfileLinkRepository profileLinkRepository;
 
     public MemberInfoResponse findMemberInfo(final Member member) {
         String rawBackFourNumber = findBackFourNumber(member);
@@ -86,11 +86,11 @@ public class MemberService {
         member.updateIntroduction(introduction);
         member.updateUniversity(university);
 
-        profileLinkWriter.deleteAllByMember(member);
+        profileLinkRepository.deleteAllByMember(member);
         List<ProfileLink> profileLinks = profileLinkRequests.stream()
                 .map(lr -> ProfileLink.of(member, lr.linkType(), lr.link()))
                 .toList();
-        profileLinkWriter.saveAllProfileLinks(profileLinks);
+        profileLinkRepository.saveAll(profileLinks);
 
         memberWriter.deleteProfileImage(member);
         if (profileImage != null) {
