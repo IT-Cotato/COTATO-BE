@@ -59,6 +59,7 @@ public class MemberService {
         validateIsSameBefore(member.getPassword(), password);
 
         member.updatePassword(bCryptPasswordEncoder.encode(password));
+        memberRepository.save(member);
     }
 
     private void validateIsSameBefore(String originPassword, String newPassword) {
@@ -71,6 +72,7 @@ public class MemberService {
     public void updatePhoneNumber(final Member member, String phoneNumber) {
         String encryptedPhoneNumber = encryptService.encryptPhoneNumber(phoneNumber);
         member.updatePhoneNumber(encryptedPhoneNumber);
+        memberRepository.save(member);
     }
 
     @Transactional
@@ -85,6 +87,7 @@ public class MemberService {
 
         S3Info s3Info = s3Uploader.uploadFiles(image, PROFILE_BUCKET_DIRECTORY);
         member.updateProfileImage(s3Info);
+        memberRepository.save(member);
     }
 
     @Transactional
@@ -94,6 +97,7 @@ public class MemberService {
         }
 
         member.updateProfileImage(null);
+        memberRepository.save(member);
     }
 
     public MemberMyPageInfoResponse findMyPageInfo(Long memberId) {
