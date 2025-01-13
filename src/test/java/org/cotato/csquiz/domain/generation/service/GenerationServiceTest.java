@@ -9,7 +9,11 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.cotato.csquiz.api.generation.dto.AddGenerationRequest;
+import org.cotato.csquiz.api.generation.dto.AddGenerationResponse;
 import org.cotato.csquiz.api.generation.dto.GenerationInfoResponse;
+import org.cotato.csquiz.common.error.ErrorCode;
+import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.embedded.GenerationPeriod;
 import org.cotato.csquiz.domain.generation.repository.GenerationRepository;
@@ -31,6 +35,49 @@ class GenerationServiceTest {
     void setUp() {
 
         MockitoAnnotations.openMocks(this);  // Mockito mock 객체 초기화
+    }
+
+    @Test
+    void 기수_생성_테스트() {
+        //given
+        int generationNumber = 1;
+        int sessionCount = 12;
+        AddGenerationRequest request = new AddGenerationRequest(
+                generationNumber,
+                LocalDate.now(),
+                LocalDate.now().plusDays(1),
+                sessionCount);
+
+        //when
+        Generation generation = Generation.builder()
+                .number(request.generationNumber())
+                .period(GenerationPeriod.of(request.startDate(), request.endDate()))
+                .sessionCount(request.sessionCount())
+                .build();
+        when(generationRepository.save(any(Generation.class))).thenReturn(generation);
+
+        AddGenerationResponse response = generationService.addGeneration(request);
+
+        //then
+        assertThat(response).isNotNull();
+        assertThat(generation.getNumber()).isEqualTo(generationNumber);
+        assertThat(generation.getSessionCount()).isEqualTo(sessionCount);
+    }
+
+    @Test
+    void 기수_생성시_끝나는_시간이_시작하는_시간_앞이면_예외_발생() {
+        //given
+        int generationNumber = 1;
+        int sessionCount = 12;
+        AddGenerationRequest request = new AddGenerationRequest(
+                generationNumber,
+                LocalDate.now(),
+                LocalDate.now().minusDays(1),
+                sessionCount);
+
+        //when & then
+        AppException exception = assertThrows(AppException.class, () -> generationService.addGeneration(request));
+        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.INVALID_DATE);
     }
 
     @Test
