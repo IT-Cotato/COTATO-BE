@@ -9,7 +9,6 @@ import org.cotato.csquiz.api.admin.dto.MemberInfoResponse;
 import org.cotato.csquiz.api.member.dto.MemberInfo;
 import org.cotato.csquiz.api.member.dto.MemberMyPageInfoResponse;
 import org.cotato.csquiz.api.member.dto.ProfileLinkRequest;
-import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.common.error.exception.ImageException;
@@ -102,31 +101,6 @@ public class MemberService {
             s3Uploader.deleteFile(member.getProfileImage());
             member.updateProfileImage(null);
         }
-    }
-
-    @Transactional
-    public void updateMemberProfileImage(final Member member, MultipartFile image) throws ImageException {
-        if (image.isEmpty()) {
-            throw new AppException(ErrorCode.FILE_IS_EMPTY);
-        }
-
-        if (member.getProfileImage() != null) {
-            s3Uploader.deleteFile(member.getProfileImage());
-        }
-
-        S3Info s3Info = s3Uploader.uploadFiles(image, PROFILE_BUCKET_DIRECTORY);
-        member.updateProfileImage(s3Info);
-        memberRepository.save(member);
-    }
-
-    @Transactional
-    public void deleteMemberProfileImage(final Member member) {
-        if (member.getProfileImage() != null) {
-            s3Uploader.deleteFile(member.getProfileImage());
-        }
-
-        member.updateProfileImage(null);
-        memberRepository.save(member);
     }
 
     public MemberMyPageInfoResponse findMyPageInfo(Long memberId) {
