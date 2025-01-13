@@ -19,7 +19,6 @@ import org.cotato.csquiz.domain.auth.entity.ProfileLink;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
 import org.cotato.csquiz.domain.auth.repository.ProfileLinkRepository;
 import org.cotato.csquiz.domain.auth.service.component.MemberReader;
-import org.cotato.csquiz.domain.auth.service.component.MemberWriter;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -41,7 +40,6 @@ public class MemberService {
     private final EncryptService encryptService;
     private final ValidateService validateService;
     private final S3Uploader s3Uploader;
-    private final MemberWriter memberWriter;
     private final ProfileLinkRepository profileLinkRepository;
 
     public MemberInfoResponse findMemberInfo(final Member member) {
@@ -92,11 +90,18 @@ public class MemberService {
                 .toList();
         profileLinkRepository.saveAll(profileLinks);
 
-        memberWriter.deleteProfileImage(member);
+        deleteProfileImage(member);
         if (profileImage != null) {
-            memberWriter.updateProfileImage(member, profileImage);
+            member.updateProfileImage(s3Uploader.uploadFiles(profileImage, PROFILE_BUCKET_DIRECTORY));
         }
-        memberWriter.save(member);
+        memberRepository.save(member);
+    }
+
+    private void deleteProfileImage(final Member member) {
+        if (member.getProfileImage() != null) {
+            s3Uploader.deleteFile(member.getProfileImage());
+            member.updateProfileImage(null);
+        }
     }
 
     @Transactional
