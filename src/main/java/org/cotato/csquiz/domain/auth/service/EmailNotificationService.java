@@ -9,7 +9,7 @@ import static org.cotato.csquiz.domain.auth.constant.EmailConstants.SIGNUP_SUCCE
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.cotato.csquiz.common.email.EmailService;
+import org.cotato.csquiz.common.email.EmailSender;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.utils.EmailFormValidator;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class EmailNotificationService {
 
-    private final EmailService emailService;
+    private final EmailSender emailSender;
     private final EmailFormValidator emailFormValidator;
 
     public void sendSignUpApprovedToEmail(Member recipientMember) {
@@ -27,7 +27,7 @@ public class EmailNotificationService {
 
         String successMessage = createSignupApprovedMessageBody(recipientMember);
 
-        emailService.sendEmail(recipientMember.getEmail(), successMessage, SIGNUP_SUCCESS_SUBJECT);
+        emailSender.sendEmail(recipientMember.getEmail(), successMessage, SIGNUP_SUCCESS_SUBJECT);
         log.info("가입 승인 완료 이메일 전송 완료");
     }
 
@@ -36,7 +36,7 @@ public class EmailNotificationService {
 
         String rejectMessage = createSignupRejectionMessageBody(recipientMember);
 
-        emailService.sendEmail(recipientMember.getEmail(), rejectMessage, SIGNUP_REJECT_SUBJECT);
+        emailSender.sendEmail(recipientMember.getEmail(), rejectMessage, SIGNUP_REJECT_SUBJECT);
         log.info("가입 승인 거절 이메일 전송 완료");
     }
 
@@ -45,7 +45,7 @@ public class EmailNotificationService {
 
         String conversionMessageBody = createOldMemberConversionEmailBody(recipientMember);
 
-        emailService.sendEmail(recipientMember.getEmail(), conversionMessageBody, CONVERSION_TO_OM_SUBJECT);
+        emailSender.sendEmail(recipientMember.getEmail(), conversionMessageBody, CONVERSION_TO_OM_SUBJECT);
         log.info("OM 전환 이메일 전송 완료");
     }
 }
