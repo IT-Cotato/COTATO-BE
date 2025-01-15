@@ -7,11 +7,15 @@ import javax.naming.NoPermissionException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.admin.dto.MemberInfoResponse;
+import org.cotato.csquiz.api.member.dto.AddableMembersResponse;
 import org.cotato.csquiz.api.member.dto.MemberMyPageInfoResponse;
 import org.cotato.csquiz.api.member.dto.UpdatePasswordRequest;
 import org.cotato.csquiz.api.member.dto.UpdatePhoneNumberRequest;
 import org.cotato.csquiz.api.member.dto.UpdateProfileInfoRequest;
+import org.cotato.csquiz.common.role.RoleAuthority;
 import org.cotato.csquiz.domain.auth.entity.Member;
+import org.cotato.csquiz.domain.auth.enums.MemberPosition;
+import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.cotato.csquiz.domain.auth.service.MemberService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +26,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,6 +43,18 @@ public class MemberController {
     public ResponseEntity<MemberInfoResponse> findMemberInfo(
             @AuthenticationPrincipal Member member) {
         return ResponseEntity.ok().body(memberService.findMemberInfo(member));
+    }
+
+    @RoleAuthority(MemberRole.ADMIN)
+    @GetMapping
+    public ResponseEntity<AddableMembersResponse> findAddableMembersForGenerationMember(
+            @RequestParam(name = "generationId") Long generationId,
+            @RequestParam(name = "passedGenerationNumber", required = false) Integer generationNumber,
+            @RequestParam(name = "memberPosition", required = false) MemberPosition memberPosition,
+            @RequestParam(name = "name", required = false) String name
+    ) {
+        return ResponseEntity.ok()
+                .body(memberService.findAddableMembers(generationId, generationNumber, memberPosition, name));
     }
 
     @PatchMapping("/update/password")

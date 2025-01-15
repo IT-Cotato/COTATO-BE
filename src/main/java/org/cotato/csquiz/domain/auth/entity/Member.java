@@ -134,6 +134,14 @@ public class Member extends BaseTimeEntity {
         return this.status == MemberStatus.REJECTED;
     }
 
+    public boolean isApproved() {
+        return this.status == MemberStatus.APPROVED;
+    }
+
+    public boolean isRetired() {
+        return this.status == MemberStatus.RETIRED;
+    }
+
     public boolean isDevTeam(){
         return this.role == MemberRole.DEV;
     }

@@ -2,10 +2,12 @@ package org.cotato.csquiz.domain.auth.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.admin.dto.MemberInfoResponse;
+import org.cotato.csquiz.api.member.dto.AddableMembersResponse;
 import org.cotato.csquiz.api.member.dto.MemberInfo;
 import org.cotato.csquiz.api.member.dto.MemberMyPageInfoResponse;
 import org.cotato.csquiz.api.member.dto.ProfileLinkRequest;
@@ -15,10 +17,12 @@ import org.cotato.csquiz.common.error.exception.ImageException;
 import org.cotato.csquiz.common.s3.S3Uploader;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.entity.ProfileLink;
+import org.cotato.csquiz.domain.auth.enums.MemberPosition;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
 import org.cotato.csquiz.domain.auth.repository.ProfileLinkRepository;
 import org.cotato.csquiz.domain.auth.service.component.MemberReader;
 import org.cotato.csquiz.domain.generation.entity.Generation;
+import org.cotato.csquiz.domain.generation.repository.GenerationMemberRepository;
 import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -40,6 +44,7 @@ public class MemberService {
     private final ValidateService validateService;
     private final S3Uploader s3Uploader;
     private final ProfileLinkRepository profileLinkRepository;
+    private final GenerationMemberRepository generationMemberRepository;
 
     public MemberInfoResponse findMemberInfo(final Member member) {
         String rawBackFourNumber = findBackFourNumber(member);
@@ -124,5 +129,27 @@ public class MemberService {
     public List<Member> findActiveMember() {
         Generation currentGeneration = generationReader.findByDate(LocalDate.now());
         return memberReader.findAllGenerationMember(currentGeneration);
+    }
+
+    public AddableMembersResponse findAddableMembers(final Long generationId, Integer generationNumber, MemberPosition memberPosition, String name) {
+        List<Long> existMemberIds = generationMemberRepository.findAllByGenerationIdWithMember(generationId).stream()
+                .map(gm -> gm.getMember().getId())
+                .toList();
+
+        List<Member> filteredAddableMember = memberRepository.findAllWithFilters(generationNumber, memberPosition, name)
+                .stream()
+                .filter(this::isApprovedOrOM)
+                .filter(member -> !existMemberIds.contains(member.getId()))
+                .sorted(Comparator
+                        .comparing(Member::isApproved)
+                        .reversed()
+                        .thenComparing(Member::getName)
+                )
+                .toList();
+        return AddableMembersResponse.from(filteredAddableMember);
+    }
+
+    private boolean isApprovedOrOM(Member member) {
+        return member.isApproved() || member.isRetired();
     }
 }
