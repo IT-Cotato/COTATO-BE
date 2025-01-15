@@ -42,7 +42,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             log.info("member <{}> , password <{}>", member.getEmail(), member.getPassword());
             return authenticationManager.authenticate(authenticationToken);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("로그인 에러 발생 : <{}>", e.getMessage());
             throw new FilterAuthenticationException("로그인 시도에 실패했습니다.");
         }
     }
