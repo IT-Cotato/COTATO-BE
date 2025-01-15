@@ -53,11 +53,11 @@ public class MemberController {
     public ResponseEntity<AddableMembersResponse> findAddableMembersForGenerationMember(
             @RequestParam(name = "generationId") @Parameter(description = "추가하고 싶은 기수의 Id") Long generationId,
             @RequestParam(name = "passedGenerationNumber", required = false) @Parameter(description = "멤버 합격 기수") Integer generationNumber,
-            @RequestParam(name = "memberPosition", required = false) @Parameter(description = "멤버 포지션") MemberPosition memberPosition,
+            @RequestParam(name = "position", required = false) @Parameter(description = "멤버 포지션") MemberPosition position,
             @RequestParam(name = "name", required = false) @Parameter(description = "멤버 이름") String name
     ) {
         return ResponseEntity.ok()
-                .body(memberService.findAddableMembers(generationId, generationNumber, memberPosition, name));
+                .body(memberService.findAddableMembers(generationId, generationNumber, position, name));
     }
 
     @PatchMapping("/update/password")
