@@ -39,7 +39,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             Member member = mapper.readValue(request.getInputStream(), Member.class);
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                     member.getEmail(), member.getPassword());
-            log.info("member <{}> , password <{}>", member.getEmail(), member.getPassword());
             return authenticationManager.authenticate(authenticationToken);
         } catch (Exception e) {
             log.error("로그인 에러 발생 : <{}>", e.getMessage());
