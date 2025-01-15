@@ -1,4 +1,4 @@
-package org.cotato.csquiz.domain.auth.service;
+package org.cotato.csquiz.domain.auth.service.component;
 
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
@@ -8,13 +8,11 @@ import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.auth.cache.EmailRedisRepository;
 import org.cotato.csquiz.domain.auth.cache.VerificationCodeRedisRepository;
 import org.cotato.csquiz.domain.auth.enums.EmailType;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Component;
 
 @Slf4j
-@Service
+@Component
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class EmailCodeManager {
 
     private static final int CODE_LENGTH = 6;

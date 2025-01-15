@@ -26,6 +26,7 @@ import org.cotato.csquiz.domain.auth.constant.EmailConstants;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.enums.EmailType;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
+import org.cotato.csquiz.domain.auth.service.component.EmailCodeManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
