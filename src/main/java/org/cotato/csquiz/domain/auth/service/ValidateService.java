@@ -54,19 +54,15 @@ public class ValidateService {
     }
 
     public void checkPhoneNumber(String phoneNumber) {
-        if (phoneNumber.length() != PHONE_NUMBER_LENGTH) {
-            log.error("[전화번호 에러]: 적당하지 않은 길이");
-            throw new AppException(ErrorCode.INVALID_PHONE_NUMBER);
-        }
         if (!phoneNumber.startsWith(PHONE_NUMBER_PREFIX)) {
             log.error("[전화번호 에러]: 010으로 시작하지 않음");
-            throw new AppException(ErrorCode.INVALID_PHONE_NUMBER);
+            throw new AppException(ErrorCode.INVALID_PHONE_NUMBER_PREFIX);
         }
         try {
             Integer.parseInt(phoneNumber);
         } catch (Exception e) {
             log.error("[전화번호 에러]: 문자열 파싱 에러");
-            throw new AppException(ErrorCode.INVALID_PHONE_NUMBER);
+            throw new AppException(ErrorCode.INVALID_PHONE_NUMBER_FORMAT);
         }
     }
 }
