@@ -1,5 +1,7 @@
 package org.cotato.csquiz.domain.auth.service;
 
+import static org.cotato.csquiz.common.util.EmailUtil.getVerificationMessageBody;
+
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,6 +19,7 @@ import org.cotato.csquiz.common.config.jwt.JwtTokenProvider;
 import org.cotato.csquiz.common.config.jwt.RefreshToken;
 import org.cotato.csquiz.common.config.jwt.RefreshTokenRepository;
 import org.cotato.csquiz.common.config.jwt.Token;
+import org.cotato.csquiz.common.email.EmailSender;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.auth.constant.EmailConstants;
@@ -45,8 +48,9 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
     private final BlackListRepository blackListRepository;
-    private final EmailVerificationService emailVerificationService;
+    private final EmailCodeManager emailCodeManager;
     private final EncryptService encryptService;
+    private final EmailSender emailSender;
 
     @Value("${jwt.refresh.expiration}")
     private int refreshTokenAge;
@@ -121,20 +125,29 @@ public class AuthService {
 
     public void sendSignUpEmail(SendEmailRequest request) {
         validateService.emailNotExist(request.email());
-        emailVerificationService.sendVerificationCodeToEmail(EmailType.SIGNUP, request.email(), EmailConstants.SIGNUP_SUBJECT);
+
+        String verificationCode = emailCodeManager.getRandomCode(EmailType.SIGNUP, request.email());
+        String verificationMessage = getVerificationMessageBody(verificationCode);
+
+        emailSender.sendEmail(request.email(), verificationMessage, EmailConstants.SIGNUP_SUBJECT);
     }
 
     public void verifySingUpCode(String email, String code) {
-        emailVerificationService.verifyCode(EmailType.SIGNUP, email, code);
+        emailCodeManager.verifyCode(EmailType.SIGNUP, email, code);
     }
 
     public void sendFindPasswordEmail(SendEmailRequest request) {
         validateService.emailExist(request.email());
-        emailVerificationService.sendVerificationCodeToEmail(EmailType.UPDATE_PASSWORD, request.email(), EmailConstants.PASSWORD_SUBJECT);
+
+        String verificationCode = emailCodeManager.getRandomCode(EmailType.UPDATE_PASSWORD, request.email());
+        String verificationMessage = getVerificationMessageBody(verificationCode);
+
+        emailSender.sendEmail(request.email(), verificationMessage, EmailConstants.SIGNUP_SUBJECT);
+
     }
 
     public FindPasswordResponse verifyPasswordCode(String email, String code) {
-        emailVerificationService.verifyCode(EmailType.UPDATE_PASSWORD, email, code);
+        emailCodeManager.verifyCode(EmailType.UPDATE_PASSWORD, email, code);
         Member findMember = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_FOUND));
         String role = findMember.getRole().getKey();
