@@ -26,7 +26,8 @@ public enum ErrorCode {
     // 회원 가입
     EMAIL_TYPE_ERROR(HttpStatus.BAD_REQUEST, "A-001", "구글, 네이버 형식으로 입력해주세요"),
     INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "A-002", "유효하지 않은 패스워드입니다."),
-    INVALID_PHONE_NUMBER(HttpStatus.BAD_REQUEST, "A-003", "유효하지 않은 전화번호 입니다."),
+    INVALID_PHONE_NUMBER_PREFIX(HttpStatus.BAD_REQUEST, "A-003", "010으로 시작하지 않습니다."),
+    INVALID_PHONE_NUMBER_FORMAT(HttpStatus.BAD_REQUEST, "A-004", "문자열이 포함되어있습니다."),
     CODE_NOT_MATCH(HttpStatus.BAD_REQUEST, "A-101", "요청하신 코드가 일치하지 않습니다."),
     CODE_EXPIRED(HttpStatus.BAD_REQUEST, "A-102", "코드 유효 시간이 만료되었습니다."),
     EMAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "A-201", "해당 이메일이 존재하지 않습니다."),
