@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.common.email.EmailSender;
 import org.cotato.csquiz.domain.auth.entity.Member;
-import org.cotato.csquiz.domain.auth.utils.EmailFormValidator;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -20,11 +19,8 @@ import org.springframework.stereotype.Service;
 public class EmailNotificationService {
 
     private final EmailSender emailSender;
-    private final EmailFormValidator emailFormValidator;
 
     public void sendSignUpApprovedToEmail(Member recipientMember) {
-        emailFormValidator.validateEmailForm(recipientMember.getEmail());
-
         String successMessage = createSignupApprovedMessageBody(recipientMember);
 
         emailSender.sendEmail(recipientMember.getEmail(), successMessage, SIGNUP_SUCCESS_SUBJECT);
@@ -32,8 +28,6 @@ public class EmailNotificationService {
     }
 
     public void sendSignupRejectionToEmail(Member recipientMember) {
-        emailFormValidator.validateEmailForm(recipientMember.getEmail());
-
         String rejectMessage = createSignupRejectionMessageBody(recipientMember);
 
         emailSender.sendEmail(recipientMember.getEmail(), rejectMessage, SIGNUP_REJECT_SUBJECT);
@@ -41,8 +35,6 @@ public class EmailNotificationService {
     }
 
     public void sendOldMemberConversionToEmail(Member recipientMember) {
-        emailFormValidator.validateEmailForm(recipientMember.getEmail());
-
         String conversionMessageBody = createOldMemberConversionEmailBody(recipientMember);
 
         emailSender.sendEmail(recipientMember.getEmail(), conversionMessageBody, CONVERSION_TO_OM_SUBJECT);
