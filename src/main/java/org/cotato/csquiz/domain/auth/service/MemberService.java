@@ -138,7 +138,7 @@ public class MemberService {
 
         List<Member> filteredAddableMember = memberRepository.findAllWithFilters(generationNumber, memberPosition, name)
                 .stream()
-                .filter(this::isApprovedOrOM)
+                .filter(member -> member.isApproved() || member.isRetired())
                 .filter(member -> !existMemberIds.contains(member.getId()))
                 .sorted(Comparator
                         .comparing(Member::isApproved)
@@ -147,9 +147,5 @@ public class MemberService {
                 )
                 .toList();
         return AddableMembersResponse.from(filteredAddableMember);
-    }
-
-    private boolean isApprovedOrOM(Member member) {
-        return member.isApproved() || member.isRetired();
     }
 }
