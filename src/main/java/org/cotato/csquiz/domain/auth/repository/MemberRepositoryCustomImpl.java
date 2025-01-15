@@ -2,23 +2,17 @@ package org.cotato.csquiz.domain.auth.repository;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import jakarta.persistence.EntityManager;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.entity.QMember;
 import org.cotato.csquiz.domain.auth.enums.MemberPosition;
-import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class MemberRepositoryCustomImpl extends QuerydslRepositorySupport implements MemberRepositoryCustom {
-
+@AllArgsConstructor
+public class MemberRepositoryCustomImpl  implements MemberRepositoryCustom {
     private final JPAQueryFactory queryFactory;
-
-    public MemberRepositoryCustomImpl(EntityManager em) {
-        super(Member.class);
-        this.queryFactory = new JPAQueryFactory(em);
-    }
 
     @Override
     public List<Member> findAllWithFilters(Integer passedGenerationNumber, MemberPosition memberPosition, String name) {
