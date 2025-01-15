@@ -16,6 +16,7 @@ public interface GenerationMemberRepository extends JpaRepository<GenerationMemb
     @Query("select gm from GenerationMember gm join fetch gm.member m where gm.generation = :generation")
     List<GenerationMember> findAllByGenerationWithMember(@Param("generation") Generation generation);
 
+    @Transactional(readOnly = true)
     @Query("select gm from GenerationMember gm join fetch gm.member m where gm.generation.id = :generationId")
     List<GenerationMember> findAllByGenerationIdWithMember(@Param("generationId") Long generationId);
 
