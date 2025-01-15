@@ -24,7 +24,6 @@ public enum ErrorCode {
     ENTITY_NOT_FOUND(HttpStatus.NOT_FOUND, "I-201", "해당 Entity를 찾을 수 없습니다."),
 
     // 회원 가입
-    EMAIL_TYPE_ERROR(HttpStatus.BAD_REQUEST, "A-001", "구글, 네이버 형식으로 입력해주세요"),
     INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "A-002", "유효하지 않은 패스워드입니다."),
     INVALID_PHONE_NUMBER_PREFIX(HttpStatus.BAD_REQUEST, "A-003", "010으로 시작하지 않습니다."),
     INVALID_PHONE_NUMBER_FORMAT(HttpStatus.BAD_REQUEST, "A-004", "문자열이 포함되어있습니다."),
