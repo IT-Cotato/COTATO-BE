@@ -4,12 +4,15 @@ import java.util.Collection;
 import java.util.List;
 import lombok.Data;
 import org.cotato.csquiz.domain.auth.entity.Member;
+import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @Data
 public class PrincipalDetails implements UserDetails {
+
+    private static final String BASE_ROLE = "ROLE_BASE";
 
     private Member member;
 
@@ -19,7 +22,11 @@ public class PrincipalDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(member.getRole().getKey()));
+        MemberRole role = member.getRole();
+        if (role == null) {
+            return List.of(new SimpleGrantedAuthority(BASE_ROLE));
+        }
+        return List.of(new SimpleGrantedAuthority(role.getKey()));
     }
 
     @Override
