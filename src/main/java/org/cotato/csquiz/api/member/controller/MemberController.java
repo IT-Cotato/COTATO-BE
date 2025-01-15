@@ -1,6 +1,7 @@
 package org.cotato.csquiz.api.member.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import javax.naming.NoPermissionException;
@@ -20,6 +21,7 @@ import org.cotato.csquiz.domain.auth.service.MemberService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,13 +47,14 @@ public class MemberController {
         return ResponseEntity.ok().body(memberService.findMemberInfo(member));
     }
 
+    @Operation(summary = "기수별 멤버에 추가 가능한 멤버 반환 API")
     @RoleAuthority(MemberRole.ADMIN)
     @GetMapping
     public ResponseEntity<AddableMembersResponse> findAddableMembersForGenerationMember(
-            @RequestParam(name = "generationId") Long generationId,
-            @RequestParam(name = "passedGenerationNumber", required = false) Integer generationNumber,
-            @RequestParam(name = "memberPosition", required = false) MemberPosition memberPosition,
-            @RequestParam(name = "name", required = false) String name
+            @RequestParam(name = "generationId") @Parameter(description = "추가하고 싶은 기수의 Id") Long generationId,
+            @RequestParam(name = "passedGenerationNumber", required = false) @Parameter(description = "멤버 합격 기수") Integer generationNumber,
+            @RequestParam(name = "memberPosition", required = false) @Parameter(description = "멤버 포지션") MemberPosition memberPosition,
+            @RequestParam(name = "name", required = false) @Parameter(description = "멤버 이름") String name
     ) {
         return ResponseEntity.ok()
                 .body(memberService.findAddableMembers(generationId, generationNumber, memberPosition, name));
