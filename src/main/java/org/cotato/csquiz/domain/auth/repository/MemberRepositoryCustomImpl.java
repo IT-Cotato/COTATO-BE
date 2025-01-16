@@ -3,14 +3,14 @@ package org.cotato.csquiz.domain.auth.repository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.entity.QMember;
 import org.cotato.csquiz.domain.auth.enums.MemberPosition;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class MemberRepositoryCustomImpl  implements MemberRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
