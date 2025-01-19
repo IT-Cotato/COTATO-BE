@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -215,18 +214,9 @@ public class AttendanceExcelService {
         List<Member> members = generationMemberReader.getAllByGeneration(generation).stream()
                 .map(GenerationMember::getMember).toList();
 
-        Set<Long> memberIds = members.stream().map(Member::getId).collect(Collectors.toUnmodifiableSet());
+        attendances.forEach(attendanceRecordService::refreshAttendanceRecords);
 
-        List<AttendanceRecord> attendanceRecords = attendanceRecordReader.getAllByAttendances(attendances).stream()
-                .filter(attendanceRecord -> memberIds.contains(attendanceRecord.getMemberId()))
-                .toList();
-
-        Map<Long, Session> sessionByAttendanceId = attendances.stream()
-                .collect(Collectors.toMap(Attendance::getId, attendance -> sessionById.get(attendance.getSessionId())));
-
-        List<AttendanceRecordExcelData> excelData = getAttendanceRecordsExcelData(members, attendances.size(),
-                sessionByAttendanceId,
-                attendanceRecords);
+        List<AttendanceRecordExcelData> excelData = getAttendanceRecordsExcelData(members, attendances, sessionById);
 
         Map<String, Object> datas = new HashMap<>();
         datas.put(ExcelWriter.FILE_NAME, AttendanceExcelUtil.getGenerationRecordExcelFileName(generation));
@@ -236,30 +226,27 @@ public class AttendanceExcelService {
     }
 
     private List<AttendanceRecordExcelData> getAttendanceRecordsExcelData(final List<Member> members,
-                                                                          final Integer attendanceCount,
-                                                                          final Map<Long, Session> sessionByAttendanceId,
-                                                                          final List<AttendanceRecord> attendanceRecords) {
+                                                                          final List<Attendance> attendances,
+                                                                          final Map<Long, Session> sessionById) {
         Map<Long, Member> memberById = members.stream()
                 .collect(Collectors.toUnmodifiableMap(Member::getId, Function.identity()));
 
-        Map<Long, List<AttendanceRecord>> recordsByMemberId = attendanceRecords.stream()
+        Map<Long, List<AttendanceRecord>> recordsByMemberId = attendanceRecordReader.getAllByAttendances(attendances).stream()
+                .filter(attendanceRecord -> memberById.containsKey(attendanceRecord.getMemberId()))
                 .collect(Collectors.groupingBy(AttendanceRecord::getMemberId));
+
+        Map<Long, Session> sessionByAttendanceId = attendances.stream()
+                .collect(Collectors.toMap(Attendance::getId, attendance -> sessionById.get(attendance.getSessionId())));
 
         return recordsByMemberId.entrySet().stream()
                 .map(memberIdAndRecords -> {
                     Member member = memberById.get(memberIdAndRecords.getKey());
-                    AttendanceRecordExcelData excelData = AttendanceRecordExcelData.builder()
-                            .name(member.getName())
-                            .attendanceCounts(String.valueOf(attendanceCount))
-                            .build();
-
                     List<AttendRecord> records = memberIdAndRecords.getValue().stream()
                             .map(attendanceRecord -> AttendRecord.of(
                                     sessionByAttendanceId.get(attendanceRecord.getAttendanceId()), attendanceRecord))
                             .toList();
 
-                    excelData.setRecords(records);
-                    return excelData;
+                    return AttendanceRecordExcelData.of(member, attendances.size(), records);
                 })
                 .toList();
     }

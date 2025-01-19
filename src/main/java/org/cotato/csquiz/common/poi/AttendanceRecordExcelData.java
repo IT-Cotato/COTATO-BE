@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.cotato.csquiz.domain.attendance.entity.AttendanceRecord;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 import org.cotato.csquiz.domain.attendance.vo.AttendRecordStatics;
+import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.generation.entity.Session;
 
 @Data
@@ -43,6 +44,14 @@ public class AttendanceRecordExcelData implements ExcelData {
 
     @ExcelColumnName(headerName = "결석")
     private String absent;
+
+    public static AttendanceRecordExcelData of(Member member, int size, List<AttendRecord> records) {
+        return AttendanceRecordExcelData.builder()
+                .name(member.getName())
+                .records(records)
+                .attendanceCounts(String.valueOf(size))
+                .build();
+    }
 
     @Override
     public List<CellData> headers() {
