@@ -2,7 +2,6 @@ package org.cotato.csquiz.api.attendance.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
@@ -16,14 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 @RestController
-@RequestMapping("/v2/api/attendances/records")
+@RequestMapping("/v2/api/attendances/records/excel")
 @RequiredArgsConstructor
 public class AttendanceExcelController {
 
     private final AttendanceExcelService attendanceExcelService;
 
     @Operation(summary = "세션별 출석 기록 엑셀 다운로드 API")
-    @GetMapping("/excel")
+    @GetMapping
     public ModelAndView downloadAttendanceRecordsAsExcelBySessions(
             @RequestParam(name = "type") AttendanceExcelSheetType sheetType,
             @RequestParam(name = "attendanceIds", required = false) List<Long> attendanceIds,
