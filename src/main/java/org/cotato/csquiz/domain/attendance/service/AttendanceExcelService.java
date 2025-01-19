@@ -230,7 +230,7 @@ public class AttendanceExcelService {
 
         Map<String, Object> datas = new HashMap<>();
         datas.put(ExcelWriter.FILE_NAME, AttendanceExcelUtil.getGenerationRecordExcelFileName(generation));
-        datas.put(ExcelWriter.SHEETS, excelData);
+        datas.put(ExcelWriter.SHEETS, Map.of(AttendanceExcelUtil.getGenerationRecordExcelFileName(generation), excelData));
 
         return datas;
     }
