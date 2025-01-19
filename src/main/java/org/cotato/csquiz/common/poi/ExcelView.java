@@ -15,6 +15,6 @@ public class ExcelView extends AbstractXlsxView {
     @Override
     protected void buildExcelDocument(Map<String, Object> model, Workbook workbook, HttpServletRequest request,
                                       HttpServletResponse response) {
-        new ExcelWriter(model, response).create();
+        new ExcelWriter(model, workbook, response).create();
     }
 }

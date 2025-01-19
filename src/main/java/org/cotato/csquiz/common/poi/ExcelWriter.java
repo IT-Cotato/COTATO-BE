@@ -1,6 +1,8 @@
 package org.cotato.csquiz.common.poi;
 
 import jakarta.servlet.http.HttpServletResponse;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -9,7 +11,6 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 @RequiredArgsConstructor
 public class ExcelWriter {
@@ -18,11 +19,11 @@ public class ExcelWriter {
     public static final String SHEETS = "sheets";
 
     private final Map<String, Object> data;
+    private final Workbook workbook;
     private final HttpServletResponse response;
 
     @SuppressWarnings("unchecked")
     public void create() {
-        Workbook workbook = new XSSFWorkbook();
         setFileName(response, (String) data.get(FILE_NAME));
 
         Map<String, ?> dataBySheet = (Map<String, ?>) data.get(SHEETS);
