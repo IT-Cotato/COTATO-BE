@@ -212,4 +212,21 @@ public class AttendanceRecordService {
 
         attendanceRecordRepository.save(attendanceRecord);
     }
+
+    @Transactional
+    public void refreshAttendanceRecords(final Attendance attendance) {
+        List<AttendanceRecord> attendanceRecords = attendanceRecordRepository.findAllByAttendanceId(attendance.getId());
+        Set<Long> attendedMemberIds = attendanceRecords.stream()
+                .map(AttendanceRecord::getMemberId)
+                .collect(Collectors.toSet());
+
+        Session session = sessionReader.findById(attendance.getSessionId());
+        List<AttendanceRecord> newRecords = memberReader.findAllGenerationMember(session.getGeneration()).stream()
+                .map(Member::getId)
+                .filter(memberId -> !attendedMemberIds.contains(memberId))
+                .map(memberId -> AttendanceRecord.absentRecord(attendance, memberId))
+                .toList();
+
+        attendanceRecordRepository.saveAll(newRecords);
+    }
 }
