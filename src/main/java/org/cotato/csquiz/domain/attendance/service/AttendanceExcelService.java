@@ -2,23 +2,37 @@ package org.cotato.csquiz.domain.attendance.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.attendance.dto.AttendanceStatistic;
 import org.cotato.csquiz.api.attendance.dto.GenerationMemberAttendanceRecordResponse;
+import org.cotato.csquiz.common.poi.AttendanceRecordExcelData;
+import org.cotato.csquiz.common.poi.AttendanceRecordExcelData.AttendRecord;
+import org.cotato.csquiz.common.poi.ExcelWriter;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
+import org.cotato.csquiz.domain.attendance.entity.AttendanceRecord;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
+import org.cotato.csquiz.domain.attendance.service.component.AttendanceReader;
+import org.cotato.csquiz.domain.attendance.service.component.AttendanceRecordReader;
 import org.cotato.csquiz.domain.attendance.util.AttendanceExcelUtil;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.service.MemberService;
+import org.cotato.csquiz.domain.auth.service.component.GenerationMemberReader;
+import org.cotato.csquiz.domain.generation.entity.Generation;
+import org.cotato.csquiz.domain.generation.entity.GenerationMember;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
+import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
+import org.cotato.csquiz.domain.generation.service.component.SessionReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +46,12 @@ public class AttendanceExcelService {
     private final AttendanceRecordService attendanceRecordService;
     private final SessionRepository sessionRepository;
     private final MemberService memberService;
+
+    private final GenerationReader generationReader;
+    private final SessionReader sessionReader;
+    private final AttendanceRecordReader attendanceRecordReader;
+    private final AttendanceReader attendanceReader;
+    private final GenerationMemberReader generationMemberReader;
 
     public byte[] createExcelForSessionAttendance(List<Long> attendanceIds) {
         List<Member> activeMembers = memberService.findActiveMember();
@@ -103,9 +123,11 @@ public class AttendanceExcelService {
                                                     String columnName, List<Member> allMembers) {
         Attendance attendance = attendanceRepository.findById(attendanceId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석 정보가 존재하지 않습니다."));
-        Session session = sessionRepository.findById(attendance.getSessionId()).orElseThrow(() -> new EntityNotFoundException("출석에 대한 세션 정보를 찾을 수 없습니다."));
+        Session session = sessionRepository.findById(attendance.getSessionId())
+                .orElseThrow(() -> new EntityNotFoundException("출석에 대한 세션 정보를 찾을 수 없습니다."));
 
-        List<GenerationMemberAttendanceRecordResponse> attendanceRecords = attendanceRecordService.generateAttendanceResponses(List.of(attendance), session.getGeneration());
+        List<GenerationMemberAttendanceRecordResponse> attendanceRecords = attendanceRecordService.generateAttendanceResponses(
+                List.of(attendance), session.getGeneration());
 
         for (GenerationMemberAttendanceRecordResponse record : attendanceRecords) {
             Long memberId = record.memberInfo().memberId();
@@ -182,5 +204,63 @@ public class AttendanceExcelService {
         }
 
         return attendanceCountByAttendanceStatusByMemberId;
+    }
+
+    public Map<String, Object> getAttendanceRecordsExcelDataByGeneration(final Long generationId) {
+        Generation generation = generationReader.findById(generationId);
+        Map<Long, Session> sessionById = sessionReader.findAllByGeneration(generation).stream()
+                .collect(Collectors.toUnmodifiableMap(Session::getId, Function.identity()));
+
+        List<Attendance> attendances = attendanceReader.getAllBySessions(sessionById.values());
+        List<Member> members = generationMemberReader.getAllByGeneration(generation).stream()
+                .map(GenerationMember::getMember).toList();
+
+        Set<Long> memberIds = members.stream().map(Member::getId).collect(Collectors.toUnmodifiableSet());
+
+        List<AttendanceRecord> attendanceRecords = attendanceRecordReader.getAllByAttendances(attendances).stream()
+                .filter(attendanceRecord -> memberIds.contains(attendanceRecord.getMemberId()))
+                .toList();
+
+        Map<Long, Session> sessionByAttendanceId = attendances.stream()
+                .collect(Collectors.toMap(Attendance::getId, attendance -> sessionById.get(attendance.getSessionId())));
+
+        List<AttendanceRecordExcelData> excelData = getAttendanceRecordsExcelData(members, attendances.size(),
+                sessionByAttendanceId,
+                attendanceRecords);
+
+        Map<String, Object> datas = new HashMap<>();
+        datas.put(ExcelWriter.FILE_NAME, AttendanceExcelUtil.getGenerationRecordExcelFileName(generation));
+        datas.put(ExcelWriter.SHEETS, excelData);
+
+        return datas;
+    }
+
+    private List<AttendanceRecordExcelData> getAttendanceRecordsExcelData(final List<Member> members,
+                                                                          final Integer attendanceCount,
+                                                                          final Map<Long, Session> sessionByAttendanceId,
+                                                                          final List<AttendanceRecord> attendanceRecords) {
+        Map<Long, Member> memberById = members.stream()
+                .collect(Collectors.toUnmodifiableMap(Member::getId, Function.identity()));
+
+        Map<Long, List<AttendanceRecord>> recordsByMemberId = attendanceRecords.stream()
+                .collect(Collectors.groupingBy(AttendanceRecord::getMemberId));
+
+        return recordsByMemberId.entrySet().stream()
+                .map(memberIdAndRecords -> {
+                    Member member = memberById.get(memberIdAndRecords.getKey());
+                    AttendanceRecordExcelData excelData = AttendanceRecordExcelData.builder()
+                            .name(member.getName())
+                            .attendanceCounts(String.valueOf(attendanceCount))
+                            .build();
+
+                    List<AttendRecord> records = memberIdAndRecords.getValue().stream()
+                            .map(attendanceRecord -> AttendRecord.of(
+                                    sessionByAttendanceId.get(attendanceRecord.getAttendanceId()), attendanceRecord))
+                            .toList();
+
+                    excelData.setRecords(records);
+                    return excelData;
+                })
+                .toList();
     }
 }

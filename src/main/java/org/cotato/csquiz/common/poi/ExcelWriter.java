@@ -14,8 +14,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 @RequiredArgsConstructor
 public class ExcelWriter {
 
-    private static final String FILE_NAME = "fileName";
-    private static final String SHEETS = "sheets";
+    public static final String FILE_NAME = "fileName";
+    public static final String SHEETS = "sheets";
+
     private final Map<String, Object> data;
     private final HttpServletResponse response;
 

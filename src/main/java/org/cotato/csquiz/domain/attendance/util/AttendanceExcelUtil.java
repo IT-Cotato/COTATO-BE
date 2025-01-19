@@ -5,6 +5,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +19,7 @@ import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
 import org.cotato.csquiz.domain.auth.enums.MemberRoleGroup;
+import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
 
 public class AttendanceExcelUtil {
@@ -122,5 +125,11 @@ public class AttendanceExcelUtil {
         row.createCell(columnNumber++).setCellValue(attendanceCounts.getOrDefault("totalOnline", DEFAULT_TOTAL_ONLINE));
         row.createCell(columnNumber++).setCellValue(attendanceCounts.getOrDefault("totalLate", DEFAULT_TOTAL_LATE));
         row.createCell(columnNumber).setCellValue(attendanceCounts.getOrDefault("totalAbsent", DEFAULT_TOTAL_ABSENT));
+    }
+
+    public static String getGenerationRecordExcelFileName(final Generation generation) {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+        return String.format("%s기_출석_현황_%s기준", generation.getNumber(), now.format(formatter));
     }
 }
