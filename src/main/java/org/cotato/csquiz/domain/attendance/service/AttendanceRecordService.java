@@ -32,7 +32,6 @@ import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.service.component.MemberReader;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
-import org.cotato.csquiz.domain.generation.repository.GenerationMemberRepository;
 import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
 import org.cotato.csquiz.domain.generation.service.component.SessionReader;
 import org.springframework.stereotype.Service;
@@ -50,13 +49,13 @@ public class AttendanceRecordService {
     private final MemberReader memberReader;
     private final GenerationReader generationReader;
     private final SessionReader sessionReader;
-    private final GenerationMemberRepository generationMemberRepository;
     private final GenerationMemberAuthValidator authValidator;
 
     public List<GenerationMemberAttendanceRecordResponse> findAttendanceRecords(Long generationId) {
-        List<Long> sessionIds = sessionReader.findAllByGenerationId(generationId).stream().map(Session::getId).toList();
-        List<Attendance> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds);
         Generation generation = generationReader.findById(generationId);
+        List<Long> sessionIds = sessionReader.findAllByGeneration(generation).stream().map(Session::getId).toList();
+        List<Attendance> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds);
+
 
         List<Long> attendanceIds = attendances.stream().map(Attendance::getId).toList();
 
@@ -129,7 +128,8 @@ public class AttendanceRecordService {
     }
 
     public MemberAttendanceRecordsResponse findAllRecordsBy(final Long generationId, final Member member) {
-        List<Session> sessions = sessionReader.findAllByGenerationId(generationId);
+        Generation generation = generationReader.findById(generationId);
+        List<Session> sessions = sessionReader.findAllByGeneration(generation);
 
         Map<Long, Session> sessionMap = sessions.stream()
                 .collect(Collectors.toUnmodifiableMap(Session::getId, Function.identity()));
