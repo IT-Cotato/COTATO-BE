@@ -90,6 +90,7 @@ public enum ErrorCode {
     INVALID_ATTEND_TYPE(HttpStatus.BAD_REQUEST, "AT-103", "해당 세션에 맞는 타입으로 출결 입력을 진행해주세요."),
     INVALID_LOCATION(HttpStatus.BAD_REQUEST, "AT-104", "위치 정보를 입력해주세요."),
     INVALID_RECORD_UPDATE(HttpStatus.BAD_REQUEST, "AT-105", "세션 타입에 맞게 출결 기록을 수정해주세요."),
+    NO_SUCH_TYPE(HttpStatus.BAD_REQUEST, "AT-106", "해당 타입으로 다운로드는 불가능합니다."),
     ALREADY_ATTEND(HttpStatus.CONFLICT, "AT-301", "이미 해당 타입으로 출석한 기록이 있습니다."),
     ATTENDANCE_NOT_OPEN(HttpStatus.BAD_REQUEST, "AT-401", "출석 시간이 아닙니다."),
 
@@ -109,7 +110,7 @@ public enum ErrorCode {
     WEBP_CONVERT_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S-009", "webp 변환에 실패했습니다"),
     GUILD_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "S-010", "디스코드 서버를 찾지 못했습니다."),
     CHANNEL_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "S-011", "디스코드 채널을 찾지 못했습니다."),
-    DISCORD_BUTTON_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S-012" , "디스코드 버튼 이벤트 ID를 찾지 못했습니다."),
+    DISCORD_BUTTON_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S-012", "디스코드 버튼 이벤트 ID를 찾지 못했습니다."),
     EMAIL_SEND_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S-013", "이메일 전송에 실패했습니다."),
     FILE_GENERATION_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S-014", "엑셀 파일 생성에 실패했습니다."),
     ;
