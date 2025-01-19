@@ -1,7 +1,7 @@
 package org.cotato.csquiz.domain.attendance.vo;
 
 import java.util.List;
-import org.cotato.csquiz.common.poi.AttendanceRecordExcelData.AttendRecord;
+import org.cotato.csquiz.domain.attendance.poi.AttendanceRecordExcelData.AttendRecord;
 
 public record AttendRecordStatics(
         int offline,
