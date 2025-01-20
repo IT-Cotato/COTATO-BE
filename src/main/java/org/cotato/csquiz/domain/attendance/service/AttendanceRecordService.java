@@ -32,7 +32,7 @@ import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.service.component.MemberReader;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
-import org.cotato.csquiz.domain.generation.repository.GenerationMemberRepository;
+import org.cotato.csquiz.domain.generation.enums.SessionType;
 import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
 import org.cotato.csquiz.domain.generation.service.component.SessionReader;
 import org.springframework.stereotype.Service;
@@ -50,13 +50,13 @@ public class AttendanceRecordService {
     private final MemberReader memberReader;
     private final GenerationReader generationReader;
     private final SessionReader sessionReader;
-    private final GenerationMemberRepository generationMemberRepository;
     private final GenerationMemberAuthValidator authValidator;
 
     public List<GenerationMemberAttendanceRecordResponse> findAttendanceRecords(Long generationId) {
-        List<Long> sessionIds = sessionReader.findAllByGenerationId(generationId).stream().map(Session::getId).toList();
-        List<Attendance> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds);
         Generation generation = generationReader.findById(generationId);
+        List<Long> sessionIds = sessionReader.findAllByGeneration(generation).stream().map(Session::getId).toList();
+        List<Attendance> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds);
+
 
         List<Long> attendanceIds = attendances.stream().map(Attendance::getId).toList();
 
@@ -89,21 +89,6 @@ public class AttendanceRecordService {
                 .toList();
     }
 
-    // Todo: 엑셀 코드 수정하면서 같이 제거
-    public List<GenerationMemberAttendanceRecordResponse> generateAttendanceResponses(List<Attendance> attendances, Generation generation) {
-        List<Long> attendanceIds = attendances.stream().map(Attendance::getId).toList();
-        Map<Long, List<AttendanceRecord>> recordsByMemberId = attendanceRecordRepository.findAllByAttendanceIdsInQuery(attendanceIds).stream()
-                .collect(Collectors.groupingBy(AttendanceRecord::getMemberId));
-
-        return memberReader.findAllGenerationMember(generation).stream()
-                .sorted(Comparator.comparing(Member::getName))
-                .map(member -> GenerationMemberAttendanceRecordResponse.of(
-                        member,
-                        AttendanceStatistic.of(recordsByMemberId.getOrDefault(member.getId(), List.of()), attendances.size())
-                ))
-                .toList();
-    }
-
     @Transactional
     public AttendResponse submitRecord(AttendanceParams request, final Member member) {
         Attendance attendance = attendanceRepository.findById(request.attendanceId())
@@ -129,7 +114,8 @@ public class AttendanceRecordService {
     }
 
     public MemberAttendanceRecordsResponse findAllRecordsBy(final Long generationId, final Member member) {
-        List<Session> sessions = sessionReader.findAllByGenerationId(generationId);
+        Generation generation = generationReader.findById(generationId);
+        List<Session> sessions = sessionReader.findAllByGeneration(generation);
 
         Map<Long, Session> sessionMap = sessions.stream()
                 .collect(Collectors.toUnmodifiableMap(Session::getId, Function.identity()));
@@ -161,19 +147,6 @@ public class AttendanceRecordService {
                 .toList());
 
         return MemberAttendanceRecordsResponse.of(generationId, responses);
-    }
-
-    @Transactional
-    public void updateAttendanceStatus(Session session, Attendance attendance) {
-        List<AttendanceRecord> attendanceRecords = attendanceRecordRepository.findAllByAttendanceId(attendance.getId());
-
-        for (AttendanceRecord attendanceRecord : attendanceRecords) {
-            AttendanceResult attendanceResult = AttendanceUtil.calculateAttendanceStatus(session, attendance,
-                    attendanceRecord.getAttendTime(), attendanceRecord.getAttendanceType());
-            attendanceRecord.updateAttendanceResult(attendanceResult);
-        }
-
-        attendanceRecordRepository.saveAll(attendanceRecords);
     }
 
     @Transactional
@@ -211,5 +184,27 @@ public class AttendanceRecordService {
         attendanceRecord.updateAttendanceResult(attendanceResult);
 
         attendanceRecordRepository.save(attendanceRecord);
+    }
+
+    @Transactional
+    public void refreshAttendanceRecords(final Attendance attendance) {
+        Session session = sessionReader.findById(attendance.getSessionId());
+        if (session.getSessionType() == SessionType.NO_ATTEND) {
+            return;
+        }
+
+        List<AttendanceRecord> attendanceRecords = attendanceRecordRepository.findAllByAttendanceId(attendance.getId());
+        Set<Long> attendedMemberIds = attendanceRecords.stream()
+                .map(AttendanceRecord::getMemberId)
+                .collect(Collectors.toSet());
+
+
+        List<AttendanceRecord> newRecords = memberReader.findAllGenerationMember(session.getGeneration()).stream()
+                .map(Member::getId)
+                .filter(memberId -> !attendedMemberIds.contains(memberId))
+                .map(memberId -> AttendanceRecord.absentRecord(attendance, memberId))
+                .toList();
+
+        attendanceRecordRepository.saveAll(newRecords);
     }
 }

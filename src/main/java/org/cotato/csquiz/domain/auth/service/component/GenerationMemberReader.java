@@ -33,4 +33,8 @@ public class GenerationMemberReader {
     public List<GenerationMember> findAllByGenerationWithMember(Generation generation) {
         return generationMemberRepository.findAllByGenerationWithMember(generation);
     }
+
+    public List<GenerationMember> getAllByGeneration(Generation generation) {
+        return generationMemberRepository.findAllByGeneration(generation);
+    }
 }
