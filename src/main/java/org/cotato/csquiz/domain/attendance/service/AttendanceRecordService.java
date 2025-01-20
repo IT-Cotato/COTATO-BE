@@ -32,6 +32,7 @@ import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.service.component.MemberReader;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
+import org.cotato.csquiz.domain.generation.enums.SessionType;
 import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
 import org.cotato.csquiz.domain.generation.service.component.SessionReader;
 import org.springframework.stereotype.Service;
@@ -187,12 +188,17 @@ public class AttendanceRecordService {
 
     @Transactional
     public void refreshAttendanceRecords(final Attendance attendance) {
+        Session session = sessionReader.findById(attendance.getSessionId());
+        if (session.getSessionType() == SessionType.NO_ATTEND) {
+            return;
+        }
+
         List<AttendanceRecord> attendanceRecords = attendanceRecordRepository.findAllByAttendanceId(attendance.getId());
         Set<Long> attendedMemberIds = attendanceRecords.stream()
                 .map(AttendanceRecord::getMemberId)
                 .collect(Collectors.toSet());
 
-        Session session = sessionReader.findById(attendance.getSessionId());
+
         List<AttendanceRecord> newRecords = memberReader.findAllGenerationMember(session.getGeneration()).stream()
                 .map(Member::getId)
                 .filter(memberId -> !attendedMemberIds.contains(memberId))
