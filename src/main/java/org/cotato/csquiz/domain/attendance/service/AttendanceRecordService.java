@@ -88,21 +88,6 @@ public class AttendanceRecordService {
                 .toList();
     }
 
-    // Todo: 엑셀 코드 수정하면서 같이 제거
-    public List<GenerationMemberAttendanceRecordResponse> generateAttendanceResponses(List<Attendance> attendances, Generation generation) {
-        List<Long> attendanceIds = attendances.stream().map(Attendance::getId).toList();
-        Map<Long, List<AttendanceRecord>> recordsByMemberId = attendanceRecordRepository.findAllByAttendanceIdsInQuery(attendanceIds).stream()
-                .collect(Collectors.groupingBy(AttendanceRecord::getMemberId));
-
-        return memberReader.findAllGenerationMember(generation).stream()
-                .sorted(Comparator.comparing(Member::getName))
-                .map(member -> GenerationMemberAttendanceRecordResponse.of(
-                        member,
-                        AttendanceStatistic.of(recordsByMemberId.getOrDefault(member.getId(), List.of()), attendances.size())
-                ))
-                .toList();
-    }
-
     @Transactional
     public AttendResponse submitRecord(AttendanceParams request, final Member member) {
         Attendance attendance = attendanceRepository.findById(request.attendanceId())
@@ -161,19 +146,6 @@ public class AttendanceRecordService {
                 .toList());
 
         return MemberAttendanceRecordsResponse.of(generationId, responses);
-    }
-
-    @Transactional
-    public void updateAttendanceStatus(Session session, Attendance attendance) {
-        List<AttendanceRecord> attendanceRecords = attendanceRecordRepository.findAllByAttendanceId(attendance.getId());
-
-        for (AttendanceRecord attendanceRecord : attendanceRecords) {
-            AttendanceResult attendanceResult = AttendanceUtil.calculateAttendanceStatus(session, attendance,
-                    attendanceRecord.getAttendTime(), attendanceRecord.getAttendanceType());
-            attendanceRecord.updateAttendanceResult(attendanceResult);
-        }
-
-        attendanceRecordRepository.saveAll(attendanceRecords);
     }
 
     @Transactional
