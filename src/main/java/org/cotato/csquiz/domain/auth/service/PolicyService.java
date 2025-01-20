@@ -14,6 +14,7 @@ import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.entity.MemberPolicy;
 import org.cotato.csquiz.domain.auth.entity.Policy;
+import org.cotato.csquiz.domain.auth.enums.PolicyCategory;
 import org.cotato.csquiz.domain.auth.enums.PolicyType;
 import org.cotato.csquiz.domain.auth.repository.MemberPolicyRepository;
 import org.cotato.csquiz.domain.auth.repository.PolicyRepository;
@@ -100,6 +101,13 @@ public class PolicyService {
 
     public PoliciesResponse findPolicies() {
         List<PolicyInfoResponse> policies = policyRepository.findAll().stream()
+                .map(PolicyInfoResponse::from)
+                .toList();
+        return new PoliciesResponse(policies);
+    }
+
+    public PoliciesResponse findPolicies(PolicyCategory category) {
+        List<PolicyInfoResponse> policies = policyRepository.findAllByCategory(category).stream()
                 .map(PolicyInfoResponse::from)
                 .toList();
         return new PoliciesResponse(policies);
