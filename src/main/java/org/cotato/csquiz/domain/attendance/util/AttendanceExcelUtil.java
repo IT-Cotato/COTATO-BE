@@ -129,7 +129,7 @@ public class AttendanceExcelUtil {
 
     public static String getGenerationRecordExcelFileName(final Generation generation) {
         LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
-        return String.format("%s기_출석_현황_%s기준", generation.getNumber(), now.format(formatter));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년MM월dd일");
+        return String.format("%s기-출석-현황-%s기준", generation.getNumber(), now.format(formatter));
     }
 }

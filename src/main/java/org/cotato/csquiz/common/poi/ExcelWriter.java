@@ -11,6 +11,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.springframework.http.HttpHeaders;
 
 @RequiredArgsConstructor
 public class ExcelWriter {
@@ -70,7 +71,8 @@ public class ExcelWriter {
     }
 
     private void setFileName(HttpServletResponse response, String fileName) {
-        response.setHeader("Content-Disposition",
-                "attachment; filename=\"" + fileName + ".xlsx" + "\"");
+        String format = "attachment; filename=\"%s\"";
+        String encodedFilename = String.format(format, URLEncoder.encode(fileName +".xlsx", StandardCharsets.UTF_8));
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, encodedFilename);
     }
 }
