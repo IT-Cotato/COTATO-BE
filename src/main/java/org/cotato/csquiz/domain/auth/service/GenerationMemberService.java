@@ -9,11 +9,11 @@ import org.cotato.csquiz.api.member.dto.GenerationMemberInfoResponse;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.auth.entity.Member;
-import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.cotato.csquiz.domain.auth.service.component.GenerationMemberReader;
 import org.cotato.csquiz.domain.auth.service.component.MemberReader;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.GenerationMember;
+import org.cotato.csquiz.domain.generation.enums.GenerationMemberRole;
 import org.cotato.csquiz.domain.generation.repository.GenerationMemberRepository;
 import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
 import org.springframework.stereotype.Service;
@@ -53,7 +53,7 @@ public class GenerationMemberService {
     }
 
     @Transactional
-    public void updateGenerationMemberRole(Long generationMemberId, MemberRole memberRole) {
+    public void updateGenerationMemberRole(Long generationMemberId, GenerationMemberRole memberRole) {
         GenerationMember generationMember = generationMemberReader.findById(generationMemberId);
         generationMember.updateMemberRole(memberRole);
     }
