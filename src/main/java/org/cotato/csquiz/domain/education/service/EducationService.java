@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.education.dto.AllEducationResponse;
 import org.cotato.csquiz.api.education.dto.CreateEducationRequest;
 import org.cotato.csquiz.api.education.dto.CreateEducationResponse;
+import org.cotato.csquiz.api.education.dto.EducationCountResponse;
 import org.cotato.csquiz.api.education.dto.EducationIdOfQuizResponse;
 import org.cotato.csquiz.api.education.dto.FindEducationStatusResponse;
 import org.cotato.csquiz.api.education.dto.UpdateEducationRequest;
@@ -141,6 +142,13 @@ public class EducationService {
 
     public List<Education> findAllEducationByGenerationId(Long generationId) {
         return educationRepository.findAllByGenerationId(generationId);
+    }
+
+    public EducationCountResponse getEducationCounts() {
+        return EducationCountResponse.builder()
+                .educationCount(educationRepository.count())
+                .quizCount(quizRepository.count())
+                .build();
     }
 }
 
