@@ -1,5 +1,6 @@
 package org.cotato.csquiz.api.education.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.education.dto.AllEducationResponse;
 import org.cotato.csquiz.api.education.dto.CreateEducationRequest;
 import org.cotato.csquiz.api.education.dto.CreateEducationResponse;
+import org.cotato.csquiz.api.education.dto.EducationCountResponse;
 import org.cotato.csquiz.api.education.dto.EducationIdOfQuizResponse;
 import org.cotato.csquiz.api.education.dto.FindEducationStatusResponse;
 import org.cotato.csquiz.api.education.dto.UpdateEducationRequest;
@@ -89,5 +91,11 @@ public class EducationController {
     public ResponseEntity<Void> calculateWinner(@RequestParam("educationId") Long educationId) {
         kingMemberService.calculateWinner(educationId);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "교육 및 퀴즈 수 조회 API")
+    @GetMapping("/counts")
+    public ResponseEntity<EducationCountResponse> getEducationCounts() {
+        return ResponseEntity.ok().body(educationService.getEducationCounts());
     }
 }
