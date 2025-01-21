@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.csquiz.common.entity.BaseTimeEntity;
+import org.cotato.csquiz.domain.auth.enums.PolicyCategory;
 import org.cotato.csquiz.domain.auth.enums.PolicyType;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
@@ -30,6 +31,10 @@ public class Policy extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @ColumnDefault(value = "'ESSENTIAL'")
     private PolicyType policyType;
+
+    @Column(name = "policy_category", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private PolicyCategory category;
 
     @Column(name = "policy_title", nullable = false)
     private String title;
