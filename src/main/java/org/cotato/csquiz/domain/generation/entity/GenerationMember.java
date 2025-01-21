@@ -15,7 +15,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.csquiz.common.entity.BaseTimeEntity;
 import org.cotato.csquiz.domain.auth.entity.Member;
-import org.cotato.csquiz.domain.auth.enums.MemberRole;
+import org.cotato.csquiz.domain.generation.enums.GenerationMemberRole;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 
@@ -41,20 +41,20 @@ public class GenerationMember extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
     @ColumnDefault(value = "'MEMBER'")
-    private MemberRole role = MemberRole.MEMBER;
+    private GenerationMemberRole role = GenerationMemberRole.MEMBER;
 
-    private GenerationMember(Generation generation, Member member, MemberRole role) {
+    private GenerationMember(Generation generation, Member member, GenerationMemberRole role) {
         this.generation = generation;
         this.member = member;
         this.role = role;
     }
 
     public static GenerationMember of(Generation generation, Member member) {
-        return new GenerationMember(generation, member, MemberRole.MEMBER);
+        return new GenerationMember(generation, member, GenerationMemberRole.MEMBER);
     }
 
-    public void updateMemberRole(MemberRole memberRole) {
-        this.role = memberRole;
+    public void updateMemberRole(GenerationMemberRole role) {
+        this.role = role;
     }
 
     public String getMemberName() {
