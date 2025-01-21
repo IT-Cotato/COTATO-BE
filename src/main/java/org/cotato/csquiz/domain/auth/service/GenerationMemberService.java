@@ -59,7 +59,7 @@ public class GenerationMemberService {
     }
 
     @Transactional
-    public void deleteGenerationMembers(Long generationMemberId) {
+    public void deleteGenerationMember(Long generationMemberId) {
         checkGenerationMembersExist(generationMemberId);
         generationMemberRepository.deleteById(generationMemberId);
     }

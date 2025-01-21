@@ -52,8 +52,8 @@ public class GenerationMemberController {
 
     @RoleAuthority(MemberRole.ADMIN)
     @DeleteMapping
-    public ResponseEntity<Void> deleteGenerationMember(@RequestBody @Valid DeleteGenerationMemberRequest request) {
-        generationMemberService.deleteGenerationMembers(request.generationMemberId());
+    public ResponseEntity<Void> deleteGenerationMember(@RequestParam @Valid DeleteGenerationMemberRequest request) {
+        generationMemberService.deleteGenerationMember(request.generationMemberId());
         return ResponseEntity.noContent().build();
     }
 }
