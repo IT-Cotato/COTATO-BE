@@ -85,6 +85,7 @@ public class AttendanceRecordService {
                 .collect(Collectors.toMap(AttendanceRecord::getMemberId, AttendanceRecord::getAttendanceResult));
 
         return memberById.keySet().stream()
+                .sorted(Comparator.comparing(memberId -> memberById.get(memberId).getName()))
                 .map(memberId -> AttendanceRecordResponse.of(memberById.get(memberId), attendanceResultByMemberId.getOrDefault(memberId, null)))
                 .toList();
     }
