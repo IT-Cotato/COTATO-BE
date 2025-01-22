@@ -31,6 +31,7 @@ import org.cotato.csquiz.domain.auth.component.GenerationMemberAuthValidator;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.service.component.MemberReader;
 import org.cotato.csquiz.domain.generation.entity.Generation;
+import org.cotato.csquiz.domain.generation.entity.GenerationMember;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.domain.generation.repository.GenerationMemberRepository;
 import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
@@ -85,6 +86,7 @@ public class AttendanceRecordService {
                 .collect(Collectors.toMap(AttendanceRecord::getMemberId, AttendanceRecord::getAttendanceResult));
 
         return memberById.keySet().stream()
+                .sorted(Comparator.comparing(memberId -> memberById.get(memberId).getName()))
                 .map(memberId -> AttendanceRecordResponse.of(memberById.get(memberId), attendanceResultByMemberId.getOrDefault(memberId, null)))
                 .toList();
     }
