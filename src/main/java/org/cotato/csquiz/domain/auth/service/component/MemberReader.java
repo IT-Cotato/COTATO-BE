@@ -25,7 +25,7 @@ public class MemberReader {
     }
 
     public List<Member> findAllGenerationMember(Generation generation) {
-        return generationMemberRepository.findAllByGeneration(generation).stream()
+        return generationMemberRepository.findAllByGenerationWithMember(generation).stream()
                 .map(GenerationMember::getMember)
                 .toList();
     }
