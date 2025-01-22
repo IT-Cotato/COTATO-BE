@@ -19,10 +19,10 @@ import org.cotato.csquiz.common.error.exception.ImageException;
 import org.cotato.csquiz.common.schedule.SchedulerService;
 import org.cotato.csquiz.domain.attendance.embedded.Location;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
-import org.cotato.csquiz.domain.attendance.repository.AttendanceRecordRepository;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.attendance.service.AttendanceService;
 import org.cotato.csquiz.domain.attendance.service.component.AttendanceReader;
+import org.cotato.csquiz.domain.attendance.service.component.AttendanceRecordReader;
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
 import org.cotato.csquiz.domain.education.entity.Education;
 import org.cotato.csquiz.domain.education.service.EducationService;
@@ -53,7 +53,7 @@ public class SessionService {
     private final SessionImageService sessionImageService;
     private final SchedulerService schedulerService;
     private final AttendanceRepository attendanceRepository;
-    private final AttendanceRecordRepository attendanceRecordRepository;
+    private final AttendanceRecordReader attendanceRecordReader;
     private final SessionReader sessionReader;
     private final AttendanceReader attendanceReader;
 
@@ -119,7 +119,7 @@ public class SessionService {
         Optional<Attendance> maybeAttendance = attendanceReader.findBySessionIdWithPessimisticXLock(session.getId());
         if (!sessionType.isCreateAttendance() && maybeAttendance.isPresent()) {
             Attendance attendance = maybeAttendance.get();
-            if (attendanceReader.isAttendanceExist(attendance)) {
+            if (attendanceRecordReader.isAttendanceRecordExist(attendance)) {
                 throw new AppException(ErrorCode.ATTENDANCE_RECORD_EXIST);
             }
             attendanceRepository.deleteById(attendance.getId());
