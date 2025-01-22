@@ -118,22 +118,23 @@ public class SessionService {
 
         Optional<Attendance> maybeAttendance = attendanceReader.findBySessionIdWithPessimisticXLock(session.getId());
         if (!sessionType.isCreateAttendance() && maybeAttendance.isPresent()) {
-            Long attendanceId = maybeAttendance.get().getId();
-            if (attendanceRecordRepository.existsByAttendanceId(attendanceId)) {
+            Attendance attendance = maybeAttendance.get();
+            if (attendanceReader.isAttendanceExist(attendance)) {
                 throw new AppException(ErrorCode.ATTENDANCE_RECORD_EXIST);
             }
-            attendanceRepository.deleteById(attendanceId);
+            attendanceRepository.deleteById(attendance.getId());
             return;
         }
 
         // Todo https://www.notion.so/youthhing/ApplicationEventPublisher-15887d592b6e803eb7c7c1ce2da22b8c?pvs=4
         AttendanceUtil.validateAttendanceTime(request.sessionDateTime(), request.attendTime().attendanceDeadLine(),
                 request.attendTime().lateDeadLine());
-        Attendance attendance = maybeAttendance.orElseGet(() -> Attendance.builder()
-                .session(session)
-                .attendanceDeadLine(request.attendTime().attendanceDeadLine())
-                .lateDeadLine(request.attendTime().lateDeadLine())
-                .build());
+        Attendance attendance = maybeAttendance.orElseGet(() ->
+                Attendance.builder()
+                        .session(session)
+                        .attendanceDeadLine(request.attendTime().attendanceDeadLine())
+                        .lateDeadLine(request.attendTime().lateDeadLine())
+                        .build());
         attendance.updateDeadLine(request.attendTime().attendanceDeadLine(), request.attendTime().lateDeadLine());
         if (sessionType.hasOffline()) {
             attendance.updateLocation(request.location());

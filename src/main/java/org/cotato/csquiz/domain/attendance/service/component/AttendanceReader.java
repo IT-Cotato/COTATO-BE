@@ -24,6 +24,10 @@ public class AttendanceReader {
         return attendanceRepository.findBySessionIdWithPessimisticXLock(sessionId);
     }
 
+    public boolean isAttendanceExist(final Attendance attendance) {
+        return attendanceRepository.existsById(attendance.getId());
+    }
+
     public List<Attendance> getAllBySessions(final Collection<Session> sessions) {
         List<Long> sessionIds = sessions.stream().map(Session::getId).toList();
         return attendanceRepository.findAllBySessionIdsInQuery(sessionIds);
