@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.api.member.dto.CreateGenerationMemberRequest;
-import org.cotato.csquiz.api.member.dto.DeleteGenerationMemberRequest;
 import org.cotato.csquiz.api.member.dto.GenerationMemberInfoResponse;
 import org.cotato.csquiz.api.member.dto.UpdateGenerationMemberRoleRequest;
 import org.cotato.csquiz.common.role.RoleAuthority;
