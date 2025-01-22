@@ -25,6 +25,7 @@ import org.springframework.web.filter.CorsFilter;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private static final String SESSION_PATH = "/v1/api/session/**";
     private static final String[] WHITE_LIST = {
             "/v1/api/auth/**",
             "/login",
@@ -72,6 +73,7 @@ public class SecurityConfig {
                 .addFilter(corsFilter)
                 .authorizeHttpRequests(request -> request
                                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher(SESSION_PATH, HttpMethod.GET.name())).permitAll()
                                 .requestMatchers(WHITE_LIST).permitAll()
                                 .anyRequest().authenticated()
                 );
