@@ -31,18 +31,9 @@ public class AttendanceRecordController {
 
     @Operation(summary = "대면 출결 입력 API",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "성공"
-                    ),
-                    @ApiResponse(
-                            responseCode = "409",
-                            description = "이미 출석을 완료함"
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "출석 시간이 아님"
-                    )
+                    @ApiResponse(responseCode = "200", description = "성공"),
+                    @ApiResponse(responseCode = "409", description = "이미 출석을 완료함"),
+                    @ApiResponse(responseCode = "400", description = "출석 시간이 아님")
             }
     )
     @PostMapping(value = "/offline")
@@ -54,18 +45,9 @@ public class AttendanceRecordController {
 
     @Operation(summary = "비대면 출결 입력 API",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "성공"
-                    ),
-                    @ApiResponse(
-                            responseCode = "409",
-                            description = "이미 출석을 완료함"
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "출석 시간이 아님"
-                    )
+                    @ApiResponse(responseCode = "200", description = "성공"),
+                    @ApiResponse(responseCode = "409", description = "이미 출석을 완료함"),
+                    @ApiResponse(responseCode = "400", description = "출석 시간이 아님")
             })
     @PostMapping(value = "/online")
     public ResponseEntity<AttendResponse> submitOnlineAttendanceRecord(
