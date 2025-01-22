@@ -40,7 +40,7 @@ class MemberReaderTest {
         );
 
         // when
-        when(generationMemberRepository.findAllByGeneration(generation))
+        when(generationMemberRepository.findAllByGenerationWithMember(generation))
                 .thenReturn(generationMembers);
 
         // then
