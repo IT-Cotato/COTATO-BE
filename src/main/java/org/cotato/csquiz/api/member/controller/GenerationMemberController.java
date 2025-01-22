@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.api.member.dto.CreateGenerationMemberRequest;
-import org.cotato.csquiz.api.member.dto.DeleteGenerationMemberRequest;
 import org.cotato.csquiz.api.member.dto.GenerationMemberInfoResponse;
 import org.cotato.csquiz.api.member.dto.UpdateGenerationMemberRoleRequest;
 import org.cotato.csquiz.common.role.RoleAuthority;
@@ -52,8 +51,8 @@ public class GenerationMemberController {
 
     @RoleAuthority(MemberRole.ADMIN)
     @DeleteMapping
-    public ResponseEntity<Void> deleteGenerationMember(@RequestBody @Valid DeleteGenerationMemberRequest request) {
-        generationMemberService.deleteGenerationMembers(request.generationMemberIds());
+    public ResponseEntity<Void> deleteGenerationMember(@RequestParam(name = "generationMemberId") Long generationMemberId) {
+        generationMemberService.deleteGenerationMember(generationMemberId);
         return ResponseEntity.noContent().build();
     }
 }
