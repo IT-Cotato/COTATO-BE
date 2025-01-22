@@ -83,9 +83,4 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         AntPathMatcher pathMatcher = new AntPathMatcher();
         return pathMatcher.match(AUTH_PATH, requestURI) || pathMatcher.match(LOGIN_PATH, requestURI);
     }
-
-    public static void main(String[] args) {
-        AntPathMatcher pathMatcher = new AntPathMatcher();
-        System.out.println(pathMatcher.match(AUTH_PATH, "/v1/api/auth/join"));
-    }
 }
