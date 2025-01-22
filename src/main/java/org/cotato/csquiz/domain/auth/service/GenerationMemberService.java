@@ -59,16 +59,14 @@ public class GenerationMemberService {
     }
 
     @Transactional
-    public void deleteGenerationMembers(List<Long> generationMemberIds) {
-        checkGenerationMembersExist(generationMemberIds);
-        generationMemberRepository.deleteAllByIdsInQuery(generationMemberIds);
+    public void deleteGenerationMember(Long generationMemberId) {
+        checkGenerationMembersExist(generationMemberId);
+        generationMemberRepository.deleteById(generationMemberId);
     }
 
-    private void checkGenerationMembersExist(List<Long> generationMemberIds) {
-        List<GenerationMember> generationMembers = generationMemberReader.findAllByIds(
-                generationMemberIds);
-        if (generationMembers.size() != generationMemberIds.size()) {
-            throw new EntityNotFoundException("특정 멤버가 존재하지 않습니다");
+    private void checkGenerationMembersExist(Long generationMemberId) {
+        if (!generationMemberRepository.existsById(generationMemberId)) {
+            throw new EntityNotFoundException("멤버가 존재하지 않습니다");
         }
     }
 }
