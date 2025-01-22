@@ -78,7 +78,8 @@ public class AttendanceRecordService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석이 존재하지 않습니다"));
         Session session = sessionReader.findById(attendance.getSessionId());
 
-        Map<Long, Member> memberById = memberReader.findAllGenerationMember(session.getGeneration()).stream()
+        Map<Long, Member> memberById = generationMemberRepository.findAllByGenerationWithMember(session.getGeneration()).stream()
+                .map(GenerationMember::getMember)
                 .collect(Collectors.toMap(Member::getId, Function.identity()));
 
         Map<Long, AttendanceResult> attendanceResultByMemberId = attendanceRecordRepository.findAllByAttendanceIdAndMemberIdIn(
