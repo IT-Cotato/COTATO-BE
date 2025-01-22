@@ -3,6 +3,7 @@ package org.cotato.csquiz.domain.generation.service.component;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
 import org.springframework.stereotype.Component;
@@ -25,7 +26,7 @@ public class SessionReader {
     }
 
     @Transactional(readOnly = true)
-    public List<Session> findAllByGenerationId(final Long generationId) {
-        return sessionRepository.findAllByGenerationId(generationId);
+    public List<Session> findAllByGeneration(final Generation generation) {
+        return sessionRepository.findAllByGenerationId(generation.getId());
     }
 }

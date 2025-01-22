@@ -14,12 +14,9 @@ import org.cotato.csquiz.api.attendance.dto.GenerationMemberAttendanceRecordResp
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRecordRequest;
 import org.cotato.csquiz.api.attendance.dto.UpdateAttendanceRequest;
 import org.cotato.csquiz.common.role.RoleAuthority;
-import org.cotato.csquiz.domain.attendance.service.AttendanceExcelService;
 import org.cotato.csquiz.domain.attendance.service.AttendanceRecordService;
 import org.cotato.csquiz.domain.attendance.service.AttendanceService;
-import org.cotato.csquiz.domain.attendance.util.AttendanceExcelHeaderUtil;
 import org.cotato.csquiz.domain.auth.enums.MemberRole;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -39,7 +36,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v2/api/attendances")
 public class AttendanceController {
 
-    private final AttendanceExcelService attendanceExcelService;
     private final AttendanceRecordService attendanceRecordService;
     private final AttendanceService attendanceService;
 
@@ -94,19 +90,5 @@ public class AttendanceController {
     public ResponseEntity<AttendancesResponse> findAttendancesByGeneration(
             @RequestParam("generationId") Long generationId) {
         return ResponseEntity.ok().body(attendanceService.findAttendancesByGenerationId(generationId));
-    }
-
-
-    @Operation(summary = "세션별 출석 기록 엑셀 다운로드 API")
-    @GetMapping("/excel")
-    public ResponseEntity<byte[]> downloadAttendanceRecordsAsExcelBySessions(
-            @RequestParam(name = "attendanceIds") List<Long> attendanceIds) {
-
-        byte[] excelFile = attendanceExcelService.createExcelForSessionAttendance(attendanceIds);
-        String finalFileName = attendanceExcelService.getEncodedFileName(attendanceIds);
-
-        HttpHeaders headers = AttendanceExcelHeaderUtil.createExcelDownloadHeaders(finalFileName);
-
-        return ResponseEntity.ok().headers(headers).body(excelFile);
     }
 }
