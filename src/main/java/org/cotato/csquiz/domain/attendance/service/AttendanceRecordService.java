@@ -31,9 +31,7 @@ import org.cotato.csquiz.domain.auth.component.GenerationMemberAuthValidator;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.service.component.MemberReader;
 import org.cotato.csquiz.domain.generation.entity.Generation;
-import org.cotato.csquiz.domain.generation.entity.GenerationMember;
 import org.cotato.csquiz.domain.generation.entity.Session;
-import org.cotato.csquiz.domain.generation.repository.GenerationMemberRepository;
 import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
 import org.cotato.csquiz.domain.generation.service.component.SessionReader;
 import org.springframework.stereotype.Service;
@@ -51,7 +49,6 @@ public class AttendanceRecordService {
     private final MemberReader memberReader;
     private final GenerationReader generationReader;
     private final SessionReader sessionReader;
-    private final GenerationMemberRepository generationMemberRepository;
     private final GenerationMemberAuthValidator authValidator;
 
     public List<GenerationMemberAttendanceRecordResponse> findAttendanceRecords(Long generationId) {
@@ -78,8 +75,7 @@ public class AttendanceRecordService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석이 존재하지 않습니다"));
         Session session = sessionReader.findById(attendance.getSessionId());
 
-        Map<Long, Member> memberById = generationMemberRepository.findAllByGenerationWithMember(session.getGeneration()).stream()
-                .map(GenerationMember::getMember)
+        Map<Long, Member> memberById = memberReader.findAllGenerationMember(session.getGeneration()).stream()
                 .collect(Collectors.toMap(Member::getId, Function.identity()));
 
         Map<Long, AttendanceResult> attendanceResultByMemberId = attendanceRecordRepository.findAllByAttendanceIdAndMemberIdIn(
