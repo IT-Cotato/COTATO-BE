@@ -1,6 +1,7 @@
 package org.cotato.csquiz.api.attendance.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.common.poi.ExcelView;
 import org.cotato.csquiz.domain.attendance.service.AttendanceExcelService;
@@ -19,7 +20,13 @@ public class AttendanceExcelController {
 
     @Operation(summary = "세션별 출석 기록 엑셀 다운로드 API")
     @GetMapping(params = "generationId")
-    public ModelAndView downloadAttendanceRecordsAsExcelBySessions(@RequestParam(name = "generationId") Long generationId) {
+    public ModelAndView downloadAttendanceRecordsAsExcelByGeneration(@RequestParam(name = "generationId") Long generationId) {
         return new ModelAndView(new ExcelView(), attendanceExcelService.getAttendanceRecordsExcelDataByGeneration(generationId));
+    }
+
+    @Operation(summary = "출석별 출결 기록 엑셀 다운로드 API")
+    @GetMapping(params = "attendanceIds")
+    public ModelAndView downloadAttendanceRecordsAsExcelByAttendanceIds(@RequestParam(name = "attendanceIds") List<Long> attendanceIds) {
+        return new ModelAndView(new ExcelView(), attendanceExcelService.getAttendanceRecordsExcelDataByAttendanceIds(attendanceIds));
     }
 }

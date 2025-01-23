@@ -1,5 +1,6 @@
 package org.cotato.csquiz.domain.attendance.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,5 +83,31 @@ public class AttendanceExcelService {
                     return AttendanceRecordExcelData.of(member, attendances.size(), records);
                 })
                 .toList();
+    }
+
+    public Map<String, Object> getAttendanceRecordsExcelDataByAttendanceIds(final List<Long> attendanceIds) {
+        List<Attendance> attendances = attendanceReader.getAllByIds(attendanceIds);
+
+        if (attendances.size() != attendanceIds.size()) {
+            throw new EntityNotFoundException("출석이 존재하지 않습니다.");
+        }
+        List<Long> sessionIds = attendances.stream().map(Attendance::getSessionId).toList();
+        Session session = sessionReader.findById(sessionIds.get(0));
+
+        List<Member> members = generationMemberReader.findAllByGenerationWithMember(session.getGeneration()).stream()
+                .map(GenerationMember::getMember)
+                .toList();
+
+        Map<Long, Session> sessionById = sessionReader.findAllByIdIn(sessionIds).stream()
+                .collect(Collectors.toUnmodifiableMap(Session::getId, Function.identity()));
+
+        List<AttendanceRecordExcelData> excelData = getAttendanceRecordsExcelData(members, attendances,
+                sessionById);
+
+        Map<String, Object> datas = new HashMap<>();
+        datas.put(ExcelWriter.FILE_NAME, AttendanceExcelUtil.getAttendanceRecordExcelFileName(attendances, sessionById, session.getGeneration()));
+        datas.put(ExcelWriter.SHEETS, Map.of(AttendanceExcelUtil.getAttendanceRecordExcelFileName(attendances, sessionById, session.getGeneration()), excelData));
+
+        return datas;
     }
 }
