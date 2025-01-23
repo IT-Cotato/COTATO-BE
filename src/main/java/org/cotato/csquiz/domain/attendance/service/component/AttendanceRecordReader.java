@@ -19,4 +19,8 @@ public class AttendanceRecordReader {
         List<Long> attendanceIds = attendances.stream().map(Attendance::getId).toList();
         return attendanceRecordRepository.findAllByAttendanceIdsInQuery(attendanceIds);
     }
+
+    public boolean isAttendanceRecordExist(final Attendance attendance) {
+        return attendanceRecordRepository.existsByAttendanceId(attendance.getId());
+    }
 }
