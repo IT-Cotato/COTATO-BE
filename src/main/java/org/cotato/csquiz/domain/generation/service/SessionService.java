@@ -111,9 +111,12 @@ public class SessionService {
         SessionType sessionType = SessionType.getSessionType(request.isOffline(), request.isOnline());
         SessionContents sessionContents = SessionContents.of(request.itIssue(), request.networking(),
                 request.csEducation(), request.devTalk());
-        session.updateSession(request.description(), request.title(), request.placeName(),
-                sessionContents, request.sessionDateTime(), sessionType
-        );
+        session.updateDescription(request.description());
+        session.updateSessionTitle(request.title());
+        session.updateSessionPlace(request.placeName());
+        session.updateSessionContents(sessionContents);
+        session.updateSessionDateTime(request.sessionDateTime());
+        session.updateSessionType(sessionType);
         sessionRepository.save(session);
 
         Optional<Attendance> maybeAttendance = attendanceReader.findBySessionIdWithPessimisticXLock(session.getId());

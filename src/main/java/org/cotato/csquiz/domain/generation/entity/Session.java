@@ -82,15 +82,6 @@ public class Session extends BaseTimeEntity {
         this.sessionContents = sessionContents;
     }
 
-    public void updateSession(String description, String title, String placeName, SessionContents sessionContents, LocalDateTime sessionDateTime, SessionType sessionType) {
-        updateDescription(description);
-        updateSessionTitle(title);
-        updateSessionPlace(placeName);
-        updateSessionContents(sessionContents);
-        updateSessionDateTime(sessionDateTime);
-        updateSessionType(sessionType);
-    }
-
     public void updateDescription(String description) {
         this.description = description;
     }
