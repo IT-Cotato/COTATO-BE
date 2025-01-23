@@ -56,6 +56,7 @@ public class EducationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(educationService.createEducation(request.subject(), request.generationId(), request.educationNumber()));
     }
 
+    @Operation(summary = "교육 수정 API")
     @RoleAuthority(MemberRole.MANAGER)
     @PatchMapping
     public ResponseEntity<Void> updateEducation(@RequestBody @Valid UpdateEducationRequest request) {
