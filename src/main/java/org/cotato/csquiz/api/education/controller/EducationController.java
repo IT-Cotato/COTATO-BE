@@ -50,13 +50,13 @@ public class EducationController {
     }
 
     @RoleAuthority(MemberRole.MANAGER)
-    @PostMapping("/add")
+    @PostMapping
     public ResponseEntity<CreateEducationResponse> createEducation(@RequestBody @Valid CreateEducationRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(educationService.createEducation(request.subject(), request.generationId(), request.educationNum()));
     }
 
     @RoleAuthority(MemberRole.MANAGER)
-    @PatchMapping("/update")
+    @PatchMapping
     public ResponseEntity<Void> updateEducation(@RequestBody @Valid UpdateEducationRequest request) {
         educationService.updateSubjectAndNumber(request);
         return ResponseEntity.noContent().build();
