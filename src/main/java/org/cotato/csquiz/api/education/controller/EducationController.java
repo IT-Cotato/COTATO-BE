@@ -52,7 +52,7 @@ public class EducationController {
     @RoleAuthority(MemberRole.MANAGER)
     @PostMapping("/add")
     public ResponseEntity<CreateEducationResponse> createEducation(@RequestBody @Valid CreateEducationRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(educationService.createEducation(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(educationService.createEducation(request.subject(), request.generationId(), request.educationNum()));
     }
 
     @RoleAuthority(MemberRole.MANAGER)

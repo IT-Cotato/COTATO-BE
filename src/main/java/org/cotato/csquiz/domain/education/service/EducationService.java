@@ -6,7 +6,6 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.education.dto.AllEducationResponse;
-import org.cotato.csquiz.api.education.dto.CreateEducationRequest;
 import org.cotato.csquiz.api.education.dto.CreateEducationResponse;
 import org.cotato.csquiz.api.education.dto.EducationCountResponse;
 import org.cotato.csquiz.api.education.dto.EducationIdOfQuizResponse;
@@ -20,10 +19,9 @@ import org.cotato.csquiz.domain.education.enums.EducationStatus;
 import org.cotato.csquiz.domain.education.enums.QuizStatus;
 import org.cotato.csquiz.domain.education.repository.EducationRepository;
 import org.cotato.csquiz.domain.education.repository.QuizRepository;
-import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.common.error.ErrorCode;
-import org.cotato.csquiz.domain.generation.repository.SessionRepository;
+import org.cotato.csquiz.domain.generation.repository.GenerationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,31 +34,23 @@ public class EducationService {
     private final RecordService recordService;
     private final EducationRepository educationRepository;
     private final QuizRepository quizRepository;
-    private final SessionRepository sessionRepository;
     private final SocketService socketService;
+    private final GenerationRepository generationRepository;
 
 
     @Transactional
-    public CreateEducationResponse createEducation(CreateEducationRequest request) {
-        Session findSession = sessionRepository.findById(request.sessionId())
-                .orElseThrow(() -> new EntityNotFoundException("해당 세션을 찾을 수 없습니다."));
-        checkEducationExist(request.sessionId());
-
+    public CreateEducationResponse createEducation(final String subject, final Long generationId, final Integer educationNumber) {
+        if (!generationRepository.existsById(generationId)) {
+            throw new EntityNotFoundException("해당 기수가 존재하지 않습니다.");
+        }
         Education education = Education.builder()
-                .sessionId(findSession.getId())
-                .subject(request.subject())
-                .educationNumber(request.educationNum())
-                .generationId(findSession.getGeneration().getId())
+                .subject(subject)
+                .educationNumber(educationNumber)
+                .generationId(generationId)
                 .build();
 
         Education saveEducation = educationRepository.save(education);
         return CreateEducationResponse.from(saveEducation);
-    }
-
-    private void checkEducationExist(Long sessionId) {
-        if (educationRepository.existsBySessionId(sessionId)) {
-            throw new AppException(ErrorCode.EDUCATION_DUPLICATED);
-        }
     }
 
     public FindEducationStatusResponse findEducationStatus(Long educationId) {
