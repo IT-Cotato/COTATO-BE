@@ -8,6 +8,6 @@ public record CreateEducationRequest(
         @NotNull
         Long generationId,
         @NotNull
-        Integer educationNum
+        Integer educationNumber
 ) {
 }
