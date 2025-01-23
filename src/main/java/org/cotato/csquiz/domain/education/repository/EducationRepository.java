@@ -8,8 +8,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface EducationRepository extends JpaRepository<Education, Long> {
-    boolean existsBySessionId(Long sessionId);
-
     List<Education> findAllByGenerationId(Long generationId);
     List<Education> findAllByStatus(EducationStatus status);
 }
