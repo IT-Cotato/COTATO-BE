@@ -4,10 +4,13 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.cotato.csquiz.common.error.ErrorCode;
+import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.common.poi.ExcelWriter;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.entity.AttendanceRecord;
@@ -92,22 +95,36 @@ public class AttendanceExcelService {
             throw new EntityNotFoundException("출석이 존재하지 않습니다.");
         }
         List<Long> sessionIds = attendances.stream().map(Attendance::getSessionId).toList();
-        Session session = sessionReader.findById(sessionIds.get(0));
+        List<Session> sessions = sessionReader.findAllByIdIn(sessionIds);
+        checkSameGeneration(sessions);
 
-        List<Member> members = generationMemberReader.findAllByGenerationWithMember(session.getGeneration()).stream()
+        Session session = sessions.get(0);
+        Generation generation = session.getGeneration();
+
+        List<Member> members = generationMemberReader.findAllByGenerationWithMember(generation).stream()
                 .map(GenerationMember::getMember)
                 .toList();
 
-        Map<Long, Session> sessionById = sessionReader.findAllByIdIn(sessionIds).stream()
+        Map<Long, Session> sessionById = sessions.stream()
                 .collect(Collectors.toUnmodifiableMap(Session::getId, Function.identity()));
 
         List<AttendanceRecordExcelData> excelData = getAttendanceRecordsExcelData(members, attendances,
                 sessionById);
 
         Map<String, Object> datas = new HashMap<>();
-        datas.put(ExcelWriter.FILE_NAME, AttendanceExcelUtil.getAttendanceRecordExcelFileName(attendances, sessionById, session.getGeneration()));
-        datas.put(ExcelWriter.SHEETS, Map.of(AttendanceExcelUtil.getAttendanceRecordExcelFileName(attendances, sessionById, session.getGeneration()), excelData));
+        datas.put(ExcelWriter.FILE_NAME, AttendanceExcelUtil.getAttendanceRecordExcelFileName(attendances, sessionById, generation));
+        datas.put(ExcelWriter.SHEETS, Map.of(AttendanceExcelUtil.getAttendanceRecordExcelFileName(attendances, sessionById, generation), excelData));
 
         return datas;
+    }
+
+    private void checkSameGeneration(final List<Session> sessions) {
+        Set<Long> generationIds = sessions.stream()
+                .map(Session::getGeneration)
+                .map(Generation::getId)
+                .collect(Collectors.toUnmodifiableSet());
+        if (generationIds.size() != 1) {
+            throw new AppException(ErrorCode.INVALID_ATTENDANCE_LIST);
+        }
     }
 }

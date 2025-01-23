@@ -92,6 +92,7 @@ public enum ErrorCode {
     INVALID_RECORD_UPDATE(HttpStatus.BAD_REQUEST, "AT-105", "세션 타입에 맞게 출결 기록을 수정해주세요."),
     ALREADY_ATTEND(HttpStatus.CONFLICT, "AT-301", "이미 해당 타입으로 출석한 기록이 있습니다."),
     ATTENDANCE_NOT_OPEN(HttpStatus.BAD_REQUEST, "AT-401", "출석 시간이 아닙니다."),
+    INVALID_ATTENDANCE_LIST(HttpStatus.BAD_REQUEST, "AT-402", "다른 기수의 출석이 같이 요청되었습니다."),
 
     //프로젝트 관련
     LOGO_IMAGE_EXIST(HttpStatus.CONFLICT, "PJ-301", "이미 로고 이미지가 존재합니다."),
