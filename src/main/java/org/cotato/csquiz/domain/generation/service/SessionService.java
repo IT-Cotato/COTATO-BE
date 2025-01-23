@@ -12,6 +12,8 @@ import org.cotato.csquiz.api.session.dto.AddSessionResponse;
 import org.cotato.csquiz.api.session.dto.SessionListResponse;
 import org.cotato.csquiz.api.session.dto.SessionWithAttendanceResponse;
 import org.cotato.csquiz.api.session.dto.UpdateSessionRequest;
+import org.cotato.csquiz.common.error.ErrorCode;
+import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.common.error.exception.ImageException;
 import org.cotato.csquiz.common.schedule.SchedulerService;
 import org.cotato.csquiz.domain.attendance.embedded.Location;
@@ -19,6 +21,7 @@ import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.attendance.service.AttendanceService;
 import org.cotato.csquiz.domain.attendance.service.component.AttendanceReader;
+import org.cotato.csquiz.domain.attendance.service.component.AttendanceRecordReader;
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
 import org.cotato.csquiz.domain.generation.embedded.SessionContents;
 import org.cotato.csquiz.domain.generation.entity.Generation;
@@ -45,6 +48,7 @@ public class SessionService {
     private final SessionImageService sessionImageService;
     private final SchedulerService schedulerService;
     private final AttendanceRepository attendanceRepository;
+    private final AttendanceRecordReader attendanceRecordReader;
     private final SessionReader sessionReader;
     private final AttendanceReader attendanceReader;
 
@@ -99,23 +103,32 @@ public class SessionService {
     public void updateSession(UpdateSessionRequest request) {
         Session session = sessionReader.findByIdWithPessimisticXLock(request.sessionId());
 
+        SessionType sessionType = SessionType.getSessionType(request.isOffline(), request.isOnline());
+        SessionContents sessionContents = SessionContents.of(request.itIssue(), request.networking(),
+                request.csEducation(), request.devTalk());
         session.updateDescription(request.description());
         session.updateSessionTitle(request.title());
         session.updateSessionPlace(request.placeName());
-
-        session.updateSessionContents(
-                SessionContents.of(request.itIssue(), request.networking(), request.csEducation(), request.devTalk()));
-
+        session.updateSessionContents(sessionContents);
         session.updateSessionDateTime(request.sessionDateTime());
-        SessionType sessionType = SessionType.getSessionType(request.isOffline(), request.isOnline());
         session.updateSessionType(sessionType);
         sessionRepository.save(session);
+
+        Optional<Attendance> maybeAttendance = attendanceReader.findBySessionIdWithPessimisticXLock(session.getId());
+        if (!sessionType.isCreateAttendance() && maybeAttendance.isPresent()) {
+            Attendance attendance = maybeAttendance.get();
+            if (attendanceRecordReader.isAttendanceRecordExist(attendance)) {
+                throw new AppException(ErrorCode.ATTENDANCE_RECORD_EXIST);
+            }
+            attendanceRepository.deleteById(attendance.getId());
+            return;
+        }
 
         // Todo https://www.notion.so/youthhing/ApplicationEventPublisher-15887d592b6e803eb7c7c1ce2da22b8c?pvs=4
         AttendanceUtil.validateAttendanceTime(request.sessionDateTime(), request.attendTime().attendanceDeadLine(),
                 request.attendTime().lateDeadLine());
-        Attendance attendance = attendanceReader.findBySessionIdWithPessimisticXLock(session.getId())
-                .orElseGet(() -> Attendance.builder()
+        Attendance attendance = maybeAttendance.orElseGet(() ->
+                Attendance.builder()
                         .session(session)
                         .attendanceDeadLine(request.attendTime().attendanceDeadLine())
                         .lateDeadLine(request.attendTime().lateDeadLine())

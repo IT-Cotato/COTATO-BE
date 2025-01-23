@@ -14,6 +14,8 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
 
     boolean existsByAttendanceIdAndMemberIdAndAttendanceType(Long attendanceId, Long memberId, AttendanceType attendanceType);
 
+    boolean existsByAttendanceId(Long attendanceId);
+
     Optional<AttendanceRecord> findByMemberIdAndAttendanceId(Long memberId, Long attendanceId);
 
     @Query("select  a from AttendanceRecord a where a.attendanceId in :attendanceIds and a.memberId = :memberId")
