@@ -147,22 +147,6 @@ public class SessionService {
                 .toList();
     }
 
-    public List<CsEducationOnSessionNumberResponse> findAllNotLinkedCsOnSessionsByGenerationId(Long generationId) {
-        Generation generation = generationRepository.findById(generationId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 기수를 찾을 수 없습니다."));
-        List<Session> sessions = sessionRepository.findAllByGenerationAndSessionContentsCsEducation(generation,
-                CSEducation.CS_ON);
-
-        List<Long> educationLinkedSessionIds = educationService.findAllEducationByGenerationId(generationId).stream()
-                .map(Education::getSessionId)
-                .toList();
-
-        return sessions.stream()
-                .filter(session -> !educationLinkedSessionIds.contains(session.getId()))
-                .map(CsEducationOnSessionNumberResponse::from)
-                .toList();
-    }
-
     public SessionWithAttendanceResponse findSession(Long sessionId) {
         Session session = sessionReader.findById(sessionId);
         List<SessionImage> sessionImages = sessionImageRepository.findAllBySession(session);

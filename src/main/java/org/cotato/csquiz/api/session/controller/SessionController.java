@@ -56,13 +56,6 @@ public class SessionController {
         return ResponseEntity.status(HttpStatus.OK).body(sessionService.findSessionsByGenerationId(generationId));
     }
 
-    @Operation(summary = "CS ON인 세션 목록 반환 API", description = "세션과 교육 연계 제거 시 삭제 예정")
-    @GetMapping("/cs-on")
-    public ResponseEntity<List<CsEducationOnSessionNumberResponse>> findAllCsOnSessionsByGenerationId(
-            @RequestParam Long generationId) {
-        return ResponseEntity.status(HttpStatus.OK).body(sessionService.findAllNotLinkedCsOnSessionsByGenerationId(generationId));
-    }
-
     @Operation(summary = "Session 추가 API")
     @RoleAuthority(MemberRole.ADMIN)
     @PostMapping(consumes = "multipart/form-data")
