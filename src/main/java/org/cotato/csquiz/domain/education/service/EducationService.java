@@ -21,7 +21,8 @@ import org.cotato.csquiz.domain.education.repository.EducationRepository;
 import org.cotato.csquiz.domain.education.repository.QuizRepository;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.common.error.ErrorCode;
-import org.cotato.csquiz.domain.generation.repository.GenerationRepository;
+import org.cotato.csquiz.domain.generation.entity.Generation;
+import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,18 +36,16 @@ public class EducationService {
     private final EducationRepository educationRepository;
     private final QuizRepository quizRepository;
     private final SocketService socketService;
-    private final GenerationRepository generationRepository;
+    private final GenerationReader generationReader;
 
 
     @Transactional
     public CreateEducationResponse createEducation(final String subject, final Long generationId, final Integer educationNumber) {
-        if (!generationRepository.existsById(generationId)) {
-            throw new EntityNotFoundException("해당 기수가 존재하지 않습니다.");
-        }
+        Generation generation = generationReader.findById(generationId);
         Education education = Education.builder()
                 .subject(subject)
                 .educationNumber(educationNumber)
-                .generationId(generationId)
+                .generationId(generation.getId())
                 .build();
 
         Education saveEducation = educationRepository.save(education);
