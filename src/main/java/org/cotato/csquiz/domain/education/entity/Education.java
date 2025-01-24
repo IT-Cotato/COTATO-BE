@@ -34,17 +34,13 @@ public class Education extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private EducationStatus status;
 
-    @Column(name = "session_id", nullable = false, unique = true)
-    private Long sessionId;
-
     @Column(name = "generation_id", nullable = false)
     private Long generationId;
 
     @Builder
-    public Education(String subject, Integer educationNumber, Long sessionId, Long generationId) {
+    public Education(String subject, Integer educationNumber, Long generationId) {
         this.subject = subject;
         this.number = educationNumber;
-        this.sessionId = sessionId;
         this.generationId = generationId;
         status = EducationStatus.BEFORE;
     }

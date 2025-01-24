@@ -49,14 +49,16 @@ public class EducationController {
         return ResponseEntity.ok().body(educationService.findEducationStatus(educationId));
     }
 
+    @Operation(summary = "교육 추가 API")
     @RoleAuthority(MemberRole.MANAGER)
-    @PostMapping("/add")
+    @PostMapping
     public ResponseEntity<CreateEducationResponse> createEducation(@RequestBody @Valid CreateEducationRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(educationService.createEducation(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(educationService.createEducation(request.subject(), request.generationId(), request.educationNumber()));
     }
 
+    @Operation(summary = "교육 수정 API")
     @RoleAuthority(MemberRole.MANAGER)
-    @PatchMapping("/update")
+    @PatchMapping
     public ResponseEntity<Void> updateEducation(@RequestBody @Valid UpdateEducationRequest request) {
         educationService.updateSubjectAndNumber(request);
         return ResponseEntity.noContent().build();
