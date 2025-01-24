@@ -28,4 +28,8 @@ public class AttendanceReader {
         List<Long> sessionIds = sessions.stream().map(Session::getId).toList();
         return attendanceRepository.findAllBySessionIdsInQuery(sessionIds);
     }
+
+    public List<Attendance> getAllByIds(List<Long> attendanceIds) {
+        return attendanceRepository.findAllByIdIn(attendanceIds);
+    }
 }

@@ -23,4 +23,6 @@ public interface SessionRepository extends JpaRepository<Session, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT s FROM Session s WHERE s.id = :sessionId")
     Optional<Session> findByIdWithPessimisticXLock(@Param("sessionId") Long sessionId);
+
+    List<Session> findAllByIdIn(List<Long> sessionIds);
 }
