@@ -199,7 +199,6 @@ public class AttendanceRecordService {
                 .map(AttendanceRecord::getMemberId)
                 .collect(Collectors.toSet());
 
-
         List<AttendanceRecord> newRecords = memberReader.findAllGenerationMember(session.getGeneration()).stream()
                 .map(Member::getId)
                 .filter(memberId -> !attendedMemberIds.contains(memberId))

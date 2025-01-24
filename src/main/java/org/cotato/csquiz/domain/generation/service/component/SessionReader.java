@@ -29,4 +29,8 @@ public class SessionReader {
     public List<Session> findAllByGeneration(final Generation generation) {
         return sessionRepository.findAllByGenerationId(generation.getId());
     }
+
+    public List<Session> findAllByIdIn(List<Long> sessionIds) {
+        return sessionRepository.findAllByIdIn(sessionIds);
+    }
 }

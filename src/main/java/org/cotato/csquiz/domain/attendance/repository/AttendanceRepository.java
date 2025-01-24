@@ -24,4 +24,6 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT a FROM Attendance a WHERE a.sessionId = :sessionId")
     Optional<Attendance> findBySessionIdWithPessimisticXLock(@Param("sessionId") Long sessionId);
+
+    List<Attendance> findAllByIdIn(List<Long> attendanceIds);
 }
