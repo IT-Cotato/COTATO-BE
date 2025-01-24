@@ -6,8 +6,8 @@ public record CreateEducationRequest(
         @NotNull
         String subject,
         @NotNull
-        Long sessionId,
+        Long generationId,
         @NotNull
-        Integer educationNum
+        Integer educationNumber
 ) {
 }

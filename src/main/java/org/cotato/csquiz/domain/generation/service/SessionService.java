@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.session.dto.AddSessionRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionResponse;
-import org.cotato.csquiz.api.session.dto.CsEducationOnSessionNumberResponse;
 import org.cotato.csquiz.api.session.dto.SessionListResponse;
 import org.cotato.csquiz.api.session.dto.SessionWithAttendanceResponse;
 import org.cotato.csquiz.api.session.dto.UpdateSessionRequest;
@@ -24,13 +23,10 @@ import org.cotato.csquiz.domain.attendance.service.AttendanceService;
 import org.cotato.csquiz.domain.attendance.service.component.AttendanceReader;
 import org.cotato.csquiz.domain.attendance.service.component.AttendanceRecordReader;
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
-import org.cotato.csquiz.domain.education.entity.Education;
-import org.cotato.csquiz.domain.education.service.EducationService;
 import org.cotato.csquiz.domain.generation.embedded.SessionContents;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.domain.generation.entity.SessionImage;
-import org.cotato.csquiz.domain.generation.enums.CSEducation;
 import org.cotato.csquiz.domain.generation.enums.SessionType;
 import org.cotato.csquiz.domain.generation.repository.GenerationRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionImageRepository;
@@ -49,7 +45,6 @@ public class SessionService {
     private final GenerationRepository generationRepository;
     private final SessionImageRepository sessionImageRepository;
     private final AttendanceService attendanceService;
-    private final EducationService educationService;
     private final SessionImageService sessionImageService;
     private final SchedulerService schedulerService;
     private final AttendanceRepository attendanceRepository;
@@ -157,22 +152,6 @@ public class SessionService {
 
         return sessions.stream()
                 .map(session -> SessionListResponse.of(session, imagesGroupBySession.getOrDefault(session, List.of())))
-                .toList();
-    }
-
-    public List<CsEducationOnSessionNumberResponse> findAllNotLinkedCsOnSessionsByGenerationId(Long generationId) {
-        Generation generation = generationRepository.findById(generationId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 기수를 찾을 수 없습니다."));
-        List<Session> sessions = sessionRepository.findAllByGenerationAndSessionContentsCsEducation(generation,
-                CSEducation.CS_ON);
-
-        List<Long> educationLinkedSessionIds = educationService.findAllEducationByGenerationId(generationId).stream()
-                .map(Education::getSessionId)
-                .toList();
-
-        return sessions.stream()
-                .filter(session -> !educationLinkedSessionIds.contains(session.getId()))
-                .map(CsEducationOnSessionNumberResponse::from)
                 .toList();
     }
 
