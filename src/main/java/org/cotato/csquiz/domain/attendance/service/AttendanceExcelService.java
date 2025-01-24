@@ -94,6 +94,9 @@ public class AttendanceExcelService {
         if (attendances.size() != attendanceIds.size()) {
             throw new EntityNotFoundException("출석이 존재하지 않습니다.");
         }
+
+        attendances.forEach(attendanceRecordService::refreshAttendanceRecords);
+
         List<Long> sessionIds = attendances.stream().map(Attendance::getSessionId).toList();
         List<Session> sessions = sessionReader.findAllByIdIn(sessionIds);
         checkSameGeneration(sessions);
