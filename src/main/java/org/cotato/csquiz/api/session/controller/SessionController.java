@@ -10,7 +10,6 @@ import org.cotato.csquiz.api.session.dto.AddSessionImageRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionImageResponse;
 import org.cotato.csquiz.api.session.dto.AddSessionRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionResponse;
-import org.cotato.csquiz.api.session.dto.CsEducationOnSessionNumberResponse;
 import org.cotato.csquiz.api.session.dto.DeleteSessionImageRequest;
 import org.cotato.csquiz.api.session.dto.SessionListResponse;
 import org.cotato.csquiz.api.session.dto.SessionWithAttendanceResponse;
