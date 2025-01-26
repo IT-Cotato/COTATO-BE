@@ -29,7 +29,6 @@ class GenerationServiceTest {
 
     @BeforeEach
     void setUp() {
-
         MockitoAnnotations.openMocks(this);  // Mockito mock 객체 초기화
     }
 

@@ -46,14 +46,14 @@ public class GenerationController {
     @RoleAuthority(MemberRole.ADMIN)
     @PatchMapping("/recruiting")
     public ResponseEntity<Void> changeRecruitingStatus(@RequestBody @Valid ChangeRecruitingStatusRequest request) {
-        generationService.changeRecruitingStatus(request);
+        generationService.changeRecruitingStatus(request.generationId(), request.statement());
         return ResponseEntity.noContent().build();
     }
 
     @RoleAuthority(MemberRole.ADMIN)
     @PatchMapping("/{generationId}/period")
     public ResponseEntity<Void> changeGenerationPeriod(@RequestBody @Valid ChangeGenerationPeriodRequest request) {
-        generationService.changeGenerationPeriod(request);
+        generationService.changeGenerationPeriod(request.generationId(), request.startDate(), request.endDate());
         return ResponseEntity.noContent().build();
     }
 
