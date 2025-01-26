@@ -6,7 +6,6 @@ import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.generation.dto.AddGenerationRequest;
 import org.cotato.csquiz.api.generation.dto.AddGenerationResponse;
 import org.cotato.csquiz.api.generation.dto.ChangeGenerationPeriodRequest;
@@ -29,7 +28,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/v1/api/generations")
 @RequiredArgsConstructor
-@Slf4j
 public class GenerationController {
 
     private final GenerationService generationService;
