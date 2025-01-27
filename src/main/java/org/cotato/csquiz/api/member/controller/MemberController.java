@@ -87,9 +87,9 @@ public class MemberController {
     }
 
     @Operation(summary = "멤버 프로필 정보 반환 API")
-    @GetMapping("/profile")
-    public ResponseEntity<ProfileInfoResponse> findProfileInfo(@AuthenticationPrincipal Member member) {
-        return ResponseEntity.ok(memberService.findMemberProfileInfo(member));
+    @GetMapping("/{memberId}/profile")
+    public ResponseEntity<ProfileInfoResponse> findProfileInfo(@PathVariable("memberId") Long memberId) {
+        return ResponseEntity.ok(memberService.findMemberProfileInfo(memberId));
     }
 
     @GetMapping("/{memberId}/mypage")

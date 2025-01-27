@@ -82,7 +82,8 @@ public class MemberService {
         memberRepository.save(member);
     }
 
-    public ProfileInfoResponse findMemberProfileInfo(final Member member) {
+    public ProfileInfoResponse findMemberProfileInfo(final Long memberId) {
+        Member member = memberReader.findById(memberId);
         List<ProfileLink> profileLinks = profileLinkRepository.findAllByMember(member);
         return ProfileInfoResponse.of(member, profileLinks);
     }
