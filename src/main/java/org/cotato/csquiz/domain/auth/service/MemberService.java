@@ -10,6 +10,7 @@ import org.cotato.csquiz.api.admin.dto.MemberInfoResponse;
 import org.cotato.csquiz.api.member.dto.AddableMembersResponse;
 import org.cotato.csquiz.api.member.dto.MemberInfo;
 import org.cotato.csquiz.api.member.dto.MemberMyPageInfoResponse;
+import org.cotato.csquiz.api.member.dto.ProfileInfoResponse;
 import org.cotato.csquiz.api.member.dto.ProfileLinkRequest;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
@@ -79,6 +80,12 @@ public class MemberService {
         String encryptedPhoneNumber = encryptService.encryptPhoneNumber(phoneNumber);
         member.updatePhoneNumber(encryptedPhoneNumber);
         memberRepository.save(member);
+    }
+
+    public ProfileInfoResponse findMemberProfileInfo(final Long memberId) {
+        Member member = memberReader.findById(memberId);
+        List<ProfileLink> profileLinks = profileLinkRepository.findAllByMember(member);
+        return ProfileInfoResponse.of(member, profileLinks);
     }
 
     @Transactional
