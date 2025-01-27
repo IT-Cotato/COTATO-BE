@@ -37,7 +37,6 @@ class GenerationServiceTest {
         // given: 기수 데이터 설정
         Generation currentGeneration = Generation.builder()
                 .number(2)
-                .sessionCount(5)
                 .period(GenerationPeriod.of(LocalDate.of(2024, 7, 1), LocalDate.of(2024, 10, 1)))
                 .build();
 
@@ -56,7 +55,6 @@ class GenerationServiceTest {
         // given
         Generation previousGeneration = Generation.builder()
                 .number(2)
-                .sessionCount(5)
                 .period(GenerationPeriod.of(LocalDate.of(2024, 7, 1), LocalDate.of(2024, 10, 1)))
                 .build();
 

@@ -35,7 +35,6 @@ public class GenerationService {
         Generation generation = Generation.builder()
                 .number(request.generationNumber())
                 .period(GenerationPeriod.of(request.startDate(), request.endDate()))
-                .sessionCount(request.sessionCount())
                 .build();
         Generation savedGeneration = generationRepository.save(generation);
         return AddGenerationResponse.from(savedGeneration);

@@ -38,7 +38,7 @@ public class GenerationController {
     }
 
     @RoleAuthority(MemberRole.ADMIN)
-    @PostMapping("/add")
+    @PostMapping
     public ResponseEntity<AddGenerationResponse> addGeneration(@RequestBody @Valid AddGenerationRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(generationService.addGeneration(request));
     }

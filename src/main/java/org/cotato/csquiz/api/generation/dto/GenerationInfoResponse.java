@@ -10,7 +10,6 @@ public record GenerationInfoResponse(
         Long generationId,
         @Schema(requiredMode = RequiredMode.REQUIRED)
         Integer generationNumber,
-        Integer sessionCount,
         @Schema(requiredMode = RequiredMode.REQUIRED)
         LocalDate startDate,
         @Schema(requiredMode = RequiredMode.REQUIRED)
@@ -21,7 +20,6 @@ public record GenerationInfoResponse(
         return new GenerationInfoResponse(
                 generation.getId(),
                 generation.getNumber(),
-                generation.getSessionCount(),
                 generation.getPeriod().getStartDate(),
                 generation.getPeriod().getEndDate()
         );
