@@ -1,23 +1,18 @@
 package org.cotato.csquiz.api.member.dto;
 
-import org.cotato.csquiz.domain.auth.enums.MemberPosition;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import org.cotato.csquiz.domain.auth.entity.Member;
 
 public record MemberMyPageInfoResponse(
-        Long memberId,
+        @Schema(description = "이메일", requiredMode = RequiredMode.REQUIRED)
         String email,
-        String name,
-        Integer generationNumber,
-        MemberPosition position,
+        @Schema(description = "전화번호", requiredMode = RequiredMode.REQUIRED)
         String phoneNumber
 ) {
     public static MemberMyPageInfoResponse of(Member member, String originPhoneNumber) {
         return new MemberMyPageInfoResponse(
-                member.getId(),
                 member.getEmail(),
-                member.getName(),
-                member.getPassedGenerationNumber(),
-                member.getPosition(),
                 originPhoneNumber
         );
     }
