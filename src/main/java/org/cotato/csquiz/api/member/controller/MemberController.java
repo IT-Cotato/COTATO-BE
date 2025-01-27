@@ -11,6 +11,7 @@ import org.cotato.csquiz.api.admin.dto.MemberInfoResponse;
 import org.cotato.csquiz.api.member.dto.AddableMembersResponse;
 import org.cotato.csquiz.api.member.dto.DeactivateRequest;
 import org.cotato.csquiz.api.member.dto.MemberMyPageInfoResponse;
+import org.cotato.csquiz.api.member.dto.ProfileInfoResponse;
 import org.cotato.csquiz.api.member.dto.UpdatePasswordRequest;
 import org.cotato.csquiz.api.member.dto.UpdatePhoneNumberRequest;
 import org.cotato.csquiz.api.member.dto.UpdateProfileInfoRequest;
@@ -85,6 +86,12 @@ public class MemberController {
         memberService.updateMemberProfileInfo(member, request.introduction(), request.university(),
                 request.profileLinks(), profileImage);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "멤버 프로필 정보 반환 API")
+    @GetMapping("/{memberId}/profile")
+    public ResponseEntity<ProfileInfoResponse> findProfileInfo(@PathVariable("memberId") Long memberId) {
+        return ResponseEntity.ok(memberService.findMemberProfileInfo(memberId));
     }
 
     @GetMapping("/{memberId}/mypage")
