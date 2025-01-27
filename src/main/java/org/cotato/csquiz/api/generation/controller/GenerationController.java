@@ -6,7 +6,6 @@ import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.generation.dto.AddGenerationRequest;
 import org.cotato.csquiz.api.generation.dto.AddGenerationResponse;
 import org.cotato.csquiz.api.generation.dto.ChangeGenerationPeriodRequest;
@@ -29,7 +28,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/v1/api/generations")
 @RequiredArgsConstructor
-@Slf4j
 public class GenerationController {
 
     private final GenerationService generationService;
@@ -40,7 +38,7 @@ public class GenerationController {
     }
 
     @RoleAuthority(MemberRole.ADMIN)
-    @PostMapping("/add")
+    @PostMapping
     public ResponseEntity<AddGenerationResponse> addGeneration(@RequestBody @Valid AddGenerationRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(generationService.addGeneration(request));
     }
@@ -48,14 +46,14 @@ public class GenerationController {
     @RoleAuthority(MemberRole.ADMIN)
     @PatchMapping("/recruiting")
     public ResponseEntity<Void> changeRecruitingStatus(@RequestBody @Valid ChangeRecruitingStatusRequest request) {
-        generationService.changeRecruitingStatus(request);
+        generationService.changeRecruitingStatus(request.generationId(), request.statement());
         return ResponseEntity.noContent().build();
     }
 
     @RoleAuthority(MemberRole.ADMIN)
     @PatchMapping("/{generationId}/period")
     public ResponseEntity<Void> changeGenerationPeriod(@RequestBody @Valid ChangeGenerationPeriodRequest request) {
-        generationService.changeGenerationPeriod(request);
+        generationService.changeGenerationPeriod(request.generationId(), request.startDate(), request.endDate());
         return ResponseEntity.noContent().build();
     }
 

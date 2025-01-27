@@ -28,9 +28,6 @@ public class Generation extends BaseTimeEntity {
     @Column(name = "generation_number", unique = true, nullable = false)
     private Integer number;
 
-    @Column(name = "generation_session_count", nullable = false)
-    private Integer sessionCount;
-
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "startDate", column = @Column(name = "generation_start_date")),
@@ -42,9 +39,8 @@ public class Generation extends BaseTimeEntity {
     private Boolean isRecruit;
 
     @Builder
-    public Generation(Integer number, Integer sessionCount, GenerationPeriod period) {
+    public Generation(Integer number, GenerationPeriod period) {
         this.number = number;
-        this.sessionCount = sessionCount;
         this.period = period;
         isRecruit = false;
     }

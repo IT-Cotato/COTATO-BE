@@ -9,8 +9,6 @@ public record AddGenerationRequest(
         @NotNull
         LocalDate startDate,
         @NotNull
-        LocalDate endDate,
-        @NotNull
-        Integer sessionCount
+        LocalDate endDate
 ) {
 }
