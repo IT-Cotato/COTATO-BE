@@ -9,8 +9,7 @@ public record MemberMyPageInfoResponse(
         String name,
         Integer generationNumber,
         MemberPosition position,
-        String phoneNumber,
-        String profileImage
+        String phoneNumber
 ) {
     public static MemberMyPageInfoResponse of(Member member, String originPhoneNumber) {
         return new MemberMyPageInfoResponse(
@@ -19,8 +18,7 @@ public record MemberMyPageInfoResponse(
                 member.getName(),
                 member.getPassedGenerationNumber(),
                 member.getPosition(),
-                originPhoneNumber,
-                member.getProfileImageUrl()
+                originPhoneNumber
         );
     }
 }
