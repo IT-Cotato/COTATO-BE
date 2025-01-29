@@ -26,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class PolicyService {
 
-    private final MemberService memberService;
     private final PolicyRepository policyRepository;
     private final MemberPolicyRepository memberPolicyRepository;
 
