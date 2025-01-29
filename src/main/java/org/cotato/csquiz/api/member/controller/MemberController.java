@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.admin.dto.MemberInfoResponse;
 import org.cotato.csquiz.api.member.dto.AddableMembersResponse;
+import org.cotato.csquiz.api.member.dto.DeactivateRequest;
 import org.cotato.csquiz.api.member.dto.MemberMyPageInfoResponse;
 import org.cotato.csquiz.api.member.dto.UpdatePasswordRequest;
 import org.cotato.csquiz.api.member.dto.UpdatePhoneNumberRequest;
@@ -24,6 +25,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -92,5 +94,17 @@ public class MemberController {
             throw new NoPermissionException("본인 외의 정보는 조회할 수 없습니다.");
         }
         return ResponseEntity.ok().body(memberService.findMyPageInfo(memberId));
+    }
+
+    @Operation(summary = "회원 비활성화 요청 API")
+    @PostMapping("/{memberId}/deactivate")
+    public ResponseEntity<Void> deactivateMember(@PathVariable("memberId") Long memberId,
+                                                 @Valid @RequestBody DeactivateRequest request,
+                                                 @AuthenticationPrincipal Member member) throws NoPermissionException {
+        if (!member.getId().equals(memberId)) {
+            throw new NoPermissionException("본인 외의 회원을 비활성화할 수 없습니다.");
+        }
+        memberService.deactivateMember(member, request.email(), request.password(), request.checkedPolicies());
+        return ResponseEntity.noContent().build();
     }
 }
