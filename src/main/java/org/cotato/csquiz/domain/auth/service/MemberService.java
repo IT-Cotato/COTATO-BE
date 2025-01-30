@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.SetUtils;
 import org.cotato.csquiz.api.admin.dto.MemberInfoResponse;
 import org.cotato.csquiz.api.member.dto.AddableMembersResponse;
 import org.cotato.csquiz.api.member.dto.MemberInfo;
@@ -189,7 +190,8 @@ public class MemberService {
 
     private boolean isCheckedAllLeavingPolicies(List<CheckPolicyRequest> policyIds, List<Policy> leavingPolicies) {
         Set<Long> leavingPolicyIds = leavingPolicies.stream().map(Policy::getId).collect(Collectors.toUnmodifiableSet());
-        return policyIds.stream().map(CheckPolicyRequest::policyId).allMatch(leavingPolicyIds::contains);
+        Set<Long> checkedPolicyIds = policyIds.stream().map(CheckPolicyRequest::policyId).collect(Collectors.toUnmodifiableSet());
+        return SetUtils.isEqualSet(leavingPolicyIds, checkedPolicyIds);
     }
 
     private void validateMember(Member member, String email, String password) {
