@@ -29,10 +29,10 @@ import org.cotato.csquiz.domain.generation.service.component.SessionReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-@Slf4j
 public class AttendanceExcelService {
 
     private final AttendanceRecordService attendanceRecordService;
@@ -42,6 +42,7 @@ public class AttendanceExcelService {
     private final AttendanceReader attendanceReader;
     private final GenerationMemberReader generationMemberReader;
 
+    @Transactional
     public Map<String, Object> getAttendanceRecordsExcelDataByGeneration(final Long generationId) {
         Generation generation = generationReader.findById(generationId);
         Map<Long, Session> sessionById = sessionReader.findAllByGeneration(generation).stream()
@@ -88,6 +89,7 @@ public class AttendanceExcelService {
                 .toList();
     }
 
+    @Transactional
     public Map<String, Object> getAttendanceRecordsExcelDataByAttendanceIds(final List<Long> attendanceIds) {
         List<Attendance> attendances = attendanceReader.getAllByIds(attendanceIds);
 
