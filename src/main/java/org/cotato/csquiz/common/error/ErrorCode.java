@@ -24,6 +24,7 @@ public enum ErrorCode {
     ENTITY_NOT_FOUND(HttpStatus.NOT_FOUND, "I-201", "해당 Entity를 찾을 수 없습니다."),
 
     // 회원 가입
+    INVALID_EMAIL(HttpStatus.BAD_REQUEST, "A-001", "유효하지 않은 이메일입니다."),
     INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "A-002", "유효하지 않은 패스워드입니다."),
     INVALID_PHONE_NUMBER_PREFIX(HttpStatus.BAD_REQUEST, "A-003", "010으로 시작하지 않습니다."),
     INVALID_PHONE_NUMBER_FORMAT(HttpStatus.BAD_REQUEST, "A-004", "문자열이 포함되어있습니다."),
@@ -36,6 +37,7 @@ public enum ErrorCode {
 
     // 정책 관련
     SHOULD_AGREE_POLICY(HttpStatus.BAD_REQUEST, "P-001", "필수 정책에는 반드시 동의해야합니다."),
+    NOT_CHECKED_ALL_LEAVING_POLICIES(HttpStatus.BAD_REQUEST, "P-002", "모든 탈퇴 정책에 동의해야합니다."),
     ALREADY_POLICY_CHECK(HttpStatus.CONFLICT, "P-301", "이미 동의한 정책입니다."),
 
     //회원 관련

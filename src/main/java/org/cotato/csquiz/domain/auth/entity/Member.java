@@ -145,4 +145,8 @@ public class Member extends BaseTimeEntity {
     public boolean isDevTeam(){
         return this.role == MemberRole.DEV;
     }
+
+    public void deactivate() {
+        this.status = MemberStatus.INACTIVE;
+    }
 }
