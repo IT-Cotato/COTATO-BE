@@ -30,12 +30,14 @@ public class AdminController {
 
     private final AdminService adminService;
 
+    @Deprecated(since = "부원 접근 권한 및 신입 부원 승인 피쳐 이후")
     @RoleAuthority(MemberRole.ADMIN)
     @GetMapping("/applicants")
     public ResponseEntity<List<ApplyMemberInfoResponse>> findApplicantList() {
         return ResponseEntity.ok().body(adminService.getMembers(MemberStatus.REQUESTED));
     }
 
+    @Deprecated(since = "부원 접근 권한 및 신입 부원 승인 피쳐 이후")
     @RoleAuthority(MemberRole.ADMIN)
     @GetMapping("/reject-applicants")
     public ResponseEntity<List<ApplyMemberInfoResponse>> findRejectApplicantList() {
@@ -45,7 +47,6 @@ public class AdminController {
     @RoleAuthority(MemberRole.ADMIN)
     @PatchMapping("/approve")
     public ResponseEntity<Void> approveApplicant(@RequestBody @Valid MemberApproveRequest request) {
-        log.info("[가입자 승인 컨트롤러, 요청된 member id : {}]", request.memberId());
         adminService.approveApplicant(request);
         return ResponseEntity.noContent().build();
     }
@@ -58,6 +59,7 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
+    @Deprecated(since = "신입 부원 승인 피쳐 이후")
     @RoleAuthority(MemberRole.ADMIN)
     @PatchMapping("/reapprove")
     public ResponseEntity<Void> reapproveApplicant(@RequestBody @Valid MemberApproveRequest request) {
@@ -66,6 +68,7 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
+    @Deprecated(since = "부원 접근 권한 및 신입 부원 승인 피쳐 이후")
     @RoleAuthority(MemberRole.ADMIN)
     @GetMapping("/active-members")
     public ResponseEntity<List<MemberEnrollInfoResponse>> findCurrentActiveMembers() {
@@ -90,6 +93,7 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
+    @Deprecated(since = "부원 접근 권한 및 신입 부원 승인 피쳐 이후")
     @RoleAuthority(MemberRole.ADMIN)
     @GetMapping("/old-members")
     public ResponseEntity<List<MemberEnrollInfoResponse>> findOldMembers() {
