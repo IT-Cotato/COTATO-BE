@@ -2,26 +2,38 @@ package org.cotato.csquiz.domain.auth.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.SetUtils;
 import org.cotato.csquiz.api.admin.dto.MemberInfoResponse;
 import org.cotato.csquiz.api.member.dto.AddableMembersResponse;
 import org.cotato.csquiz.api.member.dto.MemberInfo;
 import org.cotato.csquiz.api.member.dto.MemberMyPageInfoResponse;
 import org.cotato.csquiz.api.member.dto.ProfileInfoResponse;
 import org.cotato.csquiz.api.member.dto.ProfileLinkRequest;
+import org.cotato.csquiz.api.policy.dto.CheckPolicyRequest;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.common.error.exception.ImageException;
 import org.cotato.csquiz.common.s3.S3Uploader;
 import org.cotato.csquiz.domain.auth.entity.Member;
+import org.cotato.csquiz.domain.auth.entity.MemberPolicy;
+import org.cotato.csquiz.domain.auth.entity.MemberLeavingRequest;
+import org.cotato.csquiz.domain.auth.entity.Policy;
 import org.cotato.csquiz.domain.auth.entity.ProfileLink;
 import org.cotato.csquiz.domain.auth.enums.MemberPosition;
+import org.cotato.csquiz.domain.auth.enums.PolicyCategory;
+import org.cotato.csquiz.domain.auth.repository.MemberPolicyRepository;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
+import org.cotato.csquiz.domain.auth.repository.MemberLeavingRequestRepository;
 import org.cotato.csquiz.domain.auth.repository.ProfileLinkRepository;
 import org.cotato.csquiz.domain.auth.service.component.MemberReader;
+import org.cotato.csquiz.domain.auth.service.component.PolicyReader;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.repository.GenerationMemberRepository;
 import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
@@ -39,6 +51,7 @@ public class MemberService {
     private static final String PROFILE_BUCKET_DIRECTORY = "profile";
     private final MemberReader memberReader;
     private final GenerationReader generationReader;
+    private final PolicyReader policyReader;
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final EncryptService encryptService;
@@ -46,6 +59,8 @@ public class MemberService {
     private final S3Uploader s3Uploader;
     private final ProfileLinkRepository profileLinkRepository;
     private final GenerationMemberRepository generationMemberRepository;
+    private final MemberLeavingRequestRepository memberLeavingRequestRepository;
+    private final MemberPolicyRepository memberPolicyRepository;
 
     public MemberInfoResponse findMemberInfo(final Member member) {
         String rawBackFourNumber = findBackFourNumber(member);
@@ -139,7 +154,8 @@ public class MemberService {
     }
 
     public AddableMembersResponse findAddableMembers(final Long generationId, Integer generationNumber, MemberPosition memberPosition, String name) {
-        List<Long> existMemberIds = generationMemberRepository.findAllByGenerationIdWithMember(generationId).stream()
+        Generation generation = generationReader.findById(generationId);
+        List<Long> existMemberIds = generationMemberRepository.findAllByGenerationIdWithMember(generation.getId()).stream()
                 .map(gm -> gm.getMember().getId())
                 .toList();
 
@@ -154,5 +170,43 @@ public class MemberService {
                 )
                 .toList();
         return AddableMembersResponse.from(filteredAddableMember);
+    }
+
+    @Transactional
+    public void deactivateMember(final Member member, final String email, final String password,
+                                 final List<CheckPolicyRequest> checkPolicyRequests) {
+        validateMember(member, email, password);
+
+        List<Policy> leavingPolicies = policyReader.getPoliciesByCategory(PolicyCategory.LEAVING);
+        if (!isCheckedAllLeavingPolicies(checkPolicyRequests, leavingPolicies)) {
+            throw new AppException(ErrorCode.NOT_CHECKED_ALL_LEAVING_POLICIES);
+        }
+
+        List<MemberPolicy> memberPolicies = leavingPolicies.stream()
+                .map(policy -> MemberPolicy.of(true, member, policy.getId()))
+                .toList();
+
+        memberPolicyRepository.saveAll(memberPolicies);
+
+        MemberLeavingRequest leavingRequest = MemberLeavingRequest.of(member, LocalDateTime.now());
+        memberLeavingRequestRepository.save(leavingRequest);
+
+        member.deactivate();
+        memberRepository.save(member);
+    }
+
+    private boolean isCheckedAllLeavingPolicies(List<CheckPolicyRequest> policyIds, List<Policy> leavingPolicies) {
+        Set<Long> leavingPolicyIds = leavingPolicies.stream().map(Policy::getId).collect(Collectors.toUnmodifiableSet());
+        Set<Long> checkedPolicyIds = policyIds.stream().map(CheckPolicyRequest::policyId).collect(Collectors.toUnmodifiableSet());
+        return SetUtils.isEqualSet(leavingPolicyIds, checkedPolicyIds);
+    }
+
+    private void validateMember(Member member, String email, String password) {
+        if (!member.getEmail().equals(email)) {
+            throw new AppException(ErrorCode.INVALID_EMAIL);
+        }
+        if (!bCryptPasswordEncoder.matches(password, member.getPassword())) {
+            throw new AppException(ErrorCode.INVALID_PASSWORD);
+        }
     }
 }
