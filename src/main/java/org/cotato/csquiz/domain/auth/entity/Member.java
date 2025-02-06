@@ -106,7 +106,7 @@ public class Member extends BaseTimeEntity {
         this.password = password;
     }
 
-    public void updateGeneration(Integer passedGenerationNumber) {
+    public void updatePassedGenerationNumber(Integer passedGenerationNumber) {
         this.passedGenerationNumber = passedGenerationNumber;
     }
 
