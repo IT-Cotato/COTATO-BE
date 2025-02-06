@@ -4,13 +4,16 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import java.io.IOException;
+import java.util.List;
 import javax.naming.NoPermissionException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.cotato.csquiz.api.admin.dto.ApplyMemberInfoResponse;
 import org.cotato.csquiz.api.admin.dto.MemberInfoResponse;
 import org.cotato.csquiz.api.member.dto.AddableMembersResponse;
 import org.cotato.csquiz.api.member.dto.DeactivateRequest;
 import org.cotato.csquiz.api.member.dto.MemberMyPageInfoResponse;
+import org.cotato.csquiz.api.member.dto.MemberResponse;
 import org.cotato.csquiz.api.member.dto.ProfileInfoResponse;
 import org.cotato.csquiz.api.member.dto.UpdatePasswordRequest;
 import org.cotato.csquiz.api.member.dto.UpdatePhoneNumberRequest;
@@ -19,6 +22,7 @@ import org.cotato.csquiz.common.role.RoleAuthority;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.enums.MemberPosition;
 import org.cotato.csquiz.domain.auth.enums.MemberRole;
+import org.cotato.csquiz.domain.auth.enums.MemberStatus;
 import org.cotato.csquiz.domain.auth.service.MemberService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -113,5 +117,12 @@ public class MemberController {
         }
         memberService.deactivateMember(member, request.email(), request.password(), request.checkedPolicies());
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "회원 상태에 따른 조회 요청 API")
+    @RoleAuthority(MemberRole.ADMIN)
+    @GetMapping(params = "status")
+    public ResponseEntity<List<MemberResponse>> findMembersByStatus(@RequestParam("status") MemberStatus status) {
+        return ResponseEntity.ok().body(memberService.getMemberByStatus(status));
     }
 }

@@ -10,10 +10,12 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.SetUtils;
+import org.cotato.csquiz.api.admin.dto.ApplyMemberInfoResponse;
 import org.cotato.csquiz.api.admin.dto.MemberInfoResponse;
 import org.cotato.csquiz.api.member.dto.AddableMembersResponse;
 import org.cotato.csquiz.api.member.dto.MemberInfo;
 import org.cotato.csquiz.api.member.dto.MemberMyPageInfoResponse;
+import org.cotato.csquiz.api.member.dto.MemberResponse;
 import org.cotato.csquiz.api.member.dto.ProfileInfoResponse;
 import org.cotato.csquiz.api.member.dto.ProfileLinkRequest;
 import org.cotato.csquiz.api.policy.dto.CheckPolicyRequest;
@@ -27,6 +29,7 @@ import org.cotato.csquiz.domain.auth.entity.MemberLeavingRequest;
 import org.cotato.csquiz.domain.auth.entity.Policy;
 import org.cotato.csquiz.domain.auth.entity.ProfileLink;
 import org.cotato.csquiz.domain.auth.enums.MemberPosition;
+import org.cotato.csquiz.domain.auth.enums.MemberStatus;
 import org.cotato.csquiz.domain.auth.enums.PolicyCategory;
 import org.cotato.csquiz.domain.auth.repository.MemberPolicyRepository;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
@@ -208,5 +211,11 @@ public class MemberService {
         if (!bCryptPasswordEncoder.matches(password, member.getPassword())) {
             throw new AppException(ErrorCode.INVALID_PASSWORD);
         }
+    }
+
+    public List<MemberResponse> getMemberByStatus(final MemberStatus status) {
+        return memberRepository.findAllByStatus(status).stream()
+                .map(member -> MemberResponse.of(member, findBackFourNumber(member)))
+                .toList();
     }
 }
