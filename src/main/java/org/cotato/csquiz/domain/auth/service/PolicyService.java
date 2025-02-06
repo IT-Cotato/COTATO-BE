@@ -2,6 +2,7 @@ package org.cotato.csquiz.domain.auth.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.cotato.csquiz.domain.auth.enums.PolicyCategory;
 import org.cotato.csquiz.domain.auth.enums.PolicyType;
 import org.cotato.csquiz.domain.auth.repository.MemberPolicyRepository;
 import org.cotato.csquiz.domain.auth.repository.PolicyRepository;
+import org.cotato.csquiz.domain.auth.service.component.PolicyReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,29 +28,22 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class PolicyService {
 
+    private final PolicyReader policyReader;
     private final PolicyRepository policyRepository;
     private final MemberPolicyRepository memberPolicyRepository;
 
-    public FindMemberPolicyResponse findUnCheckedPolicies(final Member member) {
-        // 회원이 체크한 정책
+    public FindMemberPolicyResponse findUnCheckedPolicies(final Member member, final PolicyCategory category) {
         List<Long> checkedPolicies = memberPolicyRepository.findAllByMemberId(member.getId()).stream()
                 .filter(MemberPolicy::getIsChecked)
                 .map(MemberPolicy::getPolicyId)
                 .toList();
 
-        List<PolicyInfoResponse> uncheckedEssentialPolicies = policyRepository.findAllByPolicyType(PolicyType.ESSENTIAL)
-                .stream()
+        Map<PolicyType, List<PolicyInfoResponse>> policiesByType = policyReader.getPoliciesByCategory(category).stream()
                 .filter(policy -> !checkedPolicies.contains(policy.getId()))
                 .map(PolicyInfoResponse::from)
-                .toList();
+                .collect(Collectors.groupingBy(PolicyInfoResponse::type));
 
-        List<PolicyInfoResponse> uncheckedOptionalPolicies = policyRepository.findAllByPolicyType(PolicyType.OPTIONAL)
-                .stream()
-                .filter(policy -> !checkedPolicies.contains(policy.getId()))
-                .map(PolicyInfoResponse::from)
-                .toList();
-
-        return FindMemberPolicyResponse.of(member, uncheckedEssentialPolicies, uncheckedOptionalPolicies);
+        return FindMemberPolicyResponse.of(member, policiesByType.getOrDefault(PolicyType.ESSENTIAL, List.of()), policiesByType.getOrDefault(PolicyType.OPTIONAL, List.of()));
     }
 
     @Transactional
