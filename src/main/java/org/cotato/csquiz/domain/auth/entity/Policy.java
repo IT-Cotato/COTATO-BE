@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.csquiz.common.entity.BaseTimeEntity;
@@ -41,4 +42,12 @@ public class Policy extends BaseTimeEntity {
 
     @Column(name = "policy_content", nullable = false, columnDefinition = "TEXT")
     private String content;
+
+    @Builder
+    public Policy(PolicyType policyType, PolicyCategory category, String title, String content) {
+        this.policyType = policyType;
+        this.category = category;
+        this.title = title;
+        this.content = content;
+    }
 }
