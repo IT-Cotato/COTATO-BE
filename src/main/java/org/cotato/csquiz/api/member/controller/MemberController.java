@@ -125,4 +125,11 @@ public class MemberController {
     public ResponseEntity<List<MemberResponse>> findMembersByStatus(@RequestParam("status") MemberStatus status) {
         return ResponseEntity.ok().body(memberService.getMemberByStatus(status));
     }
+
+    @Operation(summary = "멤버 활성화 API")
+    @PatchMapping("/{memberId}/activate")
+    public ResponseEntity<Void> activateMember(@PathVariable("memberId") Long memberId) {
+        memberService.activateMember(memberId);
+        return ResponseEntity.noContent().build();
+    }
 }
