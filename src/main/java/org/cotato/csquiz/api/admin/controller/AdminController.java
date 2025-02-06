@@ -4,7 +4,7 @@ import org.cotato.csquiz.api.admin.dto.ApplyMemberInfoResponse;
 import org.cotato.csquiz.api.admin.dto.MemberApproveRequest;
 import org.cotato.csquiz.api.admin.dto.MemberEnrollInfoResponse;
 import org.cotato.csquiz.api.admin.dto.MemberRejectRequest;
-import org.cotato.csquiz.api.admin.dto.UpdateActiveMemberRoleRequest;
+import org.cotato.csquiz.api.admin.dto.UpdateMemberRoleRequest;
 import org.cotato.csquiz.api.admin.dto.UpdateActiveMemberToOldMemberRequest;
 import org.cotato.csquiz.api.admin.dto.UpdateOldMemberRoleRequest;
 import org.cotato.csquiz.common.role.RoleAuthority;
@@ -75,11 +75,12 @@ public class AdminController {
         return ResponseEntity.ok().body(adminMemberService.findCurrentActiveMembers());
     }
 
+    @Deprecated(since = "부원 접근 권한 및 신입 부원 승인 피쳐 이후")
     @RoleAuthority(MemberRole.ADMIN)
     @PatchMapping("/active-members/role")
     public ResponseEntity<Void> updateActiveMemberRole(
-            @RequestBody @Valid UpdateActiveMemberRoleRequest request) {
-        adminMemberService.updateActiveMemberRole(request);
+            @RequestBody @Valid UpdateMemberRoleRequest request) {
+        adminMemberService.updateMemberRole(request.memberId(), request.role());
         return ResponseEntity.noContent().build();
     }
 
