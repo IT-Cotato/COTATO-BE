@@ -144,4 +144,11 @@ public class MemberController {
         adminMemberService.rejectApplicant(memberId);
         return ResponseEntity.noContent().build();
     }
+      
+    @Operation(summary = "멤버 활성화 API")
+    @PatchMapping("/{memberId}/activate")
+    public ResponseEntity<Void> activateMember(@PathVariable("memberId") Long memberId) {
+        memberService.activateMember(memberId);
+        return ResponseEntity.noContent().build();
+    }
 }
