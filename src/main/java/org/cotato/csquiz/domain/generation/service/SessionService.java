@@ -142,9 +142,8 @@ public class SessionService {
         attendanceRepository.save(attendance);
     }
 
-    private void validAttendanceCantUpdate(Session session, SessionType sessionType, LocalDateTime newSessionDate) {
-        if (!session.getSessionDateTime().isEqual(newSessionDate) || !sessionType.isCreateAttendance()) {
     private void validateAttendanceUpdatable(Session session, SessionType sessionType, LocalDateTime newSessionDate) {
+        if (!(session.getSessionDateTime().isEqual(newSessionDate) && sessionType.isCreateAttendance())) {
             throw new AppException(ErrorCode.ATTENDANCE_RECORD_EXIST);
         }
     }
