@@ -44,4 +44,8 @@ public class MemberLeavingRequest extends BaseTimeEntity {
     public static MemberLeavingRequest of(Member member, LocalDateTime requestedAt) {
         return new MemberLeavingRequest(member, requestedAt, false);
     }
+
+    public void updateIsReactivated(boolean isReactivated) {
+        this.isReactivated = isReactivated;
+    }
 }
