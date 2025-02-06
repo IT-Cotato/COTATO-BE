@@ -109,7 +109,7 @@ public class SessionService {
 
         Optional<Attendance> maybeAttendance = attendanceReader.findBySessionIdWithPessimisticXLock(session.getId());
         if (maybeAttendance.isPresent() && attendanceRecordReader.isAttendanceRecordExist(maybeAttendance.get())) {
-            validAttendanceCantUpdate(session, sessionType, request.sessionDateTime());
+            validateAttendanceUpdatable(session, sessionType, request.sessionDateTime());
         }
 
         session.updateDescription(request.description());
@@ -144,6 +144,7 @@ public class SessionService {
 
     private void validAttendanceCantUpdate(Session session, SessionType sessionType, LocalDateTime newSessionDate) {
         if (!session.getSessionDateTime().isEqual(newSessionDate) || !sessionType.isCreateAttendance()) {
+    private void validateAttendanceUpdatable(Session session, SessionType sessionType, LocalDateTime newSessionDate) {
             throw new AppException(ErrorCode.ATTENDANCE_RECORD_EXIST);
         }
     }
