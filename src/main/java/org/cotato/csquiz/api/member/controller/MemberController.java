@@ -8,7 +8,7 @@ import java.util.List;
 import javax.naming.NoPermissionException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.cotato.csquiz.api.admin.dto.ApplyMemberInfoResponse;
+import org.cotato.csquiz.api.admin.dto.MemberApproveRequest;
 import org.cotato.csquiz.api.admin.dto.MemberInfoResponse;
 import org.cotato.csquiz.api.member.dto.AddableMembersResponse;
 import org.cotato.csquiz.api.member.dto.DeactivateRequest;
@@ -23,6 +23,7 @@ import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.enums.MemberPosition;
 import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.cotato.csquiz.domain.auth.enums.MemberStatus;
+import org.cotato.csquiz.domain.auth.service.AdminMemberService;
 import org.cotato.csquiz.domain.auth.service.MemberService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -46,6 +47,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class MemberController {
 
     private final MemberService memberService;
+    private final AdminMemberService adminMemberService;
 
     @GetMapping("/info")
     public ResponseEntity<MemberInfoResponse> findMemberInfo(
@@ -126,6 +128,23 @@ public class MemberController {
         return ResponseEntity.ok().body(memberService.getMemberByStatus(status));
     }
 
+    @Operation(summary = "부원 가입 승인")
+    @RoleAuthority(MemberRole.ADMIN)
+    @PatchMapping("/{memberId}/approve")
+    public ResponseEntity<Void> approveApplicant(@PathVariable("memberId") final Long memberId,
+                                                 @RequestBody @Valid MemberApproveRequest request) {
+        adminMemberService.approveApplicant(memberId, request.position(), request.generationId());
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "부원 가입 거절")
+    @RoleAuthority(MemberRole.ADMIN)
+    @PatchMapping("/{memberId}/reject")
+    public ResponseEntity<Void> rejectApplicant(@PathVariable("memberId") final Long memberId) {
+        adminMemberService.rejectApplicant(memberId);
+        return ResponseEntity.noContent().build();
+    }
+      
     @Operation(summary = "멤버 활성화 API")
     @PatchMapping("/{memberId}/activate")
     public ResponseEntity<Void> activateMember(@PathVariable("memberId") Long memberId) {
