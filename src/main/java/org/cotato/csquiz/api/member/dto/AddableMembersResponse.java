@@ -4,11 +4,11 @@ import java.util.List;
 import org.cotato.csquiz.domain.auth.entity.Member;
 
 public record AddableMembersResponse(
-        List<AddableMemberInfo> memberInfos
+        List<SearchedMemberInfo> memberInfos
 ) {
     public static AddableMembersResponse from(List<Member> members) {
         return new AddableMembersResponse(members.stream()
-                .map(AddableMemberInfo::from)
+                .map(SearchedMemberInfo::from)
                 .toList());
     }
 }
