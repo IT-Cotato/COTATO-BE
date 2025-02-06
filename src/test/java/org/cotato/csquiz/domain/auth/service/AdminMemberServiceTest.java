@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.enums.MemberPosition;
+import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.cotato.csquiz.domain.auth.enums.MemberStatus;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
 import org.cotato.csquiz.domain.auth.service.component.MemberReader;
@@ -70,5 +71,19 @@ class AdminMemberServiceTest {
 
         // when, then
         assertThrows(AppException.class, () -> adminMemberService.approveApplicant(member.getId(), MemberPosition.BE, 1L));
+    }
+
+    @Test
+    void 부원_역할_변경() {
+        // given
+        Member member = Member.defaultMember("email", "pwd", "dd", "");
+        member.updateRole(MemberRole.MEMBER);
+        when(memberReader.findById(any())).thenReturn(member);
+
+        // when
+        adminMemberService.updateMemberRole(member.getId(), MemberRole.ADMIN);
+
+        // then
+        assertEquals(MemberRole.ADMIN, member.getRole());
     }
 }

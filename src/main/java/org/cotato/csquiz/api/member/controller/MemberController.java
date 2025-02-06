@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.admin.dto.MemberApproveRequest;
 import org.cotato.csquiz.api.admin.dto.MemberInfoResponse;
+import org.cotato.csquiz.api.admin.dto.UpdateMemberRoleRequest;
 import org.cotato.csquiz.api.member.dto.AddableMembersResponse;
 import org.cotato.csquiz.api.member.dto.DeactivateRequest;
 import org.cotato.csquiz.api.member.dto.MemberMyPageInfoResponse;
@@ -144,7 +145,16 @@ public class MemberController {
         adminMemberService.rejectApplicant(memberId);
         return ResponseEntity.noContent().build();
     }
-      
+
+    @Operation(summary = "부원 역할 변경")
+    @RoleAuthority(MemberRole.ADMIN)
+    @PatchMapping("/{memberId}/role")
+    public ResponseEntity<Void> updateMemberRole(@PathVariable("memberId") final Long memberId,
+                                                 @RequestBody @Valid UpdateMemberRoleRequest request) {
+        adminMemberService.updateMemberRole(memberId, request.role());
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "멤버 활성화 API")
     @PatchMapping("/{memberId}/activate")
     public ResponseEntity<Void> activateMember(@PathVariable("memberId") Long memberId) {
