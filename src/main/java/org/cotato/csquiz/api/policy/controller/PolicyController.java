@@ -29,9 +29,10 @@ public class PolicyController {
     private final PolicyService policyService;
 
     @Operation(summary = "체크하지 않은 정책 조회 API")
-    @GetMapping("/essential")
-    public ResponseEntity<FindMemberPolicyResponse> getUnCheckedPolicies(@AuthenticationPrincipal Member member) {
-        return ResponseEntity.ok().body(policyService.findUnCheckedPolicies(member));
+    @GetMapping("/unchecked")
+    public ResponseEntity<FindMemberPolicyResponse> getUnCheckedPolicies(@AuthenticationPrincipal Member member,
+                                                                         @RequestParam("category") PolicyCategory category) {
+        return ResponseEntity.ok().body(policyService.findUnCheckedPolicies(member, category));
     }
 
     @Operation(summary = "특정 정책에 대해 동의 여부 체크 API")
