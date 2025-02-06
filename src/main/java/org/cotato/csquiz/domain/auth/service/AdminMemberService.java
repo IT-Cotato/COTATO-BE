@@ -6,21 +6,21 @@ import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.api.admin.dto.ApplyMemberInfoResponse;
 import org.cotato.csquiz.api.admin.dto.MemberApproveRequest;
 import org.cotato.csquiz.api.admin.dto.MemberEnrollInfoResponse;
-import org.cotato.csquiz.api.admin.dto.MemberRejectRequest;
 import org.cotato.csquiz.api.admin.dto.UpdateActiveMemberRoleRequest;
 import org.cotato.csquiz.api.admin.dto.UpdateActiveMemberToOldMemberRequest;
 import org.cotato.csquiz.api.admin.dto.UpdateOldMemberRoleRequest;
+import org.cotato.csquiz.common.error.ErrorCode;
+import org.cotato.csquiz.common.error.exception.AppException;
+import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.entity.RefusedMember;
+import org.cotato.csquiz.domain.auth.enums.MemberPosition;
 import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.cotato.csquiz.domain.auth.enums.MemberRoleGroup;
 import org.cotato.csquiz.domain.auth.enums.MemberStatus;
-import org.cotato.csquiz.domain.auth.service.component.MemberReader;
-import org.cotato.csquiz.domain.generation.entity.Generation;
-import org.cotato.csquiz.domain.auth.entity.Member;
-import org.cotato.csquiz.common.error.exception.AppException;
-import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
 import org.cotato.csquiz.domain.auth.repository.RefusedMemberRepository;
+import org.cotato.csquiz.domain.auth.service.component.MemberReader;
+import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class AdminService {
+public class AdminMemberService {
 
     private final MemberRepository memberRepository;
     private final RefusedMemberRepository refusedMemberRepository;
@@ -44,16 +44,19 @@ public class AdminService {
     }
 
     @Transactional
-    public void approveApplicant(MemberApproveRequest request) {
-        Member member = memberReader.findById(request.memberId());
-        checkMemberStatus(member, MemberStatus.REQUESTED);
+    public void approveApplicant(final Long memberId, final MemberPosition position, final Long generationId) {
+        Member member = memberReader.findById(memberId);
+        if (member.getStatus() != MemberStatus.REJECTED && member.getStatus() != MemberStatus.REQUESTED) {
+            throw new AppException(ErrorCode.CANNOT_ACTIVE);
+        }
 
-        Generation generation = generationReader.findById(request.generationId());
+        Generation generation = generationReader.findById(generationId);
         member.approveMember();
-        member.updateGeneration(generation.getNumber());
-        member.updatePosition(request.position());
+        member.updatePassedGenerationNumber(generation.getNumber());
+        member.updatePosition(position);
         memberRepository.save(member);
 
+        // Todo: Event로 대체
         emailNotificationService.sendSignUpApprovedToEmail(member);
     }
 
@@ -65,7 +68,7 @@ public class AdminService {
         Generation generation = generationReader.findById(request.generationId());
         member.approveMember();
 
-        member.updateGeneration(generation.getNumber());
+        member.updatePassedGenerationNumber(generation.getNumber());
         member.updatePosition(request.position());
         deleteRefusedMember(member);
 
@@ -73,8 +76,8 @@ public class AdminService {
     }
 
     @Transactional
-    public void rejectApplicant(MemberRejectRequest request) {
-        Member member = memberReader.findById(request.memberId());
+    public void rejectApplicant(final Long memberId) {
+        Member member = memberReader.findById(memberId);
         checkMemberStatus(member, MemberStatus.REQUESTED);
         member.updateStatus(MemberStatus.REJECTED);
         memberRepository.save(member);
