@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.api.admin.dto.ApplyMemberInfoResponse;
 import org.cotato.csquiz.api.admin.dto.MemberApproveRequest;
 import org.cotato.csquiz.api.admin.dto.MemberEnrollInfoResponse;
-import org.cotato.csquiz.api.admin.dto.UpdateActiveMemberRoleRequest;
 import org.cotato.csquiz.api.admin.dto.UpdateActiveMemberToOldMemberRequest;
 import org.cotato.csquiz.api.admin.dto.UpdateOldMemberRoleRequest;
 import org.cotato.csquiz.common.error.ErrorCode;
@@ -102,12 +101,12 @@ public class AdminMemberService {
     }
 
     @Transactional
-    public void updateActiveMemberRole(UpdateActiveMemberRoleRequest request) {
-        Member member = memberReader.findById(request.memberId());
+    public void updateMemberRole(final Long memberId, final MemberRole role) {
+        Member member = memberReader.findById(memberId);
         if (!MemberRoleGroup.hasRole(MemberRoleGroup.ACTIVE_MEMBERS, member.getRole())) {
             throw new AppException(ErrorCode.ROLE_IS_NOT_MATCH);
         }
-        member.updateRole(request.role());
+        member.updateRole(role);
         memberRepository.save(member);
     }
 
