@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class AdminService {
+public class AdminMemberService {
 
     private final MemberRepository memberRepository;
     private final RefusedMemberRepository refusedMemberRepository;
