@@ -225,7 +225,7 @@ public class MemberService {
         Member member = memberReader.findById(memberId);
 
         if (member.getStatus() != MemberStatus.INACTIVE) {
-            throw new AppException(ErrorCode.INVALID_MEMBER_STATUS);
+            throw new AppException(ErrorCode.CANNOT_ACTIVE);
         }
 
         MemberLeavingRequest leavingRequest = memberLeavingRequestReader.getLeavingRequestByMember(member);

@@ -47,7 +47,7 @@ public class AdminMemberService {
     public void approveApplicant(final Long memberId, final MemberPosition position, final Long generationId) {
         Member member = memberReader.findById(memberId);
         if (member.getStatus() != MemberStatus.REJECTED && member.getStatus() != MemberStatus.REQUESTED) {
-            throw new AppException(ErrorCode.INVALID_MEMBER_STATUS);
+            throw new AppException(ErrorCode.CANNOT_ACTIVE);
         }
 
         Generation generation = generationReader.findById(generationId);
