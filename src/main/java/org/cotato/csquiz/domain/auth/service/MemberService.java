@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.SetUtils;
-import org.cotato.csquiz.api.admin.dto.ApplyMemberInfoResponse;
 import org.cotato.csquiz.api.admin.dto.MemberInfoResponse;
 import org.cotato.csquiz.api.member.dto.AddableMembersResponse;
 import org.cotato.csquiz.api.member.dto.MemberInfo;
@@ -36,6 +35,7 @@ import org.cotato.csquiz.domain.auth.repository.MemberRepository;
 import org.cotato.csquiz.domain.auth.repository.MemberLeavingRequestRepository;
 import org.cotato.csquiz.domain.auth.repository.ProfileLinkRepository;
 import org.cotato.csquiz.domain.auth.service.component.MemberReader;
+import org.cotato.csquiz.domain.auth.service.component.MemberLeavingRequestReader;
 import org.cotato.csquiz.domain.auth.service.component.PolicyReader;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.repository.GenerationMemberRepository;
@@ -63,6 +63,7 @@ public class MemberService {
     private final ProfileLinkRepository profileLinkRepository;
     private final GenerationMemberRepository generationMemberRepository;
     private final MemberLeavingRequestRepository memberLeavingRequestRepository;
+    private final MemberLeavingRequestReader memberLeavingRequestReader;
     private final MemberPolicyRepository memberPolicyRepository;
 
     public MemberInfoResponse findMemberInfo(final Member member) {
@@ -217,5 +218,20 @@ public class MemberService {
         return memberRepository.findAllByStatus(status).stream()
                 .map(member -> MemberResponse.of(member, findBackFourNumber(member)))
                 .toList();
+    }
+
+    @Transactional
+    public void activateMember(final Long memberId) {
+        Member member = memberReader.findById(memberId);
+
+        if (member.getStatus() != MemberStatus.INACTIVE) {
+            throw new AppException(ErrorCode.INVALID_MEMBER_STATUS);
+        }
+
+        MemberLeavingRequest leavingRequest = memberLeavingRequestReader.getLeavingRequestByMember(member);
+
+        member.updateStatus(MemberStatus.APPROVED);
+        leavingRequest.updateIsReactivated(true);
+        // Todo: event를 통한 이메일 발송
     }
 }
