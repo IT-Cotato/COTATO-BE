@@ -1,6 +1,7 @@
 package org.cotato.csquiz.domain.generation.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -102,10 +103,15 @@ public class SessionService {
     @Transactional
     public void updateSession(UpdateSessionRequest request) {
         Session session = sessionReader.findByIdWithPessimisticXLock(request.sessionId());
-
         SessionType sessionType = SessionType.getSessionType(request.isOffline(), request.isOnline());
         SessionContents sessionContents = SessionContents.of(request.itIssue(), request.networking(),
                 request.csEducation(), request.devTalk());
+
+        Optional<Attendance> maybeAttendance = attendanceReader.findBySessionIdWithPessimisticXLock(session.getId());
+        if (maybeAttendance.isPresent() && attendanceRecordReader.isAttendanceRecordExist(maybeAttendance.get())) {
+            validateAttendanceUpdatable(session, sessionType, request.sessionDateTime());
+        }
+
         session.updateDescription(request.description());
         session.updateSessionTitle(request.title());
         session.updateSessionPlace(request.placeName());
@@ -114,12 +120,8 @@ public class SessionService {
         session.updateSessionType(sessionType);
         sessionRepository.save(session);
 
-        Optional<Attendance> maybeAttendance = attendanceReader.findBySessionIdWithPessimisticXLock(session.getId());
         if (!sessionType.isCreateAttendance() && maybeAttendance.isPresent()) {
             Attendance attendance = maybeAttendance.get();
-            if (attendanceRecordReader.isAttendanceRecordExist(attendance)) {
-                throw new AppException(ErrorCode.ATTENDANCE_RECORD_EXIST);
-            }
             attendanceRepository.deleteById(attendance.getId());
             return;
         }
@@ -138,6 +140,12 @@ public class SessionService {
             attendance.updateLocation(request.location());
         }
         attendanceRepository.save(attendance);
+    }
+
+    private void validateAttendanceUpdatable(Session session, SessionType sessionType, LocalDateTime newSessionDate) {
+        if (!(session.getSessionDateTime().isEqual(newSessionDate) && sessionType.isCreateAttendance())) {
+            throw new AppException(ErrorCode.ATTENDANCE_RECORD_EXIST);
+        }
     }
 
     public List<SessionListResponse> findSessionsByGenerationId(Long generationId) {
