@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.cotato.csquiz.api.generation.dto.AddGenerationRequest;
 import org.cotato.csquiz.api.generation.dto.AddGenerationResponse;
 import org.cotato.csquiz.api.generation.dto.GenerationInfoResponse;
 import org.cotato.csquiz.common.error.ErrorCode;
@@ -29,15 +28,22 @@ public class GenerationService {
     private final GenerationReader generationReader;
 
     @Transactional
-    public AddGenerationResponse addGeneration(AddGenerationRequest request) {
-        checkPeriodValid(request.startDate(), request.endDate());
-        checkNumberValid(request.generationNumber());
+    public AddGenerationResponse addGeneration(final Integer generationNumber, final LocalDate startDate, final LocalDate endDate) {
+        checkPeriodValid(startDate, endDate);
+        checkPeriodOverlapping(startDate, endDate);
+        checkNumberValid(generationNumber);
         Generation generation = Generation.builder()
-                .number(request.generationNumber())
-                .period(GenerationPeriod.of(request.startDate(), request.endDate()))
+                .number(generationNumber)
+                .period(GenerationPeriod.of(startDate, endDate))
                 .build();
         Generation savedGeneration = generationRepository.save(generation);
         return AddGenerationResponse.from(savedGeneration);
+    }
+
+    private void checkPeriodOverlapping(final LocalDate startDate, final LocalDate endDate) {
+        if(generationRepository.existsByPeriod_EndDateGreaterThanEqualAndPeriod_StartDateLessThanEqual(startDate, endDate)) {
+            throw new AppException(ErrorCode.OVERLAPPING_DATE);
+        }
     }
 
     @Transactional
@@ -49,6 +55,7 @@ public class GenerationService {
     @Transactional
     public void changeGenerationPeriod(final Long generationId, final LocalDate startDate, final LocalDate endDate) {
         checkPeriodValid(startDate, endDate);
+        checkPeriodOverlapping(startDate, endDate);
         Generation generation = generationReader.findById(generationId);
         generation.changePeriod(GenerationPeriod.of(startDate, endDate));
     }
