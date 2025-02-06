@@ -17,6 +17,6 @@ public class MemberLeavingRequestReader {
 
     public MemberLeavingRequest getLeavingRequestByMember(final Member member) {
         return memberLeavingRequestRepository.findByMemberAndIsReactivatedFalse(member)
-                .orElseThrow(() -> new EntityNotFoundException("해당 부원읭 요청이 존재하지 않습니다."));
+                .orElseThrow(() -> new EntityNotFoundException("해당 부원의 요청이 존재하지 않습니다."));
     }
 }
