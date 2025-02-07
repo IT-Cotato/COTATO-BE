@@ -71,8 +71,8 @@ public class ExcelWriter {
     }
 
     private void setFileName(HttpServletResponse response, String fileName) {
-        String format = "attachment; filename=\"%s\"";
-        String encodedFilename = String.format(format, URLEncoder.encode(fileName +".xlsx", StandardCharsets.UTF_8));
+        String format = "attachment; filename=%s";
+        String encodedFilename = String.format(format, URLEncoder.encode(fileName + ".xlsx", StandardCharsets.UTF_8));
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, encodedFilename);
     }
 }
