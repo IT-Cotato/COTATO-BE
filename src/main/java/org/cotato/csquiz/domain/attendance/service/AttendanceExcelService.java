@@ -46,9 +46,12 @@ public class AttendanceExcelService {
     public Map<String, Object> getAttendanceRecordsExcelDataByGeneration(final Long generationId) {
         Generation generation = generationReader.findById(generationId);
         Map<Long, Session> sessionById = sessionReader.findAllByGeneration(generation).stream()
+                .filter(session -> session.getSessionType() != SessionType.NO_ATTEND)
                 .collect(Collectors.toUnmodifiableMap(Session::getId, Function.identity()));
 
-        List<Attendance> attendances = attendanceReader.getAllBySessions(sessionById.values());
+        List<Attendance> attendances = attendanceReader.getAllBySessions(sessionById.values()).stream()
+                .filter(attendance -> sessionById.get(attendance.getSessionId()).getSessionDateTime().isAfter(LocalDateTime.now()))
+                .toList();
         List<Member> members = generationMemberReader.getAllByGeneration(generation).stream()
                 .map(GenerationMember::getMember).toList();
 
