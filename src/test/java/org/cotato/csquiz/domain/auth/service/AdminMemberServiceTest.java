@@ -3,8 +3,10 @@ package org.cotato.csquiz.domain.auth.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.enums.MemberPosition;
@@ -85,5 +87,52 @@ class AdminMemberServiceTest {
 
         // then
         assertEquals(MemberRole.ADMIN, member.getRole());
+    }
+
+    @Test
+    void 부원을_OM전환() {
+        // given
+        Member member1 = Member.defaultMember("email", "pwd", "dd", "1");
+        Member member2 = Member.defaultMember("email2", "pwd", "dd2", "2");
+        member1.updateStatus(MemberStatus.APPROVED);
+        member2.updateStatus(MemberStatus.APPROVED);
+
+        when(memberReader.findAllByIdsInWithValidation(anyList())).thenReturn(List.of(member1, member2));
+
+        // when
+        adminMemberService.updateToRetireMembers(List.of(1L, 2L));
+
+        // then
+        assertEquals(MemberStatus.RETIRED, member1.getStatus());
+        assertEquals(MemberStatus.RETIRED, member2.getStatus());
+    }
+
+    @Test
+    void 활동_부원이_아닌_경우_OM전환_에러() {
+        // given
+        Member member1 = Member.defaultMember("email", "pwd", "dd", "1");
+        Member member2 = Member.defaultMember("email2", "pwd", "dd2", "2");
+        member1.updateStatus(MemberStatus.INACTIVE);
+        member1.updateStatus(MemberStatus.REJECTED);
+
+        when(memberReader.findAllByIdsInWithValidation(anyList())).thenReturn(List.of(member1, member2));
+
+        // when, then
+        assertThrows(AppException.class, () -> adminMemberService.updateToRetireMembers(List.of(1L, 2L)));
+    }
+
+    @Test
+    void OM을_일반_부원으로_전환() {
+        // given
+        Member member = Member.defaultMember("email", "pwd", "dd", "1");
+        member.updateStatus(MemberStatus.RETIRED);
+
+        when(memberReader.findById(any())).thenReturn(member);
+
+        // when
+        adminMemberService.updateToApprovedMember(member.getId());
+
+        // then
+        assertEquals(MemberStatus.APPROVED, member.getStatus());
     }
 }
