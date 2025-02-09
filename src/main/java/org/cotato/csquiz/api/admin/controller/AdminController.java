@@ -84,6 +84,7 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
+    @Deprecated(since = "부원 접근 권한 및 신입 부원 승인 피쳐 이후")
     @RoleAuthority(MemberRole.ADMIN)
     @PatchMapping("/active-members/to-old-members")
     public ResponseEntity<Void> updateActiveMembersToOldMembers(
@@ -99,6 +100,7 @@ public class AdminController {
         return ResponseEntity.ok().body(adminMemberService.findOldMembers());
     }
 
+    @Deprecated(since = "부원 접근 권한 및 신입 부원 승인 피쳐 이후")
     @RoleAuthority(MemberRole.ADMIN)
     @PatchMapping("/old-members/role")
     public ResponseEntity<Void> updateOldMemberToActiveGeneration(
