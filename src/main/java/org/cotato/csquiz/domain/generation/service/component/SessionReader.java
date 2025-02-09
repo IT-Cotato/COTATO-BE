@@ -3,6 +3,7 @@ package org.cotato.csquiz.domain.generation.service.component;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
@@ -30,7 +31,9 @@ public class SessionReader {
         return sessionRepository.findAllByGenerationId(generation.getId());
     }
 
-    public List<Session> findAllByIdIn(List<Long> sessionIds) {
+    @Transactional(readOnly = true)
+    public List<Session> getAllByAttendances(List<Attendance> attendances) {
+        List<Long> sessionIds = attendances.stream().map(Attendance::getSessionId).toList();
         return sessionRepository.findAllByIdIn(sessionIds);
     }
 }
