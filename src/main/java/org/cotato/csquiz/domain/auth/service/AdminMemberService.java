@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.api.admin.dto.ApplyMemberInfoResponse;
 import org.cotato.csquiz.api.admin.dto.MemberApproveRequest;
 import org.cotato.csquiz.api.admin.dto.MemberEnrollInfoResponse;
-import org.cotato.csquiz.api.admin.dto.UpdateActiveMemberToOldMemberRequest;
 import org.cotato.csquiz.api.admin.dto.UpdateOldMemberRoleRequest;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
@@ -111,18 +110,15 @@ public class AdminMemberService {
     }
 
     @Transactional
-    public void updateActiveMembersToOldMembers(UpdateActiveMemberToOldMemberRequest request) {
-        for (Long memberId : request.memberIds()) {
-            Member member = memberReader.findById(memberId);
+    public void updateToRetireMembers(final List<Long> memberIds) {
+        List<Member> members = memberReader.findAllByIdsInWithValidation(memberIds);
 
-            if (!MemberRoleGroup.hasRole(MemberRoleGroup.ACTIVE_MEMBERS, member.getRole())) {
-                throw new AppException(ErrorCode.ROLE_IS_NOT_MATCH);
-            }
-            member.updateStatus(MemberStatus.RETIRED);
-            memberRepository.save(member);
-
-            emailNotificationService.sendOldMemberConversionToEmail(member);
+        if (members.stream().anyMatch(member -> member.getStatus() != MemberStatus.APPROVED)){
+            throw new AppException(ErrorCode.ROLE_IS_NOT_MATCH);
         }
+        members.forEach(member -> member.updateStatus(MemberStatus.RETIRED));
+        memberRepository.saveAll(members);
+        // Todo: OM으로 전환된 부원에게 이메일 발송 Event로 대체
     }
 
     public List<MemberEnrollInfoResponse> findOldMembers() {

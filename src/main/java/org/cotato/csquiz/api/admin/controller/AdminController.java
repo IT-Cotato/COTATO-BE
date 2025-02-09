@@ -88,7 +88,7 @@ public class AdminController {
     @PatchMapping("/active-members/to-old-members")
     public ResponseEntity<Void> updateActiveMembersToOldMembers(
             @RequestBody @Valid UpdateActiveMemberToOldMemberRequest request) {
-        adminMemberService.updateActiveMembersToOldMembers(request);
+        adminMemberService.updateToRetireMembers(request.memberIds());
         return ResponseEntity.noContent().build();
     }
 

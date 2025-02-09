@@ -162,4 +162,12 @@ public class MemberController {
         memberService.activateMember(memberId);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(summary = "부원 OM 전환")
+    @RoleAuthority(MemberRole.ADMIN)
+    @PatchMapping(value = "/status", params = "target=RETIRE")
+    public ResponseEntity<Void> updateMembersToOldMembers(@RequestParam("memberIds") List<Long> memberIds) {
+        adminMemberService.updateToRetireMembers(memberIds);
+        return ResponseEntity.noContent().build();
+    }
 }
