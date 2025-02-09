@@ -100,6 +100,7 @@ public class AttendanceService {
                         .sessionId(at.getSessionId())
                         .sessionTitle(session.getTitle())
                         .sessionDateTime(session.getSessionDateTime())
+                        .openStatus(AttendanceUtil.getAttendanceOpenStatus(session.getSessionDateTime(), at, LocalDateTime.now()))
                         .build();
                 })
                 .toList();
