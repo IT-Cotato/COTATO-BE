@@ -156,6 +156,7 @@ public class MemberController {
     }
 
     @Operation(summary = "멤버 활성화 API")
+    @RoleAuthority(MemberRole.ADMIN)
     @PatchMapping("/{memberId}/activate")
     public ResponseEntity<Void> activateMember(@PathVariable("memberId") Long memberId) {
         memberService.activateMember(memberId);
