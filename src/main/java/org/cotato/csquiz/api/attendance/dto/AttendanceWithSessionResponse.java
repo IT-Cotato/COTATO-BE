@@ -18,6 +18,8 @@ public record AttendanceWithSessionResponse(
         @Schema(requiredMode = RequiredMode.NOT_REQUIRED)
         LocalDateTime sessionDateTime,
         @Schema(requiredMode = RequiredMode.REQUIRED)
-        SessionType sessionType
+        SessionType sessionType,
+        @Schema(requiredMode = RequiredMode.REQUIRED)
+        AttendanceOpenStatus openStatus
 ) {
 }
