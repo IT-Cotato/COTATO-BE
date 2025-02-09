@@ -120,4 +120,19 @@ class AdminMemberServiceTest {
         // when, then
         assertThrows(AppException.class, () -> adminMemberService.updateToRetireMembers(List.of(1L, 2L)));
     }
+
+    @Test
+    void OM을_일반_부원으로_전환() {
+        // given
+        Member member = Member.defaultMember("email", "pwd", "dd", "1");
+        member.updateStatus(MemberStatus.RETIRED);
+
+        when(memberReader.findById(any())).thenReturn(member);
+
+        // when
+        adminMemberService.updateToApprovedMember(member.getId());
+
+        // then
+        assertEquals(MemberStatus.APPROVED, member.getStatus());
+    }
 }

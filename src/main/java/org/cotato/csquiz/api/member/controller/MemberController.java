@@ -171,4 +171,12 @@ public class MemberController {
         adminMemberService.updateToRetireMembers(request.memberIds());
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(summary = "OM을 일반 부원으로 전환")
+    @RoleAuthority(MemberRole.ADMIN)
+    @PatchMapping(value = "/{memberId}/status", params = "target=APPROVED")
+    public ResponseEntity<Void> updateToApprovedMember(@PathVariable("memberId") Long memberId) {
+        adminMemberService.updateToApprovedMember(memberId);
+        return ResponseEntity.noContent().build();
+    }
 }

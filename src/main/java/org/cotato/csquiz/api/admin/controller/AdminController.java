@@ -103,7 +103,7 @@ public class AdminController {
     @PatchMapping("/old-members/role")
     public ResponseEntity<Void> updateOldMemberToActiveGeneration(
             @RequestBody @Valid UpdateOldMemberRoleRequest request) {
-        adminMemberService.updateOldMemberToActiveGeneration(request);
+        adminMemberService.updateToApprovedMember(request.memberId());
         return ResponseEntity.noContent().build();
     }
 }

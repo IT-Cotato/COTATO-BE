@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.api.admin.dto.ApplyMemberInfoResponse;
 import org.cotato.csquiz.api.admin.dto.MemberApproveRequest;
 import org.cotato.csquiz.api.admin.dto.MemberEnrollInfoResponse;
-import org.cotato.csquiz.api.admin.dto.UpdateOldMemberRoleRequest;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.auth.entity.Member;
@@ -128,8 +127,8 @@ public class AdminMemberService {
     }
 
     @Transactional
-    public void updateOldMemberToActiveGeneration(UpdateOldMemberRoleRequest request) {
-        Member member = memberReader.findById(request.memberId());
+    public void updateToApprovedMember(final Long memberId) {
+        Member member = memberReader.findById(memberId);
         checkMemberStatus(member, MemberStatus.RETIRED);
 
         member.approveMember();
