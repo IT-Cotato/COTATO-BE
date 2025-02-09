@@ -84,11 +84,12 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
+    @Deprecated(since = "부원 접근 권한 및 신입 부원 승인 피쳐 이후")
     @RoleAuthority(MemberRole.ADMIN)
     @PatchMapping("/active-members/to-old-members")
     public ResponseEntity<Void> updateActiveMembersToOldMembers(
             @RequestBody @Valid UpdateActiveMemberToOldMemberRequest request) {
-        adminMemberService.updateActiveMembersToOldMembers(request);
+        adminMemberService.updateToRetireMembers(request.memberIds());
         return ResponseEntity.noContent().build();
     }
 
@@ -99,11 +100,12 @@ public class AdminController {
         return ResponseEntity.ok().body(adminMemberService.findOldMembers());
     }
 
+    @Deprecated(since = "부원 접근 권한 및 신입 부원 승인 피쳐 이후")
     @RoleAuthority(MemberRole.ADMIN)
     @PatchMapping("/old-members/role")
     public ResponseEntity<Void> updateOldMemberToActiveGeneration(
             @RequestBody @Valid UpdateOldMemberRoleRequest request) {
-        adminMemberService.updateOldMemberToActiveGeneration(request);
+        adminMemberService.updateToApprovedMember(request.memberId());
         return ResponseEntity.noContent().build();
     }
 }
