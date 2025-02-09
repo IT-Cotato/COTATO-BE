@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.admin.dto.MemberApproveRequest;
 import org.cotato.csquiz.api.admin.dto.MemberInfoResponse;
+import org.cotato.csquiz.api.admin.dto.UpdateActiveMemberToOldMemberRequest;
 import org.cotato.csquiz.api.admin.dto.UpdateMemberRoleRequest;
 import org.cotato.csquiz.api.member.dto.AddableMembersResponse;
 import org.cotato.csquiz.api.member.dto.DeactivateRequest;
@@ -166,8 +167,8 @@ public class MemberController {
     @Operation(summary = "부원 OM 전환")
     @RoleAuthority(MemberRole.ADMIN)
     @PatchMapping(value = "/status", params = "target=RETIRE")
-    public ResponseEntity<Void> updateMembersToOldMembers(@RequestParam("memberIds") List<Long> memberIds) {
-        adminMemberService.updateToRetireMembers(memberIds);
+    public ResponseEntity<Void> updateMembersToOldMembers(@RequestBody UpdateActiveMemberToOldMemberRequest request) {
+        adminMemberService.updateToRetireMembers(request.memberIds());
         return ResponseEntity.noContent().build();
     }
 }
