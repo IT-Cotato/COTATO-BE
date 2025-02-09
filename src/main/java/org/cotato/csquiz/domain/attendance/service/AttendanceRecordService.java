@@ -3,6 +3,7 @@ package org.cotato.csquiz.domain.attendance.service;
 import static org.cotato.csquiz.domain.attendance.util.AttendanceUtil.getAttendanceOpenStatus;
 
 import jakarta.persistence.EntityNotFoundException;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +27,6 @@ import org.cotato.csquiz.domain.attendance.enums.AttendanceOpenStatus;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRecordRepository;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
-import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
 import org.cotato.csquiz.domain.auth.component.GenerationMemberAuthValidator;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.service.component.MemberReader;
@@ -190,7 +190,7 @@ public class AttendanceRecordService {
     @Transactional
     public void refreshAttendanceRecords(final Attendance attendance) {
         Session session = sessionReader.findById(attendance.getSessionId());
-        if (session.getSessionType() == SessionType.NO_ATTEND) {
+        if (session.getSessionType() == SessionType.NO_ATTEND || session.getSessionDateTime().isBefore(LocalDateTime.now())) {
             return;
         }
 
