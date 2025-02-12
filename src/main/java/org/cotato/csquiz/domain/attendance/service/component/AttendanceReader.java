@@ -32,4 +32,9 @@ public class AttendanceReader {
     public List<Attendance> getAllByIds(List<Long> attendanceIds) {
         return attendanceRepository.findAllByIdIn(attendanceIds);
     }
+
+    public Attendance findBySession(final Session session) {
+        return attendanceRepository.findBySessionId(session.getId())
+                .orElseThrow(() -> new EntityNotFoundException("해당 세션의 출석 정보를 찾을 수 없습니다."));
+    }
 }

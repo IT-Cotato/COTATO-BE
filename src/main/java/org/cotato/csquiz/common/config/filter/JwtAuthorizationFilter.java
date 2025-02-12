@@ -38,7 +38,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             "/v1/api/generations/current",
             "/websocket/csquiz",
             "/v2/api/policies",
-            "/v2/api/events/**",
             "/v2/api/projects/**",
             "/v2/api/random-quizzes/**",
             "/v1/api/education/counts"
