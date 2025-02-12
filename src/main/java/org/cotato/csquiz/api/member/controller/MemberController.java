@@ -59,9 +59,9 @@ public class MemberController {
 
     @Operation(summary = "기수별 멤버에 추가 가능한 멤버 반환 API")
     @RoleAuthority(MemberRole.ADMIN)
-    @GetMapping("/addable-for-generation/{generationId}")
+    @GetMapping
     public ResponseEntity<AddableMembersResponse> findAddableMembersForGenerationMember(
-            @PathVariable(name = "generationId") @Parameter(description = "추가하고 싶은 기수의 Id") Long generationId,
+            @RequestParam(name = "generationId") @Parameter(description = "추가하고 싶은 기수의 Id") Long generationId,
             @RequestParam(name = "passedGenerationNumber", required = false) @Parameter(description = "멤버 합격 기수") Integer generationNumber,
             @RequestParam(name = "position", required = false) @Parameter(description = "멤버 포지션") MemberPosition position,
             @RequestParam(name = "name", required = false) @Parameter(description = "멤버 이름") String name
