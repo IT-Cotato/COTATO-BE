@@ -40,9 +40,7 @@ public class SseService {
         Generation currentGeneration = generationReader.findByDate(now.toLocalDate());
         generationMemberAuthValidator.checkGenerationPermission(member, currentGeneration);
 
-        SseEmitter sseEmitter = new SseEmitter(DEFAULT_TIMEOUT);
-        setBaseEmitterConfiguration(member.getId(), sseEmitter);
-        sseAttendanceRepository.save(member.getId(), sseEmitter);
+        SseEmitter sseEmitter = getSseEmitter(member);
 
         Optional<Session> maybeSession = sessionReader.getByDate(now.toLocalDate());
         if (maybeSession.isEmpty()) {
@@ -62,6 +60,18 @@ public class SseService {
         return sseEmitter;
     }
 
+    private SseEmitter getSseEmitter(Member member) {
+        if (sseAttendanceRepository.existsById(member.getId())) {
+            log.info("---- [memberId]: {} is already subscribed ----", member.getId());
+            return sseAttendanceRepository.findById(member.getId()).orElseThrow();
+        }
+
+        SseEmitter sseEmitter = new SseEmitter(DEFAULT_TIMEOUT);
+        setBaseEmitterConfiguration(member.getId(), sseEmitter);
+        sseAttendanceRepository.save(member.getId(), sseEmitter);
+        return sseEmitter;
+    }
+
     private void setBaseEmitterConfiguration(Long memberId, SseEmitter sseEmitter) {
         sseEmitter.onCompletion(() -> {
             log.info("---- [memberId]: {} on completion callback ----", memberId);
@@ -70,7 +80,14 @@ public class SseService {
 
         sseEmitter.onTimeout(() -> {
             log.info("---- [memberId]: {} on timeout callback ----", memberId);
+            sseAttendanceRepository.deleteById(memberId);
             sseEmitter.complete();
+        });
+
+        sseEmitter.onError((ex) -> {
+            log.error("---- [memberId]: {} on error callback ----", memberId, ex);
+            sseAttendanceRepository.deleteById(memberId);
+            sseEmitter.completeWithError(ex);
         });
     }
 
