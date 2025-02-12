@@ -116,6 +116,7 @@ public class SessionService {
         session.updateDescription(request.description());
         session.updateSessionTitle(request.title());
         session.updateSessionPlace(request.placeName());
+        session.updateRoadAddress(request.roadAddress());
         session.updateSessionContents(sessionContents);
         session.updateSessionDateTime(request.sessionDateTime());
         session.updateSessionType(sessionType);

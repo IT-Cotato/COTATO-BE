@@ -106,6 +106,10 @@ public class Session extends BaseTimeEntity {
         this.placeName = placeName;
     }
 
+    public void updateRoadAddress(String roadAddress){
+        this.roadAddress = roadAddress;
+    }
+
     public boolean hasOfflineSession() {
         return this.sessionType == SessionType.OFFLINE || this.sessionType == SessionType.ALL;
     }
