@@ -26,6 +26,10 @@ public class SseAttendanceRepository {
         attendances.remove(memberId);
     }
 
+    public boolean existsById(Long memberId) {
+        return attendances.containsKey(memberId);
+    }
+
     public List<SseEmitter> findAll() {
         return attendances.values().stream()
                 .toList();

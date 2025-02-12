@@ -27,8 +27,8 @@ public class EventController {
 
     @Operation(summary = "최초 로그인 시 출결 알림 구독 API")
     @GetMapping(value = "/attendances", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public ResponseEntity<SseEmitter> subscribeAttendance(@AuthenticationPrincipal Long memberId) {
-        return ResponseEntity.ok().body(sseService.subscribeAttendance(memberId));
+    public ResponseEntity<SseEmitter> subscribeAttendance(@AuthenticationPrincipal Member member) {
+        return ResponseEntity.ok().body(sseService.subscribeAttendance(member));
     }
 
     @Operation(summary = "출결 이벤트 발송 API")
