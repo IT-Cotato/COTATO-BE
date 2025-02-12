@@ -73,12 +73,13 @@ public class Session extends BaseTimeEntity {
     private String roadAddress;
 
     @Builder
-    public Session(Integer number, String title, String description, String placeName, LocalDateTime sessionDateTime,
+    public Session(Integer number, String title, String description, String placeName, String roadAddress, LocalDateTime sessionDateTime,
                    SessionType sessionType, Generation generation, SessionContents sessionContents) {
         this.number = number;
         this.title = title;
         this.description = description;
         this.placeName = placeName;
+        this.roadAddress = roadAddress;
         this.sessionDateTime = sessionDateTime;
         this.sessionType = sessionType;
         this.generation = generation;

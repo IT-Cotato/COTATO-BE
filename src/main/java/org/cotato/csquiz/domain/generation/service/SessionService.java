@@ -67,6 +67,7 @@ public class SessionService {
                 .description(request.description())
                 .generation(findGeneration)
                 .title(request.title())
+                .roadAddress(request.roadAddress())
                 .placeName(request.placeName())
                 .sessionType(sessionType)
                 .sessionDateTime(request.sessionDateTime())

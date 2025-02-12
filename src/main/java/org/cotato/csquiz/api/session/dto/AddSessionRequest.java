@@ -23,6 +23,10 @@ public record AddSessionRequest(
         Double latitude,
         Double longitude,
         String placeName,
+
+        @Schema(description = "도로명 주소")
+        String roadAddress,
+
         @Schema(description = "세션 날짜 및 시작 시간")
         @NotNull
         LocalDateTime sessionDateTime,
