@@ -3,7 +3,6 @@ package org.cotato.csquiz.common.sse;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.api.event.dto.AttendanceStatusInfo;
@@ -12,9 +11,6 @@ import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceOpenStatus;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
-import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
-import org.cotato.csquiz.domain.generation.entity.Session;
-import org.cotato.csquiz.domain.generation.repository.SessionRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter.DataWithMediaType;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -25,34 +21,17 @@ public class SseSender {
 
     private static final String ATTENDANCE_STATUS = "AttendanceStatus";
     private final SseAttendanceRepository sseAttendanceRepository;
-    private final SessionRepository sessionRepository;
     private final AttendanceRepository attendanceRepository;
 
-    public void sendInitialAttendanceStatus(SseEmitter sseEmitter) {
-        Optional<Attendance> maybeAttendance = attendanceRepository.findByAttendanceDeadLineDate(LocalDateTime.now());
-
-        if (maybeAttendance.isEmpty()) {
-            send(sseEmitter, SseEmitter.event()
-                    .name(ATTENDANCE_STATUS)
-                    .data(AttendanceStatusInfo.builder()
-                            .openStatus(AttendanceOpenStatus.CLOSED)
-                            .build())
-                    .build());
-            return;
-        }
-
-        Attendance attendance = maybeAttendance.get();
-        Session session = sessionRepository.findById(attendance.getSessionId())
-                .orElseThrow(() -> new EntityNotFoundException("해당 출석에 대한 세션이 존재하지 않습니다."));
-
-        send(sseEmitter, SseEmitter.event()
+    public void sendInitialAttendanceStatus(final SseEmitter sseEmitter, final Long attendanceId, final AttendanceOpenStatus openStatus) {
+        Set<DataWithMediaType> event = SseEmitter.event()
                 .name(ATTENDANCE_STATUS)
                 .data(AttendanceStatusInfo.builder()
-                        .attendanceId(maybeAttendance.get().getId())
-                        .openStatus(AttendanceUtil.getAttendanceOpenStatus(session.getSessionDateTime(), attendance,
-                                LocalDateTime.now()))
+                        .attendanceId(attendanceId)
+                        .openStatus(openStatus)
                         .build())
-                .build());
+                .build();
+        send(sseEmitter, event);
     }
 
     // sessionDateTime 7시에 출결을 구독 중인 부원들에게 출결 입력 시작 알림을 전송한다.

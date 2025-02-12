@@ -1,6 +1,7 @@
 package org.cotato.csquiz.domain.generation.repository;
 
 import jakarta.persistence.LockModeType;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import org.cotato.csquiz.domain.generation.enums.CSEducation;
@@ -25,4 +26,7 @@ public interface SessionRepository extends JpaRepository<Session, Long> {
     Optional<Session> findByIdWithPessimisticXLock(@Param("sessionId") Long sessionId);
 
     List<Session> findAllByIdIn(List<Long> sessionIds);
+
+    @Query("SELECT s FROM Session s WHERE DATE(s.sessionDateTime) = :targetDate")
+    Optional<Session> findBySessionDate(@Param("targetDate") LocalDate targetDate);
 }
