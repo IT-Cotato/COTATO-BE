@@ -54,7 +54,6 @@ public class SchedulerService {
         refusedMemberRepository.deleteAll(deleteRefusedMembers);
     }
 
-    @Transactional
     @Scheduled(cron = "0 0 2 * * SAT")
     public void closeAllCsQuiz() {
         educationService.closeAllFlags();
