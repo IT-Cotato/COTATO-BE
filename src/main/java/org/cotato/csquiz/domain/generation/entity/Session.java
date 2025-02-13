@@ -69,7 +69,7 @@ public class Session extends BaseTimeEntity {
     @Column(name = "session_place_name")
     private String placeName;
 
-    @Column(name = "ㄷroad_address", columnDefinition = "TEXT")
+    @Column(name = "road_address", columnDefinition = "TEXT")
     private String roadAddress;
 
     @Builder
