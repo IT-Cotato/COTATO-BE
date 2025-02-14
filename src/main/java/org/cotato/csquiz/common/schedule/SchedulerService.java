@@ -1,5 +1,6 @@
 package org.cotato.csquiz.common.schedule;
 
+import jakarta.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -43,6 +44,21 @@ public class SchedulerService {
     private final TaskScheduler taskScheduler;
     private final Map<Long, ScheduledFuture<?>> notificationByAttendanceId = new ConcurrentHashMap<>();
 
+    @PostConstruct
+    protected void restoreScheduledTasksFromDB() {
+        List<AttendanceNotification> attendanceNotifications = sessionNotificationRepository.findAllByDoneFalse();
+
+        attendanceNotifications.forEach(
+                attendanceNotification -> {
+                    Session session = sessionReader.findById(attendanceNotification.getAttendance().getSessionId());
+                    ScheduledFuture<?> schedule = taskScheduler.schedule(
+                            () -> sseSender.sendAttendanceStartNotification(attendanceNotification),
+                            TimeUtil.getSeoulZoneTime(session.getSessionDateTime())
+                                    .toInstant());
+                    notificationByAttendanceId.put(attendanceNotification.getAttendance().getId(), schedule);
+                });
+    }
+
     @Transactional
     @Scheduled(cron = "0 0 0 * * *")
     public void updateRefusedMember() {
@@ -82,7 +98,7 @@ public class SchedulerService {
 
     public void scheduleAbsentRecords(LocalDateTime sessionDateTime, Long sessionId) {
         // 이미 해당 세션에 스케줄된 작업이 있으면 취소
-        ScheduledFuture<?> existingTask = scheduledTasks.get(sessionId);
+        ScheduledFuture<?> existingTask = notificationByAttendanceId.get(sessionId);
         if (existingTask != null && !existingTask.isDone()) {
             existingTask.cancel(false);
         }
@@ -96,12 +112,12 @@ public class SchedulerService {
                     try {
                         attendanceRecordService.updateUnrecordedAttendanceRecord(sessionId);
                     } finally {
-                        scheduledTasks.remove(sessionId);
+                        notificationByAttendanceId.remove(sessionId);
                     }
                 },
                 zonedDateTime.toInstant()
         );
 
-        scheduledTasks.put(sessionId, newTask);
+        notificationByAttendanceId.put(sessionId, newTask);
     }
 }
