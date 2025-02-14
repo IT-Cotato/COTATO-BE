@@ -11,12 +11,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.common.sse.SseSender;
 import org.cotato.csquiz.common.util.TimeUtil;
+import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.service.AttendanceRecordService;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.entity.RefusedMember;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
 import org.cotato.csquiz.domain.auth.repository.RefusedMemberRepository;
 import org.cotato.csquiz.domain.education.service.EducationService;
+import org.cotato.csquiz.domain.generation.entity.AttendanceNotification;
+import org.cotato.csquiz.domain.generation.entity.Session;
+import org.cotato.csquiz.domain.generation.repository.AttendanceNotificationRepository;
+import org.cotato.csquiz.domain.generation.service.component.SessionReader;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -28,13 +33,15 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class SchedulerService {
 
+    private final AttendanceNotificationRepository sessionNotificationRepository;
     private final RefusedMemberRepository refusedMemberRepository;
     private final MemberRepository memberRepository;
     private final EducationService educationService;
     private final AttendanceRecordService attendanceRecordService;
+    private final SessionReader sessionReader;
     private final SseSender sseSender;
     private final TaskScheduler taskScheduler;
-    private final Map<Long, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
+    private final Map<Long, ScheduledFuture<?>> notificationByAttendanceId = new ConcurrentHashMap<>();
 
     @Transactional
     @Scheduled(cron = "0 0 0 * * *")
@@ -60,10 +67,17 @@ public class SchedulerService {
         log.info("[ CS 퀴즈 모두 닫기 Scheduler 완료 ]");
     }
 
-    public void scheduleSessionNotification(LocalDateTime notificationTime) {
-        ZonedDateTime zonedDateTime = TimeUtil.getSeoulZoneTime(notificationTime);
+    @Transactional
+    public void scheduleAttendanceNotification(final Attendance attendance) {
+        AttendanceNotification sessionNotification = AttendanceNotification.builder().attendance(attendance).done(false).build();
+        sessionNotificationRepository.save(sessionNotification);
 
-        taskScheduler.schedule(() -> sseSender.sendNotification(notificationTime), zonedDateTime.toInstant());
+        Session session = sessionReader.findById(attendance.getSessionId());
+        ZonedDateTime zonedDateTime = TimeUtil.getSeoulZoneTime(session.getSessionDateTime());
+
+        ScheduledFuture<?> schedule = taskScheduler.schedule(() -> sseSender.sendAttendanceStartNotification(sessionNotification),
+                zonedDateTime.toInstant());
+        notificationByAttendanceId.put(session.getId(), schedule);
     }
 
     public void scheduleAbsentRecords(LocalDateTime sessionDateTime, Long sessionId) {

@@ -14,6 +14,7 @@ import org.cotato.csquiz.api.attendance.dto.AttendancesResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceTimeResponse;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
+import org.cotato.csquiz.common.schedule.SchedulerService;
 import org.cotato.csquiz.domain.attendance.embedded.Location;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
@@ -36,6 +37,7 @@ public class AttendanceService {
     private final AttendanceRepository attendanceRepository;
     private final SessionRepository sessionRepository;
     private final GenerationRepository generationRepository;
+    private final SchedulerService schedulerService;
 
     public AttendanceResponse getAttendance(final Long attendanceId) {
         Attendance attendance = attendanceReader.findById(attendanceId);
@@ -57,6 +59,9 @@ public class AttendanceService {
                 .build();
 
         attendanceRepository.save(attendance);
+
+        schedulerService.scheduleAttendanceNotification(attendance);
+        schedulerService.scheduleAbsentRecords(session.getSessionDateTime(), session.getId());
     }
 
     private void checkLocation(Location location) {
