@@ -44,30 +44,6 @@ public class AdminController {
         return ResponseEntity.ok().body(adminMemberService.getMembers(MemberStatus.REJECTED));
     }
 
-    @Deprecated(since = "신입 감자 가입 승인 개발 이후")
-    @RoleAuthority(MemberRole.ADMIN)
-    @PatchMapping("/approve")
-    public ResponseEntity<Void> approveApplicant(@RequestBody @Valid MemberApproveRequest request) {
-        adminMemberService.approveApplicant(request.memberId(), request.position(), request.generationId());
-        return ResponseEntity.noContent().build();
-    }
-
-    @Deprecated(since = "신입 감자 가입 승인 개발 이후")
-    @RoleAuthority(MemberRole.ADMIN)
-    @PatchMapping("/reject")
-    public ResponseEntity<Void> rejectApplicant(@RequestBody @Valid MemberRejectRequest request) {
-        adminMemberService.rejectApplicant(request.memberId());
-        return ResponseEntity.noContent().build();
-    }
-
-    @Deprecated(since = "신입 감자 가입 승인 개발 이후")
-    @RoleAuthority(MemberRole.ADMIN)
-    @PatchMapping("/reapprove")
-    public ResponseEntity<Void> reapproveApplicant(@RequestBody @Valid MemberApproveRequest request) {
-        adminMemberService.reapproveApplicant(request);
-        return ResponseEntity.noContent().build();
-    }
-
     @Deprecated(since = "부원 접근 권한 및 신입 부원 승인 피쳐 이후")
     @RoleAuthority(MemberRole.ADMIN)
     @GetMapping("/active-members")
