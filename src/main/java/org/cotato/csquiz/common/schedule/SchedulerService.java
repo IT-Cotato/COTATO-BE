@@ -56,6 +56,7 @@ public class SchedulerService {
                             TimeUtil.getSeoulZoneTime(session.getSessionDateTime())
                                     .toInstant());
                     notificationByAttendanceId.put(attendanceNotification.getAttendance().getId(), schedule);
+                    log.info("restored attendance notification: attendance id <{}>", attendanceNotification.getAttendance().getId());
                 });
     }
 
