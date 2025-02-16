@@ -34,7 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class SchedulerService {
 
-    private final AttendanceNotificationRepository sessionNotificationRepository;
+    private final AttendanceNotificationRepository attendanceNotificationRepository;
     private final RefusedMemberRepository refusedMemberRepository;
     private final MemberRepository memberRepository;
     private final EducationService educationService;
@@ -46,7 +46,7 @@ public class SchedulerService {
 
     @PostConstruct
     protected void restoreScheduledTasksFromDB() {
-        List<AttendanceNotification> attendanceNotifications = sessionNotificationRepository.findAllByDoneFalse();
+        List<AttendanceNotification> attendanceNotifications = attendanceNotificationRepository.findAllByDoneFalse();
 
         attendanceNotifications.forEach(
                 attendanceNotification -> {
