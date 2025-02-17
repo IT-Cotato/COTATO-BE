@@ -60,8 +60,7 @@ public class AttendanceService {
 
         attendanceRepository.save(attendance);
 
-        schedulerService.scheduleAttendanceNotification(attendance);
-        schedulerService.scheduleAbsentRecords(session.getSessionDateTime(), session.getId());
+        schedulerService.scheduleAttendanceNotification(attendanceNotification);
     }
 
     private void checkLocation(Location location) {

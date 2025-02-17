@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.common.sse.SseSender;
 import org.cotato.csquiz.common.util.TimeUtil;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
-import org.cotato.csquiz.domain.attendance.service.AttendanceRecordService;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.entity.RefusedMember;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
@@ -38,7 +37,6 @@ public class SchedulerService {
     private final RefusedMemberRepository refusedMemberRepository;
     private final MemberRepository memberRepository;
     private final EducationService educationService;
-    private final AttendanceRecordService attendanceRecordService;
     private final SessionReader sessionReader;
     private final SseSender sseSender;
     private final TaskScheduler taskScheduler;
@@ -95,30 +93,5 @@ public class SchedulerService {
         ScheduledFuture<?> schedule = taskScheduler.schedule(() -> sseSender.sendAttendanceStartNotification(sessionNotification),
                 zonedDateTime.toInstant());
         notificationByAttendanceId.put(session.getId(), schedule);
-    }
-
-    public void scheduleAbsentRecords(LocalDateTime sessionDateTime, Long sessionId) {
-        // 이미 해당 세션에 스케줄된 작업이 있으면 취소
-        ScheduledFuture<?> existingTask = notificationByAttendanceId.get(sessionId);
-        if (existingTask != null && !existingTask.isDone()) {
-            existingTask.cancel(false);
-        }
-
-        LocalDateTime nextDateTime = sessionDateTime.plusDays(1);
-        ZonedDateTime zonedDateTime = TimeUtil.getSeoulZoneTime(nextDateTime);
-
-        // 새로운 작업 스케줄링
-        ScheduledFuture<?> newTask = taskScheduler.schedule(
-                () -> {
-                    try {
-                        attendanceRecordService.updateUnrecordedAttendanceRecord(sessionId);
-                    } finally {
-                        notificationByAttendanceId.remove(sessionId);
-                    }
-                },
-                zonedDateTime.toInstant()
-        );
-
-        notificationByAttendanceId.put(sessionId, newTask);
     }
 }
