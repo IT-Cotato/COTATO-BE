@@ -90,16 +90,17 @@ public class SchedulerService {
         log.info("[ CS 퀴즈 모두 닫기 Scheduler 완료 ]");
     }
 
-    @Transactional
-    public void scheduleAttendanceNotification(final Attendance attendance) {
-        AttendanceNotification sessionNotification = AttendanceNotification.builder().attendance(attendance).done(false).build();
-        sessionNotificationRepository.save(sessionNotification);
-
+    public void scheduleAttendanceNotification(final AttendanceNotification attendanceNotification) {
+        Attendance attendance = attendanceNotification.getAttendance();
         Session session = sessionReader.findById(attendance.getSessionId());
-        ZonedDateTime zonedDateTime = TimeUtil.getSeoulZoneTime(session.getSessionDateTime());
+        ZonedDateTime seoulTime = TimeUtil.getSeoulZoneTime(session.getSessionDateTime());
 
-        ScheduledFuture<?> schedule = taskScheduler.schedule(() -> sseSender.sendAttendanceStartNotification(sessionNotification),
-                zonedDateTime.toInstant());
+        ScheduledFuture<?> schedule = taskScheduler.schedule(() -> {
+                    log.info("schedule attendance notification: session id <{}>, time <{}>", attendance.getSessionId(), session.getSessionDateTime());
+                    sseSender.sendAttendanceStartNotification(attendanceNotification);
+                    notificationByAttendanceId.remove(session.getId());
+                },
+                seoulTime.toInstant());
         notificationByAttendanceId.put(session.getId(), schedule);
     }
 }
