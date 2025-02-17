@@ -1,10 +1,8 @@
 package org.cotato.csquiz.domain.auth.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.api.admin.dto.ApplyMemberInfoResponse;
-import org.cotato.csquiz.api.admin.dto.MemberApproveRequest;
 import org.cotato.csquiz.api.admin.dto.MemberEnrollInfoResponse;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
@@ -54,21 +52,6 @@ public class AdminMemberService {
         memberRepository.save(member);
 
         // Todo: Event로 대체
-        emailNotificationService.sendSignUpApprovedToEmail(member);
-    }
-
-    @Transactional
-    public void reapproveApplicant(MemberApproveRequest request) {
-        Member member = memberReader.findById(request.memberId());
-        checkMemberStatus(member, MemberStatus.REJECTED);
-
-        Generation generation = generationReader.findById(request.generationId());
-        member.approveMember();
-
-        member.updatePassedGenerationNumber(generation.getNumber());
-        member.updatePosition(request.position());
-        deleteRefusedMember(member);
-
         emailNotificationService.sendSignUpApprovedToEmail(member);
     }
 
@@ -140,11 +123,5 @@ public class AdminMemberService {
                 .member(member)
                 .build();
         refusedMemberRepository.save(refusedMember);
-    }
-
-    private void deleteRefusedMember(Member member) {
-        RefusedMember refusedMember = refusedMemberRepository.findByMember(member)
-                .orElseThrow(() -> new EntityNotFoundException("삭제하려는 멤버를 찾을 수 없습니다."));
-        refusedMemberRepository.delete(refusedMember);
     }
 }
