@@ -49,7 +49,7 @@ public class SchedulerService {
         attendanceNotifications.forEach(
                 attendanceNotification -> {
                     Session session = sessionReader.findById(attendanceNotification.getAttendance().getSessionId());
-                    if (session.getSessionDateTime().isAfter(LocalDateTime.now())) {
+                    if (session.getSessionDateTime().isBefore(LocalDateTime.now())) {
                         return;
                     }
 
