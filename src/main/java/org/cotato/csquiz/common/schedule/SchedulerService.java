@@ -49,10 +49,18 @@ public class SchedulerService {
         attendanceNotifications.forEach(
                 attendanceNotification -> {
                     Session session = sessionReader.findById(attendanceNotification.getAttendance().getSessionId());
+                    if (session.getSessionDateTime().isAfter(LocalDateTime.now())) {
+                        return;
+                    }
+
                     ScheduledFuture<?> schedule = taskScheduler.schedule(
-                            () -> sseSender.sendAttendanceStartNotification(attendanceNotification),
-                            TimeUtil.getSeoulZoneTime(session.getSessionDateTime())
-                                    .toInstant());
+                            () -> {
+                                log.info("schedule attendance notification: session id <{}>, time <{}>", session.getId(), session.getSessionDateTime());
+                                sseSender.sendAttendanceStartNotification(attendanceNotification);
+                                notificationByAttendanceId.remove(attendanceNotification.getAttendance().getId());
+                            },
+                            TimeUtil.getSeoulZoneTime(session.getSessionDateTime()).toInstant()
+                    );
                     notificationByAttendanceId.put(attendanceNotification.getAttendance().getId(), schedule);
                     log.info("restored attendance notification: attendance id <{}>", attendanceNotification.getAttendance().getId());
                 });
