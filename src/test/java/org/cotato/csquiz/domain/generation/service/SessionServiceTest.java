@@ -112,7 +112,7 @@ class SessionServiceTest {
 
     private UpdateSessionRequest mockOnlineUpdateSessionRequest(Long sessionId, LocalDateTime sessionDateTime) {
         return new UpdateSessionRequest(sessionId, "New Title", "New Description",
-                sessionDateTime, "New Place",
+                sessionDateTime, "New Place", "도로 명 주소",
                 Location.location(0.0, 0.0),
                 attendanceDeadLineDto(sessionDateTime.plusMinutes(1), sessionDateTime.plusMinutes(2)),
                 true, false, ItIssue.IT_ON, Networking.NW_ON, CSEducation.CS_ON, DevTalk.DEVTALK_ON);
@@ -120,7 +120,7 @@ class SessionServiceTest {
 
     private UpdateSessionRequest mockNoAttendUpdateSessionRequest(Long sessionId, LocalDateTime sessionDateTime) {
         return new UpdateSessionRequest(sessionId, "New Title", "New Description",
-                sessionDateTime, "New Place",
+                sessionDateTime, "New Place", "도로 명 주소",
                 Location.location(0.0, 0.0),
                 null, false, false, ItIssue.IT_ON, Networking.NW_ON, CSEducation.CS_ON, DevTalk.DEVTALK_ON);
     }

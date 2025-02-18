@@ -20,6 +20,7 @@ public record SessionWithAttendanceResponse(
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
         Long generationId,
         String placeName,
+        String roadNameAddress,
         LocalDateTime sessionDateTime,
         SessionContents sessionContents,
         boolean isOffline,
@@ -35,6 +36,7 @@ public record SessionWithAttendanceResponse(
             session.getDescription(),
             session.getGeneration().getId(),
             session.getPlaceName(),
+            session.getRoadNameAddress(),
             session.getSessionDateTime(),
             session.getSessionContents(),
             session.getSessionType().hasOffline(),
@@ -52,6 +54,7 @@ public record SessionWithAttendanceResponse(
                 session.getDescription(),
                 session.getGeneration().getId(),
                 session.getPlaceName(),
+                session.getRoadNameAddress(),
                 session.getSessionDateTime(),
                 session.getSessionContents(),
                 session.getSessionType().hasOffline(),
