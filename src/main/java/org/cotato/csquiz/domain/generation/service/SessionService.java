@@ -86,7 +86,7 @@ public class SessionService {
         }
 
         if (sessionType.isCreateAttendance()) {
-            if (isAttendanceDeadLineExist(request.attendanceDeadLine(), request.lateDeadLine())) {
+            if (isAttendanceDeadLineNotExist(request.attendanceDeadLine(), request.lateDeadLine())) {
                 throw new AppException(ErrorCode.INVALID_ATTEND_DEADLINE);
             }
             attendanceService.createAttendance(session, Location.location(request.latitude(), request.longitude()),
@@ -113,7 +113,7 @@ public class SessionService {
 
         if (sessionType.isCreateAttendance()) {
             AttendanceDeadLineDto deadLineDto = request.attendTime();
-            if (deadLineDto == null || isAttendanceDeadLineExist(deadLineDto.attendanceDeadLine(),
+            if (deadLineDto == null || isAttendanceDeadLineNotExist(deadLineDto.attendanceDeadLine(),
                     deadLineDto.lateDeadLine())) {
                 throw new AppException(ErrorCode.INVALID_ATTEND_DEADLINE);
             }
@@ -154,7 +154,7 @@ public class SessionService {
         attendanceRepository.save(attendance);
     }
 
-    private boolean isAttendanceDeadLineExist(LocalDateTime attendanceDeadLine, LocalDateTime lateDeadLine) {
+    private boolean isAttendanceDeadLineNotExist(LocalDateTime attendanceDeadLine, LocalDateTime lateDeadLine) {
         return attendanceDeadLine == null || lateDeadLine == null;
     }
 
