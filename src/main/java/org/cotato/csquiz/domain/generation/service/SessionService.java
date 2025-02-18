@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.cotato.csquiz.api.attendance.dto.AttendanceDeadLineDto;
 import org.cotato.csquiz.api.session.dto.AddSessionRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionResponse;
 import org.cotato.csquiz.api.session.dto.SessionListResponse;
@@ -85,6 +86,9 @@ public class SessionService {
         }
 
         if (sessionType.isCreateAttendance()) {
+            if (isAttendanceDeadLineExist(request.attendanceDeadLine(), request.lateDeadLine())) {
+                throw new AppException(ErrorCode.INVALID_ATTEND_DEADLINE);
+            }
             attendanceService.createAttendance(session, Location.location(request.latitude(), request.longitude()),
                     request.attendanceDeadLine(), request.lateDeadLine());
             schedulerService.scheduleSessionNotification(savedSession.getSessionDateTime());
@@ -106,6 +110,14 @@ public class SessionService {
         SessionType sessionType = SessionType.getSessionType(request.isOffline(), request.isOnline());
         SessionContents sessionContents = SessionContents.of(request.itIssue(), request.networking(),
                 request.csEducation(), request.devTalk());
+
+        if (sessionType.isCreateAttendance()) {
+            AttendanceDeadLineDto deadLineDto = request.attendTime();
+            if (deadLineDto == null || isAttendanceDeadLineExist(deadLineDto.attendanceDeadLine(),
+                    deadLineDto.lateDeadLine())) {
+                throw new AppException(ErrorCode.INVALID_ATTEND_DEADLINE);
+            }
+        }
 
         Optional<Attendance> maybeAttendance = attendanceReader.findBySessionIdWithPessimisticXLock(session.getId());
         if (maybeAttendance.isPresent() && attendanceRecordReader.isAttendanceRecordExist(maybeAttendance.get())) {
@@ -140,6 +152,10 @@ public class SessionService {
             attendance.updateLocation(request.location());
         }
         attendanceRepository.save(attendance);
+    }
+
+    private boolean isAttendanceDeadLineExist(LocalDateTime attendanceDeadLine, LocalDateTime lateDeadLine) {
+        return attendanceDeadLine == null || lateDeadLine == null;
     }
 
     private void validateAttendanceUpdatable(Session session, SessionType sessionType, LocalDateTime newSessionDate) {
