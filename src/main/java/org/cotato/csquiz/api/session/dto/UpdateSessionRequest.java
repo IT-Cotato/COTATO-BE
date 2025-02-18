@@ -21,6 +21,7 @@ public record UpdateSessionRequest(
         @NotNull
         LocalDateTime sessionDateTime,
         String placeName,
+        String roadNameAddress,
         Location location,
         AttendanceDeadLineDto attendTime,
         boolean isOffline,
