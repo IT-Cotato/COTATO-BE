@@ -1,15 +1,11 @@
 package org.cotato.csquiz.api.session.dto;
 
-import static org.cotato.csquiz.domain.attendance.enums.DeadLine.DEFAULT_ATTENDANCE_DEADLINE;
-import static org.cotato.csquiz.domain.attendance.enums.DeadLine.DEFAULT_LATE_DEADLINE;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import org.cotato.csquiz.domain.generation.enums.CSEducation;
 import org.cotato.csquiz.domain.generation.enums.DevTalk;
 import org.cotato.csquiz.domain.generation.enums.ItIssue;
@@ -50,12 +46,4 @@ public record AddSessionRequest(
         CSEducation csEducation,
         DevTalk devTalk
 ) {
-    public AddSessionRequest {
-        if (Objects.isNull(attendanceDeadLine)) {
-            attendanceDeadLine = LocalDateTime.of(sessionDateTime.toLocalDate(), DEFAULT_ATTENDANCE_DEADLINE.getTime());
-        }
-        if (Objects.isNull(lateDeadLine)) {
-            lateDeadLine = LocalDateTime.of(sessionDateTime.toLocalDate(), DEFAULT_LATE_DEADLINE.getTime());
-        }
-    }
 }
