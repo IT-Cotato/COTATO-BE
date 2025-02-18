@@ -67,7 +67,7 @@ public class SessionService {
                 .description(request.description())
                 .generation(findGeneration)
                 .title(request.title())
-                .roadAddress(request.roadAddress())
+                .roadNameAddress(request.roadNameAddress())
                 .placeName(request.placeName())
                 .sessionType(sessionType)
                 .sessionDateTime(request.sessionDateTime())
@@ -116,7 +116,7 @@ public class SessionService {
         session.updateDescription(request.description());
         session.updateSessionTitle(request.title());
         session.updateSessionPlace(request.placeName());
-        session.updateRoadAddress(request.roadAddress());
+        session.updateRoadNameAddress(request.roadNameAddress());
         session.updateSessionContents(sessionContents);
         session.updateSessionDateTime(request.sessionDateTime());
         session.updateSessionType(sessionType);

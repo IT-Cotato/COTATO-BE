@@ -69,17 +69,17 @@ public class Session extends BaseTimeEntity {
     @Column(name = "session_place_name")
     private String placeName;
 
-    @Column(name = "road_address", columnDefinition = "TEXT")
-    private String roadAddress;
+    @Column(name = "road_name_address", columnDefinition = "TEXT")
+    private String roadNameAddress;
 
     @Builder
-    public Session(Integer number, String title, String description, String placeName, String roadAddress, LocalDateTime sessionDateTime,
+    public Session(Integer number, String title, String description, String placeName, String roadNameAddress, LocalDateTime sessionDateTime,
                    SessionType sessionType, Generation generation, SessionContents sessionContents) {
         this.number = number;
         this.title = title;
         this.description = description;
         this.placeName = placeName;
-        this.roadAddress = roadAddress;
+        this.roadNameAddress = roadNameAddress;
         this.sessionDateTime = sessionDateTime;
         this.sessionType = sessionType;
         this.generation = generation;
@@ -106,8 +106,8 @@ public class Session extends BaseTimeEntity {
         this.placeName = placeName;
     }
 
-    public void updateRoadAddress(String roadAddress){
-        this.roadAddress = roadAddress;
+    public void updateRoadNameAddress(String roadNameAddress){
+        this.roadNameAddress = roadNameAddress;
     }
 
     public boolean hasOfflineSession() {
