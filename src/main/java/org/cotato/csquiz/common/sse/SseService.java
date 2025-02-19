@@ -63,7 +63,7 @@ public class SseService {
     private SseEmitter getSseEmitter(Member member) {
         if (sseAttendanceRepository.existsById(member.getId())) {
             log.info("---- [memberId]: {} is already subscribed ----", member.getId());
-            return sseAttendanceRepository.findById(member.getId()).orElseThrow();
+            return sseAttendanceRepository.findById(member.getId()).orElseThrow(() -> new EntityNotFoundException("해당 구독을 찾을 수 없습니다."));
         }
 
         SseEmitter sseEmitter = new SseEmitter(DEFAULT_TIMEOUT);
