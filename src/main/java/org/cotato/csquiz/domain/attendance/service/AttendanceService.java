@@ -14,13 +14,16 @@ import org.cotato.csquiz.api.attendance.dto.AttendancesResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceTimeResponse;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
+import org.cotato.csquiz.common.schedule.SchedulerService;
 import org.cotato.csquiz.domain.attendance.embedded.Location;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.attendance.service.component.AttendanceReader;
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
+import org.cotato.csquiz.domain.generation.entity.AttendanceNotification;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
+import org.cotato.csquiz.domain.generation.repository.AttendanceNotificationRepository;
 import org.cotato.csquiz.domain.generation.repository.GenerationRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
 import org.cotato.csquiz.domain.generation.service.component.SessionReader;
@@ -36,6 +39,8 @@ public class AttendanceService {
     private final AttendanceRepository attendanceRepository;
     private final SessionRepository sessionRepository;
     private final GenerationRepository generationRepository;
+    private final SchedulerService schedulerService;
+    private final AttendanceNotificationRepository attendanceNotificationRepository;
 
     public AttendanceResponse getAttendance(final Long attendanceId) {
         Attendance attendance = attendanceReader.findById(attendanceId);
@@ -57,6 +62,11 @@ public class AttendanceService {
                 .build();
 
         attendanceRepository.save(attendance);
+
+        AttendanceNotification attendanceNotification = AttendanceNotification.builder().attendance(attendance).done(false).build();
+        attendanceNotificationRepository.save(attendanceNotification);
+
+        schedulerService.scheduleAttendanceNotification(attendanceNotification);
     }
 
     private void checkLocation(Location location) {
