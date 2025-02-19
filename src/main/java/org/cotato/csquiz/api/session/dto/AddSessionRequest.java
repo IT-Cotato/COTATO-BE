@@ -39,12 +39,10 @@ public record AddSessionRequest(
 
         @Schema(example = "2024-11-11T19:10:00", description = "출석 마감 시간, 해당 시간 이후 지각  처리")
         @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-        @NotNull
         LocalDateTime attendanceDeadLine,
 
         @Schema(example = "2024-11-11T19:20:00", description = "지각 마감 시간, 해당 시간 이후 결석 처리")
         @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-        @NotNull
         LocalDateTime lateDeadLine,
 
         ItIssue itIssue,
