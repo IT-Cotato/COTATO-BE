@@ -54,7 +54,7 @@ public class AttendanceExcelService {
                 .collect(Collectors.toUnmodifiableMap(Session::getId, Function.identity()));
 
         List<Attendance> attendances = attendanceReader.getAllBySessions(sessionById.values()).stream()
-                .filter(attendance -> sessionById.get(attendance.getSessionId()).getSessionDateTime().isAfter(LocalDateTime.now()))
+                .filter(attendance -> sessionById.get(attendance.getSessionId()).getSessionDateTime().isBefore(LocalDateTime.now()))
                 .toList();
         List<Member> members = generationMemberReader.getAllByGeneration(generation).stream()
                 .map(GenerationMember::getMember).toList();
