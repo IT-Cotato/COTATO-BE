@@ -105,7 +105,7 @@ public class AttendanceExcelService {
         }
 
         List<Session> sessions = sessionReader.getAllByAttendances(attendances).stream()
-                .filter(session -> session.getSessionDateTime().isAfter(LocalDateTime.now()))
+                .filter(session -> session.getSessionDateTime().isBefore(LocalDateTime.now()))
                 .toList();
         checkSameGeneration(sessions);
 
