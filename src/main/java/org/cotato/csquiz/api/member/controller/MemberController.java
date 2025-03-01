@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import java.io.IOException;
-import java.util.List;
 import javax.naming.NoPermissionException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +26,8 @@ import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.cotato.csquiz.domain.auth.enums.MemberStatus;
 import org.cotato.csquiz.domain.auth.service.AdminMemberService;
 import org.cotato.csquiz.domain.auth.service.MemberService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -126,8 +127,8 @@ public class MemberController {
     @Operation(summary = "회원 상태에 따른 조회 요청 API")
     @RoleAuthority(MemberRole.ADMIN)
     @GetMapping(params = "status")
-    public ResponseEntity<List<MemberResponse>> findMembersByStatus(@RequestParam("status") MemberStatus status) {
-        return ResponseEntity.ok().body(memberService.getMemberByStatus(status));
+    public ResponseEntity<Page<MemberResponse>> findMembersByStatus(@RequestParam("status") MemberStatus status, Pageable pageable) {
+        return ResponseEntity.ok().body(memberService.getMembersByStatus(status, pageable));
     }
 
     @Operation(summary = "부원 가입 승인")
