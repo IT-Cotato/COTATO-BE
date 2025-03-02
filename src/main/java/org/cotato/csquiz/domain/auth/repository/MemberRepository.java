@@ -5,6 +5,8 @@ import java.util.Optional;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.cotato.csquiz.domain.auth.enums.MemberStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -26,4 +28,6 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
     List<Member> findAllByRoleInQuery(@Param("roles") List<MemberRole> roles);
 
     List<Member> findAllByStatus(MemberStatus memberStatus);
+
+    Page<Member> findAllByStatus(MemberStatus memberStatus, Pageable pageable);
 }
