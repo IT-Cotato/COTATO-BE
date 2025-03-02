@@ -40,6 +40,8 @@ import org.cotato.csquiz.domain.auth.service.component.PolicyReader;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.repository.GenerationMemberRepository;
 import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -214,10 +216,8 @@ public class MemberService {
         }
     }
 
-    public List<MemberResponse> getMemberByStatus(final MemberStatus status) {
-        return memberRepository.findAllByStatus(status).stream()
-                .map(member -> MemberResponse.of(member, findBackFourNumber(member)))
-                .toList();
+    public Page<MemberResponse> getMembersByStatus(final MemberStatus status, Pageable pageable) {
+        return memberRepository.findAllByStatus(status, pageable).map(member -> MemberResponse.of(member, findBackFourNumber(member)));
     }
 
     @Transactional
