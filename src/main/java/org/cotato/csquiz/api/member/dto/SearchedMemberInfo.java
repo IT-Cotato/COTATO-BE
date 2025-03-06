@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.enums.MemberPosition;
 
-public record AddableMemberInfo(
+public record SearchedMemberInfo(
         @Schema(description = "멤버 Id", requiredMode = RequiredMode.REQUIRED)
         Long memberId,
         @Schema(description = "이름", requiredMode = RequiredMode.REQUIRED)
@@ -15,8 +15,8 @@ public record AddableMemberInfo(
         @Schema(description = "포지션", requiredMode = RequiredMode.REQUIRED)
         MemberPosition position
 ) {
-    public static AddableMemberInfo from(Member member) {
-        return new AddableMemberInfo(member.getId(),
+    public static SearchedMemberInfo from(Member member) {
+        return new SearchedMemberInfo(member.getId(),
                 member.getName(),
                 member.getPassedGenerationNumber(),
                 member.getPosition());
