@@ -140,9 +140,7 @@ public class MemberService {
             profileLinkRepository.saveAll(profileLinks);
         }
 
-        if (imageUpdateStatus != ImageUpdateStatus.KEEP) {
-            updateProfileImage(member, profileImage, imageUpdateStatus);
-        }
+        updateProfileImage(member, profileImage, imageUpdateStatus);
 
         memberRepository.save(member);
     }
@@ -162,22 +160,28 @@ public class MemberService {
 
     private void updateProfileImage(final Member member, final MultipartFile profileImage,
                                     final ImageUpdateStatus imageUpdateStatus) throws ImageException {
-        if (imageUpdateStatus == ImageUpdateStatus.UPDATE) {
-            if (profileImage == null || profileImage.isEmpty()) {
-                throw new AppException(ErrorCode.PROFILE_IMAGE_NOT_EXIST);
-            }
-            deleteProfileImage(member);
-            member.updateProfileImage(s3Uploader.uploadFiles(profileImage, PROFILE_BUCKET_DIRECTORY));
-        }
-
-        if (imageUpdateStatus == ImageUpdateStatus.DEFAULT) {
-            deleteProfileImage(member);
-            S3Info defaultImage = S3Info.builder()
-                    .folderName(defaultProfileImageFolder)
-                    .fileName(defaultProfileImageFile)
-                    .url(defaultProfileImageUrl)
-                    .build();
-            member.updateProfileImage(defaultImage);
+        switch (imageUpdateStatus) {
+            case KEEP:
+                //프로필 이미지를 변경하지 않음.
+                break;
+            case UPDATE:
+                if (profileImage == null || profileImage.isEmpty()) {
+                    throw new AppException(ErrorCode.PROFILE_IMAGE_NOT_EXIST);
+                }
+                deleteProfileImage(member);
+                member.updateProfileImage(s3Uploader.uploadFiles(profileImage, PROFILE_BUCKET_DIRECTORY));
+                break;
+            case DEFAULT:
+                deleteProfileImage(member);
+                S3Info defaultImage = S3Info.builder()
+                        .folderName(defaultProfileImageFolder)
+                        .fileName(defaultProfileImageFile)
+                        .url(defaultProfileImageUrl)
+                        .build();
+                member.updateProfileImage(defaultImage);
+                break;
+            default:
+                throw new IllegalArgumentException("잘못 된 ImageUpdateStatus 값" + imageUpdateStatus);
         }
     }
 
