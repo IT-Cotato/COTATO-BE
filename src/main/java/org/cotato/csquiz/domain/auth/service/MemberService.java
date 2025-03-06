@@ -57,11 +57,11 @@ import org.springframework.web.multipart.MultipartFile;
 public class MemberService {
 
     @Value("${profile-image.default-url}")
-    public String defaultProfileImageUrl;
+    private String defaultProfileImageUrl;
     @Value("${profile-image.default-file}")
-    public String defaultProfileImageFile;
+    private String defaultProfileImageFile;
     @Value("${profile-image.default-folder}")
-    public String defaultProfileImageFolder;
+    private String defaultProfileImageFolder;
 
     private static final String PROFILE_BUCKET_DIRECTORY = "profile";
     private final MemberReader memberReader;
