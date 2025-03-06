@@ -1,6 +1,6 @@
 package org.cotato.csquiz.domain.auth.constant;
 
-public class EmailConstants {
+public final class EmailConstants {
 
     public static final String SENDER_EMAIL = "itcotato@gmail.com";
     public static final String SENDER_PERSONAL = "IT연합동아리 코테이토";
