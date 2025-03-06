@@ -25,3 +25,8 @@ discord:
     id: ${GUILD_ID}
   channel:
     id: ${CHANNEL_ID}
+
+profile-image:
+  default-folder: ${DEFAULT_PROFILE_IMAGE_FOLDER}
+  default-file: ${DEFAULT_PROFILE_IMAGE_FILE}
+  default-url: ${DEFAULT_PROFILE_IMAGE_URL}
