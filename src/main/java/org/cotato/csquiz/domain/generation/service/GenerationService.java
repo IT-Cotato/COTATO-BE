@@ -30,7 +30,7 @@ public class GenerationService {
     @Transactional
     public AddGenerationResponse addGeneration(final Integer generationNumber, final LocalDate startDate, final LocalDate endDate) {
         checkPeriodValid(startDate, endDate);
-        checkPeriodOverlapping(startDate, endDate);
+        checkPeriodOverlapping(startDate, endDate, null);
         checkNumberValid(generationNumber);
         Generation generation = Generation.builder()
                 .number(generationNumber)
@@ -40,8 +40,16 @@ public class GenerationService {
         return AddGenerationResponse.from(savedGeneration);
     }
 
-    private void checkPeriodOverlapping(final LocalDate startDate, final LocalDate endDate) {
-        if(generationRepository.existsByPeriod_EndDateGreaterThanEqualAndPeriod_StartDateLessThanEqual(startDate, endDate)) {
+    private void checkPeriodOverlapping(final LocalDate startDate, final LocalDate endDate, final Long excludeGenerationId) {
+        boolean isOverlapping;
+
+        if (excludeGenerationId == null) { // 신규 추가 시
+            isOverlapping = generationRepository.existsByPeriod_EndDateGreaterThanEqualAndPeriod_StartDateLessThanEqual(startDate, endDate);
+        } else { // 수정 시 (본인 기수 제외)
+            isOverlapping = generationRepository.existsByPeriod_EndDateGreaterThanEqualAndPeriod_StartDateLessThanEqualAndIdNot(startDate, endDate, excludeGenerationId);
+        }
+
+        if (isOverlapping) {
             throw new AppException(ErrorCode.OVERLAPPING_DATE);
         }
     }
@@ -55,7 +63,7 @@ public class GenerationService {
     @Transactional
     public void changeGenerationPeriod(final Long generationId, final LocalDate startDate, final LocalDate endDate) {
         checkPeriodValid(startDate, endDate);
-        checkPeriodOverlapping(startDate, endDate);
+        checkPeriodOverlapping(startDate, endDate, generationId);
         Generation generation = generationReader.findById(generationId);
         generation.changePeriod(GenerationPeriod.of(startDate, endDate));
     }
