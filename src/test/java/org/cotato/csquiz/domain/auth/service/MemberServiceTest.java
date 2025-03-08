@@ -1,5 +1,6 @@
 package org.cotato.csquiz.domain.auth.service;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -90,7 +91,7 @@ class MemberServiceTest {
                 .thenReturn(member);
 
         // when, then
-        Assertions.assertThrows(AppException.class, () -> memberService.activateMember(member.getId()));
+        assertThrows(AppException.class, () -> memberService.activateMember(member.getId()));
     }
 
     @Test
@@ -139,6 +140,33 @@ class MemberServiceTest {
         Assertions.assertEquals(member.getIntroduction(), introduction);
         Assertions.assertEquals(member.getUniversity(), university);
         Assertions.assertEquals(member.getProfileImage(), newS3Info);
+    }
+
+    @Test
+    void 프로필_이미지_없으면_예외발생() {
+        // given
+        Member member = getDefaultMember();
+
+        // when, then
+        assertThrows(AppException.class, () ->
+                memberService.updateMemberProfileInfo(member, null, null, null, ImageUpdateStatus.UPDATE, null)
+        );
+    }
+
+    @Test
+    void 프로필_변경시_값이_없으면_기존_값이_유지된다() throws ImageException {
+        //given
+        Member member = getDefaultMember();
+        String introduction = "새로운 소개";
+
+        //when
+        memberService.updateMemberProfileInfo(member, introduction, null, null,
+                ImageUpdateStatus.KEEP, null);
+
+        //then
+        Assertions.assertEquals(member.getIntroduction(), introduction);
+        Assertions.assertEquals(member.getUniversity(), "before");
+        Assertions.assertNotNull(member.getProfileImage());
     }
 
     private Member getDefaultMember() {
