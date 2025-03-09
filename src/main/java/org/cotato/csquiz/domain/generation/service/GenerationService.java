@@ -64,7 +64,9 @@ public class GenerationService {
     public void changeGenerationPeriod(final Long generationId, final LocalDate startDate, final LocalDate endDate) {
         checkPeriodValid(startDate, endDate);
         Generation generation = generationReader.findById(generationId);
-        checkPeriodOverlapping(startDate, endDate, generationId);
+        if (generationRepository.existsByPeriod_EndDateGreaterThanEqualAndPeriod_StartDateLessThanEqualAndIdNot(startDate, endDate, generationId)) {
+            throw new AppException(ErrorCode.OVERLAPPING_DATE);
+        }
         generation.changePeriod(GenerationPeriod.of(startDate, endDate));
     }
 
