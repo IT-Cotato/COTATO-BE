@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.SetUtils;
 import org.cotato.csquiz.api.admin.dto.MemberInfoResponse;
-import org.cotato.csquiz.api.member.dto.AddableMembersResponse;
+import org.cotato.csquiz.api.member.dto.SearchedMembersResponse;
 import org.cotato.csquiz.api.member.dto.MemberInfo;
 import org.cotato.csquiz.api.member.dto.MemberMyPageInfoResponse;
 import org.cotato.csquiz.api.member.dto.MemberResponse;
@@ -208,7 +208,7 @@ public class MemberService {
         return memberReader.findAllGenerationMember(currentGeneration);
     }
 
-    public AddableMembersResponse findAddableMembers(final Long generationId, Integer generationNumber, MemberPosition memberPosition, String name) {
+    public SearchedMembersResponse findAddableMembers(final Long generationId, Integer generationNumber, MemberPosition memberPosition, String name) {
         Generation generation = generationReader.findById(generationId);
         List<Long> existMemberIds = generationMemberRepository.findAllByGenerationIdWithMember(generation.getId()).stream()
                 .map(gm -> gm.getMember().getId())
@@ -224,7 +224,7 @@ public class MemberService {
                         .thenComparing(Member::getName)
                 )
                 .toList();
-        return AddableMembersResponse.from(filteredAddableMember);
+        return SearchedMembersResponse.from(filteredAddableMember);
     }
 
     @Transactional
@@ -282,5 +282,19 @@ public class MemberService {
         member.updateStatus(MemberStatus.APPROVED);
         leavingRequest.updateIsReactivated(true);
         // Todo: event를 통한 이메일 발송
+    }
+
+    public SearchedMembersResponse getMembersByName(Integer passedGenerationNumber, MemberPosition position, String name, MemberStatus memberStatus) {
+        List<Member> members = memberRepository.findAllWithFilters(passedGenerationNumber, position, name)
+                .stream()
+                .filter(member -> member.getStatus() == memberStatus)
+                .sorted(Comparator
+                        .comparing(Member::isApproved)
+                        .reversed()
+                        .thenComparing(Member::getName)
+                )
+                .toList();
+
+        return SearchedMembersResponse.from(members);
     }
 }
