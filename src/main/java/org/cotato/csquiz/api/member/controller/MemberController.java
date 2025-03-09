@@ -11,7 +11,7 @@ import org.cotato.csquiz.api.admin.dto.MemberApproveRequest;
 import org.cotato.csquiz.api.admin.dto.MemberInfoResponse;
 import org.cotato.csquiz.api.admin.dto.UpdateActiveMemberToOldMemberRequest;
 import org.cotato.csquiz.api.admin.dto.UpdateMemberRoleRequest;
-import org.cotato.csquiz.api.member.dto.AddableMembersResponse;
+import org.cotato.csquiz.api.member.dto.SearchedMembersResponse;
 import org.cotato.csquiz.api.member.dto.DeactivateRequest;
 import org.cotato.csquiz.api.member.dto.MemberMyPageInfoResponse;
 import org.cotato.csquiz.api.member.dto.MemberResponse;
@@ -61,7 +61,7 @@ public class MemberController {
     @Operation(summary = "기수별 멤버에 추가 가능한 멤버 반환 API")
     @RoleAuthority(MemberRole.ADMIN)
     @GetMapping("/addable")
-    public ResponseEntity<AddableMembersResponse> findAddableMembersForGenerationMember(
+    public ResponseEntity<SearchedMembersResponse> findAddableMembersForGenerationMember(
             @RequestParam(name = "generationId") @Parameter(description = "추가하고 싶은 기수의 Id") Long generationId,
             @RequestParam(name = "passedGenerationNumber", required = false) @Parameter(description = "멤버 합격 기수") Integer generationNumber,
             @RequestParam(name = "position", required = false) @Parameter(description = "멤버 포지션") MemberPosition position,
@@ -69,6 +69,13 @@ public class MemberController {
     ) {
         return ResponseEntity.ok()
                 .body(memberService.findAddableMembers(generationId, generationNumber, position, name));
+    }
+
+    @GetMapping(value = "/search", params = "status=RETIRED")
+    public ResponseEntity<SearchedMembersResponse> findRetiredMembers(@RequestParam(value = "passedGenerationNumber",required = false) Integer passedGenerationNumber,
+                                                                      @RequestParam(value = "position", required = false) MemberPosition position,
+                                                                      @RequestParam(value = "name", required = false) String name) {
+        return ResponseEntity.ok().body(memberService.getMembersByName(passedGenerationNumber, position, name, MemberStatus.RETIRED));
     }
 
     @PatchMapping("/update/password")
