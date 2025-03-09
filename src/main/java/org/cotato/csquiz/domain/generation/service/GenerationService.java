@@ -63,8 +63,8 @@ public class GenerationService {
     @Transactional
     public void changeGenerationPeriod(final Long generationId, final LocalDate startDate, final LocalDate endDate) {
         checkPeriodValid(startDate, endDate);
-        checkPeriodOverlapping(startDate, endDate, generationId);
         Generation generation = generationReader.findById(generationId);
+        checkPeriodOverlapping(startDate, endDate, generationId);
         generation.changePeriod(GenerationPeriod.of(startDate, endDate));
     }
 
