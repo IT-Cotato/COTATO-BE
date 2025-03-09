@@ -2,6 +2,7 @@ package org.cotato.csquiz.domain.generation.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -9,12 +10,15 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.cotato.csquiz.api.generation.dto.AddGenerationResponse;
 import org.cotato.csquiz.api.generation.dto.GenerationInfoResponse;
+import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.embedded.GenerationPeriod;
 import org.cotato.csquiz.domain.generation.repository.GenerationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -81,5 +85,63 @@ class GenerationServiceTest {
         assertThrows(EntityNotFoundException.class, () -> {
             generationService.findCurrentGeneration(currentDate);
         });
+    }
+
+    @Test
+    void 기수_추가시_시작_날짜가_종료_날짜_이전이면_예외발생() {
+        // given
+        LocalDate startDate = LocalDate.of(2025, 6, 1);
+        LocalDate endDate = LocalDate.of(2025, 5, 1);
+        Integer generationNumber = 3;
+
+        // then: 예외 발생 확인
+        assertThrows(AppException.class, () -> {
+            generationService.addGeneration(generationNumber, startDate, endDate);
+        });
+    }
+
+    @Test
+    void 기수_추가시_기존_데이터와_기간이_겹치면_예외발생() {
+        // given
+        LocalDate startDate = LocalDate.of(2025, 6, 1);
+        LocalDate endDate = LocalDate.of(2025, 9, 1);
+        Integer generationNumber = 3;
+
+        when(generationRepository.existsByPeriod_EndDateGreaterThanEqualAndPeriod_StartDateLessThanEqual(startDate, endDate))
+                .thenReturn(true);
+
+        // then: 예외 발생 확인
+        assertThrows(AppException.class, () -> {
+            generationService.addGeneration(generationNumber, startDate, endDate);
+        });
+    }
+
+    @Test
+    void 새로운_기수를_정상적으로_추가할_수_있다() {
+        // given
+        LocalDate startDate = LocalDate.of(2025, 6, 1);
+        LocalDate endDate = LocalDate.of(2025, 9, 1);
+        Integer generationNumber = 3;
+        Generation newGeneration = Generation.builder()
+                .number(generationNumber)
+                .period(GenerationPeriod.of(startDate, endDate))
+                .build();
+
+        when(generationRepository.existsByPeriod_EndDateGreaterThanEqualAndPeriod_StartDateLessThanEqual(startDate, endDate))
+                .thenReturn(false);
+        when(generationRepository.save(any(Generation.class))).thenReturn(newGeneration);
+
+        ArgumentCaptor<Generation> generationCaptor = ArgumentCaptor.forClass(Generation.class);
+
+        // when
+        generationService.addGeneration(generationNumber, startDate, endDate);
+
+        // then
+        verify(generationRepository).save(generationCaptor.capture());
+
+        Generation savedGeneration = generationCaptor.getValue();
+        assertThat(savedGeneration.getNumber()).isEqualTo(generationNumber);
+        assertThat(savedGeneration.getPeriod().getStartDate()).isEqualTo(startDate);
+        assertThat(savedGeneration.getPeriod().getEndDate()).isEqualTo(endDate);
     }
 }
