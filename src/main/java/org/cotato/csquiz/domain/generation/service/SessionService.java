@@ -2,6 +2,7 @@ package org.cotato.csquiz.domain.generation.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -170,6 +171,7 @@ public class SessionService {
 
         Map<Session, List<SessionImage>> imagesGroupBySession = sessionImageRepository.findAllBySessionIn(sessions)
                 .stream()
+                .sorted(Comparator.comparing(SessionImage::getOrder))
                 .collect(Collectors.groupingBy(SessionImage::getSession));
 
         return sessions.stream()
