@@ -94,13 +94,13 @@ public class MemberController {
     }
 
     @Operation(summary = "멤버 프로필 정보 수정 API")
-    @PatchMapping(value = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> updateProfileInfo(@AuthenticationPrincipal Member member,
                                                   @RequestPart final UpdateProfileInfoRequest request,
                                                   @RequestPart(required = false) MultipartFile profileImage)
             throws IOException {
         memberService.updateMemberProfileInfo(member, request.introduction(), request.university(),
-                request.profileLinks(), request.imageUpdateStatus() ,profileImage);
+                request.profileLinks(), profileImage);
         return ResponseEntity.noContent().build();
     }
 

@@ -96,7 +96,7 @@ public enum ErrorCode {
     INVALID_LOCATION(HttpStatus.BAD_REQUEST, "AT-104", "위치 정보를 입력해주세요."),
     INVALID_RECORD_UPDATE(HttpStatus.BAD_REQUEST, "AT-105", "세션 타입에 맞게 출결 기록을 수정해주세요."),
     CANNOT_GET_EXCEL(HttpStatus.BAD_REQUEST, "AT-106", "출석 예정인 출결 기록은 다운 받을 수 없습니다."),
-    INVALID_ATTEND_DEADLINE(HttpStatus.BAD_REQUEST, "AT-107", "출석 마감 정보를 입력해 주세요"),
+    INVALID_ATTEND_DEADLINE(HttpStatus.BAD_REQUEST, "AT_107", "출석 마감 정보를 입력해 주세요"),
     ALREADY_ATTEND(HttpStatus.CONFLICT, "AT-301", "이미 해당 타입으로 출석한 기록이 있습니다."),
     ATTENDANCE_RECORD_EXIST(HttpStatus.CONFLICT,"AT-302", "출석 기록이 존재해 출석을 끌 수 없습니다."),
     ATTENDANCE_NOT_OPEN(HttpStatus.BAD_REQUEST, "AT-401", "출석 시간이 아닙니다."),
@@ -105,9 +105,6 @@ public enum ErrorCode {
     //프로젝트 관련
     LOGO_IMAGE_EXIST(HttpStatus.CONFLICT, "PJ-301", "이미 로고 이미지가 존재합니다."),
     THUMBNAIL_IMAGE_EXIST(HttpStatus.CONFLICT, "PJ-302", "이미 썸네일 이미지가 존재합니다."),
-
-    //프로필 이미지 관련
-    PROFILE_IMAGE_NOT_EXIST(HttpStatus.BAD_REQUEST, "PI-401", "요청에 프로필 이미지가 존재하지 않습니다."),
 
     // 500 오류 -> 서버측에서 처리가 실패한 부분들
     WEBSOCKET_SEND_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "S-001", "소캣 메세지 전송 실패"),

@@ -1,24 +1,16 @@
 package org.cotato.csquiz.domain.auth.service;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import org.cotato.csquiz.api.member.dto.ProfileLinkRequest;
-import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.common.error.exception.AppException;
-import org.cotato.csquiz.common.error.exception.ImageException;
-import org.cotato.csquiz.common.s3.S3Uploader;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.entity.MemberLeavingRequest;
-import org.cotato.csquiz.domain.auth.enums.ImageUpdateStatus;
 import org.cotato.csquiz.domain.auth.enums.MemberStatus;
-import org.cotato.csquiz.domain.auth.enums.UrlType;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
-import org.cotato.csquiz.domain.auth.repository.ProfileLinkRepository;
 import org.cotato.csquiz.domain.auth.service.component.MemberLeavingRequestReader;
 import org.cotato.csquiz.domain.auth.service.component.MemberReader;
 import org.junit.jupiter.api.Assertions;
@@ -29,10 +21,8 @@ import org.mockito.Mock;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.parameters.P;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(SpringExtension.class)
 class MemberServiceTest {
@@ -51,12 +41,6 @@ class MemberServiceTest {
 
     @Mock
     private MemberRepository memberRepository;
-
-    @Mock
-    private S3Uploader s3Uploader;
-
-    @Mock
-    private ProfileLinkRepository profileLinkRepository;
 
     @Test
     void 부원_활성화_요청() {
@@ -91,7 +75,7 @@ class MemberServiceTest {
                 .thenReturn(member);
 
         // when, then
-        assertThrows(AppException.class, () -> memberService.activateMember(member.getId()));
+        Assertions.assertThrows(AppException.class, () -> memberService.activateMember(member.getId()));
     }
 
     @Test
@@ -112,69 +96,5 @@ class MemberServiceTest {
         // then
         Assertions.assertEquals(2, approvedMembers.getNumberOfElements());
         verify(memberRepository).findAllByStatus(MemberStatus.APPROVED, Pageable.ofSize(2));
-    }
-
-    @Test
-    void 프로필_정보_업데이트() throws ImageException {
-        //given
-        Member member = getDefaultMember();
-        String introduction = "새로운 소개";
-        String university = "새로운 대학교";
-        List<ProfileLinkRequest> profileLinkRequests = List.of(
-                new ProfileLinkRequest(UrlType.GITHUB, "https://github.com/user"));
-        MockMultipartFile profileImage = new MockMultipartFile("image", "image.jpg", "image/jpeg", new byte[10]);
-
-        S3Info newS3Info = S3Info.builder()
-                .url("new URL")
-                .fileName("new file")
-                .folderName("new folder")
-                .build();
-        when(s3Uploader.uploadFiles((MultipartFile) any(), any())).
-                thenReturn(newS3Info);
-
-        //when
-        memberService.updateMemberProfileInfo(member, introduction, university, profileLinkRequests,
-                ImageUpdateStatus.UPDATE, profileImage);
-
-        //then
-        Assertions.assertEquals(member.getIntroduction(), introduction);
-        Assertions.assertEquals(member.getUniversity(), university);
-        Assertions.assertEquals(member.getProfileImage(), newS3Info);
-    }
-
-    @Test
-    void 프로필_이미지_없으면_예외발생() {
-        // given
-        Member member = getDefaultMember();
-
-        // when, then
-        assertThrows(AppException.class, () ->
-                memberService.updateMemberProfileInfo(member, null, null, null, ImageUpdateStatus.UPDATE, null)
-        );
-    }
-
-    @Test
-    void 프로필_변경시_값이_없으면_기존_값이_유지된다() throws ImageException {
-        //given
-        Member member = getDefaultMember();
-        String introduction = "새로운 소개";
-
-        //when
-        memberService.updateMemberProfileInfo(member, introduction, null, null,
-                ImageUpdateStatus.KEEP, null);
-
-        //then
-        Assertions.assertEquals(member.getIntroduction(), introduction);
-        Assertions.assertEquals(member.getUniversity(), "before");
-        Assertions.assertNotNull(member.getProfileImage());
-    }
-
-    private Member getDefaultMember() {
-        Member member = Member.defaultMember("email", "password", "name", null);
-        member.updateStatus(MemberStatus.APPROVED);
-        member.updateIntroduction("before");
-        member.updateUniversity("before");
-        member.updateProfileImage(new S3Info("url", "file", "folder"));
-        return member;
     }
 }
