@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import jakarta.persistence.criteria.CriteriaBuilder.In;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -133,9 +134,21 @@ class SessionServiceTest {
         when(generationRepository.findById(generationId)).thenReturn(Optional.of(generation));
         when(sessionRepository.findAllByGeneration(generation)).thenReturn(List.of((session)));
 
-        SessionImage image1 = new SessionImage(session, 2, new S3Info("url2", "fileName", "folderName")); // 순서 2
-        SessionImage image2 = new SessionImage(session, 1, new S3Info("url1", "fileName", "folderName")); // 순서 1
-        SessionImage image3 = new SessionImage(session, 3, new S3Info("url3", "fileName", "folderName")); // 순서 3
+        SessionImage image1 = SessionImage.builder()
+                .session(session)
+                .order(2)
+                .s3Info(new S3Info("url2", "fileName", "folderName"))
+                .build();
+        SessionImage image2 = SessionImage.builder()
+                .session(session)
+                .order(1)
+                .s3Info(new S3Info("url1", "fileName", "folderName"))
+                .build();
+        SessionImage image3 = SessionImage.builder()
+                .session(session)
+                .order(3)
+                .s3Info(new S3Info("url3", "fileName", "folderName"))
+                .build();
 
         when(sessionImageRepository.findAllBySessionIn(List.of(session)))
                 .thenReturn(List.of(image1, image2, image3));
