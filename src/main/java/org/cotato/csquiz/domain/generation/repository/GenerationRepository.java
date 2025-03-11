@@ -11,6 +11,10 @@ import org.springframework.data.repository.query.Param;
 public interface GenerationRepository extends JpaRepository<Generation, Long> {
     Optional<Generation> findByNumber(int number);
 
+    boolean existsByPeriod_EndDateGreaterThanEqualAndPeriod_StartDateLessThanEqual(LocalDate startDate, LocalDate endDate);
+
+    boolean existsByPeriod_EndDateGreaterThanEqualAndPeriod_StartDateLessThanEqualAndIdNot(LocalDate startDate, LocalDate endDate, Long excludeGenerationId);
+
     List<Generation> findByNumberGreaterThanEqual(int generationNumber);
 
     @Query("SELECT g from Generation g where g.id in :generationIds")
