@@ -30,7 +30,10 @@ public class GenerationService {
     @Transactional
     public AddGenerationResponse addGeneration(final Integer generationNumber, final LocalDate startDate, final LocalDate endDate) {
         checkPeriodValid(startDate, endDate);
-        checkPeriodOverlapping(startDate, endDate);
+        if (generationRepository.existsByPeriod_EndDateGreaterThanEqualAndPeriod_StartDateLessThanEqual(startDate,
+                endDate)) {
+            throw new AppException(ErrorCode.OVERLAPPING_DATE);
+        }
         checkNumberValid(generationNumber);
         Generation generation = Generation.builder()
                 .number(generationNumber)
@@ -38,12 +41,6 @@ public class GenerationService {
                 .build();
         Generation savedGeneration = generationRepository.save(generation);
         return AddGenerationResponse.from(savedGeneration);
-    }
-
-    private void checkPeriodOverlapping(final LocalDate startDate, final LocalDate endDate) {
-        if(generationRepository.existsByPeriod_EndDateGreaterThanEqualAndPeriod_StartDateLessThanEqual(startDate, endDate)) {
-            throw new AppException(ErrorCode.OVERLAPPING_DATE);
-        }
     }
 
     @Transactional
@@ -55,8 +52,10 @@ public class GenerationService {
     @Transactional
     public void changeGenerationPeriod(final Long generationId, final LocalDate startDate, final LocalDate endDate) {
         checkPeriodValid(startDate, endDate);
-        checkPeriodOverlapping(startDate, endDate);
         Generation generation = generationReader.findById(generationId);
+        if (generationRepository.existsByPeriod_EndDateGreaterThanEqualAndPeriod_StartDateLessThanEqualAndIdNot(startDate, endDate, generationId)) {
+            throw new AppException(ErrorCode.OVERLAPPING_DATE);
+        }
         generation.changePeriod(GenerationPeriod.of(startDate, endDate));
     }
 
