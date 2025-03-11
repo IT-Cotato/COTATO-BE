@@ -1,7 +1,6 @@
 package org.cotato.csquiz.domain.generation.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -34,6 +33,7 @@ public class ProjectService {
     private final ProjectMemberRepository projectMemberRepository;
     private final GenerationRepository generationRepository;
 
+    @Transactional
     public ProjectDetailResponse getProjectDetail(Long projectId) {
 
         Project project = projectRepository.findById(projectId)
@@ -47,7 +47,9 @@ public class ProjectService {
         return ProjectDetailResponse.of(project, generation.getNumber(), images, members);
     }
 
+    @Transactional
     public List<ProjectSummaryResponse> getAllProjectSummaries() {
+
         List<Project> projects = projectRepository.findAll();
 
         List<Long> generationIds = projects.stream()
@@ -59,20 +61,16 @@ public class ProjectService {
                 .map(Project::getId)
                 .toList();
 
-        Map<Long, Integer> generationNumberById = generationRepository.findAllByIdsInQuery(generationIds).stream()
+        Map<Long, Integer> generationNumber = generationRepository.findAllByIdsInQuery(generationIds).stream()
                 .collect(Collectors.toUnmodifiableMap(Generation::getId, Generation::getNumber));
 
-        Map<Long, ProjectImage> imageByProjectId = projectImageRepository.findAllByProjectIdInAndProjectImageType(
+        Map<Long, ProjectImage> projectImage = projectImageRepository.findAllByProjectIdInAndProjectImageType(
                         projectIds, ProjectImageType.LOGO).stream()
                 .collect(Collectors.toUnmodifiableMap(ProjectImage::getProjectId, Function.identity()));
 
         return projects.stream()
-                .sorted(Comparator.comparing(
-                                (Project project) -> generationNumberById.get(project.getGenerationId()))
-                        .reversed()
-                        .thenComparing(Project::getCreatedAt, Comparator.reverseOrder()))
-                .map(project -> ProjectSummaryResponse.of(project, generationNumberById.get(project.getGenerationId()),
-                        imageByProjectId.get(project.getId())))
+                .map(project -> ProjectSummaryResponse.of(project, generationNumber.get(project.getGenerationId()),
+                        projectImage.get(project.getId())))
                 .toList();
     }
 
