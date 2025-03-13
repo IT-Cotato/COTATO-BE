@@ -55,6 +55,9 @@ jobs:
           discord.bot.token: ${{ secrets.TEST_DISCORD_TOKEN }}
           discord.guild.id: ${{ secrets.TEST_GUILD_ID }}
           discord.channel.id: ${{ secrets.TEST_CHANNEL_ID }}
+          profile-image.default-folder: ${{ secrets.DEFAULT_PROFILE_IMAGE_FOLDER }}
+          profile-image.default-file: ${{ secrets.DEFAULT_PROFILE_IMAGE_FILE }}
+          profile-image.default-url: ${{ secrets.DEFAULT_PROFILE_IMAGE_URL }}
 
 
       # [2] 실행 권한 부여

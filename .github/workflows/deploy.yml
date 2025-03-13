@@ -38,6 +38,9 @@ jobs:
           discord.bot.token: ${{ secrets.DISCORD_TOKEN }}
           discord.guild.id: ${{ secrets.GUILD_ID }}
           discord.channel.id: ${{ secrets.CHANNEL_ID }}
+          profile-image.default-folder: ${{ secrets.DEFAULT_PROFILE_IMAGE_FOLDER }}
+          profile-image.default-file: ${{ secrets.DEFAULT_PROFILE_IMAGE_FILE }}
+          profile-image.default-url: ${{ secrets.DEFAULT_PROFILE_IMAGE_URL }}
 
       # application-yml을 세팅한다.
       - name: Set up Base Yaml File
