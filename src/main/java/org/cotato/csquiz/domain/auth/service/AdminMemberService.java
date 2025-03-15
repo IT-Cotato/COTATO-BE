@@ -98,7 +98,8 @@ public class AdminMemberService {
         if (members.stream().anyMatch(member -> member.getStatus() != MemberStatus.APPROVED)){
             throw new AppException(ErrorCode.ROLE_IS_NOT_MATCH);
         }
-        members.forEach(member -> member.updateStatus(MemberStatus.RETIRED));
+        List<Member> generalMembers = members.stream().filter(member -> member.getRole() != MemberRole.DEV).toList();
+        generalMembers.forEach(member -> member.updateStatus(MemberStatus.RETIRED));
         memberRepository.saveAll(members);
         // Todo: OM으로 전환된 부원에게 이메일 발송 Event로 대체
     }
