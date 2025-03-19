@@ -108,6 +108,26 @@ class AdminMemberServiceTest {
     }
 
     @Test
+    void 개발팀은_OM으로_전환하지_않는다() {
+        // given
+        Member devTeam = Member.defaultMember("email", "pwd", "dd", "1");
+        Member general = Member.defaultMember("email2", "pwd", "dd2", "2");
+        devTeam.updateRole(MemberRole.DEV);
+        devTeam.updateStatus(MemberStatus.APPROVED);
+        general.updateRole(MemberRole.MEMBER);
+        general.updateStatus(MemberStatus.APPROVED);
+
+        when(memberReader.findAllByIdsInWithValidation(anyList())).thenReturn(List.of(devTeam, general));
+
+        // when
+        adminMemberService.updateToRetireMembers(List.of(1L, 2L));
+
+        // then
+        assertEquals(MemberStatus.APPROVED, devTeam.getStatus());
+        assertEquals(MemberStatus.RETIRED, general.getStatus());
+    }
+
+    @Test
     void 활동_부원이_아닌_경우_OM전환_에러() {
         // given
         Member member1 = Member.defaultMember("email", "pwd", "dd", "1");
