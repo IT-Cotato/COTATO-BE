@@ -26,7 +26,6 @@ public class HandshakeInterceptor extends HttpSessionHandshakeInterceptor {
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
                                    Map<String, Object> attributes) throws Exception {
-        log.info("beforeHandshake");
         String[] querySplit = request.getURI().getQuery().split("&");
         String socketToken = null;
         String educationId = null;
@@ -42,6 +41,7 @@ public class HandshakeInterceptor extends HttpSessionHandshakeInterceptor {
                 }
             }
         }
+        log.info("connect websocket token=" + socketToken + ", educationId=" + educationId);
 
         try {
             jwtTokenProvider.checkSocketToken(socketToken);
@@ -52,9 +52,11 @@ public class HandshakeInterceptor extends HttpSessionHandshakeInterceptor {
             attributes.put("educationId", educationId);
             checkRole(role);
         } catch (InterceptorException | ExpiredJwtException | MalformedJwtException | SignatureException exception) {
+            log.info("Unauthorized exception occurs");
             response.setStatusCode(HttpStatus.UNAUTHORIZED);
             return false;
         } catch (InterceptorRoleException e) {
+            log.info("InterceptorRoleException exception occurs");
             response.setStatusCode(HttpStatus.FORBIDDEN);
             return false;
         }
