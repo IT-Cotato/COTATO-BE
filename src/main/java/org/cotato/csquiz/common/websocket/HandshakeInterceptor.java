@@ -41,12 +41,12 @@ public class HandshakeInterceptor extends HttpSessionHandshakeInterceptor {
                 }
             }
         }
-        log.info("connect websocket token=" + socketToken + ", educationId=" + educationId);
 
         try {
             jwtTokenProvider.checkSocketToken(socketToken);
             Long memberId = jwtTokenProvider.getMemberId(socketToken);
             String role = jwtTokenProvider.getRole(socketToken);
+            log.info("Connect websocket memberId=" + memberId + ", educationId=" + educationId);
             attributes.put("memberId", memberId);
             attributes.put("role", role);
             attributes.put("educationId", educationId);
