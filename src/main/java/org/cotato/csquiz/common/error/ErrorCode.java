@@ -45,6 +45,7 @@ public enum ErrorCode {
     CANNOT_ACTIVE(HttpStatus.BAD_REQUEST, "M-102", "비활성화 상태의 부원만 활성화 가능합니다."),
     ROLE_IS_NOT_OLD_MEMBER(HttpStatus.BAD_REQUEST, "M-103", "해당 회원의 ROLE은 OLD_MEMBER가 아닙니다."),
     INVALID_MEMBER_STATUS(HttpStatus.BAD_REQUEST, "M-104", "해당 상태의 부원은 승인/거절할 수 없습니다."),
+    CANNOT_CHANGE_DEV_ROLE(HttpStatus.BAD_REQUEST, "M-105", "개발팀은 OM으로 변경할 수 없습니다."),
     SAME_PASSWORD(HttpStatus.CONFLICT, "M-301", "이전과 같은 비밀번호로 변경할 수 없습니다."),
 
     // 기수 운영 (세션 -> 출석)

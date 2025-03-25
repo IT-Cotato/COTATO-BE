@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.enums.MemberPosition;
@@ -105,6 +106,22 @@ class AdminMemberServiceTest {
         // then
         assertEquals(MemberStatus.RETIRED, member1.getStatus());
         assertEquals(MemberStatus.RETIRED, member2.getStatus());
+    }
+
+    @Test
+    void 개발팀은_OM으로_전환하지_않는다() {
+        // given
+        Member devTeam = Member.defaultMember("email", "pwd", "dd", "1");
+        devTeam.updateRole(MemberRole.DEV);
+        devTeam.updateStatus(MemberStatus.APPROVED);
+
+        when(memberReader.findAllByIdsInWithValidation(anyList())).thenReturn(List.of(devTeam));
+
+        // when, then
+        AppException exception = assertThrows(AppException.class, () ->
+                adminMemberService.updateToRetireMembers(List.of(1L))
+        );
+        assertEquals(ErrorCode.CANNOT_CHANGE_DEV_ROLE.getMessage(), exception.getErrorCode().getMessage());
     }
 
     @Test
