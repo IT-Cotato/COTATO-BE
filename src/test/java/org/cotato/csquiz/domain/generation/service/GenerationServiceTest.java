@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -191,5 +192,26 @@ class GenerationServiceTest {
         // then
         assertThat(generation.getPeriod().getStartDate()).isEqualTo(startDate);
         assertThat(generation.getPeriod().getEndDate()).isEqualTo(endDate);
+    }
+
+    @Test
+    void 기수_목록_조회() {
+        // given
+        Generation generation1 = Generation.builder().number(3)
+                .period(GenerationPeriod.of(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 5, 1)))
+                .build();
+
+        Generation generation2 = Generation.builder().number(3)
+                .period(GenerationPeriod.of(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 5, 1)))
+                .build();
+        generation2.updateVisible(false);
+
+        when(generationReader.getGenerations()).thenReturn(List.of(generation1));
+
+        // when
+        List<GenerationInfoResponse> generations = generationService.findGenerations();
+
+        // then
+        assertThat(generations).hasSize(1);
     }
 }

@@ -56,4 +56,8 @@ public class Generation extends BaseTimeEntity {
     public void changePeriod(GenerationPeriod period) {
         this.period = period;
     }
+
+    public void updateVisible(boolean visible) {
+        this.visible = visible;
+    }
 }
