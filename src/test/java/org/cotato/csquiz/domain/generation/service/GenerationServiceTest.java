@@ -146,6 +146,7 @@ class GenerationServiceTest {
         assertThat(savedGeneration.getNumber()).isEqualTo(generationNumber);
         assertThat(savedGeneration.getPeriod().getStartDate()).isEqualTo(startDate);
         assertThat(savedGeneration.getPeriod().getEndDate()).isEqualTo(endDate);
+        assertThat(savedGeneration.isVisible()).isEqualTo(true);
     }
 
     @Test

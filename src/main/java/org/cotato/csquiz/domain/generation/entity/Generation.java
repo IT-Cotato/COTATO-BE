@@ -38,11 +38,15 @@ public class Generation extends BaseTimeEntity {
     @Column(name = "generation_recruiting")
     private Boolean isRecruit;
 
+    @Column(name = "visible")
+    private boolean visible;
+
     @Builder
     public Generation(Integer number, GenerationPeriod period) {
         this.number = number;
         this.period = period;
-        isRecruit = false;
+        this.isRecruit = false;
+        this.visible = true;
     }
 
     public void changeRecruit(Boolean isRecruit) {
