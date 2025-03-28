@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class GenerationService {
 
-    private static final Integer BASE_NUMBER = 1;
     private final GenerationRepository generationRepository;
     private final GenerationReader generationReader;
 
@@ -60,7 +59,7 @@ public class GenerationService {
     }
 
     public List<GenerationInfoResponse> findGenerations() {
-        return generationRepository.findByNumberGreaterThanEqual(BASE_NUMBER).stream()
+        return generationReader.getGenerations().stream()
                 .sorted(Comparator.comparing(Generation::getNumber))
                 .map(GenerationInfoResponse::from)
                 .toList();
