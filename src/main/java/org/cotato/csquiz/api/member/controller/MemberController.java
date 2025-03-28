@@ -11,11 +11,11 @@ import org.cotato.csquiz.api.admin.dto.MemberApproveRequest;
 import org.cotato.csquiz.api.admin.dto.MemberInfoResponse;
 import org.cotato.csquiz.api.admin.dto.UpdateActiveMemberToOldMemberRequest;
 import org.cotato.csquiz.api.admin.dto.UpdateMemberRoleRequest;
-import org.cotato.csquiz.api.member.dto.SearchedMembersResponse;
 import org.cotato.csquiz.api.member.dto.DeactivateRequest;
 import org.cotato.csquiz.api.member.dto.MemberMyPageInfoResponse;
 import org.cotato.csquiz.api.member.dto.MemberResponse;
 import org.cotato.csquiz.api.member.dto.ProfileInfoResponse;
+import org.cotato.csquiz.api.member.dto.SearchedMembersResponse;
 import org.cotato.csquiz.api.member.dto.UpdatePasswordRequest;
 import org.cotato.csquiz.api.member.dto.UpdatePhoneNumberRequest;
 import org.cotato.csquiz.api.member.dto.UpdateProfileInfoRequest;
@@ -28,6 +28,8 @@ import org.cotato.csquiz.domain.auth.service.AdminMemberService;
 import org.cotato.csquiz.domain.auth.service.MemberService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -35,7 +37,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -134,7 +135,9 @@ public class MemberController {
     @Operation(summary = "회원 상태에 따른 조회 요청 API")
     @RoleAuthority(MemberRole.ADMIN)
     @GetMapping(params = "status")
-    public ResponseEntity<Page<MemberResponse>> findMembersByStatus(@RequestParam("status") MemberStatus status, Pageable pageable) {
+    public ResponseEntity<Page<MemberResponse>> findMembersByStatus(
+            @RequestParam("status") MemberStatus status,
+            @PageableDefault(sort = {"name"}, direction = Sort.Direction.ASC) Pageable pageable) {
         return ResponseEntity.ok().body(memberService.getMembersByStatus(status, pageable));
     }
 

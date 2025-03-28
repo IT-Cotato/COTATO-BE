@@ -1,9 +1,12 @@
 package org.cotato.csquiz.domain.auth.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,13 +27,13 @@ import org.cotato.csquiz.domain.auth.service.component.MemberReader;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.core.parameters.P;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -74,8 +77,8 @@ class MemberServiceTest {
         memberService.activateMember(member.getId());
 
         // then
-        Assertions.assertEquals(MemberStatus.APPROVED, member.getStatus());
-        Assertions.assertEquals(true, leavingRequest.isReactivated());
+        assertEquals(MemberStatus.APPROVED, member.getStatus());
+        assertEquals(true, leavingRequest.isReactivated());
     }
 
     @Test
@@ -95,7 +98,7 @@ class MemberServiceTest {
     }
 
     @Test
-    void 상태에_따른_부원_목록_조회() {
+    void 승인된_부원_목록_조회() {
         // given
         Member member1 = Member.defaultMember("email1", "password1", "name1", "1");
         Member member2 = Member.defaultMember("email2", "password2", "name2", "2");
@@ -103,15 +106,24 @@ class MemberServiceTest {
         member2.updateStatus(MemberStatus.APPROVED);
 
         PageImpl<Member> members = new PageImpl<>(List.of(member1, member2));
-        when(memberRepository.findAllByStatus(MemberStatus.APPROVED, Pageable.ofSize(2))).thenReturn(members);
+        when(memberRepository.findAllByStatus(eq(MemberStatus.APPROVED), any(Pageable.class))).thenReturn(members);
+
         when(encryptService.decryptPhoneNumber(any())).thenReturn("01012345678");
 
         // when
         var approvedMembers = memberService.getMembersByStatus(MemberStatus.APPROVED, Pageable.ofSize(2));
 
         // then
-        Assertions.assertEquals(2, approvedMembers.getNumberOfElements());
-        verify(memberRepository).findAllByStatus(MemberStatus.APPROVED, Pageable.ofSize(2));
+        assertEquals(2, approvedMembers.getNumberOfElements());
+        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        verify(memberRepository).findAllByStatus(eq(MemberStatus.APPROVED), pageableCaptor.capture());
+        Pageable capturedPageable = pageableCaptor.getValue();
+
+        Sort expectedSort = Sort.by(
+                Sort.Order.desc("passedGenerationNumber"),
+                Sort.Order.asc("name")
+        );
+        assertEquals(expectedSort, capturedPageable.getSort());
     }
 
     @Test
@@ -137,9 +149,9 @@ class MemberServiceTest {
                 ImageUpdateStatus.UPDATE, profileImage);
 
         //then
-        Assertions.assertEquals(member.getIntroduction(), introduction);
-        Assertions.assertEquals(member.getUniversity(), university);
-        Assertions.assertEquals(member.getProfileImage(), newS3Info);
+        assertEquals(member.getIntroduction(), introduction);
+        assertEquals(member.getUniversity(), university);
+        assertEquals(member.getProfileImage(), newS3Info);
     }
 
     @Test
@@ -164,8 +176,8 @@ class MemberServiceTest {
                 ImageUpdateStatus.KEEP, null);
 
         //then
-        Assertions.assertEquals(member.getIntroduction(), introduction);
-        Assertions.assertEquals(member.getUniversity(), "before");
+        assertEquals(member.getIntroduction(), introduction);
+        assertEquals(member.getUniversity(), "before");
         Assertions.assertNotNull(member.getProfileImage());
     }
 
