@@ -44,7 +44,9 @@ import org.cotato.csquiz.domain.generation.repository.GenerationMemberRepository
 import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -266,7 +268,19 @@ public class MemberService {
     }
 
     public Page<MemberResponse> getMembersByStatus(final MemberStatus status, Pageable pageable) {
-        return memberRepository.findAllByStatus(status, pageable).map(member -> MemberResponse.of(member, findBackFourNumber(member)));
+        switch (status) {
+            case APPROVED, RETIRED-> {
+                Sort sort = Sort.by(
+                        Sort.Order.desc("passedGenerationNumber"),
+                        Sort.Order.asc("name")
+                );
+                Pageable pageRequest = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+                return memberRepository.findAllByStatus(status, pageRequest).map(member -> MemberResponse.of(member, findBackFourNumber(member)));
+            }
+            default -> {
+                return memberRepository.findAllByStatus(status, pageable).map(member -> MemberResponse.of(member, findBackFourNumber(member)));
+            }
+        }
     }
 
     @Transactional
