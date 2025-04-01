@@ -170,19 +170,15 @@ public class AttendanceRecordService {
     }
 
     @Transactional
-    public void updateAttendanceRecords(Long attendanceId, Long memberId, AttendanceResult attendanceResult) {
+    public void updateAttendanceRecord(Long attendanceId, Long memberId, AttendanceResult attendanceResult) {
         Attendance attendance = attendanceRepository.findById(attendanceId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석이 존재하지 않습니다"));
 
         AttendanceRecord attendanceRecord = attendanceRecordRepository.findByMemberIdAndAttendanceId(memberId, attendanceId)
                 .orElseGet(() -> AttendanceRecord.absentRecord(attendance, memberId));
-        Session session = sessionReader.findById(attendance.getSessionId());
 
-        if (!session.getSessionType().isSameType(attendanceRecord.getAttendanceType())) {
-            throw new AppException(ErrorCode.INVALID_RECORD_UPDATE);
-        }
-        // Todo https://github.com/IT-Cotato/COTATO-BE/issues/204
         attendanceRecord.updateAttendanceResult(attendanceResult);
+        // Todo https://github.com/IT-Cotato/COTATO-BE/issues/204
 
         attendanceRecordRepository.save(attendanceRecord);
     }
