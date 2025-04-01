@@ -151,25 +151,6 @@ public class AttendanceRecordService {
     }
 
     @Transactional
-    public void updateUnrecordedAttendanceRecord(Long sessionId) {
-        Attendance attendance = attendanceRepository.findBySessionId(sessionId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 세션에 대한 출석이 생성되지 않았습니다."));
-        Session session = sessionReader.findById(sessionId);
-        // 출결 입력을 한 부원
-        Set<Long> attendedMember = attendanceRecordRepository.findAllByAttendanceId(attendance.getId()).stream()
-                .map(AttendanceRecord::getMemberId)
-                .collect(Collectors.toUnmodifiableSet());
-
-        List<AttendanceRecord> unrecordedMemberIds = memberReader.findAllGenerationMember(session.getGeneration()).stream()
-                .map(Member::getId)
-                .filter(id -> !attendedMember.contains(id))
-                .map(id -> AttendanceRecord.absentRecord(attendance, id))
-                .toList();
-
-        attendanceRecordRepository.saveAll(unrecordedMemberIds);
-    }
-
-    @Transactional
     public void updateAttendanceRecord(Long attendanceId, Long memberId, AttendanceResult attendanceResult) {
         Attendance attendance = attendanceRepository.findById(attendanceId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석이 존재하지 않습니다"));
