@@ -1,7 +1,9 @@
 package org.cotato.csquiz.domain.generation.service.component;
 
 import jakarta.persistence.EntityNotFoundException;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.generation.entity.Generation;
@@ -35,5 +37,15 @@ public class SessionReader {
     public List<Session> getAllByAttendances(List<Attendance> attendances) {
         List<Long> sessionIds = attendances.stream().map(Attendance::getSessionId).toList();
         return sessionRepository.findAllByIdIn(sessionIds);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Session> getByDate(LocalDate date) {
+        return sessionRepository.findBySessionDate(date);
+    }
+
+    public Session getByAttendance(Attendance attendance) {
+        return sessionRepository.findById(attendance.getSessionId())
+                .orElseThrow(() -> new EntityNotFoundException("해당 세션을 찾을 수 없습니다."));
     }
 }

@@ -27,6 +27,8 @@ import org.cotato.csquiz.domain.attendance.enums.AttendanceOpenStatus;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRecordRepository;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
+import org.cotato.csquiz.domain.attendance.service.component.AttendanceReader;
+import org.cotato.csquiz.domain.attendance.service.component.AttendanceRecordReader;
 import org.cotato.csquiz.domain.auth.component.GenerationMemberAuthValidator;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.service.component.MemberReader;
@@ -51,23 +53,26 @@ public class AttendanceRecordService {
     private final GenerationReader generationReader;
     private final SessionReader sessionReader;
     private final GenerationMemberAuthValidator authValidator;
+    private final AttendanceReader attendanceReader;
+    private final AttendanceRecordReader attendanceRecordReader;
 
     public List<GenerationMemberAttendanceRecordResponse> findAttendanceRecords(Long generationId) {
         Generation generation = generationReader.findById(generationId);
         List<Long> sessionIds = sessionReader.findAllByGeneration(generation).stream().map(Session::getId).toList();
         List<Attendance> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds);
 
-
         List<Long> attendanceIds = attendances.stream().map(Attendance::getId).toList();
 
-        Map<Long, List<AttendanceRecord>> recordsByMemberId = attendanceRecordRepository.findAllByAttendanceIdsInQuery(attendanceIds).stream()
+        Map<Long, List<AttendanceRecord>> recordsByMemberId = attendanceRecordRepository.findAllByAttendanceIdsInQuery(
+                        attendanceIds).stream()
                 .collect(Collectors.groupingBy(AttendanceRecord::getMemberId));
 
         return memberReader.findAllGenerationMember(generation).stream()
                 .sorted(Comparator.comparing(Member::getName))
                 .map(member -> GenerationMemberAttendanceRecordResponse.of(
                         member,
-                        AttendanceStatistic.of(recordsByMemberId.getOrDefault(member.getId(), List.of()), attendances.size())
+                        AttendanceStatistic.of(recordsByMemberId.getOrDefault(member.getId(), List.of()),
+                                attendances.size())
                 ))
                 .toList();
     }
@@ -86,7 +91,8 @@ public class AttendanceRecordService {
 
         return memberById.keySet().stream()
                 .sorted(Comparator.comparing(memberId -> memberById.get(memberId).getName()))
-                .map(memberId -> AttendanceRecordResponse.of(memberById.get(memberId), attendanceResultByMemberId.getOrDefault(memberId, null)))
+                .map(memberId -> AttendanceRecordResponse.of(memberById.get(memberId),
+                        attendanceResultByMemberId.getOrDefault(memberId, null)))
                 .toList();
     }
 
@@ -144,53 +150,35 @@ public class AttendanceRecordService {
                 .collect(Collectors.toList());
 
         responses.addAll(recordedAttendance.get(false).stream()
-                .map(at -> MemberAttendResponse.unrecordedAttendance(sessionMap.get(at.getSessionId()), at, member.getId()))
+                .map(at -> MemberAttendResponse.unrecordedAttendance(sessionMap.get(at.getSessionId()), at,
+                        member.getId()))
                 .toList());
 
         return MemberAttendanceRecordsResponse.of(generationId, responses);
     }
 
     @Transactional
-    public void updateUnrecordedAttendanceRecord(Long sessionId) {
-        Attendance attendance = attendanceRepository.findBySessionId(sessionId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 세션에 대한 출석이 생성되지 않았습니다."));
-        Session session = sessionReader.findById(sessionId);
-        // 출결 입력을 한 부원
-        Set<Long> attendedMember = attendanceRecordRepository.findAllByAttendanceId(attendance.getId()).stream()
-                .map(AttendanceRecord::getMemberId)
-                .collect(Collectors.toUnmodifiableSet());
+    public void updateAttendanceRecord(final Long attendanceId, final Long memberId, AttendanceResult attendanceResult) {
+        Attendance attendance = attendanceReader.findById(attendanceId);
+        Session session = sessionReader.getByAttendance(attendance);
 
-        List<AttendanceRecord> unrecordedMemberIds = memberReader.findAllGenerationMember(session.getGeneration()).stream()
-                .map(Member::getId)
-                .filter(id -> !attendedMember.contains(id))
-                .map(id -> AttendanceRecord.absentRecord(attendance, id))
-                .toList();
+        if (!session.getSessionType().canChangeResult(attendanceResult)) {
+            throw new AppException(ErrorCode.INVALID_RECORD_UPDATE);
+        }
 
-        attendanceRecordRepository.saveAll(unrecordedMemberIds);
-    }
-
-    @Transactional
-    public void updateAttendanceRecords(Long attendanceId, Long memberId, AttendanceResult attendanceResult) {
-        Attendance attendance = attendanceRepository.findById(attendanceId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 출석이 존재하지 않습니다"));
-
-        AttendanceRecord attendanceRecord = attendanceRecordRepository.findByMemberIdAndAttendanceId(memberId, attendanceId)
+        Member member = memberReader.findById(memberId);
+        AttendanceRecord attendanceRecord = attendanceRecordReader.getByAttendanceAndMember(attendance, member)
                 .orElseGet(() -> AttendanceRecord.absentRecord(attendance, memberId));
-        Session session = sessionReader.findById(attendance.getSessionId());
 
-//        if (!session.getSessionType().isSameType(attendanceRecord.getAttendanceType())) {
-//            throw new AppException(ErrorCode.INVALID_RECORD_UPDATE);
-//        }
-        // Todo https://github.com/IT-Cotato/COTATO-BE/issues/204
         attendanceRecord.updateAttendanceResult(attendanceResult);
-
         attendanceRecordRepository.save(attendanceRecord);
     }
 
     @Transactional
     public void refreshAttendanceRecords(final Attendance attendance) {
         Session session = sessionReader.findById(attendance.getSessionId());
-        if (session.getSessionType() == SessionType.NO_ATTEND || session.getSessionDateTime().isBefore(LocalDateTime.now())) {
+        if (session.getSessionType() == SessionType.NO_ATTEND || session.getSessionDateTime()
+                .isBefore(LocalDateTime.now())) {
             return;
         }
 

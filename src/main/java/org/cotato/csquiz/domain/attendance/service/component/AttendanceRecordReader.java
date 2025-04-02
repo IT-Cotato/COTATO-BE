@@ -1,10 +1,12 @@
 package org.cotato.csquiz.domain.attendance.service.component;
 
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.entity.AttendanceRecord;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRecordRepository;
+import org.cotato.csquiz.domain.auth.entity.Member;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,5 +24,9 @@ public class AttendanceRecordReader {
 
     public boolean isAttendanceRecordExist(final Attendance attendance) {
         return attendanceRecordRepository.existsByAttendanceId(attendance.getId());
+    }
+
+    public Optional<AttendanceRecord> getByAttendanceAndMember(Attendance attendance, Member member) {
+        return attendanceRecordRepository.findByMemberIdAndAttendanceId(member.getId(), attendance.getId());
     }
 }
