@@ -2,6 +2,7 @@ package org.cotato.csquiz.domain.generation.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
 
 @Getter
@@ -47,5 +48,17 @@ public enum SessionType {
 
     public boolean hasOnline() {
         return this == ONLINE || this == ALL;
+    }
+
+    public boolean canChangeResult(AttendanceResult attendanceResult) {
+        if (attendanceResult == null) {
+            return false;
+        }
+
+        return switch (attendanceResult) {
+            case ONLINE -> this == ONLINE || this == ALL;
+            case OFFLINE -> this == OFFLINE || this == ALL;
+            default -> false;
+        };
     }
 }

@@ -43,4 +43,9 @@ public class SessionReader {
     public Optional<Session> getByDate(LocalDate date) {
         return sessionRepository.findBySessionDate(date);
     }
+
+    public Session getByAttendance(Attendance attendance) {
+        return sessionRepository.findById(attendance.getSessionId())
+                .orElseThrow(() -> new EntityNotFoundException("해당 세션을 찾을 수 없습니다."));
+    }
 }
