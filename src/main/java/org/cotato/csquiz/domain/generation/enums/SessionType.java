@@ -58,7 +58,7 @@ public enum SessionType {
         return switch (attendanceResult) {
             case ONLINE -> this == ONLINE || this == ALL;
             case OFFLINE -> this == OFFLINE || this == ALL;
-            default -> false;
+            case ABSENT , LATE -> this != NO_ATTEND;
         };
     }
 }
