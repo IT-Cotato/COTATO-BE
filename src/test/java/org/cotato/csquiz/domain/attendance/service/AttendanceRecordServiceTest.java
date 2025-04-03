@@ -83,4 +83,24 @@ class AttendanceRecordServiceTest {
                 () -> attendanceRecordService.updateAttendanceRecord(1L, 1L, AttendanceResult.OFFLINE));
         Assertions.assertEquals(ErrorCode.INVALID_RECORD_UPDATE, appException.getErrorCode());
     }
+
+    @Test
+    void 출결_기록은_결석_또는_지각으로_변경_가능() {
+        // given
+        Session session = Session.builder().sessionType(SessionType.OFFLINE).build();
+        Attendance attendance = Attendance.builder().session(session).build();
+        AttendanceRecord attendanceRecord = AttendanceRecord.absentRecord(attendance, 1L);
+        Member member = Member.defaultMember("test", "test", "test", "test");
+
+        when(attendanceReader.findById(any())).thenReturn(attendance);
+        when(attendanceRecordReader.getByAttendanceAndMember(any(), any())).thenReturn(Optional.of(attendanceRecord));
+        when(sessionReader.getByAttendance(attendance)).thenReturn(session);
+        when(memberReader.findById(any())).thenReturn(member);
+
+        // when
+        attendanceRecordService.updateAttendanceRecord(1L, 1L, AttendanceResult.LATE);
+
+        // then
+        Assertions.assertEquals(AttendanceResult.LATE, attendanceRecord.getAttendanceResult());
+    }
 }
