@@ -210,18 +210,12 @@ public class MemberService {
         return memberReader.findAllGenerationMember(currentGeneration);
     }
 
-    public SearchedMembersResponse findAddableMembers(final Long generationId, Integer generationNumber,
-                                                      MemberPosition memberPosition, String name) {
+    public SearchedMembersResponse findAddableMembers(final Long generationId, Integer generationNumber, MemberPosition memberPosition, String name) {
         Generation generation = generationReader.findById(generationId);
-
-        //이미 기수에 추가된 멤버는 제외하기 위함
-        List<Long> existMemberIds = generationMemberRepository.findAllByGenerationIdWithMember(generation.getId())
-                .stream()
+        List<Long> existMemberIds = generationMemberRepository.findAllByGenerationIdWithMember(generation.getId()).stream()
                 .map(gm -> gm.getMember().getId())
                 .toList();
 
-        //1. 합격 기수, 포지션, 이름으로 필터링한다.(findAllWithFilters)
-        //2. 이미 기수에 들어가 있는 멤버는 필터링한다.
         List<Member> filteredAddableMember = memberRepository.findAllWithFilters(generationNumber, memberPosition, name)
                 .stream()
                 .filter(member -> member.isApproved() || member.isRetired())
@@ -259,10 +253,8 @@ public class MemberService {
     }
 
     private boolean isCheckedAllLeavingPolicies(List<CheckPolicyRequest> policyIds, List<Policy> leavingPolicies) {
-        Set<Long> leavingPolicyIds = leavingPolicies.stream().map(Policy::getId)
-                .collect(Collectors.toUnmodifiableSet());
-        Set<Long> checkedPolicyIds = policyIds.stream().map(CheckPolicyRequest::policyId)
-                .collect(Collectors.toUnmodifiableSet());
+        Set<Long> leavingPolicyIds = leavingPolicies.stream().map(Policy::getId).collect(Collectors.toUnmodifiableSet());
+        Set<Long> checkedPolicyIds = policyIds.stream().map(CheckPolicyRequest::policyId).collect(Collectors.toUnmodifiableSet());
         return SetUtils.isEqualSet(leavingPolicyIds, checkedPolicyIds);
     }
 
@@ -277,18 +269,16 @@ public class MemberService {
 
     public Page<MemberResponse> getMembersByStatus(final MemberStatus status, Pageable pageable) {
         switch (status) {
-            case APPROVED, RETIRED -> {
+            case APPROVED, RETIRED-> {
                 Sort sort = Sort.by(
                         Sort.Order.desc("passedGenerationNumber"),
                         Sort.Order.asc("name")
                 );
                 Pageable pageRequest = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
-                return memberRepository.findAllByStatus(status, pageRequest)
-                        .map(member -> MemberResponse.of(member, findBackFourNumber(member)));
+                return memberRepository.findAllByStatus(status, pageRequest).map(member -> MemberResponse.of(member, findBackFourNumber(member)));
             }
             default -> {
-                return memberRepository.findAllByStatus(status, pageable)
-                        .map(member -> MemberResponse.of(member, findBackFourNumber(member)));
+                return memberRepository.findAllByStatus(status, pageable).map(member -> MemberResponse.of(member, findBackFourNumber(member)));
             }
         }
     }
@@ -308,8 +298,7 @@ public class MemberService {
         // Todo: event를 통한 이메일 발송
     }
 
-    public SearchedMembersResponse getMembersByName(Integer passedGenerationNumber, MemberPosition position,
-                                                    String name, MemberStatus memberStatus) {
+    public SearchedMembersResponse getMembersByName(Integer passedGenerationNumber, MemberPosition position, String name, MemberStatus memberStatus) {
         List<Member> members = memberRepository.findAllWithFilters(passedGenerationNumber, position, name)
                 .stream()
                 .filter(member -> member.getStatus() == memberStatus)

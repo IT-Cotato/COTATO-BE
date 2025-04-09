@@ -10,7 +10,7 @@ import org.cotato.csquiz.api.generation.dto.AddGenerationResponse;
 import org.cotato.csquiz.api.generation.dto.GenerationInfoResponse;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
-import org.cotato.csquiz.domain.generation.embedded.Period;
+import org.cotato.csquiz.domain.generation.embedded.GenerationPeriod;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.repository.GenerationRepository;
 import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
@@ -36,7 +36,7 @@ public class GenerationService {
         checkNumberValid(generationNumber);
         Generation generation = Generation.builder()
                 .number(generationNumber)
-                .period(Period.of(startDate, endDate))
+                .period(GenerationPeriod.of(startDate, endDate))
                 .build();
         Generation savedGeneration = generationRepository.save(generation);
         return AddGenerationResponse.from(savedGeneration);
@@ -55,7 +55,7 @@ public class GenerationService {
         if (generationRepository.existsByPeriod_EndDateGreaterThanEqualAndPeriod_StartDateLessThanEqualAndIdNot(startDate, endDate, generationId)) {
             throw new AppException(ErrorCode.OVERLAPPING_DATE);
         }
-        generation.changePeriod(Period.of(startDate, endDate));
+        generation.changePeriod(GenerationPeriod.of(startDate, endDate));
     }
 
     public List<GenerationInfoResponse> findGenerations() {
