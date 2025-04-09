@@ -1,6 +1,7 @@
 package org.cotato.csquiz.domain.auth.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -10,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import org.cotato.csquiz.api.member.dto.MemberResponse;
 import org.cotato.csquiz.api.member.dto.ProfileLinkRequest;
 import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.common.error.exception.AppException;
@@ -18,6 +20,7 @@ import org.cotato.csquiz.common.s3.S3Uploader;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.entity.MemberLeavingRequest;
 import org.cotato.csquiz.domain.auth.enums.ImageUpdateStatus;
+import org.cotato.csquiz.domain.auth.enums.MemberPosition;
 import org.cotato.csquiz.domain.auth.enums.MemberStatus;
 import org.cotato.csquiz.domain.auth.enums.UrlType;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
@@ -30,7 +33,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.mock.web.MockMultipartFile;
@@ -178,7 +183,7 @@ class MemberServiceTest {
         //then
         assertEquals(member.getIntroduction(), introduction);
         assertEquals(member.getUniversity(), "before");
-        Assertions.assertNotNull(member.getProfileImage());
+        assertNotNull(member.getProfileImage());
     }
 
     private Member getDefaultMember() {
@@ -188,5 +193,34 @@ class MemberServiceTest {
         member.updateUniversity("before");
         member.updateProfileImage(new S3Info("url", "file", "folder"));
         return member;
+    }
+
+    @Test
+    void OM검색_페이징_반환() {
+        // given
+        Pageable pageable = PageRequest.of(0, 1);
+        Member member1 = Member.defaultMember("email1", "password1", "name1", "1");
+        Member member2 = Member.defaultMember("email2", "password2", "name2", "2");
+        member1.updateStatus(MemberStatus.RETIRED);
+        member2.updateStatus(MemberStatus.RETIRED);
+        member1.updatePassedGenerationNumber(1);
+        member1.updatePosition(MemberPosition.BE);
+        member2.updatePassedGenerationNumber(1);
+        member2.updatePosition(MemberPosition.BE);
+
+        Page<Member> memberPage = new PageImpl<>(List.of(member1, member2), pageable, 1);
+
+        // When: Repository의 메서드를 stub 처리함
+        when(memberRepository.findAllWithFiltersPageable(1, MemberPosition.BE, MemberStatus.RETIRED, null, pageable))
+                .thenReturn(memberPage);
+        when(encryptService.decryptPhoneNumber(any())).thenReturn("01012345678");
+
+        Page<MemberResponse> result = memberService.getMembersByName(1, MemberPosition.BE, null, MemberStatus.RETIRED, pageable);
+
+        // Then: 결과 검증
+        assertNotNull(result);
+        assertEquals(1, result.getTotalElements());
+        MemberResponse response = result.getContent().get(0);
+        assertEquals("name1", response.name());
     }
 }

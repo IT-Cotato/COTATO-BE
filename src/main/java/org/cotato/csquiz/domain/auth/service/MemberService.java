@@ -11,12 +11,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.SetUtils;
 import org.cotato.csquiz.api.admin.dto.MemberInfoResponse;
-import org.cotato.csquiz.api.member.dto.SearchedMembersResponse;
 import org.cotato.csquiz.api.member.dto.MemberInfo;
 import org.cotato.csquiz.api.member.dto.MemberMyPageInfoResponse;
 import org.cotato.csquiz.api.member.dto.MemberResponse;
 import org.cotato.csquiz.api.member.dto.ProfileInfoResponse;
 import org.cotato.csquiz.api.member.dto.ProfileLinkRequest;
+import org.cotato.csquiz.api.member.dto.SearchedMembersResponse;
 import org.cotato.csquiz.api.policy.dto.CheckPolicyRequest;
 import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.common.error.ErrorCode;
@@ -24,20 +24,20 @@ import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.common.error.exception.ImageException;
 import org.cotato.csquiz.common.s3.S3Uploader;
 import org.cotato.csquiz.domain.auth.entity.Member;
-import org.cotato.csquiz.domain.auth.entity.MemberPolicy;
 import org.cotato.csquiz.domain.auth.entity.MemberLeavingRequest;
+import org.cotato.csquiz.domain.auth.entity.MemberPolicy;
 import org.cotato.csquiz.domain.auth.entity.Policy;
 import org.cotato.csquiz.domain.auth.entity.ProfileLink;
 import org.cotato.csquiz.domain.auth.enums.ImageUpdateStatus;
 import org.cotato.csquiz.domain.auth.enums.MemberPosition;
 import org.cotato.csquiz.domain.auth.enums.MemberStatus;
 import org.cotato.csquiz.domain.auth.enums.PolicyCategory;
+import org.cotato.csquiz.domain.auth.repository.MemberLeavingRequestRepository;
 import org.cotato.csquiz.domain.auth.repository.MemberPolicyRepository;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
-import org.cotato.csquiz.domain.auth.repository.MemberLeavingRequestRepository;
 import org.cotato.csquiz.domain.auth.repository.ProfileLinkRepository;
-import org.cotato.csquiz.domain.auth.service.component.MemberReader;
 import org.cotato.csquiz.domain.auth.service.component.MemberLeavingRequestReader;
+import org.cotato.csquiz.domain.auth.service.component.MemberReader;
 import org.cotato.csquiz.domain.auth.service.component.PolicyReader;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.repository.GenerationMemberRepository;
@@ -298,17 +298,7 @@ public class MemberService {
         // Todo: event를 통한 이메일 발송
     }
 
-    public SearchedMembersResponse getMembersByName(Integer passedGenerationNumber, MemberPosition position, String name, MemberStatus memberStatus) {
-        List<Member> members = memberRepository.findAllWithFilters(passedGenerationNumber, position, name)
-                .stream()
-                .filter(member -> member.getStatus() == memberStatus)
-                .sorted(Comparator
-                        .comparing(Member::isApproved)
-                        .reversed()
-                        .thenComparing(Member::getName)
-                )
-                .toList();
-
-        return SearchedMembersResponse.from(members);
+    public Page<MemberResponse> getMembersByName(Integer passedGenerationNumber, MemberPosition position, String name, MemberStatus memberStatus, Pageable pageable) {
+        return memberRepository.findAllWithFiltersPageable(passedGenerationNumber, position, memberStatus, name, pageable).map(member -> MemberResponse.of(member, findBackFourNumber(member)));
     }
 }
