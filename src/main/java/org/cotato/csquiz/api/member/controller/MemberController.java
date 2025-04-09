@@ -72,11 +72,15 @@ public class MemberController {
                 .body(memberService.findAddableMembers(generationId, generationNumber, position, name));
     }
 
+    @Operation(summary = "OM 검색 API")
+    @RoleAuthority(MemberRole.ADMIN)
     @GetMapping(value = "/search", params = "status=RETIRED")
-    public ResponseEntity<SearchedMembersResponse> findRetiredMembers(@RequestParam(value = "passedGenerationNumber",required = false) Integer passedGenerationNumber,
-                                                                      @RequestParam(value = "position", required = false) MemberPosition position,
-                                                                      @RequestParam(value = "name", required = false) String name) {
-        return ResponseEntity.ok().body(memberService.getMembersByName(passedGenerationNumber, position, name, MemberStatus.RETIRED));
+    public ResponseEntity<Page<MemberResponse>> findRetiredMembers(
+            @RequestParam(value = "passedGenerationNumber", required = false) Integer passedGenerationNumber,
+            @RequestParam(value = "position", required = false) MemberPosition position,
+            @RequestParam(value = "name", required = false) String name,
+            Pageable pageable) {
+        return ResponseEntity.ok().body(memberService.getMembersByName(passedGenerationNumber, position, name, MemberStatus.RETIRED, pageable));
     }
 
     @PatchMapping("/update/password")
@@ -101,7 +105,7 @@ public class MemberController {
                                                   @RequestPart(required = false) MultipartFile profileImage)
             throws IOException {
         memberService.updateMemberProfileInfo(member, request.introduction(), request.university(),
-                request.profileLinks(), request.imageUpdateStatus() ,profileImage);
+                request.profileLinks(), request.imageUpdateStatus(), profileImage);
         return ResponseEntity.noContent().build();
     }
 
@@ -112,7 +116,8 @@ public class MemberController {
     }
 
     @GetMapping("/{memberId}/mypage")
-    public ResponseEntity<MemberMyPageInfoResponse> findMyPageInfo(@AuthenticationPrincipal Member member, @PathVariable("memberId") Long memberId)
+    public ResponseEntity<MemberMyPageInfoResponse> findMyPageInfo(@AuthenticationPrincipal Member member,
+                                                                   @PathVariable("memberId") Long memberId)
             throws NoPermissionException {
         if (!member.getId().equals(memberId)) {
             throw new NoPermissionException("본인 외의 정보는 조회할 수 없습니다.");
