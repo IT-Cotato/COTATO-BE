@@ -73,6 +73,7 @@ public class MemberController {
     }
 
     @Operation(summary = "OM 검색 API")
+    @RoleAuthority(MemberRole.ADMIN)
     @GetMapping(value = "/search", params = "status=RETIRED")
     public ResponseEntity<Page<MemberResponse>> findRetiredMembers(
             @RequestParam(value = "passedGenerationNumber", required = false) Integer passedGenerationNumber,
