@@ -18,11 +18,11 @@ import org.cotato.csquiz.domain.auth.entity.Member;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RecruitmentEmail extends BaseTimeEntity {
+public class RecruitmentNotification extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "email_id")
+    @Column(name = "notification_id")
     private Long id;
 
     @Column(name = "generation_number", nullable = false)

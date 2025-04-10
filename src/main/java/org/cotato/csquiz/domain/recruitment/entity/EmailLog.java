@@ -28,8 +28,8 @@ public class EmailLog extends BaseTimeEntity {
     private EmailApplicant applicant;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "email_id", nullable = false)
-    private RecruitmentEmail email;
+    @JoinColumn(name = "notification_id", nullable = false)
+    private RecruitmentNotification notification;
 
     @Column(name = "send_success")
     private Boolean sendSuccess;
