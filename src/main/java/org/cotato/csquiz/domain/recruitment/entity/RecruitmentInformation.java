@@ -17,14 +17,14 @@ import org.cotato.csquiz.domain.generation.embedded.Period;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RecruitmentStatus extends BaseTimeEntity {
+public class RecruitmentInformation extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "recruitment_id")
+    @Column(name = "id")
     private Long id;
 
-    @Column(name = "open")
+    @Column(name = "is_opened")
     private Boolean isOpened;
 
     @Embedded
@@ -34,6 +34,6 @@ public class RecruitmentStatus extends BaseTimeEntity {
     })
     private Period period;
 
-    @Column(name = "url", columnDefinition = "TEXT")
-    private String url;
+    @Column(name = "recruitment_url", columnDefinition = "TEXT")
+    private String recruitmentUrl;
 }
