@@ -14,7 +14,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.cotato.csquiz.api.generation.dto.GenerationInfoResponse;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.generation.entity.Generation;
-import org.cotato.csquiz.domain.generation.embedded.GenerationPeriod;
+import org.cotato.csquiz.domain.generation.embedded.Period;
 import org.cotato.csquiz.domain.generation.repository.GenerationRepository;
 import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,7 +45,7 @@ class GenerationServiceTest {
         // given: 기수 데이터 설정
         Generation currentGeneration = Generation.builder()
                 .number(2)
-                .period(GenerationPeriod.of(LocalDate.of(2024, 7, 1), LocalDate.of(2024, 10, 1)))
+                .period(Period.of(LocalDate.of(2024, 7, 1), LocalDate.of(2024, 10, 1)))
                 .build();
 
         // when: 현재 날짜에 해당하는 기수 반환
@@ -63,7 +63,7 @@ class GenerationServiceTest {
         // given
         Generation previousGeneration = Generation.builder()
                 .number(2)
-                .period(GenerationPeriod.of(LocalDate.of(2024, 7, 1), LocalDate.of(2024, 10, 1)))
+                .period(Period.of(LocalDate.of(2024, 7, 1), LocalDate.of(2024, 10, 1)))
                 .build();
 
         // when: 현재 날짜에 해당하는 기수가 없을 때 이전 기수를 반환
@@ -128,7 +128,7 @@ class GenerationServiceTest {
         Integer generationNumber = 3;
         Generation newGeneration = Generation.builder()
                 .number(generationNumber)
-                .period(GenerationPeriod.of(startDate, endDate))
+                .period(Period.of(startDate, endDate))
                 .build();
 
         when(generationRepository.existsByPeriod_EndDateGreaterThanEqualAndPeriod_StartDateLessThanEqual(startDate, endDate))
@@ -158,7 +158,7 @@ class GenerationServiceTest {
         LocalDate endDate = LocalDate.of(2025, 9, 1);
         Generation generation = Generation.builder()
                 .number(3)
-                .period(GenerationPeriod.of(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 5, 1)))
+                .period(Period.of(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 5, 1)))
                 .build();
 
         when(generationReader.findById(generationId)).thenReturn(generation);
@@ -179,7 +179,7 @@ class GenerationServiceTest {
         LocalDate endDate = LocalDate.of(2025, 9, 1);
         Generation generation = Generation.builder()
                 .number(3)
-                .period(GenerationPeriod.of(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 5, 1)))
+                .period(Period.of(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 5, 1)))
                 .build();
 
         when(generationReader.findById(generationId)).thenReturn(generation);
@@ -198,11 +198,11 @@ class GenerationServiceTest {
     void 기수_목록_조회() {
         // given
         Generation generation1 = Generation.builder().number(3)
-                .period(GenerationPeriod.of(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 5, 1)))
+                .period(Period.of(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 5, 1)))
                 .build();
 
         Generation generation2 = Generation.builder().number(3)
-                .period(GenerationPeriod.of(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 5, 1)))
+                .period(Period.of(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 5, 1)))
                 .build();
         generation2.updateVisible(false);
 
