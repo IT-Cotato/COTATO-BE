@@ -15,7 +15,8 @@ import org.cotato.csquiz.common.entity.BaseTimeEntity;
 
 @Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED) public class RecruitmentNotificationEmailLog extends BaseTimeEntity {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class RecruitmentNotificationEmailLog extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +24,7 @@ import org.cotato.csquiz.common.entity.BaseTimeEntity;
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "receive_id", nullable = false)
+    @JoinColumn(name = "receiver_id", nullable = false)
     private RecruitmentNotificationRequester receiver;
 
     @ManyToOne(fetch = FetchType.LAZY)
