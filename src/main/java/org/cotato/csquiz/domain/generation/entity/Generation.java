@@ -13,7 +13,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.csquiz.common.entity.BaseTimeEntity;
-import org.cotato.csquiz.domain.generation.embedded.GenerationPeriod;
+import org.cotato.csquiz.domain.generation.embedded.Period;
 
 @Entity
 @Getter
@@ -33,7 +33,7 @@ public class Generation extends BaseTimeEntity {
             @AttributeOverride(name = "startDate", column = @Column(name = "generation_start_date")),
             @AttributeOverride(name = "endDate", column = @Column(name = "generation_end_date"))
     })
-    private GenerationPeriod period;
+    private Period period;
 
     @Column(name = "generation_recruiting")
     private Boolean isRecruit;
@@ -42,7 +42,7 @@ public class Generation extends BaseTimeEntity {
     private boolean visible;
 
     @Builder
-    public Generation(Integer number, GenerationPeriod period) {
+    public Generation(Integer number, Period period) {
         this.number = number;
         this.period = period;
         this.isRecruit = false;
@@ -53,7 +53,7 @@ public class Generation extends BaseTimeEntity {
         this.isRecruit = isRecruit;
     }
 
-    public void changePeriod(GenerationPeriod period) {
+    public void changePeriod(Period period) {
         this.period = period;
     }
 
