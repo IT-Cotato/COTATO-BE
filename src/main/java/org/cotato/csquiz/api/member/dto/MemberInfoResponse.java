@@ -1,4 +1,4 @@
-package org.cotato.csquiz.api.admin.dto;
+package org.cotato.csquiz.api.member.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
