@@ -2,8 +2,6 @@ package org.cotato.csquiz.domain.auth.service;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.cotato.csquiz.api.admin.dto.ApplyMemberInfoResponse;
-import org.cotato.csquiz.api.admin.dto.MemberEnrollInfoResponse;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.auth.entity.Member;
@@ -27,16 +25,9 @@ public class AdminMemberService {
 
     private final MemberRepository memberRepository;
     private final RefusedMemberRepository refusedMemberRepository;
-    private final MemberService memberService;
     private final EmailNotificationService emailNotificationService;
     private final GenerationReader generationReader;
     private final MemberReader memberReader;
-
-    public List<ApplyMemberInfoResponse> getMembers(final MemberStatus status) {
-        return memberRepository.findAllByStatus(status).stream()
-                .map(member -> ApplyMemberInfoResponse.from(member, memberService.findBackFourNumber(member)))
-                .toList();
-    }
 
     @Transactional
     public void approveApplicant(final Long memberId, final MemberPosition position, final Long generationId) {
@@ -72,15 +63,6 @@ public class AdminMemberService {
         }
     }
 
-    public List<MemberEnrollInfoResponse> findCurrentActiveMembers() {
-        List<MemberRole> roles = MemberRoleGroup.ACTIVE_MEMBERS.getRoles();
-        List<Member> activeMembers = memberRepository.findAllByRoleInQuery(roles);
-        // Todo: 활동 부원 조회는 GenerationMember 기준으로 해야함 issue link : https://youthing.atlassian.net/jira/software/projects/COT/boards/2?selectedIssue=COT-139&sprints=8
-        return activeMembers.stream()
-                .map(MemberEnrollInfoResponse::of)
-                .toList();
-    }
-
     @Transactional
     public void updateMemberRole(final Long memberId, final MemberRole role) {
         Member member = memberReader.findById(memberId);
@@ -104,12 +86,6 @@ public class AdminMemberService {
         members.forEach(member -> member.updateStatus(MemberStatus.RETIRED));
         memberRepository.saveAll(members);
         // Todo: OM으로 전환된 부원에게 이메일 발송 Event로 대체
-    }
-
-    public List<MemberEnrollInfoResponse> findOldMembers() {
-        return memberRepository.findAllByStatus(MemberStatus.RETIRED).stream()
-                .map(MemberEnrollInfoResponse::of)
-                .toList();
     }
 
     @Transactional
