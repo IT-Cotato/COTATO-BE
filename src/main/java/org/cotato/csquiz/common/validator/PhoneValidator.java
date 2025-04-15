@@ -19,7 +19,7 @@ public class PhoneValidator implements ConstraintValidator<Phone, String> {
             return false;
         }
 
-        if (phone.startsWith(START_NUMBER) ){
+        if (!phone.startsWith(START_NUMBER) ){
             throw new AppException(ErrorCode.INVALID_PHONE_NUMBER_PREFIX);
         }
 
