@@ -3,8 +3,6 @@ package org.cotato.csquiz.common.validator;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.regex.Pattern;
-import org.cotato.csquiz.common.error.ErrorCode;
-import org.cotato.csquiz.common.error.exception.AppException;
 
 public class PasswordValidator implements ConstraintValidator<Password, String> {
 
@@ -16,10 +14,6 @@ public class PasswordValidator implements ConstraintValidator<Password, String> 
             return false;
         }
 
-        if (!PASSWORD_PATTERN.matcher(password).matches()) {
-            throw new AppException(ErrorCode.INVALID_PASSWORD);
-        }
-
-        return true;
+        return PASSWORD_PATTERN.matcher(password).matches();
     }
 }
