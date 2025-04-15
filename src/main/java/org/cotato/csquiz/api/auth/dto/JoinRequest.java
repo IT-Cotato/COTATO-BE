@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 import lombok.Builder;
 import org.cotato.csquiz.api.policy.dto.CheckPolicyRequest;
+import org.cotato.csquiz.common.validator.Phone;
 
 @Builder
 public record JoinRequest(
@@ -22,7 +23,7 @@ public record JoinRequest(
         @NotBlank(message = "올바른 형식의 이름을 입력해주세요.")
         String name,
         @NotNull(message = "전화번호를 입력해주세요.")
-        @Size(min = 11, max = 11, message = "'-'없이 11자리의 전화번호를 입력해주세요.")
+        @Phone(message = "전화번호는 010으로 시작하는 11자리여야합니다.")
         String phoneNumber,
 
         @Schema(description = "동의 표시한 정책 목록")
