@@ -72,7 +72,6 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final EncryptService encryptService;
-    private final ValidateService validateService;
     private final S3Uploader s3Uploader;
     private final ProfileLinkRepository profileLinkRepository;
     private final GenerationMemberRepository generationMemberRepository;
@@ -95,7 +94,6 @@ public class MemberService {
 
     @Transactional
     public void updatePassword(final Member member, final String password) {
-        validateService.checkPasswordPattern(password);
         validateIsSameBefore(member.getPassword(), password);
 
         member.updatePassword(bCryptPasswordEncoder.encode(password));
