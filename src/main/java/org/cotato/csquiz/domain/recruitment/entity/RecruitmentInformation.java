@@ -35,4 +35,8 @@ public class RecruitmentInformation extends BaseTimeEntity {
 
     @Column(name = "recruitment_url", columnDefinition = "TEXT")
     private String recruitmentUrl;
+
+    public boolean isOpened() {
+        return isOpened;
+    }
 }
