@@ -40,7 +40,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             "/v2/api/policies",
             "/v2/api/projects/**",
             "/v2/api/random-quizzes/**",
-            "/v1/api/education/counts"
+            "/v1/api/education/counts",
+            "/v2/api/recruitment"
     };
 
     private final JwtTokenProvider jwtTokenProvider;
