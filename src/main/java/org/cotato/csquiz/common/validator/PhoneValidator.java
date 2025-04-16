@@ -8,7 +8,6 @@ public class PhoneValidator implements ConstraintValidator<Phone, String> {
 
     private static final Pattern PHONE_PATTERN = Pattern.compile("^010\\d{8}$");
 
-
     @Override
     public boolean isValid(String phone, ConstraintValidatorContext constraintValidatorContext) {
         if (phone == null) {
