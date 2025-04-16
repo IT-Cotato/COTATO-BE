@@ -1,12 +1,10 @@
 package org.cotato.csquiz.domain.auth.service;
 
-import org.cotato.csquiz.common.error.exception.AppException;
-import org.cotato.csquiz.common.error.ErrorCode;
-import org.cotato.csquiz.domain.auth.repository.MemberRepository;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.cotato.csquiz.common.error.ErrorCode;
+import org.cotato.csquiz.common.error.exception.AppException;
+import org.cotato.csquiz.domain.auth.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,9 +12,6 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class ValidateService {
 
-    private static final String PASSWORD_PATTERN = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&.])[A-Za-z\\d@$!%*#?&.]{8,16}$";
-    private static final int PHONE_NUMBER_LENGTH = 11;
-    private static final String PHONE_NUMBER_PREFIX = "010";
     private final MemberRepository memberRepository;
 
     public void checkDuplicateEmail(String email) {
@@ -42,27 +37,6 @@ public class ValidateService {
     public void emailExist(String email) {
         if (!memberRepository.existsByEmail(email)) {
             throw new AppException(ErrorCode.EMAIL_NOT_FOUND);
-        }
-    }
-
-    public void checkPasswordPattern(String password) {
-        Pattern pattern = Pattern.compile(PASSWORD_PATTERN);
-        Matcher matcher = pattern.matcher(password);
-        if (!matcher.matches()) {
-            throw new AppException(ErrorCode.INVALID_PASSWORD);
-        }
-    }
-
-    public void checkPhoneNumber(String phoneNumber) {
-        if (!phoneNumber.startsWith(PHONE_NUMBER_PREFIX)) {
-            log.error("[전화번호 에러]: 010으로 시작하지 않음");
-            throw new AppException(ErrorCode.INVALID_PHONE_NUMBER_PREFIX);
-        }
-        try {
-            Integer.parseInt(phoneNumber);
-        } catch (Exception e) {
-            log.error("[전화번호 에러]: 문자열 파싱 에러");
-            throw new AppException(ErrorCode.INVALID_PHONE_NUMBER_FORMAT);
         }
     }
 }
