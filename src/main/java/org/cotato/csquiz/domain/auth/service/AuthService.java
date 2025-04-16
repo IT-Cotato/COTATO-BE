@@ -59,8 +59,6 @@ public class AuthService {
     @Transactional
     public JoinResponse createMember(final JoinRequest request) {
         validateService.checkDuplicateEmail(request.email());
-        validateService.checkPasswordPattern(request.password());
-        validateService.checkPhoneNumber(request.phoneNumber());
 
         String encryptedPhoneNumber = encryptService.encryptPhoneNumber(request.phoneNumber());
         validateService.checkDuplicatePhoneNumber(encryptedPhoneNumber);
