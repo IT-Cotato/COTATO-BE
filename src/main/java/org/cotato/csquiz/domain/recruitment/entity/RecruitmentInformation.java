@@ -23,7 +23,7 @@ public class RecruitmentInformation extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "is_opened")
+    @Column(name = "is_opened", nullable = false)
     private Boolean isOpened;
 
     @Embedded
