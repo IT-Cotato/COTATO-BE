@@ -41,7 +41,8 @@ public class SecurityConfig {
             "/v2/api/policies",
             "/v2/api/random-quizzes/**",
             "/v1/api/education/counts",
-            "/v2/api/recruitments"
+            "/v2/api/recruitments",
+            "/v2/api/recruitments/notification",
     };
 
     private final JwtTokenProvider jwtTokenProvider;

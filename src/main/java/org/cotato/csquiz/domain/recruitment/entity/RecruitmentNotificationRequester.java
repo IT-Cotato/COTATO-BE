@@ -36,4 +36,16 @@ public class RecruitmentNotificationRequester extends BaseTimeEntity {
     @Column(name = "send_status", nullable = false)
     @Enumerated(EnumType.STRING)
     private SendStatus sendStatus;
+
+    private RecruitmentNotificationRequester(String email, Boolean policyChecked, LocalDateTime requestTime,
+                                             SendStatus sendStatus) {
+        this.email = email;
+        this.policyChecked = policyChecked;
+        this.requestTime = requestTime;
+        this.sendStatus = sendStatus;
+    }
+
+    public static RecruitmentNotificationRequester of(String email, Boolean policyChecked) {
+        return new RecruitmentNotificationRequester(email, policyChecked, LocalDateTime.now(), SendStatus.NOT_SENT);
+    }
 }
