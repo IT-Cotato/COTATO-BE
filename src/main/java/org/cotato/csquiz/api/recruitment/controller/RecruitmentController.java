@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @Tag(name = "모집 정보", description = "모집 관련 API 입니다.")
-@RequestMapping("/v2/api/recruitment")
+@RequestMapping("/v2/api/recruitments")
 @RequiredArgsConstructor
 public class RecruitmentController {
 

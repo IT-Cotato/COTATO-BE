@@ -41,7 +41,7 @@ public class SecurityConfig {
             "/v2/api/policies",
             "/v2/api/random-quizzes/**",
             "/v1/api/education/counts",
-            "/v2/api/recruitment"
+            "/v2/api/recruitments"
     };
 
     private final JwtTokenProvider jwtTokenProvider;
@@ -73,10 +73,10 @@ public class SecurityConfig {
                 .addFilterBefore(new JwtExceptionFilter(), JwtAuthorizationFilter.class)
                 .addFilter(corsFilter)
                 .authorizeHttpRequests(request -> request
-                                .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-                                .requestMatchers(new AntPathRequestMatcher(SESSION_PATH, HttpMethod.GET.name())).permitAll()
-                                .requestMatchers(WHITE_LIST).permitAll()
-                                .anyRequest().authenticated()
+                        .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher(SESSION_PATH, HttpMethod.GET.name())).permitAll()
+                        .requestMatchers(WHITE_LIST).permitAll()
+                        .anyRequest().authenticated()
                 );
         return http.build();
     }
