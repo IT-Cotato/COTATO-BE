@@ -27,6 +27,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private static final String AUTH_PATH = "/v1/api/auth/**";
     private static final String LOGIN_PATH = "/login";
+    private static final String RECRUITMENT_NOTIFICATION_PATH = "/v2/api/recruitments/notification";
 
     private static final String[] WHITE_LIST = {
             "/swagger-ui/**",
@@ -40,7 +41,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             "/v2/api/policies",
             "/v2/api/projects/**",
             "/v2/api/random-quizzes/**",
-            "/v1/api/education/counts"
+            "/v1/api/education/counts",
+            "/v2/api/recruitments"
     };
 
     private final JwtTokenProvider jwtTokenProvider;
@@ -70,7 +72,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
         log.info("요청 경로 및 메서드: {}, {}", path, request.getMethod());
-        return isAuthPath(request.getRequestURI()) || isWhiteList(request);
+        return isAuthPath(request.getRequestURI()) || isRecruitmentNotificationPath(request.getRequestURI())
+                || isWhiteList(request);
     }
 
     private boolean isWhiteList(HttpServletRequest request) {
@@ -82,5 +85,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private boolean isAuthPath(String requestURI) {
         AntPathMatcher pathMatcher = new AntPathMatcher();
         return pathMatcher.match(AUTH_PATH, requestURI) || pathMatcher.match(LOGIN_PATH, requestURI);
+    }
+
+    private boolean isRecruitmentNotificationPath(String requestURI) {
+        AntPathMatcher pathMatcher = new AntPathMatcher();
+        return pathMatcher.match(RECRUITMENT_NOTIFICATION_PATH, requestURI);
     }
 }

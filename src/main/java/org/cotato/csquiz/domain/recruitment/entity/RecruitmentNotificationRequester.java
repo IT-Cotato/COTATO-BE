@@ -2,6 +2,8 @@ package org.cotato.csquiz.domain.recruitment.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -32,5 +34,18 @@ public class RecruitmentNotificationRequester extends BaseTimeEntity {
     private Boolean policyChecked;
 
     @Column(name = "send_status", nullable = false)
+    @Enumerated(EnumType.STRING)
     private SendStatus sendStatus;
+
+    private RecruitmentNotificationRequester(String email, Boolean policyChecked, LocalDateTime requestTime,
+                                             SendStatus sendStatus) {
+        this.email = email;
+        this.policyChecked = policyChecked;
+        this.requestTime = requestTime;
+        this.sendStatus = sendStatus;
+    }
+
+    public static RecruitmentNotificationRequester of(String email, Boolean policyChecked) {
+        return new RecruitmentNotificationRequester(email, policyChecked, LocalDateTime.now(), SendStatus.NOT_SENT);
+    }
 }

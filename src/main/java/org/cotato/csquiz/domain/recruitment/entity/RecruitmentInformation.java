@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.cotato.csquiz.common.entity.BaseTimeEntity;
@@ -23,7 +24,7 @@ public class RecruitmentInformation extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "is_opened")
+    @Column(name = "is_opened", nullable = false)
     private Boolean isOpened;
 
     @Embedded
@@ -35,4 +36,15 @@ public class RecruitmentInformation extends BaseTimeEntity {
 
     @Column(name = "recruitment_url", columnDefinition = "TEXT")
     private String recruitmentUrl;
+
+    @Builder
+    public RecruitmentInformation(boolean isOpened, Period period, String recruitmentUrl) {
+        this.isOpened = isOpened;
+        this.period = period;
+        this.recruitmentUrl = recruitmentUrl;
+    }
+
+    public boolean isOpened() {
+        return isOpened;
+    }
 }
