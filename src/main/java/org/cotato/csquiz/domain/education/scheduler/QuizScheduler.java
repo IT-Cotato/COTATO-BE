@@ -1,5 +1,6 @@
 package org.cotato.csquiz.domain.education.scheduler;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.domain.education.entity.Quiz;
@@ -24,7 +25,7 @@ public class QuizScheduler {
     @Transactional(readOnly = true)
     @Scheduled(cron = "0 0 14 * * ?")
     public void sendRandomQuiz() {
-        Quiz quiz = quizReader.getRandomDiscordQuiz();
+        Quiz quiz = quizReader.getRandomDiscordQuiz().orElseThrow(() -> new EntityNotFoundException("디스코드에 전송할 랜덤 퀴즈를 찾을 수 없습니다."));
         RandomQuizResponse randomQuiz = RandomQuizResponse.from(quiz);
 
         discordService.sendMessageToTextChannel(DiscordUtil.getMultipleQuizEmbeds(randomQuiz),

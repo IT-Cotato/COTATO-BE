@@ -32,5 +32,13 @@ public interface QuizRepository extends JpaRepository<Quiz, Long> {
 
     Optional<Quiz> findFirstByEducationOrderByNumberDesc(Education education);
 
-    List<Quiz> findAllByEducationInAndQuizType(List<Education> educations, QuizType quizType);
+    @Query("""
+            SELECT q
+              FROM Quiz q
+             WHERE q.education   IN :eds
+               AND TYPE(q)       = MultipleQuiz
+               AND LENGTH(q.question) <= :maxLen
+            """)
+    List<Quiz> findMultipleQuizzesByEducationInAndQuestionLengthLE(@Param("eds") List<Education> educations,
+                                                                   @Param("maxLen") int maxLength);
 }
