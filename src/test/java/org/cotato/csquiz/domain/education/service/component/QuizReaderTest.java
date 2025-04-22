@@ -1,16 +1,11 @@
 package org.cotato.csquiz.domain.education.service.component;
 
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
-import java.util.Optional;
+
 import org.cotato.csquiz.domain.education.cache.DiscordQuizRedisRepository;
 import org.cotato.csquiz.domain.education.entity.Education;
 import org.cotato.csquiz.domain.education.entity.Quiz;
@@ -55,34 +50,52 @@ class QuizReaderTest {
                 .thenReturn(false);
 
         // when
-        Optional<Quiz> result = quizReader.getRandomDiscordQuiz();
+        Quiz result = quizReader.getRandomDiscordQuiz();
 
         // then
-        assertTrue(result.isPresent(), "퀴즈가 반환되어야 한다");
-        assertSame(quiz, result.get(), "반환된 퀴즈가 기대한 객체여야 한다");
+        assertSame(quiz, result, "반환된 퀴즈가 기대한 객체여야 한다");
         verify(discordQuizRedisRepository).save(1L);
     }
 
     @Test
-    void getRandomDiscordQuiz_allQuizzesUsed_throwsExceptionAndDoesNotSave() {
+    void getRandomDiscordQuiz_allQuizzesUsed_throwsIllegalArgumentException() {
         // given
         Education edu = mock(Education.class);
         List<Education> eds = List.of(edu);
         when(educationReader.getAllByStatus(EducationStatus.FINISHED))
                 .thenReturn(eds);
 
-        Quiz quiz = new Quiz(1, "another question", null, edu, 5);
-        ReflectionTestUtils.setField(quiz, "id", 2L);
+        Quiz usedQuiz = new Quiz(2, "used question", null, edu, 3);
+        ReflectionTestUtils.setField(usedQuiz, "id", 2L);
 
         when(quizRepository.findMultipleQuizzesByEducationInAndQuestionLengthLE(eds, 80))
-                .thenReturn(List.of(quiz));
+                .thenReturn(List.of(usedQuiz));
         when(discordQuizRedisRepository.isUsedInOneWeek(2L))
                 .thenReturn(true);
 
         // when & then
-        assertThrows(IllegalArgumentException.class,
-                () -> quizReader.getRandomDiscordQuiz(),
-                "사용된 퀴즈만 남을 경우 nextInt(0) 에러가 발생해야 한다");
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> quizReader.getRandomDiscordQuiz()
+        );
+        assertEquals("디스코드에 전송할 랜덤 퀴즈가 없습니다.", ex.getMessage(), "사용 가능한 퀴즈가 없을 때 지정한 메시지의 예외가 발생해야 한다");
+        verify(discordQuizRedisRepository, never()).save(anyLong());
+    }
+
+    @Test
+    void getRandomDiscordQuiz_noQuizzesAtAll_throwsEntityNotFoundException() {
+        // given
+        when(educationReader.getAllByStatus(EducationStatus.FINISHED))
+                .thenReturn(List.of());
+        when(quizRepository.findMultipleQuizzesByEducationInAndQuestionLengthLE(anyList(), eq(80)))
+                .thenReturn(List.of());
+
+        // when & then
+        EntityNotFoundException ex = assertThrows(
+                EntityNotFoundException.class,
+                () -> quizReader.getRandomDiscordQuiz()
+        );
+        assertEquals("디스코드에 전송할 랜덤 퀴즈가 없습니다.", ex.getMessage());
         verify(discordQuizRedisRepository, never()).save(anyLong());
     }
 }

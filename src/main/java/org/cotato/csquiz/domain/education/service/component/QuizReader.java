@@ -1,7 +1,7 @@
 package org.cotato.csquiz.domain.education.service.component;
 
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.domain.education.cache.DiscordQuizRedisRepository;
@@ -23,7 +23,7 @@ public class QuizReader {
     private final DiscordQuizRedisRepository discordQuizRedisRepository;
 
     @Transactional(readOnly = true)
-    public Optional<Quiz> getRandomDiscordQuiz() {
+    public Quiz getRandomDiscordQuiz() {
         List<Education> finishedEducations = educationReader.getAllByStatus(EducationStatus.FINISHED);
 
         List<Quiz> multipleQuizzes = quizRepository.findMultipleQuizzesByEducationInAndQuestionLengthLE(finishedEducations, MAX_DISCORD_QUIZ_LENGTH).stream()
@@ -31,11 +31,14 @@ public class QuizReader {
                 .filter(quiz -> quiz.getQuestion().length() <= MAX_DISCORD_QUIZ_LENGTH)
                 .toList();
 
-        ThreadLocalRandom random = ThreadLocalRandom.current();
+        if (multipleQuizzes.isEmpty()) {
+            throw new EntityNotFoundException("디스코드에 전송할 랜덤 퀴즈가 없습니다.");
+        }
 
+        ThreadLocalRandom random = ThreadLocalRandom.current();
         Quiz quiz = multipleQuizzes.get(random.nextInt(multipleQuizzes.size()));
         discordQuizRedisRepository.save(quiz.getId());
 
-        return Optional.of(quiz);
+        return quiz;
     }
 }
