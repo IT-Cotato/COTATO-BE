@@ -28,7 +28,6 @@ public class QuizReader {
 
         List<Quiz> multipleQuizzes = quizRepository.findMultipleQuizzesByEducationInAndQuestionLengthLE(finishedEducations, MAX_DISCORD_QUIZ_LENGTH).stream()
                 .filter(quiz -> !discordQuizRedisRepository.isUsedInOneWeek(quiz.getId()))
-                .filter(quiz -> quiz.getQuestion().length() <= MAX_DISCORD_QUIZ_LENGTH)
                 .toList();
 
         if (multipleQuizzes.isEmpty()) {
