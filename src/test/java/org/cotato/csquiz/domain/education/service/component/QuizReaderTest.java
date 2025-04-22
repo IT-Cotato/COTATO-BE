@@ -74,8 +74,8 @@ class QuizReaderTest {
                 .thenReturn(true);
 
         // when & then
-        IllegalArgumentException ex = assertThrows(
-                IllegalArgumentException.class,
+        EntityNotFoundException ex = assertThrows(
+                EntityNotFoundException.class,
                 () -> quizReader.getRandomDiscordQuiz()
         );
         assertEquals("디스코드에 전송할 랜덤 퀴즈가 없습니다.", ex.getMessage(), "사용 가능한 퀴즈가 없을 때 지정한 메시지의 예외가 발생해야 한다");
