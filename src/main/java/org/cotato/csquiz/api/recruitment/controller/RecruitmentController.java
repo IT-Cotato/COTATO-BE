@@ -2,12 +2,18 @@ package org.cotato.csquiz.api.recruitment.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.cotato.csquiz.api.recruitment.dto.ChangeRecruitmentInfoRequest;
 import org.cotato.csquiz.api.recruitment.dto.RecruitmentInfoResponse;
+import org.cotato.csquiz.common.role.RoleAuthority;
+import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.cotato.csquiz.domain.recruitment.service.RecruitmentInformationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,5 +30,14 @@ public class RecruitmentController {
     @Operation(summary = "모집 정보 반환 API")
     public ResponseEntity<RecruitmentInfoResponse> findRecruitmentInfo() {
         return ResponseEntity.ok().body(recruitmentInformationService.findRecruitmentInfo());
+    }
+
+    @Operation(summary = "모집 정보 수정 API")
+    @RoleAuthority(MemberRole.ADMIN)
+    @PutMapping
+    public ResponseEntity<Void> changeRecruitmentInfo(@RequestBody @Valid ChangeRecruitmentInfoRequest request) {
+        recruitmentInformationService.changeRecruitmentInfo(request.isOpened(), request.startDate(), request.endDate(),
+                request.recruitmentUrl());
+        return ResponseEntity.noContent().build();
     }
 }

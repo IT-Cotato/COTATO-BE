@@ -1,7 +1,11 @@
 package org.cotato.csquiz.domain.recruitment.service;
 
+import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.api.recruitment.dto.RecruitmentInfoResponse;
+import org.cotato.csquiz.common.error.ErrorCode;
+import org.cotato.csquiz.common.error.exception.AppException;
+import org.cotato.csquiz.domain.generation.embedded.Period;
 import org.cotato.csquiz.domain.recruitment.entity.RecruitmentInformation;
 import org.cotato.csquiz.domain.recruitment.service.component.RecruitmentInformationReader;
 import org.springframework.stereotype.Service;
@@ -20,5 +24,27 @@ public class RecruitmentInformationService {
             return RecruitmentInfoResponse.opened(info);
         }
         return RecruitmentInfoResponse.closed();
+    }
+
+    @Transactional
+    public void changeRecruitmentInfo(final Boolean isOpened, final LocalDate startDate, final LocalDate endDate,
+                                      String recruitmentUrl) {
+        RecruitmentInformation info = recruitmentInformationReader.findRecruitmentInformation();
+
+        if (Boolean.FALSE.equals(isOpened)) {
+            info.changeOpened(false);
+            return;
+        }
+
+        validateOpenParameters(startDate, endDate, recruitmentUrl);
+        info.changeOpened(true);
+        info.changePeriod(Period.of(startDate, endDate));
+        info.changeRecruitmentUrl(recruitmentUrl);
+    }
+
+    private void validateOpenParameters(LocalDate startDate, LocalDate endDate, String recruitmentUrl) {
+        if (startDate == null || endDate == null || recruitmentUrl == null || recruitmentUrl.isBlank()) {
+            throw new AppException(ErrorCode.INVALID_RECRUITMENT_INFO);
+        }
     }
 }
