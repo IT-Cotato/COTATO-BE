@@ -1,4 +1,4 @@
-package org.cotato.csquiz.domain.education.service;
+package org.cotato.csquiz.domain.education.service.component;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.util.Optional;
