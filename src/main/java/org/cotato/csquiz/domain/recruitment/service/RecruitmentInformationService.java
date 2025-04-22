@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.api.recruitment.dto.RecruitmentInfoResponse;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
+import org.cotato.csquiz.common.schedule.RecruitmentScheduler;
 import org.cotato.csquiz.domain.generation.embedded.Period;
 import org.cotato.csquiz.domain.recruitment.entity.RecruitmentInformation;
 import org.cotato.csquiz.domain.recruitment.service.component.RecruitmentInformationReader;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class RecruitmentInformationService {
 
     private final RecruitmentInformationReader recruitmentInformationReader;
+    private final RecruitmentScheduler recruitmentScheduler;
 
     @Transactional(readOnly = true)
     public RecruitmentInfoResponse findRecruitmentInfo() {
@@ -30,6 +32,7 @@ public class RecruitmentInformationService {
     public void changeRecruitmentInfo(final Boolean isOpened, final LocalDate startDate, final LocalDate endDate,
                                       String recruitmentUrl) {
         RecruitmentInformation info = recruitmentInformationReader.findRecruitmentInformation();
+        recruitmentScheduler.cancelTask();
 
         if (isOpened) {
             validateOpenParameters(startDate, endDate, recruitmentUrl);

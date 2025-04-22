@@ -8,6 +8,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -42,6 +43,14 @@ public class RecruitmentInformation extends BaseTimeEntity {
         this.isOpened = isOpened;
         this.period = period;
         this.recruitmentUrl = recruitmentUrl;
+    }
+
+    public LocalDate startDate() {
+        return period.getStartDate();
+    }
+
+    public LocalDate endDate() {
+        return period.getEndDate();
     }
 
     public boolean isOpened() {
