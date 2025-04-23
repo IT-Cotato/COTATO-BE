@@ -11,7 +11,6 @@ import org.cotato.csquiz.domain.recruitment.entity.RecruitmentInformation;
 import org.cotato.csquiz.domain.recruitment.service.component.RecruitmentInformationReader;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,8 +28,7 @@ public class RecruitmentScheduler {
             scheduleCloseTask(info.endDate());
         }
     }
-
-    @Transactional(readOnly = true)
+    
     public void scheduleCloseTask(LocalDate endDate) {
         LocalDateTime scheduleTime = LocalDateTime.of(endDate.plusDays(1), LocalTime.MIDNIGHT);
 
