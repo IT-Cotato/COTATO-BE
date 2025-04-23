@@ -11,6 +11,8 @@ import org.cotato.csquiz.domain.recruitment.entity.RecruitmentInformation;
 import org.cotato.csquiz.domain.recruitment.service.component.RecruitmentInformationReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +34,7 @@ public class RecruitmentInformationService {
     public void changeRecruitmentInfo(final Boolean isOpened, final LocalDate startDate, final LocalDate endDate,
                                       String recruitmentUrl) {
         RecruitmentInformation info = recruitmentInformationReader.findRecruitmentInformation();
-        recruitmentScheduler.cancelTask();
+        registerScheduleSync(isOpened, endDate);
 
         if (isOpened) {
             validateOpenParameters(startDate, endDate, recruitmentUrl);
@@ -41,6 +43,19 @@ public class RecruitmentInformationService {
         info.changeOpened(isOpened);
         info.changePeriod(Period.of(startDate, endDate));
         info.changeRecruitmentUrl(recruitmentUrl);
+    }
+
+    //트랜잭션이 커밋된 후에 스케쥴 등록
+    private void registerScheduleSync(Boolean isOpened, LocalDate endDate) {
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                recruitmentScheduler.cancelTask();
+                if (Boolean.TRUE.equals(isOpened)) {
+                    recruitmentScheduler.scheduleCloseTask(endDate);
+                }
+            }
+        });
     }
 
     private void validateOpenParameters(LocalDate startDate, LocalDate endDate, String recruitmentUrl) {
