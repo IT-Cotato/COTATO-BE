@@ -84,7 +84,7 @@ public class AuthService {
         Member member = memberReader.findById(memberId);
 
         RefreshToken findToken = refreshTokenRepository.findById(memberId)
-                .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.REFRESH_TOKEN_NOT_EXIST));
         log.info("[브라우저에서 들어온 쿠키] == [DB에 저장된 토큰], {}", refreshToken.equals(findToken.getRefreshToken()));
 
         if (!refreshToken.equals(findToken.getRefreshToken())) {
