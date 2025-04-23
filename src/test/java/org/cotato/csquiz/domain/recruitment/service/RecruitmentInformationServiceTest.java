@@ -11,17 +11,22 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.List;
 import org.cotato.csquiz.api.recruitment.dto.RecruitmentInfoResponse;
 import org.cotato.csquiz.common.schedule.RecruitmentScheduler;
 import org.cotato.csquiz.domain.generation.embedded.Period;
 import org.cotato.csquiz.domain.recruitment.entity.RecruitmentInformation;
 import org.cotato.csquiz.domain.recruitment.service.component.RecruitmentInformationReader;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @ExtendWith(SpringExtension.class)
 class RecruitmentInformationServiceTest {
@@ -34,6 +39,18 @@ class RecruitmentInformationServiceTest {
 
     @Mock
     private RecruitmentScheduler recruitmentScheduler;
+
+    @BeforeEach
+    void openSync() {
+        // 트랜잭션 동기화 시작
+        TransactionSynchronizationManager.initSynchronization();
+    }
+
+    @AfterEach
+    void clearSync() {
+        // 테스트가 끝나면 반드시 해제
+        TransactionSynchronizationManager.clearSynchronization();
+    }
 
     @Test
     void 모집이_열려있으면_정보를_반환한다() {
@@ -98,6 +115,7 @@ class RecruitmentInformationServiceTest {
         recruitmentInformationService.changeRecruitmentInfo(
                 false, null, null, null
         );
+        triggerAfterCommit();
 
         // then
         verify(recruitmentScheduler).cancelTask();
@@ -127,6 +145,7 @@ class RecruitmentInformationServiceTest {
         recruitmentInformationService.changeRecruitmentInfo(
                 true, newStart, newEnd, newUrl
         );
+        triggerAfterCommit();
 
         // then
         InOrder inOrder = inOrder(recruitmentScheduler);
@@ -137,5 +156,13 @@ class RecruitmentInformationServiceTest {
         assertEquals(newStart, info.getPeriod().getStartDate(), "시작일이 업데이트되어야 한다");
         assertEquals(newEnd, info.getPeriod().getEndDate(), "종료일이 업데이트되어야 한다");
         assertEquals(newUrl, info.getRecruitmentUrl(), "URL이 업데이트되어야 한다");
+    }
+
+    private void triggerAfterCommit() {
+        List<TransactionSynchronization> syncs =
+                TransactionSynchronizationManager.getSynchronizations();
+        for (TransactionSynchronization sync : syncs) {
+            sync.afterCommit();
+        }
     }
 }
