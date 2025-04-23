@@ -3,6 +3,8 @@ package org.cotato.csquiz.domain.auth.service.component;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.cotato.csquiz.common.error.ErrorCode;
+import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
 import org.cotato.csquiz.domain.generation.entity.Generation;
@@ -36,5 +38,10 @@ public class MemberReader {
             throw new EntityNotFoundException("일부 부원이 존재하지 않습니다");
         }
         return members;
+    }
+
+    public Member getByEmail(final String email) {
+        return memberRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_FOUND));
     }
 }

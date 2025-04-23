@@ -60,10 +60,10 @@ public class JwtTokenProvider {
         return claims.get("type", String.class);
     }
 
-    public Token createToken(Long id, String authority) {
+    public Token createToken(final Member member) {
         return Token.builder()
-                .accessToken(createAccessToken(id, authority))
-                .refreshToken(createRefreshToken(id, authority))
+                .accessToken(createAccessToken(member.getId()))
+                .refreshToken(createRefreshToken(member.getId()))
                 .build();
     }
 
@@ -80,10 +80,9 @@ public class JwtTokenProvider {
         return claims.getExpiration().getTime() - new Date().getTime();
     }
 
-    private String createAccessToken(Long id, String authority) {
+    private String createAccessToken(final Long id) {
         Claims claims = Jwts.claims();
         claims.put("id", id);
-        claims.put("role", authority);
         claims.put("type", TokenConstants.ACCESS_TOKEN);
         return Jwts.builder()
                 .setClaims(claims)
@@ -93,10 +92,9 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    private String createRefreshToken(Long id, String authority) {
+    private String createRefreshToken(final Long id) {
         Claims claims = Jwts.claims();
         claims.put("id", id);
-        claims.put("role", authority);
         claims.put("type", TokenConstants.REFRESH_TOKEN);
         return Jwts.builder()
                 .setClaims(claims)
