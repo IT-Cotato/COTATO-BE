@@ -1,4 +1,4 @@
-package org.cotato.csquiz.domain.education.service;
+package org.cotato.csquiz.domain.education.service.component;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,12 +12,12 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 @Slf4j
-@Service
+@Component
 @RequiredArgsConstructor
-public class DiscordService {
+public class DiscordConnector {
 
     private final JDA jda;
 
