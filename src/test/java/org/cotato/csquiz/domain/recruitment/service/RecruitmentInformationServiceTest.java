@@ -120,9 +120,9 @@ class RecruitmentInformationServiceTest {
         triggerAfterCommit();
 
         // then
-        verify(recruitmentScheduler).cancelTask();
+        verify(recruitmentScheduler).cancelCloseRecruitmentScheduler();
         assertFalse(info.isOpened(), "isOpened가 false로 변경되어야 한다");
-        verify(recruitmentScheduler, never()).scheduleCloseTask(any(LocalDate.class));
+        verify(recruitmentScheduler, never()).registerCloseRecruitmentScheduler(any(LocalDate.class));
     }
 
     @Test
@@ -151,8 +151,8 @@ class RecruitmentInformationServiceTest {
 
         // then
         InOrder inOrder = inOrder(recruitmentScheduler);
-        inOrder.verify(recruitmentScheduler).cancelTask();
-        inOrder.verify(recruitmentScheduler).scheduleCloseTask(newEnd);
+        inOrder.verify(recruitmentScheduler).cancelCloseRecruitmentScheduler();
+        inOrder.verify(recruitmentScheduler).registerCloseRecruitmentScheduler(newEnd);
 
         assertTrue(info.isOpened(), "isOpened가 true로 변경되어야 한다");
         assertEquals(newStart, info.getPeriod().getStartDate(), "시작일이 업데이트되어야 한다");
@@ -186,8 +186,8 @@ class RecruitmentInformationServiceTest {
         );
 
         // 예외 시 트랜잭션이 롤백되므로 스케줄러는 전혀 호출되지 않아야 한다
-        verify(recruitmentScheduler, never()).cancelTask();
-        verify(recruitmentScheduler, never()).scheduleCloseTask(any(LocalDate.class));
+        verify(recruitmentScheduler, never()).cancelCloseRecruitmentScheduler();
+        verify(recruitmentScheduler, never()).registerCloseRecruitmentScheduler(any(LocalDate.class));
     }
 
     private void triggerAfterCommit() {

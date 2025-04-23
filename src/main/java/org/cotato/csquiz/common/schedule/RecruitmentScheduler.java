@@ -27,11 +27,11 @@ public class RecruitmentScheduler {
     public void restoreScheduler() {
         RecruitmentInformation info = recruitmentInformationReader.findRecruitmentInformation();
         if (info.isOpened()) {
-            scheduleCloseTask(info.endDate());
+            registerCloseRecruitmentScheduler(info.endDate());
         }
     }
 
-    public void scheduleCloseTask(LocalDate endDate) {
+    public void registerCloseRecruitmentScheduler(LocalDate endDate) {
         LocalDateTime scheduleTime = LocalDateTime.of(endDate.plusDays(1), LocalTime.MIDNIGHT);
 
         log.info("register closeTask schedule endDate: <{}>", endDate);
@@ -46,7 +46,7 @@ public class RecruitmentScheduler {
         );
     }
 
-    public void cancelTask() {
+    public void cancelCloseRecruitmentScheduler() {
         if (closeTask != null && !closeTask.isDone()) {
             log.info("cancel existing closeTask schedule");
             closeTask.cancel(false);

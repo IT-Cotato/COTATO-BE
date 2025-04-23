@@ -50,9 +50,9 @@ public class RecruitmentInformationService {
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
-                recruitmentScheduler.cancelTask();
+                recruitmentScheduler.cancelCloseRecruitmentScheduler();
                 if (Boolean.TRUE.equals(isOpened)) {
-                    recruitmentScheduler.scheduleCloseTask(endDate);
+                    recruitmentScheduler.registerCloseRecruitmentScheduler(endDate);
                 }
             }
         });

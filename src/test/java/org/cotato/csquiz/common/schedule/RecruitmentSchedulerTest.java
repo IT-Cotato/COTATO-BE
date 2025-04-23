@@ -49,12 +49,12 @@ class RecruitmentSchedulerTest {
     }
 
     @Test
-    void cancelTask_호출시_스케줄이_취소되어야_한다() {
+    void cancelCloseRecruitmentScheduler_호출시_스케줄이_취소되어야_한다() {
         // given: 스케줄이 등록된 상태
-        scheduler.scheduleCloseTask(sampleEndDate);
+        scheduler.registerCloseRecruitmentScheduler(sampleEndDate);
 
         // when
-        scheduler.cancelTask();
+        scheduler.cancelCloseRecruitmentScheduler();
 
         // then
         verify(mockFuture).cancel(false);
@@ -63,7 +63,7 @@ class RecruitmentSchedulerTest {
     @Test
     void 스케줄_등록_성공() {
         // when
-        scheduler.scheduleCloseTask(sampleEndDate);
+        scheduler.registerCloseRecruitmentScheduler(sampleEndDate);
 
         // then
         // 기대: sampleEndDate의 한국시간 자정 Instant
