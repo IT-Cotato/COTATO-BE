@@ -6,12 +6,14 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.concurrent.ScheduledFuture;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.common.util.TimeUtil;
 import org.cotato.csquiz.domain.recruitment.entity.RecruitmentInformation;
 import org.cotato.csquiz.domain.recruitment.service.component.RecruitmentInformationReader;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RecruitmentScheduler {
@@ -28,10 +30,11 @@ public class RecruitmentScheduler {
             scheduleCloseTask(info.endDate());
         }
     }
-    
+
     public void scheduleCloseTask(LocalDate endDate) {
         LocalDateTime scheduleTime = LocalDateTime.of(endDate.plusDays(1), LocalTime.MIDNIGHT);
 
+        log.info("register closeTask schedule endDate: <{}>", endDate);
         closeTask = taskScheduler.schedule(
                 () -> {
                     RecruitmentInformation info = recruitmentInformationReader.findRecruitmentInformation();
@@ -45,6 +48,7 @@ public class RecruitmentScheduler {
 
     public void cancelTask() {
         if (closeTask != null && !closeTask.isDone()) {
+            log.info("cancel existing closeTask schedule");
             closeTask.cancel(false);
         }
     }
