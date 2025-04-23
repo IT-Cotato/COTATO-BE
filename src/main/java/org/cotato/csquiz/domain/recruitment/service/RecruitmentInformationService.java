@@ -31,13 +31,11 @@ public class RecruitmentInformationService {
                                       String recruitmentUrl) {
         RecruitmentInformation info = recruitmentInformationReader.findRecruitmentInformation();
 
-        if (Boolean.FALSE.equals(isOpened)) {
-            info.changeOpened(false);
-            return;
+        if (isOpened) {
+            validateOpenParameters(startDate, endDate, recruitmentUrl);
         }
 
-        validateOpenParameters(startDate, endDate, recruitmentUrl);
-        info.changeOpened(true);
+        info.changeOpened(isOpened);
         info.changePeriod(Period.of(startDate, endDate));
         info.changeRecruitmentUrl(recruitmentUrl);
     }
