@@ -34,7 +34,7 @@ public class RecruitmentScheduler {
     public void registerCloseRecruitmentScheduler(LocalDate endDate) {
         LocalDateTime scheduleTime = LocalDateTime.of(endDate.plusDays(1), LocalTime.MIDNIGHT);
 
-        log.info("register closeTask schedule endDate: <{}>", endDate);
+        log.info("register closeTask schedule scheduleTime: <{}>", scheduleTime);
         closeTask = taskScheduler.schedule(
                 () -> {
                     RecruitmentInformation info = recruitmentInformationReader.findRecruitmentInformation();
