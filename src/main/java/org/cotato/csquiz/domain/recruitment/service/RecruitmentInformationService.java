@@ -44,5 +44,8 @@ public class RecruitmentInformationService {
         if (startDate == null || endDate == null || recruitmentUrl == null || recruitmentUrl.isBlank()) {
             throw new AppException(ErrorCode.INVALID_RECRUITMENT_INFO);
         }
+        if (startDate.isAfter(endDate)) {
+            throw new AppException(ErrorCode.INVALID_DATE);
+        }
     }
 }
