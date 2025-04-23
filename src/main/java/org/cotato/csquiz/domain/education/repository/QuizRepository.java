@@ -1,10 +1,10 @@
 package org.cotato.csquiz.domain.education.repository;
 
+import java.util.List;
+import java.util.Optional;
 import org.cotato.csquiz.domain.education.entity.Education;
 import org.cotato.csquiz.domain.education.entity.Quiz;
 import org.cotato.csquiz.domain.education.enums.QuizStatus;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -30,4 +30,14 @@ public interface QuizRepository extends JpaRepository<Quiz, Long> {
     List<Quiz> findAllByEducationIdsInQuery(@Param("educationIds") List<Long> educationIds);
 
     Optional<Quiz> findFirstByEducationOrderByNumberDesc(Education education);
+
+    @Query("""
+            SELECT q
+              FROM Quiz q
+             WHERE q.education   IN :educations
+               AND TYPE(q)       = MultipleQuiz
+               AND LENGTH(q.question) <= :maxLength
+            """)
+    List<Quiz> findMultipleQuizzesByEducationInAndQuestionLengthLE(@Param("educations") List<Education> educations,
+                                                                   @Param("maxLength") int maxLength);
 }
