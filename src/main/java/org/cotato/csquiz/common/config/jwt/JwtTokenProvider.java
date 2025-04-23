@@ -5,14 +5,13 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;
-import org.cotato.csquiz.domain.auth.constant.TokenConstants;
 import org.cotato.csquiz.common.error.exception.FilterAuthenticationException;
 import org.cotato.csquiz.common.error.exception.InterceptorException;
+import org.cotato.csquiz.domain.auth.constant.TokenConstants;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
@@ -68,7 +67,6 @@ public class JwtTokenProvider {
                 .build();
     }
 
-    @Transactional
     public void setBlackList(String token) {
         BlackList blackList = BlackList.builder()
                 .id(token)
