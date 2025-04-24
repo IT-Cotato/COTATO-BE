@@ -40,7 +40,7 @@ public class QuizController {
     @PostMapping(value = "/adds", consumes = MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> addAllQuizzes(@ModelAttribute CreateQuizzesRequest request,
                                               @RequestParam("educationId") Long educationId) throws ImageException {
-        quizService.createQuizzes(educationId, request);
+        quizService.createQuizzes(educationId, request.getMultiples(), request.getShortQuizzes());
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -53,7 +53,7 @@ public class QuizController {
 
     @GetMapping("/{quizId}")
     public ResponseEntity<QuizResponse> findOneQuizForMember(@PathVariable("quizId") Long quizId) {
-        return ResponseEntity.ok().body(quizService.findOneQuizForMember(quizId));
+        return ResponseEntity.ok().body(quizService.getQuizById(quizId));
     }
 
     @RoleAuthority(MemberRole.MANAGER)
