@@ -24,7 +24,7 @@ public class MultipleQuizResponse {
                 quiz.getId(),
                 quiz.getNumber(),
                 quiz.getQuestion(),
-                (quiz.getS3Info() != null) ? quiz.getS3Info().getUrl() : null,
+                quiz.getImageUrl(),
                 choices.stream().map(ChoiceResponse::forEducation).toList()
         );
     }

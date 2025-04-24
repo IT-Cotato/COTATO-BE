@@ -24,7 +24,7 @@ public class ShortQuizResponse {
                 quiz.getId(),
                 quiz.getNumber(),
                 quiz.getQuestion(),
-                (quiz.getS3Info() != null) ? quiz.getS3Info().getUrl() : null,
+                quiz.getImageUrl(),
                 shortAnswers.stream().map(ShortAnswerResponse::from).toList()
         );
     }
