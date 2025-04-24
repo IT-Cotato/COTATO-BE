@@ -111,6 +111,7 @@ public enum ErrorCode {
     PROFILE_IMAGE_NOT_EXIST(HttpStatus.BAD_REQUEST, "PI-401", "요청에 프로필 이미지가 존재하지 않습니다."),
 
     //모집 알림 관련
+    INVALID_RECRUITMENT_INFO(HttpStatus.BAD_REQUEST, "RE-101", "모집 수정 정보를 작성하세요."),
     ALREADY_REQUEST_NOTIFICATION(HttpStatus.CONFLICT, "RE-301", "이미 모집 신청을 완료했습니다"),
     RECRUITMENT_INFO_COUNT_INVALID(HttpStatus.CONFLICT, "RE-302", "모집 정보 갯수가 없거나 2개 이상힙니디."),
 

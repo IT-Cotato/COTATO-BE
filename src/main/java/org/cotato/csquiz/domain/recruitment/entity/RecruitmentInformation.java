@@ -47,4 +47,16 @@ public class RecruitmentInformation extends BaseTimeEntity {
     public boolean isOpened() {
         return isOpened;
     }
+
+    public void changeOpened(final boolean isOpened) {
+        this.isOpened = isOpened;
+    }
+
+    public void changePeriod(final Period period) {
+        this.period = period;
+    }
+
+    public void changeRecruitmentUrl(final String url) {
+        this.recruitmentUrl = url;
+    }
 }
