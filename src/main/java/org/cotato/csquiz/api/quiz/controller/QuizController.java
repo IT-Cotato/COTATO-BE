@@ -2,6 +2,7 @@ package org.cotato.csquiz.api.quiz.controller;
 
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -45,9 +46,9 @@ public class QuizController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @Operation(summary = "모든 퀴즈 문제 조회 API")
     @GetMapping("/all")
-    public ResponseEntity<AllQuizzesResponse> findAllQuizzesForEducationTeam(
-            @RequestParam("educationId") Long educationId) {
+    public ResponseEntity<AllQuizzesResponse> findAllQuizzesForEducationTeam(@RequestParam("educationId") Long educationId) {
         return ResponseEntity.ok(quizService.findAllQuizzesForEducationTeam(educationId));
     }
 
