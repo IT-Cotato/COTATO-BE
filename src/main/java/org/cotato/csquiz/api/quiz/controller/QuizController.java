@@ -1,5 +1,7 @@
 package org.cotato.csquiz.api.quiz.controller;
 
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
+
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +37,7 @@ public class QuizController {
     private final QuizService quizService;
 
     @RoleAuthority(MemberRole.MANAGER)
-    @PostMapping(value = "/adds", consumes = "multipart/form-data")
+    @PostMapping(value = "/adds", consumes = MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> addAllQuizzes(@ModelAttribute CreateQuizzesRequest request,
                                               @RequestParam("educationId") Long educationId) throws ImageException {
         quizService.createQuizzes(educationId, request);
