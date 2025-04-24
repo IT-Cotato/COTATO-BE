@@ -183,7 +183,7 @@ public class QuizService {
         validateChoiceNumbers(choiceNumbers);
 
         List<Choice> choices = request.getChoices().stream()
-                .map(requestDto -> Choice.of(requestDto, createdMultipleQuiz))
+                .map(requestDto -> Choice.of(requestDto.getNumber(), requestDto.getContent(), requestDto.getIsAnswer(), createdMultipleQuiz))
                 .toList();
         choiceRepository.saveAll(choices);
         log.info("객관식 선지 생성 : {}개", choices.size());
