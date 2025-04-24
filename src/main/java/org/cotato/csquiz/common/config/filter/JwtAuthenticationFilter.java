@@ -51,12 +51,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                             Authentication authResult) {
 
         PrincipalDetails principal = (PrincipalDetails) authResult.getPrincipal();
-        String grantedAuthority = authResult.getAuthorities().stream()
-                .findAny()
-                .orElseThrow()
-                .toString();
 
-        Token token = jwtTokenProvider.createToken(principal.getMember().getId(), grantedAuthority);
+        Token token = jwtTokenProvider.createToken(principal.getMember());
 
         String accessToken = token.getAccessToken();
         response.addHeader("accessToken", accessToken);

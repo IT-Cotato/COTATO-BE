@@ -27,6 +27,7 @@ import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.enums.EmailType;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
 import org.cotato.csquiz.domain.auth.service.component.EmailCodeManager;
+import org.cotato.csquiz.domain.auth.service.component.MemberReader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -43,6 +44,7 @@ public class AuthService {
     private static final String REFRESH_TOKEN = "refreshToken";
 
     private final PolicyService policyService;
+    private final MemberReader memberReader;
     private final MemberRepository memberRepository;
     private final ValidateService validateService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -79,10 +81,10 @@ public class AuthService {
             throw new AppException(ErrorCode.REISSUE_FAIL);
         }
         Long memberId = jwtTokenProvider.getMemberId(refreshToken);
-        String role = jwtTokenProvider.getRole(refreshToken);
+        Member member = memberReader.findById(memberId);
 
         RefreshToken findToken = refreshTokenRepository.findById(memberId)
-                .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.REFRESH_TOKEN_NOT_EXIST));
         log.info("[브라우저에서 들어온 쿠키] == [DB에 저장된 토큰], {}", refreshToken.equals(findToken.getRefreshToken()));
 
         if (!refreshToken.equals(findToken.getRefreshToken())) {
@@ -90,7 +92,7 @@ public class AuthService {
             throw new AppException(ErrorCode.REFRESH_TOKEN_NOT_EXIST);
         }
         jwtTokenProvider.setBlackList(refreshToken);
-        Token token = jwtTokenProvider.createToken(memberId, role);
+        Token token = jwtTokenProvider.createToken(member);
         findToken.updateRefreshToken(token.getRefreshToken());
         refreshTokenRepository.save(findToken);
 
@@ -147,11 +149,9 @@ public class AuthService {
 
     public FindPasswordResponse verifyPasswordCode(String email, String code) {
         emailCodeManager.verifyCode(EmailType.UPDATE_PASSWORD, email, code);
-        Member findMember = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_FOUND));
-        String role = findMember.getRole().getKey();
+        Member member = memberReader.getByEmail(email);
 
-        Token token = jwtTokenProvider.createToken(findMember.getId(), role);
+        Token token = jwtTokenProvider.createToken(member);
         return FindPasswordResponse.from(token.getAccessToken());
     }
 
