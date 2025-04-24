@@ -5,14 +5,13 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;
-import org.cotato.csquiz.domain.auth.constant.TokenConstants;
 import org.cotato.csquiz.common.error.exception.FilterAuthenticationException;
 import org.cotato.csquiz.common.error.exception.InterceptorException;
+import org.cotato.csquiz.domain.auth.constant.TokenConstants;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
@@ -61,14 +60,13 @@ public class JwtTokenProvider {
         return claims.get("type", String.class);
     }
 
-    public Token createToken(Long id, String authority) {
+    public Token createToken(final Member member) {
         return Token.builder()
-                .accessToken(createAccessToken(id, authority))
-                .refreshToken(createRefreshToken(id, authority))
+                .accessToken(createAccessToken(member.getId()))
+                .refreshToken(createRefreshToken(member.getId()))
                 .build();
     }
 
-    @Transactional
     public void setBlackList(String token) {
         BlackList blackList = BlackList.builder()
                 .id(token)
@@ -82,10 +80,9 @@ public class JwtTokenProvider {
         return claims.getExpiration().getTime() - new Date().getTime();
     }
 
-    private String createAccessToken(Long id, String authority) {
+    private String createAccessToken(final Long id) {
         Claims claims = Jwts.claims();
         claims.put("id", id);
-        claims.put("role", authority);
         claims.put("type", TokenConstants.ACCESS_TOKEN);
         return Jwts.builder()
                 .setClaims(claims)
@@ -95,10 +92,9 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    private String createRefreshToken(Long id, String authority) {
+    private String createRefreshToken(final Long id) {
         Claims claims = Jwts.claims();
         claims.put("id", id);
-        claims.put("role", authority);
         claims.put("type", TokenConstants.REFRESH_TOKEN);
         return Jwts.builder()
                 .setClaims(claims)
