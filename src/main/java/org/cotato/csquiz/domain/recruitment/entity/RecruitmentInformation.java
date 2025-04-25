@@ -50,6 +50,9 @@ public class RecruitmentInformation extends BaseTimeEntity {
     }
 
     public LocalDate endDate() {
+        if (period == null) {
+            return null;
+        }
         return period.getEndDate();
     }
 
