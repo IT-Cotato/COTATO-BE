@@ -25,13 +25,18 @@ public record ProfileInfoResponse(
         @Schema(description = "프로필 링크", requiredMode = RequiredMode.REQUIRED)
         List<ProfileLinkResponse> profileLinks
 ) {
-    public static ProfileInfoResponse of(final Member member, final List<ProfileLink> profileLinks) {
+    public static ProfileInfoResponse of(final Member member, final List<ProfileLink> profileLinks,
+                                         String defaultImageUrl) {
+        String imageUrl = member.getProfileImage() != null
+                ? member.getProfileImageUrl()
+                : defaultImageUrl;
+
         return new ProfileInfoResponse(
                 member.getId(),
                 member.getName(),
                 member.getPassedGenerationNumber(),
                 member.getPosition(),
-                member.getProfileImageUrl(),
+                imageUrl,
                 member.getIntroduction(),
                 member.getUniversity(),
                 profileLinks.stream()

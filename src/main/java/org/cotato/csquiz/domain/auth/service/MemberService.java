@@ -10,8 +10,8 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.SetUtils;
-import org.cotato.csquiz.api.member.dto.MemberInfoResponse;
 import org.cotato.csquiz.api.member.dto.MemberInfo;
+import org.cotato.csquiz.api.member.dto.MemberInfoResponse;
 import org.cotato.csquiz.api.member.dto.MemberMyPageInfoResponse;
 import org.cotato.csquiz.api.member.dto.MemberResponse;
 import org.cotato.csquiz.api.member.dto.ProfileInfoResponse;
@@ -116,7 +116,7 @@ public class MemberService {
     public ProfileInfoResponse findMemberProfileInfo(final Long memberId) {
         Member member = memberReader.findById(memberId);
         List<ProfileLink> profileLinks = profileLinkRepository.findAllByMember(member);
-        return ProfileInfoResponse.of(member, profileLinks);
+        return ProfileInfoResponse.of(member, profileLinks, defaultProfileImageUrl);
     }
 
     @Transactional
@@ -208,9 +208,11 @@ public class MemberService {
         return memberReader.findAllGenerationMember(currentGeneration);
     }
 
-    public SearchedMembersResponse findAddableMembers(final Long generationId, Integer generationNumber, MemberPosition memberPosition, String name) {
+    public SearchedMembersResponse findAddableMembers(final Long generationId, Integer generationNumber,
+                                                      MemberPosition memberPosition, String name) {
         Generation generation = generationReader.findById(generationId);
-        List<Long> existMemberIds = generationMemberRepository.findAllByGenerationIdWithMember(generation.getId()).stream()
+        List<Long> existMemberIds = generationMemberRepository.findAllByGenerationIdWithMember(generation.getId())
+                .stream()
                 .map(gm -> gm.getMember().getId())
                 .toList();
 
@@ -251,8 +253,10 @@ public class MemberService {
     }
 
     private boolean isCheckedAllLeavingPolicies(List<CheckPolicyRequest> policyIds, List<Policy> leavingPolicies) {
-        Set<Long> leavingPolicyIds = leavingPolicies.stream().map(Policy::getId).collect(Collectors.toUnmodifiableSet());
-        Set<Long> checkedPolicyIds = policyIds.stream().map(CheckPolicyRequest::policyId).collect(Collectors.toUnmodifiableSet());
+        Set<Long> leavingPolicyIds = leavingPolicies.stream().map(Policy::getId)
+                .collect(Collectors.toUnmodifiableSet());
+        Set<Long> checkedPolicyIds = policyIds.stream().map(CheckPolicyRequest::policyId)
+                .collect(Collectors.toUnmodifiableSet());
         return SetUtils.isEqualSet(leavingPolicyIds, checkedPolicyIds);
     }
 
@@ -267,16 +271,18 @@ public class MemberService {
 
     public Page<MemberResponse> getMembersByStatus(final MemberStatus status, Pageable pageable) {
         switch (status) {
-            case APPROVED, RETIRED-> {
+            case APPROVED, RETIRED -> {
                 Sort sort = Sort.by(
                         Sort.Order.desc("passedGenerationNumber"),
                         Sort.Order.asc("name")
                 );
                 Pageable pageRequest = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
-                return memberRepository.findAllByStatus(status, pageRequest).map(member -> MemberResponse.of(member, findBackFourNumber(member)));
+                return memberRepository.findAllByStatus(status, pageRequest)
+                        .map(member -> MemberResponse.of(member, findBackFourNumber(member)));
             }
             default -> {
-                return memberRepository.findAllByStatus(status, pageable).map(member -> MemberResponse.of(member, findBackFourNumber(member)));
+                return memberRepository.findAllByStatus(status, pageable)
+                        .map(member -> MemberResponse.of(member, findBackFourNumber(member)));
             }
         }
     }
@@ -296,7 +302,9 @@ public class MemberService {
         // Todo: event를 통한 이메일 발송
     }
 
-    public Page<MemberResponse> getMembersByName(Integer passedGenerationNumber, MemberPosition position, String name, MemberStatus memberStatus, Pageable pageable) {
-        return memberRepository.findAllWithFiltersPageable(passedGenerationNumber, position, memberStatus, name, pageable).map(member -> MemberResponse.of(member, findBackFourNumber(member)));
+    public Page<MemberResponse> getMembersByName(Integer passedGenerationNumber, MemberPosition position, String name,
+                                                 MemberStatus memberStatus, Pageable pageable) {
+        return memberRepository.findAllWithFiltersPageable(passedGenerationNumber, position, memberStatus, name,
+                pageable).map(member -> MemberResponse.of(member, findBackFourNumber(member)));
     }
 }
