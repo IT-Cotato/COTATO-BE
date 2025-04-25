@@ -34,15 +34,16 @@ public class RecruitmentInformationService {
     public void changeRecruitmentInfo(final Boolean isOpened, final LocalDate startDate, final LocalDate endDate,
                                       String recruitmentUrl) {
         RecruitmentInformation info = recruitmentInformationReader.findRecruitmentInformation();
-        registerScheduleSync(isOpened, endDate);
 
         if (isOpened) {
             validateOpenParameters(startDate, endDate, recruitmentUrl);
         }
-
         info.changeOpened(isOpened);
         info.changePeriod(Period.of(startDate, endDate));
         info.changeRecruitmentUrl(recruitmentUrl);
+
+        //TODO https://youthing.atlassian.net/jira/software/projects/COT/boards/2?selectedIssue=COT-274&sprints=9
+        registerScheduleSync(isOpened, endDate);
     }
 
     //트랜잭션이 커밋된 후에 스케쥴 등록
