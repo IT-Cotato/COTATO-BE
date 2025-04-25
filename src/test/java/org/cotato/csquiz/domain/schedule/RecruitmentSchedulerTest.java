@@ -99,8 +99,6 @@ class RecruitmentSchedulerTest {
         LocalDateTime expectedLdt = LocalDateTime.of(sampleEndDate.plusDays(1), LocalTime.MIDNIGHT);
         Instant expectedInstant = TimeUtil.getSeoulZoneTime(expectedLdt).toInstant();
 
-        System.out.println(expectedInstant);
-
         assertEquals(expectedInstant, scheduledInstant,
                 "스케줄러에 등록된 시간이 sampleEndDate 다음날 00:00:00이어야 한다");
     }
