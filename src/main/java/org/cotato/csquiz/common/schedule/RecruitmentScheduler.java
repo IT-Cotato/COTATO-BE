@@ -27,7 +27,7 @@ public class RecruitmentScheduler {
     public void restoreScheduler() {
         RecruitmentInformation info = recruitmentInformationReader.findRecruitmentInformation();
         if (info.isOpened()) {
-            registerCloseRecruitmentScheduler(info.endDate());
+            registerCloseRecruitmentScheduler(info.getEndDate());
         }
     }
 

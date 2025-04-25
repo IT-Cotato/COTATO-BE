@@ -84,7 +84,7 @@ class RecruitmentSchedulerTest {
         // given
         RecruitmentInformation openedInfo = mock(RecruitmentInformation.class);
         when(openedInfo.isOpened()).thenReturn(true);
-        when(openedInfo.endDate()).thenReturn(sampleEndDate);
+        when(openedInfo.getEndDate()).thenReturn(sampleEndDate);
         when(recruitmentInformationReader.findRecruitmentInformation())
                 .thenReturn(openedInfo);
 
