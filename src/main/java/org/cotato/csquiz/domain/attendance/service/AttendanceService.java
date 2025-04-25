@@ -9,12 +9,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.api.attendance.dto.AttendanceResponse;
+import org.cotato.csquiz.api.attendance.dto.AttendanceTimeResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceWithSessionResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendancesResponse;
-import org.cotato.csquiz.api.attendance.dto.AttendanceTimeResponse;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
-import org.cotato.csquiz.common.schedule.SchedulerService;
 import org.cotato.csquiz.domain.attendance.embedded.Location;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
@@ -27,6 +26,7 @@ import org.cotato.csquiz.domain.generation.repository.AttendanceNotificationRepo
 import org.cotato.csquiz.domain.generation.repository.GenerationRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
 import org.cotato.csquiz.domain.generation.service.component.SessionReader;
+import org.cotato.csquiz.domain.schedule.SchedulerService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,7 +49,8 @@ public class AttendanceService {
     }
 
     @Transactional
-    public void createAttendance(Session session, Location location, LocalDateTime attendanceDeadline, LocalDateTime lateDeadline) {
+    public void createAttendance(Session session, Location location, LocalDateTime attendanceDeadline,
+                                 LocalDateTime lateDeadline) {
         AttendanceUtil.validateAttendanceTime(session.getSessionDateTime(), attendanceDeadline, lateDeadline);
         if (session.hasOfflineSession()) {
             checkLocation(location);
@@ -63,7 +64,8 @@ public class AttendanceService {
 
         attendanceRepository.save(attendance);
 
-        AttendanceNotification attendanceNotification = AttendanceNotification.builder().attendance(attendance).done(false).build();
+        AttendanceNotification attendanceNotification = AttendanceNotification.builder().attendance(attendance)
+                .done(false).build();
         attendanceNotificationRepository.save(attendanceNotification);
 
         schedulerService.scheduleAttendanceNotification(attendanceNotification);
@@ -89,19 +91,21 @@ public class AttendanceService {
                 .map(Session::getId)
                 .toList();
 
-        List<AttendanceWithSessionResponse> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds).stream()
+        List<AttendanceWithSessionResponse> attendances = attendanceRepository.findAllBySessionIdsInQuery(sessionIds)
+                .stream()
                 .map(at -> {
                     final Session session = Optional.ofNullable(sessionById.get(at.getSessionId()))
-                                .orElseThrow(() -> new EntityNotFoundException("출석에 연결된 세션을 찾을 수 없습니다."));
+                            .orElseThrow(() -> new EntityNotFoundException("출석에 연결된 세션을 찾을 수 없습니다."));
 
                     return AttendanceWithSessionResponse.builder()
-                        .attendanceId(at.getId())
-                        .sessionType(session.getSessionType())
-                        .sessionId(at.getSessionId())
-                        .sessionTitle(session.getTitle())
-                        .sessionDateTime(session.getSessionDateTime())
-                        .openStatus(AttendanceUtil.getAttendanceOpenStatus(session.getSessionDateTime(), at, LocalDateTime.now()))
-                        .build();
+                            .attendanceId(at.getId())
+                            .sessionType(session.getSessionType())
+                            .sessionId(at.getSessionId())
+                            .sessionTitle(session.getTitle())
+                            .sessionDateTime(session.getSessionDateTime())
+                            .openStatus(AttendanceUtil.getAttendanceOpenStatus(session.getSessionDateTime(), at,
+                                    LocalDateTime.now()))
+                            .build();
                 })
                 .toList();
 
@@ -121,7 +125,8 @@ public class AttendanceService {
     }
 
     @Transactional
-    public void updateAttendance(final Long attendanceId, final Location location, final LocalDateTime attendDeadline, final LocalDateTime lateDeadline) {
+    public void updateAttendance(final Long attendanceId, final Location location, final LocalDateTime attendDeadline,
+                                 final LocalDateTime lateDeadline) {
         Attendance attendance = attendanceRepository.findById(attendanceId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 출석 정보가 존재하지 않습니다"));
         Session attendanceSession = sessionReader.findById(attendance.getSessionId());

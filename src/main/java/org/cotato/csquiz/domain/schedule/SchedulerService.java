@@ -1,4 +1,4 @@
-package org.cotato.csquiz.common.schedule;
+package org.cotato.csquiz.domain.schedule;
 
 import jakarta.annotation.PostConstruct;
 import java.time.LocalDateTime;
@@ -55,14 +55,16 @@ public class SchedulerService {
 
                     ScheduledFuture<?> schedule = taskScheduler.schedule(
                             () -> {
-                                log.info("schedule attendance notification: session id <{}>, time <{}>", session.getId(), session.getSessionDateTime());
+                                log.info("schedule attendance notification: session id <{}>, time <{}>",
+                                        session.getId(), session.getSessionDateTime());
                                 sseSender.sendAttendanceStartNotification(attendanceNotification);
                                 notificationByAttendanceId.remove(attendanceNotification.getAttendance().getId());
                             },
                             TimeUtil.getSeoulZoneTime(session.getSessionDateTime()).toInstant()
                     );
                     notificationByAttendanceId.put(attendanceNotification.getAttendance().getId(), schedule);
-                    log.info("restored attendance notification: attendance id <{}>", attendanceNotification.getAttendance().getId());
+                    log.info("restored attendance notification: attendance id <{}>",
+                            attendanceNotification.getAttendance().getId());
                 });
     }
 
@@ -96,7 +98,8 @@ public class SchedulerService {
         ZonedDateTime seoulTime = TimeUtil.getSeoulZoneTime(session.getSessionDateTime());
 
         ScheduledFuture<?> schedule = taskScheduler.schedule(() -> {
-                    log.info("schedule attendance notification: session id <{}>, time <{}>", attendance.getSessionId(), session.getSessionDateTime());
+                    log.info("schedule attendance notification: session id <{}>, time <{}>", attendance.getSessionId(),
+                            session.getSessionDateTime());
                     sseSender.sendAttendanceStartNotification(attendanceNotification);
                     notificationByAttendanceId.remove(session.getId());
                 },
