@@ -14,6 +14,7 @@ import java.time.LocalTime;
 import java.util.concurrent.ScheduledFuture;
 import org.cotato.csquiz.common.util.TimeUtil;
 import org.cotato.csquiz.domain.recruitment.entity.RecruitmentInformation;
+import org.cotato.csquiz.domain.recruitment.scheduler.RecruitmentScheduler;
 import org.cotato.csquiz.domain.recruitment.service.component.RecruitmentInformationReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

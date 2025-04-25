@@ -1,4 +1,4 @@
-package org.cotato.csquiz.domain.schedule;
+package org.cotato.csquiz.domain.recruitment.scheduler;
 
 import jakarta.annotation.PostConstruct;
 import java.time.LocalDate;
