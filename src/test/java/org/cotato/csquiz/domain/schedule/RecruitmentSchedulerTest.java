@@ -1,4 +1,4 @@
-package org.cotato.csquiz.common.schedule;
+package org.cotato.csquiz.domain.schedule;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -15,7 +15,6 @@ import java.util.concurrent.ScheduledFuture;
 import org.cotato.csquiz.common.util.TimeUtil;
 import org.cotato.csquiz.domain.recruitment.entity.RecruitmentInformation;
 import org.cotato.csquiz.domain.recruitment.service.component.RecruitmentInformationReader;
-import org.cotato.csquiz.domain.schedule.RecruitmentScheduler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
