@@ -14,6 +14,7 @@ import org.cotato.csquiz.api.attendance.dto.AttendanceWithSessionResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendancesResponse;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
+import org.cotato.csquiz.common.schedule.SchedulerService;
 import org.cotato.csquiz.domain.attendance.embedded.Location;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
@@ -26,7 +27,6 @@ import org.cotato.csquiz.domain.generation.repository.AttendanceNotificationRepo
 import org.cotato.csquiz.domain.generation.repository.GenerationRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
 import org.cotato.csquiz.domain.generation.service.component.SessionReader;
-import org.cotato.csquiz.domain.schedule.SchedulerService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
