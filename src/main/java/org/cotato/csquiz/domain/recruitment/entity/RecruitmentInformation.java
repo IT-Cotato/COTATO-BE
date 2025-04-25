@@ -45,10 +45,6 @@ public class RecruitmentInformation extends BaseTimeEntity {
         this.recruitmentUrl = recruitmentUrl;
     }
 
-    public LocalDate startDate() {
-        return period.getStartDate();
-    }
-
     public LocalDate endDate() {
         if (period == null) {
             return null;
