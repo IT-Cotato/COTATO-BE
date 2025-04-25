@@ -51,7 +51,7 @@ public class RecruitmentInformationService {
             @Override
             public void afterCommit() {
                 recruitmentScheduler.cancelCloseRecruitmentScheduler();
-                if (Boolean.TRUE.equals(isOpened)) {
+                if (isOpened) {
                     recruitmentScheduler.registerCloseRecruitmentScheduler(endDate);
                 }
             }
