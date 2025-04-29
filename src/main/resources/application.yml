@@ -2,7 +2,7 @@ spring:
   profiles:
     active: local
 
-# 로컬, 개발, 운영 환경의 공통된 설정
+  # 로컬, 개발, 운영 환경의 공통된 설정
 
   jpa:
     open-in-view: false
@@ -52,6 +52,8 @@ cloud:
     credentials:
       accessKey: ${S3_ACCESS_KEY}
       secretKey: ${S3_ACCESS_PASSWORD}
+    ses:
+      emailAddress: ${EMAIL_ADDRESS}
 
 springdoc:
   show-login-endpoint: true
