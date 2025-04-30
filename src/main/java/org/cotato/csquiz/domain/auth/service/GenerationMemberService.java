@@ -53,7 +53,7 @@ public class GenerationMemberService {
     }
 
     @Transactional
-    public void updateGenerationMemberRole(Long generationMemberId, GenerationMemberRole memberRole) {
+    public void updateGenerationMemberRole(final Long generationMemberId, final GenerationMemberRole memberRole) {
         GenerationMember generationMember = generationMemberReader.findById(generationMemberId);
         generationMember.updateMemberRole(memberRole);
     }
