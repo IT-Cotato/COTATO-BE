@@ -1,5 +1,6 @@
 package org.cotato.csquiz.api.member.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +29,7 @@ public class GenerationMemberController {
 
     private final GenerationMemberService generationMemberService;
 
+    @Operation(summary = "기수별 활동 멤버 조회")
     @RoleAuthority(MemberRole.ADMIN)
     @GetMapping
     public ResponseEntity<GenerationMemberInfoResponse> findGenerationMember(
@@ -34,6 +37,7 @@ public class GenerationMemberController {
         return ResponseEntity.ok().body(generationMemberService.findGenerationMemberByGeneration(generationId));
     }
 
+    @Operation(summary = "기수별 활동 멤버 추가")
     @RoleAuthority(MemberRole.ADMIN)
     @PostMapping
     public ResponseEntity<Void> addGenerationMember(@RequestBody @Valid CreateGenerationMemberRequest request) {
@@ -41,14 +45,16 @@ public class GenerationMemberController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "기수별 활동 멤버 역할 수정")
     @RoleAuthority(MemberRole.ADMIN)
-    @PatchMapping
-    public ResponseEntity<Void> updateGenerationMemberRole(
+    @PatchMapping("/{generationMemberId}/role")
+    public ResponseEntity<Void> updateGenerationMemberRole(@PathVariable("generationMemberId") Long generationMemberId,
             @RequestBody @Valid UpdateGenerationMemberRoleRequest request) {
-        generationMemberService.updateGenerationMemberRole(request.generationMemberId(), request.role());
+        generationMemberService.updateGenerationMemberRole(generationMemberId, request.role());
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "기수별 활동 멤버 삭제")
     @RoleAuthority(MemberRole.ADMIN)
     @DeleteMapping
     public ResponseEntity<Void> deleteGenerationMember(@RequestParam(name = "generationMemberId") Long generationMemberId) {
