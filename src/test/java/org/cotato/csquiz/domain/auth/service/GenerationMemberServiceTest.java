@@ -2,6 +2,7 @@ package org.cotato.csquiz.domain.auth.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.cotato.csquiz.domain.auth.service.component.GenerationMemberReader;
@@ -41,5 +42,6 @@ class GenerationMemberServiceTest {
 
         // then
         assertEquals(GenerationMemberRole.LEADER_TEAM, generationMemberReader.findById(generationMemberId).getRole());
+        verify(generationMember).updateMemberRole(targetRole);
     }
 }
