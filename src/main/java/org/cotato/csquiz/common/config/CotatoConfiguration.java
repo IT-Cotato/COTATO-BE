@@ -20,4 +20,15 @@ public class CotatoConfiguration {
         taskExecutor.initialize();
         return taskExecutor;
     }
+
+    @Bean("emailSendThreadPoolExecutor")
+    public Executor emailSendThreadPoolExecutor() {
+        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        taskExecutor.setCorePoolSize(20);
+        taskExecutor.setMaxPoolSize(100);
+        taskExecutor.setQueueCapacity(10000);
+        taskExecutor.setThreadNamePrefix("email-send-thread-");
+        taskExecutor.initialize();
+        return taskExecutor;
+    }
 }
