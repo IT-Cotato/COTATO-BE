@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.auth.entity.Member;
+import org.cotato.csquiz.domain.recruitment.email.EmailContent;
+import org.cotato.csquiz.domain.recruitment.email.RecruitmentEmailFactory;
 import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotification;
 import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotificationEmailLog;
 import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotificationRequester;
@@ -55,12 +57,12 @@ public class RecruitmentNotificationService {
         RecruitmentNotification recruitmentNotification = recruitmentNotificationRepository.save(
                 RecruitmentNotification.of(member, generationNumber));
 
-        //html 바디 만들기
-        String htmlBody = "<html><body><p>test입니다</p></body></html>";
+        EmailContent emailContent = RecruitmentEmailFactory.createForGeneration(generationNumber);
 
         //메일 전송 + 로그 작성 비동기 처리
         List<CompletableFuture<NotificationResult>> notificationTasks = allNotSentOrFailRequester.stream()
-                .map(requester -> recruitmentNotificationSender.sendNotificationAsync(requester, htmlBody, "모집모집"))
+                .map(requester -> recruitmentNotificationSender.sendNotificationAsync(requester,
+                        emailContent.htmlBody(), emailContent.subject()))
                 .toList();
         CompletableFuture.allOf(notificationTasks.toArray(new CompletableFuture[0])).join();
 
