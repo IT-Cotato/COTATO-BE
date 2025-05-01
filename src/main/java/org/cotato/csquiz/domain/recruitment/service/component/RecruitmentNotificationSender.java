@@ -28,7 +28,6 @@ public class RecruitmentNotificationSender {
                     htmlBody,
                     subject
             );
-            requester.updateSendStatus(SendStatus.SUCCESS);
         } catch (Exception e) {
             success = false;
             requester.updateSendStatus(SendStatus.FAIL);
