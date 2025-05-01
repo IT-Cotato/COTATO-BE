@@ -24,19 +24,24 @@ public class RecruitmentNotificationEmailLogJdbcRepository {
                 + "(receiver_id, notification_id, send_success, created_at, modified_at) "
                 + "VALUES (?, ?, ?, now(), now())";
 
-        jdbcTemplate.batchUpdate(SQL, new BatchPreparedStatementSetter() {
-            @Override
-            public void setValues(PreparedStatement ps, int i) throws SQLException {
-                RecruitmentNotificationEmailLog log = logs.get(i);
-                ps.setLong(1, log.getReceiver().getId());
-                ps.setLong(2, log.getNotification().getId());
-                ps.setBoolean(3, log.getSendSuccess());
-            }
+        for (int start = 0; start < logs.size(); start += BATCH_SIZE) {
+            int end = Math.min(start + BATCH_SIZE, logs.size());
+            List<RecruitmentNotificationEmailLog> chunk = logs.subList(start, end);
 
-            @Override
-            public int getBatchSize() {
-                return logs.size();
-            }
-        });
+            jdbcTemplate.batchUpdate(SQL, new BatchPreparedStatementSetter() {
+                @Override
+                public void setValues(PreparedStatement ps, int i) throws SQLException {
+                    var log = chunk.get(i);
+                    ps.setLong(1, log.getReceiver().getId());
+                    ps.setLong(2, log.getNotification().getId());
+                    ps.setBoolean(3, log.getSendSuccess());
+                }
+
+                @Override
+                public int getBatchSize() {
+                    return chunk.size();
+                }
+            });
+        }
     }
 }
