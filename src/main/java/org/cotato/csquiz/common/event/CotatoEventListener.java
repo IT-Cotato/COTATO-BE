@@ -13,7 +13,7 @@ public class CotatoEventListener {
     private final EmailNotificationService emailNotificationService;
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
-    public void handleCotatoEvent(EmailSendEvent event) {
+    public void handleEmailSentEvent(EmailSendEvent event) {
         switch (event.getType()) {
             case APPROVE_MEMBER -> emailNotificationService.sendSignUpApprovedToEmail(event.getData());
             case REJECT_MEMBER -> emailNotificationService.sendSignupRejectionToEmail(event.getData());
