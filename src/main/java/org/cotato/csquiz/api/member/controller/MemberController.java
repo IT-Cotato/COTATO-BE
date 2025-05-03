@@ -19,6 +19,7 @@ import org.cotato.csquiz.api.member.dto.SearchedMembersResponse;
 import org.cotato.csquiz.api.member.dto.UpdatePasswordRequest;
 import org.cotato.csquiz.api.member.dto.UpdatePhoneNumberRequest;
 import org.cotato.csquiz.api.member.dto.UpdateProfileInfoRequest;
+import org.cotato.csquiz.common.response.PageResponse;
 import org.cotato.csquiz.common.role.RoleAuthority;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.enums.MemberPosition;
@@ -75,12 +76,12 @@ public class MemberController {
     @Operation(summary = "OM 검색 API")
     @RoleAuthority(MemberRole.ADMIN)
     @GetMapping(value = "/search", params = "status=RETIRED")
-    public ResponseEntity<Page<MemberResponse>> findRetiredMembers(
+    public ResponseEntity<PageResponse<MemberResponse>> findRetiredMembers(
             @RequestParam(value = "passedGenerationNumber", required = false) Integer passedGenerationNumber,
             @RequestParam(value = "position", required = false) MemberPosition position,
             @RequestParam(value = "name", required = false) String name,
             Pageable pageable) {
-        return ResponseEntity.ok().body(memberService.getMembersByName(passedGenerationNumber, position, name, MemberStatus.RETIRED, pageable));
+        return ResponseEntity.ok().body(PageResponse.of(memberService.getMembersByName(passedGenerationNumber, position, name, MemberStatus.RETIRED, pageable)));
     }
 
     @PatchMapping("/update/password")
@@ -140,10 +141,10 @@ public class MemberController {
     @Operation(summary = "회원 상태에 따른 조회 요청 API")
     @RoleAuthority(MemberRole.ADMIN)
     @GetMapping(params = "status")
-    public ResponseEntity<Page<MemberResponse>> findMembersByStatus(
+    public ResponseEntity<PageResponse<MemberResponse>> findMembersByStatus(
             @RequestParam("status") MemberStatus status,
             @PageableDefault(sort = {"name"}, direction = Sort.Direction.ASC) Pageable pageable) {
-        return ResponseEntity.ok().body(memberService.getMembersByStatus(status, pageable));
+        return ResponseEntity.ok().body(PageResponse.of(memberService.getMembersByStatus(status, pageable)));
     }
 
     @Operation(summary = "부원 가입 승인")
