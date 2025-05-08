@@ -21,6 +21,7 @@ import org.cotato.csquiz.domain.generation.service.SessionImageService;
 import org.cotato.csquiz.domain.generation.service.SessionService;
 import org.cotato.csquiz.common.error.exception.ImageException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,10 +58,11 @@ public class SessionController {
 
     @Operation(summary = "Session 추가 API")
     @RoleAuthority(MemberRole.ADMIN)
-    @PostMapping(consumes = "multipart/form-data")
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AddSessionResponse> addSession(@ModelAttribute @Valid AddSessionRequest request)
             throws ImageException {
-        return ResponseEntity.status(HttpStatus.CREATED).body(sessionService.addSession(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(sessionService.addSession(request.generationId(),
+                request.images(), request.toSession(), request.attendanceDeadLine(), request.lateDeadLine(), request.toLocation()));
     }
 
     @Operation(summary = "세션 수정 API")
@@ -82,7 +84,8 @@ public class SessionController {
     @Operation(summary = "세션 사진 추가 API")
     @RoleAuthority(MemberRole.ADMIN)
     @PostMapping(value = "/image", consumes = "multipart/form-data")
-    public ResponseEntity<AddSessionImageResponse> additionalSessionImage(@ModelAttribute @Valid AddSessionImageRequest request)
+    public ResponseEntity<AddSessionImageResponse> additionalSessionImage(
+            @ModelAttribute @Valid AddSessionImageRequest request)
             throws ImageException {
         return ResponseEntity.status(HttpStatus.CREATED).body(sessionImageService.additionalSessionImage(request));
     }

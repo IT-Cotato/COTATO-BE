@@ -6,10 +6,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.cotato.csquiz.domain.attendance.embedded.Location;
+import org.cotato.csquiz.domain.generation.embedded.SessionContents;
 import org.cotato.csquiz.domain.generation.enums.CSEducation;
 import org.cotato.csquiz.domain.generation.enums.DevTalk;
 import org.cotato.csquiz.domain.generation.enums.ItIssue;
 import org.cotato.csquiz.domain.generation.enums.Networking;
+import org.cotato.csquiz.domain.generation.enums.SessionType;
+import org.cotato.csquiz.domain.generation.service.dto.SessionDto;
 import org.springframework.web.multipart.MultipartFile;
 
 public record AddSessionRequest(
@@ -50,4 +54,29 @@ public record AddSessionRequest(
         CSEducation csEducation,
         DevTalk devTalk
 ) {
+
+        public SessionDto toSession() {
+                SessionContents sessionContents = SessionContents.builder()
+                        .networking(networking)
+                        .itIssue(itIssue)
+                        .csEducation(csEducation)
+                        .devTalk(devTalk)
+                        .build();
+                return SessionDto.builder()
+                        .title(title)
+                        .type(SessionType.getSessionType(isOffline, isOnline))
+                        .description(description)
+                        .sessionDateTime(sessionDateTime)
+                        .roadNameAddress(roadNameAddress)
+                        .placeName(placeName)
+                        .sessionContents(sessionContents)
+                        .build();
+        }
+
+        public Location toLocation() {
+                return Location.builder()
+                        .latitude(latitude)
+                        .longitude(longitude)
+                        .build();
+        }
 }

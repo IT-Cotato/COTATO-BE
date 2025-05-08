@@ -33,9 +33,12 @@ import org.cotato.csquiz.domain.generation.enums.SessionType;
 import org.cotato.csquiz.domain.generation.repository.GenerationRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionImageRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
+import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
 import org.cotato.csquiz.domain.generation.service.component.SessionReader;
+import org.cotato.csquiz.domain.generation.service.dto.SessionDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -44,7 +47,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class SessionService {
 
     private final SessionRepository sessionRepository;
-    private final GenerationRepository generationRepository;
+//    private final GenerationRepository generationRepository;
+    private final GenerationReader generationReader;
     private final SessionImageRepository sessionImageRepository;
     private final AttendanceService attendanceService;
     private final SessionImageService sessionImageService;
@@ -54,46 +58,40 @@ public class SessionService {
     private final AttendanceReader attendanceReader;
 
     @Transactional
-    public AddSessionResponse addSession(AddSessionRequest request) throws ImageException {
-        Generation findGeneration = generationRepository.findById(request.generationId())
-                .orElseThrow(() -> new EntityNotFoundException("해당 기수를 찾을 수 없습니다."));
+    public AddSessionResponse addSession(final Long generationId,
+                                         final List<MultipartFile> images,
+                                         final SessionDto sessionDto,
+                                         final LocalDateTime attendanceDeadLine,
+                                         final LocalDateTime lateDeadLine,
+                                         final Location location) throws ImageException {
+        Generation generation = generationReader.findById(generationId);
 
-        int sessionNumber = calculateLastSessionNumber(findGeneration);
-        log.info("해당 기수에 추가된 마지막 세션 : {}", sessionNumber);
-
-        SessionType sessionType = SessionType.getSessionType(request.isOffline(), request.isOnline());
+        int sessionNumber = calculateLastSessionNumber(generation);
         Session session = Session.builder()
+                .generation(generation)
                 .number(sessionNumber + 1)
-                .description(request.description())
-                .generation(findGeneration)
-                .title(request.title())
-                .roadNameAddress(request.roadNameAddress())
-                .placeName(request.placeName())
-                .sessionType(sessionType)
-                .sessionDateTime(request.sessionDateTime())
-                .sessionContents(SessionContents.builder()
-                        .csEducation(request.csEducation())
-                        .devTalk(request.devTalk())
-                        .itIssue(request.itIssue())
-                        .networking(request.networking())
-                        .build())
+                .title(sessionDto.title())
+                .description(sessionDto.description())
+                .placeName(sessionDto.placeName())
+                .roadNameAddress(sessionDto.roadNameAddress())
+                .sessionContents(sessionDto.sessionContents())
+                .sessionType(sessionDto.type())
                 .build();
-        Session savedSession = sessionRepository.save(session);
-        log.info("세션 생성 완료");
 
-        if (request.images() != null && !request.images().isEmpty()) {
-            sessionImageService.addSessionImages(request.images(), savedSession);
+        sessionRepository.save(session);
+
+        if (images != null && !images.isEmpty()) {
+            sessionImageService.addSessionImages(images, session);
         }
 
-        if (sessionType.isCreateAttendance()) {
-            if (isAttendanceDeadLineNotExist(request.attendanceDeadLine(), request.lateDeadLine())) {
+        if (session.getSessionType().isCreateAttendance()) {
+            if (isAttendanceDeadLineNotExist(attendanceDeadLine, lateDeadLine)) {
                 throw new AppException(ErrorCode.INVALID_ATTEND_DEADLINE);
             }
-            attendanceService.createAttendance(session, Location.location(request.latitude(), request.longitude()),
-                    request.attendanceDeadLine(), request.lateDeadLine());
+            attendanceService.createAttendance(session, location,attendanceDeadLine, lateDeadLine);
         }
 
-        return AddSessionResponse.from(savedSession);
+        return AddSessionResponse.from(session);
     }
 
     private int calculateLastSessionNumber(Generation generation) {
@@ -164,8 +162,7 @@ public class SessionService {
     }
 
     public List<SessionListResponse> findSessionsByGenerationId(Long generationId) {
-        Generation generation = generationRepository.findById(generationId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 기수를 찾을 수 없습니다."));
+        Generation generation = generationReader.findById(generationId);
 
         List<Session> sessions = sessionRepository.findAllByGeneration(generation);
 
