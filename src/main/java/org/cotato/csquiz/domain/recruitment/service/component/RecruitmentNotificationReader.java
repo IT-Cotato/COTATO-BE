@@ -16,6 +16,6 @@ public class RecruitmentNotificationReader {
     private final RecruitmentNotificationRepository recruitmentNotificationRepository;
 
     public List<RecruitmentNotification> findTopNLatestNotifications(int limit) {
-        return recruitmentNotificationRepository.findAllByOrderBySendTimeDesc(PageRequest.of(0, limit));
+        return recruitmentNotificationRepository.findRecentSendTimeFetchJoinSender(PageRequest.of(0, limit));
     }
 }
