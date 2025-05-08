@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface RecruitmentNotificationRequesterRepository extends
         JpaRepository<RecruitmentNotificationRequester, Long> {
@@ -14,6 +15,7 @@ public interface RecruitmentNotificationRequesterRepository extends
 
     List<RecruitmentNotificationRequester> findAllBySendStatusIn(List<SendStatus> status);
 
+    @Transactional
     @Modifying
     @Query("update RecruitmentNotificationRequester r set r.sendStatus = :status where r.id in :ids")
     void updateSendStatusByIds(@Param("status") SendStatus sendStatus, @Param("ids") List<Long> ids);
