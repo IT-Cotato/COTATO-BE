@@ -7,15 +7,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.recruitment.dto.ChangeRecruitmentInfoRequest;
 import org.cotato.csquiz.api.recruitment.dto.RecruitmentInfoResponse;
+import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationPendingResponse;
+import org.cotato.csquiz.api.recruitment.dto.RequestRecruitmentNotificationRequest;
 import org.cotato.csquiz.common.role.RoleAuthority;
 import org.cotato.csquiz.domain.auth.enums.MemberRole;
-import org.cotato.csquiz.api.recruitment.dto.RequestRecruitmentNotificationRequest;
 import org.cotato.csquiz.domain.recruitment.service.RecruitmentInformationService;
 import org.cotato.csquiz.domain.recruitment.service.RecruitmentNotificationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,7 +43,14 @@ public class RecruitmentController {
     public ResponseEntity<Void> changeRecruitmentInfo(@RequestBody @Valid ChangeRecruitmentInfoRequest request) {
         recruitmentInformationService.changeRecruitmentInfo(request.isOpened(), request.startDate(), request.endDate(),
                 request.recruitmentUrl());
-      return ResponseEntity.noContent().build();
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "모집 알람 대기자 수 반환 API")
+    @RoleAuthority(MemberRole.ADMIN)
+    @GetMapping("/notifications/pending")
+    public ResponseEntity<RecruitmentNotificationPendingResponse> countPendingNotification() {
+        return ResponseEntity.ok().body(recruitmentNotificationService.countPendingNotification());
     }
 
     @PostMapping("/notification")

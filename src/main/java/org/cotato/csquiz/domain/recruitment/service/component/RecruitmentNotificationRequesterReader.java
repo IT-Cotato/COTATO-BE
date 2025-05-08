@@ -1,5 +1,6 @@
 package org.cotato.csquiz.domain.recruitment.service.component;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.domain.recruitment.enums.SendStatus;
 import org.cotato.csquiz.domain.recruitment.repository.RecruitmentNotificationRequesterRepository;
@@ -15,5 +16,10 @@ public class RecruitmentNotificationRequesterReader {
 
     public boolean existsByEmailAndSendStatus(String email, SendStatus sendStatus) {
         return recruitmentNotificationRequesterRepository.existsByEmailAndSendStatus(email, sendStatus);
+    }
+
+    public long countPendingNotification() {
+        return recruitmentNotificationRequesterRepository.countAllBySendStatusIn(
+                List.of(SendStatus.FAIL, SendStatus.NOT_SENT));
     }
 }
