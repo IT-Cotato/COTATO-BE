@@ -1,6 +1,7 @@
 package org.cotato.csquiz.domain.recruitment.service;
 
 import lombok.RequiredArgsConstructor;
+import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationPendingResponse;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotificationRequester;
@@ -29,5 +30,11 @@ public class RecruitmentNotificationService {
         recruitmentNotificationRequesterRepository.save(
                 RecruitmentNotificationRequester.of(recruitEmail, isPolicyChecked)
         );
+    }
+
+    @Transactional(readOnly = true)
+    public RecruitmentNotificationPendingResponse countPendingNotification() {
+        return RecruitmentNotificationPendingResponse.of(
+                recruitmentNotificationRequesterReader.countPendingNotification());
     }
 }
