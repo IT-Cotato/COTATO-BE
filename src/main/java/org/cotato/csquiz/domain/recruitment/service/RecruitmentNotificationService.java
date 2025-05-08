@@ -1,24 +1,29 @@
 package org.cotato.csquiz.domain.recruitment.service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationLogDto;
+import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationLogsResponse;
 import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationPendingResponse;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
+import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotification;
+import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotificationEmailLog;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.recruitment.email.EmailContent;
 import org.cotato.csquiz.domain.recruitment.email.RecruitmentEmailFactory;
-import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotification;
-import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotificationEmailLog;
 import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotificationRequester;
 import org.cotato.csquiz.domain.recruitment.enums.SendStatus;
 import org.cotato.csquiz.domain.recruitment.repository.RecruitmentNotificationEmailLogJdbcRepository;
 import org.cotato.csquiz.domain.recruitment.repository.RecruitmentNotificationRepository;
 import org.cotato.csquiz.domain.recruitment.repository.RecruitmentNotificationRequesterRepository;
+import org.cotato.csquiz.domain.recruitment.service.component.RecruitmentNotificationEmailLogReader;
+import org.cotato.csquiz.domain.recruitment.service.component.RecruitmentNotificationReader;
 import org.cotato.csquiz.domain.recruitment.service.component.RecruitmentNotificationRequesterReader;
 import org.cotato.csquiz.domain.recruitment.service.component.RecruitmentNotificationSender;
 import org.cotato.csquiz.domain.recruitment.service.component.dto.NotificationResult;
@@ -29,6 +34,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class RecruitmentNotificationService {
 
+    private final RecruitmentNotificationEmailLogReader recruitmentNotificationEmailLogReader;
+    private final RecruitmentNotificationReader recruitmentNotificationReader;
     private final RecruitmentNotificationRequesterReader recruitmentNotificationRequesterReader;
     private final RecruitmentNotificationRequesterRepository recruitmentNotificationRequesterRepository;
     private final RecruitmentNotificationRepository recruitmentNotificationRepository;
@@ -48,6 +55,25 @@ public class RecruitmentNotificationService {
         recruitmentNotificationRequesterRepository.save(
                 RecruitmentNotificationRequester.of(recruitEmail, isPolicyChecked)
         );
+    }
+
+    @Transactional(readOnly = true)
+    public RecruitmentNotificationLogsResponse findNotificationLogs() {
+        List<RecruitmentNotification> top5Notification = recruitmentNotificationReader.findTopNLatestNotifications(5);
+
+        List<Long> top5NotificationIds = top5Notification.stream()
+                .map(RecruitmentNotification::getId)
+                .toList();
+        HashMap<Long, List<RecruitmentNotificationEmailLog>> logsByNotificationId = recruitmentNotificationEmailLogReader.groupByNotificationIds(
+                top5NotificationIds);
+
+        List<RecruitmentNotificationLogDto> dto = top5Notification.stream()
+                .map(notification -> RecruitmentNotificationLogDto.of(
+                        notification,
+                        logsByNotificationId.getOrDefault(notification.getId(), List.of())
+                ))
+                .toList();
+        return RecruitmentNotificationLogsResponse.of(dto);
     }
 
     @Transactional(readOnly = true)
