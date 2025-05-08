@@ -13,6 +13,8 @@ public interface RecruitmentNotificationRequesterRepository extends
         JpaRepository<RecruitmentNotificationRequester, Long> {
     boolean existsByEmailAndSendStatus(String recruitEmail, SendStatus sendStatus);
 
+    long countAllBySendStatusIn(List<SendStatus> statusList);
+
     List<RecruitmentNotificationRequester> findAllBySendStatusIn(List<SendStatus> status);
 
     @Transactional

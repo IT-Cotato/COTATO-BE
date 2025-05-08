@@ -6,6 +6,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationPendingResponse;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.auth.entity.Member;
@@ -47,6 +48,11 @@ public class RecruitmentNotificationService {
         recruitmentNotificationRequesterRepository.save(
                 RecruitmentNotificationRequester.of(recruitEmail, isPolicyChecked)
         );
+    }
+
+    public RecruitmentNotificationPendingResponse countPendingNotification() {
+        return RecruitmentNotificationPendingResponse.of(
+                recruitmentNotificationRequesterReader.countPendingNotification());
     }
 
     @Transactional
