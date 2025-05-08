@@ -99,10 +99,10 @@ public class RecruitmentNotificationService {
                 .collect(Collectors.toMap(RecruitmentNotificationRequester::getId, Function.identity()));
 
         List<RecruitmentNotificationEmailLog> logs = results.stream()
-                .map(r -> RecruitmentNotificationEmailLog.of(
-                        reqesterMap.get(r.requestId()),
+                .map(notificationResult -> RecruitmentNotificationEmailLog.of(
+                        reqesterMap.get(notificationResult.requestId()),
                         notification,
-                        r.success()
+                        notificationResult.success()
                 ))
                 .toList();
         recruitmentNotificationEmailLogJdbcRepository.saveAllWithBatch(logs);
