@@ -1,9 +1,19 @@
 package org.cotato.csquiz.domain.recruitment.email;
 
-public class RecruitmentEmailFactory {
-    private static final String LINK_URL = "https://www.cotato.kr/";
+import org.cotato.csquiz.common.config.property.CotatoProperties;
+import org.springframework.stereotype.Component;
 
-    public static EmailContent createForGeneration(int generation) {
+@Component
+public class RecruitmentEmailFactory {
+
+    private final CotatoProperties properties;
+
+    public RecruitmentEmailFactory(CotatoProperties props) {
+        this.properties = props;
+    }
+
+    public EmailContent createForGeneration(int generation) {
+
         String subject = "[IT 연합동아리 코테이토] " + generation + "기 모집이 시작되었습니다.";
 
         String htmlBody = """
@@ -38,7 +48,7 @@ public class RecruitmentEmailFactory {
                     </table>
                   </body>
                 </html>
-                """.formatted(generation, LINK_URL);
+                """.formatted(generation, properties.getBaseUrl());
 
         return new EmailContent(subject, htmlBody);
     }

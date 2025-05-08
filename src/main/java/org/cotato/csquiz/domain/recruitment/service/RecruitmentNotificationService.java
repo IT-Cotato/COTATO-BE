@@ -33,6 +33,7 @@ public class RecruitmentNotificationService {
     private final RecruitmentNotificationRepository recruitmentNotificationRepository;
     private final RecruitmentNotificationSender recruitmentNotificationSender;
     private final RecruitmentNotificationEmailLogJdbcRepository recruitmentNotificationEmailLogJdbcRepository;
+    private final RecruitmentEmailFactory recruitmentEmailFactory;
 
     @Transactional
     public void requestRecruitmentNotification(String recruitEmail, boolean isPolicyChecked) {
@@ -57,7 +58,7 @@ public class RecruitmentNotificationService {
         RecruitmentNotification recruitmentNotification = recruitmentNotificationRepository.save(
                 RecruitmentNotification.of(member, generationNumber));
 
-        EmailContent emailContent = RecruitmentEmailFactory.createForGeneration(generationNumber);
+        EmailContent emailContent = recruitmentEmailFactory.createForGeneration(generationNumber);
 
         //메일 전송 + 로그 작성 비동기 처리
         List<CompletableFuture<NotificationResult>> notificationTasks = allNotSentOrFailRequester.stream()
