@@ -13,6 +13,10 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PWD}
 
+cloud:
+  aws:
+    ses:
+      emailAddress: ${EMAIL_ADDRESS}
 
 springdoc:
   swagger-ui:

@@ -19,6 +19,11 @@ spring:
         format_sql: true
     show-sql: true
 
+cloud:
+  aws:
+    ses:
+      emailAddress: ${EMAIL_ADDRESS}
+
 springdoc:
   swagger-ui:
     enabled: true
