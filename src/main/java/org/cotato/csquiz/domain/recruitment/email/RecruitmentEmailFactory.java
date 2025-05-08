@@ -38,7 +38,7 @@ public class RecruitmentEmailFactory {
                     </table>
                   </body>
                 </html>
-                """.formatted(generation, LINK_URL, LINK_URL);
+                """.formatted(generation, LINK_URL);
 
         return new EmailContent(subject, htmlBody);
     }
