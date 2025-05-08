@@ -8,6 +8,7 @@ import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotificationEmailL
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @RequiredArgsConstructor
@@ -17,6 +18,7 @@ public class RecruitmentNotificationEmailLogJdbcRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
+    @Transactional
     public void saveAllWithBatch(List<RecruitmentNotificationEmailLog> logs) {
 
         // language=MySQL
