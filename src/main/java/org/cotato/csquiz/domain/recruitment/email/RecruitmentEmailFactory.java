@@ -18,7 +18,7 @@ public class RecruitmentEmailFactory {
                               <td style="padding:30px;text-align:center;color:#333333;">
                                 <h1 style="font-size:24px;margin-bottom:20px;">코테이토 %d기 모집이 시작되었습니다!</h1>
                                 <p style="font-size:16px;line-height:1.5;margin:0 0 20px;">
-                                  <a href="%s" style="color:#00c471;text-decoration:none;">코테이토 홈페이지</a> 에 접속하여 지원해주세요!
+                                  <a href="%s" style="color:#f86c14;text-decoration:none;">코테이토 홈페이지</a> 에 접속하여 지원해주세요!
                                 </p>
                                 <p style="font-size:16px;line-height:1.5;margin:0;">
                                   무엇이라도 해내야겠다는 마음가짐, 발전하고자 하는<br/>
@@ -29,7 +29,7 @@ public class RecruitmentEmailFactory {
                             <!-- FOOTER -->
                             <tr>
                               <td style="background:#f1f1f1;padding:15px;text-align:center;color:#999999;font-size:12px;">
-                                &copy; 2025 코테이토. All rights reserved.
+                                &copy;코테이토. All rights reserved.
                               </td>
                             </tr>
                           </table>
