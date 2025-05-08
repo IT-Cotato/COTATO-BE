@@ -12,7 +12,7 @@ public class RecruitmentEmailFactory {
         this.properties = props;
     }
 
-    public EmailContent createForGeneration(int generation) {
+    public EmailContent getRecruitmentEmailContent(int generation) {
 
         String subject = "[IT 연합동아리 코테이토] " + generation + "기 모집이 시작되었습니다.";
 

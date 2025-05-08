@@ -58,7 +58,7 @@ public class RecruitmentNotificationService {
         RecruitmentNotification recruitmentNotification = recruitmentNotificationRepository.save(
                 RecruitmentNotification.of(member, generationNumber));
 
-        EmailContent emailContent = recruitmentEmailFactory.createForGeneration(generationNumber);
+        EmailContent emailContent = recruitmentEmailFactory.getRecruitmentEmailContent(generationNumber);
 
         //메일 전송 + 로그 작성 비동기 처리
         List<CompletableFuture<NotificationResult>> notificationTasks = allNotSentOrFailRequester.stream()
