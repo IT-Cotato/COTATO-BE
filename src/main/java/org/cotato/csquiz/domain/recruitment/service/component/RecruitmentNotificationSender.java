@@ -4,6 +4,7 @@ import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.common.email.SesEmailSender;
+import org.cotato.csquiz.domain.recruitment.email.EmailContent;
 import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotificationRequester;
 import org.cotato.csquiz.domain.recruitment.enums.SendStatus;
 import org.cotato.csquiz.domain.recruitment.service.component.dto.NotificationResult;
@@ -19,14 +20,13 @@ public class RecruitmentNotificationSender {
 
     @Async("emailSendThreadPoolExecutor")
     public CompletableFuture<NotificationResult> sendNotificationAsync(final RecruitmentNotificationRequester requester,
-                                                                       final String htmlBody, final String subject
-    ) {
+                                                                       final EmailContent emailContent) {
         boolean success = true;
         try {
             sesEmailSender.sendRawMessageBody(
                     requester.getEmail(),
-                    htmlBody,
-                    subject
+                    emailContent.htmlBody(),
+                    emailContent.subject()
             );
         } catch (Exception e) {
             success = false;

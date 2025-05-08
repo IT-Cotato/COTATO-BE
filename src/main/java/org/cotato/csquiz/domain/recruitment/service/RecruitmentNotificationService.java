@@ -62,8 +62,7 @@ public class RecruitmentNotificationService {
 
         //메일 전송 + 로그 작성 비동기 처리
         List<CompletableFuture<NotificationResult>> notificationTasks = allNotSentOrFailRequester.stream()
-                .map(requester -> recruitmentNotificationSender.sendNotificationAsync(requester,
-                        emailContent.htmlBody(), emailContent.subject()))
+                .map(requester -> recruitmentNotificationSender.sendNotificationAsync(requester, emailContent))
                 .toList();
         CompletableFuture.allOf(notificationTasks.toArray(new CompletableFuture[0])).join();
 
