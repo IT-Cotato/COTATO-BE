@@ -32,6 +32,7 @@ public class RecruitmentNotificationService {
         );
     }
 
+    @Transactional(readOnly = true)
     public RecruitmentNotificationPendingResponse countPendingNotification() {
         return RecruitmentNotificationPendingResponse.of(
                 recruitmentNotificationRequesterReader.countPendingNotification());
