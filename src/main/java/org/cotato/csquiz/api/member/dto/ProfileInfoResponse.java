@@ -26,17 +26,13 @@ public record ProfileInfoResponse(
         List<ProfileLinkResponse> profileLinks
 ) {
     public static ProfileInfoResponse of(final Member member, final List<ProfileLink> profileLinks,
-                                         String defaultImageUrl) {
-        String imageUrl = member.getProfileImage() != null
-                ? member.getProfileImageUrl()
-                : defaultImageUrl;
-
+                                         String profileImageUrl) {
         return new ProfileInfoResponse(
                 member.getId(),
                 member.getName(),
                 member.getPassedGenerationNumber(),
                 member.getPosition(),
-                imageUrl,
+                profileImageUrl,
                 member.getIntroduction(),
                 member.getUniversity(),
                 profileLinks.stream()

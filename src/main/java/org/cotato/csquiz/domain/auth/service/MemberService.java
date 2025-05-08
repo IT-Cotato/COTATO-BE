@@ -116,7 +116,15 @@ public class MemberService {
     public ProfileInfoResponse findMemberProfileInfo(final Long memberId) {
         Member member = memberReader.findById(memberId);
         List<ProfileLink> profileLinks = profileLinkRepository.findAllByMember(member);
-        return ProfileInfoResponse.of(member, profileLinks, defaultProfileImageUrl);
+        String imageUrl = resolveProfileImageOrDefault(member.getProfileImageUrl());
+        return ProfileInfoResponse.of(member, profileLinks, imageUrl);
+    }
+
+    String resolveProfileImageOrDefault(String savedUrl) {
+        if (savedUrl != null) {
+            return savedUrl;
+        }
+        return defaultProfileImageUrl;
     }
 
     @Transactional
