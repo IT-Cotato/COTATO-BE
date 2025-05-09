@@ -166,17 +166,17 @@ class RecruitmentNotificationServiceTest {
                 .thenReturn(grouped);
 
         // when
-        RecruitmentNotificationLogsResponse response = recruitmentNotificationService.findNotificationLogs();
+        RecruitmentNotificationLogsResponse responses = recruitmentNotificationService.findNotificationLogs();
 
         // then
-        assertEquals(1, response.notificationLogs().size());
-        RecruitmentNotificationLogResponse dto = response.notificationLogs().get(0);
+        assertEquals(1, responses.notificationLogs().size());
+        RecruitmentNotificationLogResponse response = responses.notificationLogs().get(0);
 
-        assertEquals(now, dto.sendTime());
-        assertEquals("멤버1", dto.sender());
-        assertEquals(3L, dto.sendCount());
-        assertEquals(2L, dto.sendSuccess());
-        assertEquals(1L, dto.sendFail());
+        assertEquals(now, response.sendTime());
+        assertEquals("멤버1", response.senderName());
+        assertEquals(3L, response.sendCount());
+        assertEquals(2L, response.sendSuccess());
+        assertEquals(1L, response.sendFail());
     }
 
     @Test
