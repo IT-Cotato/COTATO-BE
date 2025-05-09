@@ -4,31 +4,28 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
+import org.cotato.csquiz.common.config.property.AwsProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@RequiredArgsConstructor
 public class AwsSesConfig {
 
-    @Value("${cloud.aws.credentials.accessKey}")
-    private String accessKey;
-    @Value("${cloud.aws.credentials.secretKey}")
-    private String secretKey;
-    @Value("${cloud.aws.region.static}")
-    private String region;
-
+    private final AwsProperties awsProperties;
 
     @Bean
     public AmazonSimpleEmailService amazonSimpleEmailService() {
-        final BasicAWSCredentials basicAWSCredentials = new BasicAWSCredentials(accessKey, secretKey);
+        final BasicAWSCredentials basicAWSCredentials = new BasicAWSCredentials(awsProperties.getAccessKey(),
+                awsProperties.getSecretKey());
         final AWSStaticCredentialsProvider awsStaticCredentialsProvider = new AWSStaticCredentialsProvider(
                 basicAWSCredentials
         );
 
         return AmazonSimpleEmailServiceClientBuilder.standard()
                 .withCredentials(awsStaticCredentialsProvider)
-                .withRegion(region)
+                .withRegion(awsProperties.getRegionStatic())
                 .build();
     }
 }
