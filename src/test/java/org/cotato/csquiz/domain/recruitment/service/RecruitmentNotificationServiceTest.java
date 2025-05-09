@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationPendingResponse;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
 import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationLogDto;
 import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationLogsResponse;
@@ -162,9 +161,8 @@ class RecruitmentNotificationServiceTest {
         when(log3.getSendSuccess()).thenReturn(false);
 
         List<RecruitmentNotificationEmailLog> logs = List.of(log1, log2, log3);
-        HashMap<Long, List<RecruitmentNotificationEmailLog>> grouped =
-                new HashMap<>(Map.of(1L, logs));
-        when(emailLogReader.groupByNotificationIds(List.of(1L)))
+        Map<Long, List<RecruitmentNotificationEmailLog>> grouped = Map.of(1L, logs);
+        when(emailLogReader.groupByNotificationIds(notifications))
                 .thenReturn(grouped);
 
         // when
