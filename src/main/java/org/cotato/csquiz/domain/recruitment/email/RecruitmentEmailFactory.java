@@ -1,16 +1,14 @@
 package org.cotato.csquiz.domain.recruitment.email;
 
+import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.common.config.property.CotatoProperties;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class RecruitmentEmailFactory {
 
     private final CotatoProperties properties;
-
-    public RecruitmentEmailFactory(CotatoProperties props) {
-        this.properties = props;
-    }
 
     public EmailContent getRecruitmentEmailContent(int generation) {
 
