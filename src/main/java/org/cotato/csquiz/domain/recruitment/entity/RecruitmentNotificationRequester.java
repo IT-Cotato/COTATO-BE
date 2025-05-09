@@ -45,6 +45,10 @@ public class RecruitmentNotificationRequester extends BaseTimeEntity {
         this.sendStatus = sendStatus;
     }
 
+    public void updateSendStatus(SendStatus sendStatus) {
+        this.sendStatus = sendStatus;
+    }
+
     public static RecruitmentNotificationRequester of(String email, Boolean policyChecked) {
         return new RecruitmentNotificationRequester(email, policyChecked, LocalDateTime.now(), SendStatus.NOT_SENT);
     }

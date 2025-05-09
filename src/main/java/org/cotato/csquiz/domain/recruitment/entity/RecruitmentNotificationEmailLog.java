@@ -33,4 +33,16 @@ public class RecruitmentNotificationEmailLog extends BaseTimeEntity {
 
     @Column(name = "send_success")
     private Boolean sendSuccess;
+
+    private RecruitmentNotificationEmailLog(RecruitmentNotificationRequester receiver,
+                                            RecruitmentNotification notification, boolean sendSuccess) {
+        this.receiver = receiver;
+        this.notification = notification;
+        this.sendSuccess = sendSuccess;
+    }
+
+    public static RecruitmentNotificationEmailLog of(RecruitmentNotificationRequester receiver,
+                                                     RecruitmentNotification notification, boolean sendSuccess) {
+        return new RecruitmentNotificationEmailLog(receiver, notification, sendSuccess);
+    }
 }

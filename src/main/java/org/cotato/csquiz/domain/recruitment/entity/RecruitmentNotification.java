@@ -34,4 +34,18 @@ public class RecruitmentNotification extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender")
     private Member sender;
+
+    private RecruitmentNotification(int generationNumber, LocalDateTime sendTime, Member sender) {
+        this.generationNumber = generationNumber;
+        this.sendTime = sendTime;
+        this.sender = sender;
+    }
+
+    public static RecruitmentNotification of(Member member, int generationNumber) {
+        return new RecruitmentNotification(
+                generationNumber,
+                LocalDateTime.now(),
+                member
+        );
+    }
 }
