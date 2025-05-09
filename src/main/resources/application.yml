@@ -52,6 +52,8 @@ cloud:
     credentials:
       accessKey: ${S3_ACCESS_KEY}
       secretKey: ${S3_ACCESS_PASSWORD}
+    ses:
+      emailAddress: ${EMAIL_ADDRESS}
 
 springdoc:
   show-login-endpoint: true

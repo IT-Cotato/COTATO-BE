@@ -19,11 +19,6 @@ spring:
     username: ${TEST_DB_USERNAME}
     password: ${TEST_DB_PWD}
 
-cloud:
-  aws:
-    ses:
-      emailAddress: ${EMAIL_ADDRESS}
-
 springdoc:
   swagger-ui:
     enabled: true
