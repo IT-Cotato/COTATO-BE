@@ -151,7 +151,7 @@ class RecruitmentNotificationServiceTest {
         when(notification.getSenderName()).thenReturn("멤버1");
 
         List<RecruitmentNotification> notifications = List.of(notification);
-        when(notificationReader.findTopNLatestNotifications(5))
+        when(notificationReader.findTop5LatestNotifications())
                 .thenReturn(notifications);
 
         RecruitmentNotificationEmailLog log1 = mock(RecruitmentNotificationEmailLog.class);
