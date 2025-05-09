@@ -8,7 +8,7 @@ import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotificationEmailL
 public record RecruitmentNotificationLogResponse(
         Long NotificationId,
         LocalDateTime sendTime,
-        String sender,
+        String senderName,
         Long sendCount,
         Long sendSuccess,
         Long sendFail
