@@ -61,11 +61,8 @@ public class RecruitmentNotificationService {
     public RecruitmentNotificationLogsResponse findNotificationLogs() {
         List<RecruitmentNotification> top5Notification = recruitmentNotificationReader.findTopNLatestNotifications(5);
 
-        List<Long> top5NotificationIds = top5Notification.stream()
-                .map(RecruitmentNotification::getId)
-                .toList();
         Map<Long, List<RecruitmentNotificationEmailLog>> logsByNotificationId = recruitmentNotificationEmailLogReader.groupByNotificationIds(
-                top5NotificationIds);
+                top5Notification);
 
         List<RecruitmentNotificationLogDto> dto = top5Notification.stream()
                 .map(notification -> RecruitmentNotificationLogDto.of(
