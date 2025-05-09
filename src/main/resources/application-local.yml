@@ -31,6 +31,3 @@ springdoc:
 logging:
   level:
     org.springframework.security: DEBUG
-
-cotato:
-  base-url: ${BASE_URL}

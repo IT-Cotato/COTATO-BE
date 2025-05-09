@@ -27,6 +27,3 @@ cloud:
 springdoc:
   swagger-ui:
     enabled: true
-
-cotato:
-  base-url: ${BASE_URL}
