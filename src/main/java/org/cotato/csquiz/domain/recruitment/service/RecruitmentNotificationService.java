@@ -5,9 +5,8 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationLogDto;
+import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationLogResponse;
 import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationLogsResponse;
 import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationPendingResponse;
 import org.cotato.csquiz.common.error.ErrorCode;
@@ -64,8 +63,8 @@ public class RecruitmentNotificationService {
         Map<Long, List<RecruitmentNotificationEmailLog>> logsByNotificationId = recruitmentNotificationEmailLogReader.groupByNotificationIds(
                 top5Notification);
 
-        List<RecruitmentNotificationLogDto> dto = top5Notification.stream()
-                .map(notification -> RecruitmentNotificationLogDto.of(
+        List<RecruitmentNotificationLogResponse> dto = top5Notification.stream()
+                .map(notification -> RecruitmentNotificationLogResponse.of(
                         notification,
                         logsByNotificationId.getOrDefault(notification.getId(), List.of())
                 ))

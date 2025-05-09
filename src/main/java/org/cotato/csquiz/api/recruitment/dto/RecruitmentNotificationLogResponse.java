@@ -5,7 +5,7 @@ import java.util.List;
 import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotification;
 import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotificationEmailLog;
 
-public record RecruitmentNotificationLogDto(
+public record RecruitmentNotificationLogResponse(
         Long NotificationId,
         LocalDateTime sendTime,
         String sender,
@@ -14,15 +14,15 @@ public record RecruitmentNotificationLogDto(
         Long sendFail
 ) {
 
-    public static RecruitmentNotificationLogDto of(RecruitmentNotification notification,
-                                                   List<RecruitmentNotificationEmailLog> logs) {
+    public static RecruitmentNotificationLogResponse of(RecruitmentNotification notification,
+                                                        List<RecruitmentNotificationEmailLog> logs) {
         long total = logs.size();
         long success = logs.stream()
                 .filter(RecruitmentNotificationEmailLog::getSendSuccess)
                 .count();
         long fail = total - success;
 
-        return new RecruitmentNotificationLogDto(
+        return new RecruitmentNotificationLogResponse(
                 notification.getId(),
                 notification.getSendTime(),
                 notification.getSenderName(),

@@ -16,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationPendingResponse;
 import java.time.LocalDateTime;
 import java.util.Map;
-import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationLogDto;
+import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationLogResponse;
 import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationLogsResponse;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
@@ -170,7 +170,7 @@ class RecruitmentNotificationServiceTest {
 
         // then
         assertEquals(1, response.notificationLogs().size());
-        RecruitmentNotificationLogDto dto = response.notificationLogs().get(0);
+        RecruitmentNotificationLogResponse dto = response.notificationLogs().get(0);
 
         assertEquals(now, dto.sendTime());
         assertEquals("멤버1", dto.sender());

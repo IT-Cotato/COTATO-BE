@@ -3,9 +3,9 @@ package org.cotato.csquiz.api.recruitment.dto;
 import java.util.List;
 
 public record RecruitmentNotificationLogsResponse(
-        List<RecruitmentNotificationLogDto> notificationLogs
+        List<RecruitmentNotificationLogResponse> notificationLogs
 ) {
-    public static RecruitmentNotificationLogsResponse of(List<RecruitmentNotificationLogDto> dtos) {
+    public static RecruitmentNotificationLogsResponse of(List<RecruitmentNotificationLogResponse> dtos) {
         return new RecruitmentNotificationLogsResponse(dtos);
     }
 }
