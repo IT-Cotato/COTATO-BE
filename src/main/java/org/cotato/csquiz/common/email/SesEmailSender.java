@@ -9,7 +9,7 @@ import com.amazonaws.services.simpleemail.model.SendEmailRequest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.cotato.csquiz.common.config.property.AwsProperties;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -18,9 +18,7 @@ import org.springframework.stereotype.Component;
 public class SesEmailSender {
 
     private final AmazonSimpleEmailService ses;
-
-    @Value("${cloud.aws.ses.emailAddress}")
-    private String from;
+    private final AwsProperties awsProperties;
 
     public void sendRawMessageBody(String recipient, String htmlBody, String subject) {
         Content subjectContent = new Content(subject);
@@ -31,7 +29,7 @@ public class SesEmailSender {
         Body messageBody = createHtmlBody(bodyContent);
 
         SendEmailRequest req = new SendEmailRequest(
-                from,
+                awsProperties.getEmailAddress(),
                 new Destination(List.of(recipient)),
                 new Message(
                         new Content(subject),
