@@ -1,11 +1,11 @@
 package org.cotato.csquiz.domain.recruitment.service;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationLogDto;
 import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationLogsResponse;
@@ -64,7 +64,7 @@ public class RecruitmentNotificationService {
         List<Long> top5NotificationIds = top5Notification.stream()
                 .map(RecruitmentNotification::getId)
                 .toList();
-        HashMap<Long, List<RecruitmentNotificationEmailLog>> logsByNotificationId = recruitmentNotificationEmailLogReader.groupByNotificationIds(
+        Map<Long, List<RecruitmentNotificationEmailLog>> logsByNotificationId = recruitmentNotificationEmailLogReader.groupByNotificationIds(
                 top5NotificationIds);
 
         List<RecruitmentNotificationLogDto> dto = top5Notification.stream()
