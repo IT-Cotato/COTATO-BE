@@ -24,8 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class RecruitmentNotificationService {
 
-    private static final int LIMIT_LOGS = 5;
-
     private final RecruitmentNotificationEmailLogReader recruitmentNotificationEmailLogReader;
     private final RecruitmentNotificationReader recruitmentNotificationReader;
     private final RecruitmentNotificationRequesterReader recruitmentNotificationRequesterReader;
@@ -47,8 +45,7 @@ public class RecruitmentNotificationService {
 
     @Transactional(readOnly = true)
     public RecruitmentNotificationLogsResponse findNotificationLogs() {
-        List<RecruitmentNotification> top5Notification = recruitmentNotificationReader.findTopNLatestNotifications(
-                LIMIT_LOGS);
+        List<RecruitmentNotification> top5Notification = recruitmentNotificationReader.findTop5LatestNotifications();
 
         Map<Long, List<RecruitmentNotificationEmailLog>> logsByNotificationId = recruitmentNotificationEmailLogReader.groupByNotificationIds(
                 top5Notification);
