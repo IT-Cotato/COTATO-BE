@@ -3,15 +3,25 @@ package org.cotato.csquiz.domain.recruitment.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationLogResponse;
+import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationLogsResponse;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
+import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotification;
+import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotificationEmailLog;
 import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotificationRequester;
 import org.cotato.csquiz.domain.recruitment.enums.SendStatus;
 import org.cotato.csquiz.domain.recruitment.repository.RecruitmentNotificationRequesterRepository;
+import org.cotato.csquiz.domain.recruitment.service.component.RecruitmentNotificationEmailLogReader;
+import org.cotato.csquiz.domain.recruitment.service.component.RecruitmentNotificationReader;
 import org.cotato.csquiz.domain.recruitment.service.component.RecruitmentNotificationRequesterReader;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +40,12 @@ class RecruitmentNotificationServiceTest {
 
     @Mock
     private RecruitmentNotificationRequesterRepository recruitmentNotificationRequesterRepository;
+
+    @Mock
+    private RecruitmentNotificationReader notificationReader;
+
+    @Mock
+    private RecruitmentNotificationEmailLogReader emailLogReader;
 
     private final String EMAIL = "user@example.com";
 
@@ -82,5 +98,44 @@ class RecruitmentNotificationServiceTest {
                                 && r.getSendStatus() == SendStatus.NOT_SENT
                 )
         );
+    }
+
+    @Test
+    void 모집_전송_기록_반환() {
+        // given
+        RecruitmentNotification notification = mock(RecruitmentNotification.class);
+        LocalDateTime now = LocalDateTime.of(2025, 5, 8, 12, 0);
+        when(notification.getId()).thenReturn(1L);
+        when(notification.getSendTime()).thenReturn(now);
+        when(notification.getSenderName()).thenReturn("멤버1");
+
+        List<RecruitmentNotification> notifications = List.of(notification);
+        when(notificationReader.findTop5LatestNotifications())
+                .thenReturn(notifications);
+
+        RecruitmentNotificationEmailLog log1 = mock(RecruitmentNotificationEmailLog.class);
+        RecruitmentNotificationEmailLog log2 = mock(RecruitmentNotificationEmailLog.class);
+        RecruitmentNotificationEmailLog log3 = mock(RecruitmentNotificationEmailLog.class);
+        when(log1.getSendSuccess()).thenReturn(true);
+        when(log2.getSendSuccess()).thenReturn(true);
+        when(log3.getSendSuccess()).thenReturn(false);
+
+        List<RecruitmentNotificationEmailLog> logs = List.of(log1, log2, log3);
+        Map<Long, List<RecruitmentNotificationEmailLog>> grouped = Map.of(1L, logs);
+        when(emailLogReader.groupByNotificationIds(notifications))
+                .thenReturn(grouped);
+
+        // when
+        RecruitmentNotificationLogsResponse responses = recruitmentNotificationService.findNotificationLogs();
+
+        // then
+        assertEquals(1, responses.notificationLogs().size());
+        RecruitmentNotificationLogResponse response = responses.notificationLogs().get(0);
+
+        assertEquals(now, response.sendTime());
+        assertEquals("멤버1", response.senderName());
+        assertEquals(3L, response.sendCount());
+        assertEquals(2L, response.sendSuccess());
+        assertEquals(1L, response.sendFail());
     }
 }

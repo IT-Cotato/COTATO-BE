@@ -1,19 +1,31 @@
 package org.cotato.csquiz.domain.recruitment.service;
 
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationLogResponse;
+import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationLogsResponse;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
+import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotification;
+import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotificationEmailLog;
 import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotificationRequester;
 import org.cotato.csquiz.domain.recruitment.enums.SendStatus;
 import org.cotato.csquiz.domain.recruitment.repository.RecruitmentNotificationRequesterRepository;
+import org.cotato.csquiz.domain.recruitment.service.component.RecruitmentNotificationEmailLogReader;
+import org.cotato.csquiz.domain.recruitment.service.component.RecruitmentNotificationReader;
 import org.cotato.csquiz.domain.recruitment.service.component.RecruitmentNotificationRequesterReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RecruitmentNotificationService {
 
+    private final RecruitmentNotificationEmailLogReader recruitmentNotificationEmailLogReader;
+    private final RecruitmentNotificationReader recruitmentNotificationReader;
     private final RecruitmentNotificationRequesterReader recruitmentNotificationRequesterReader;
     private final RecruitmentNotificationRequesterRepository recruitmentNotificationRequesterRepository;
 
@@ -29,5 +41,21 @@ public class RecruitmentNotificationService {
         recruitmentNotificationRequesterRepository.save(
                 RecruitmentNotificationRequester.of(recruitEmail, isPolicyChecked)
         );
+    }
+
+    @Transactional(readOnly = true)
+    public RecruitmentNotificationLogsResponse findNotificationLogs() {
+        List<RecruitmentNotification> top5Notification = recruitmentNotificationReader.findTop5LatestNotifications();
+
+        Map<Long, List<RecruitmentNotificationEmailLog>> logsByNotificationId = recruitmentNotificationEmailLogReader.groupByNotificationIds(
+                top5Notification);
+
+        List<RecruitmentNotificationLogResponse> dto = top5Notification.stream()
+                .map(notification -> RecruitmentNotificationLogResponse.of(
+                        notification,
+                        logsByNotificationId.getOrDefault(notification.getId(), List.of())
+                ))
+                .toList();
+        return RecruitmentNotificationLogsResponse.of(dto);
     }
 }

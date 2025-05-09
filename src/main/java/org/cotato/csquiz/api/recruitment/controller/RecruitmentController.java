@@ -7,15 +7,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.recruitment.dto.ChangeRecruitmentInfoRequest;
 import org.cotato.csquiz.api.recruitment.dto.RecruitmentInfoResponse;
+import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationLogsResponse;
+import org.cotato.csquiz.api.recruitment.dto.RequestRecruitmentNotificationRequest;
 import org.cotato.csquiz.common.role.RoleAuthority;
 import org.cotato.csquiz.domain.auth.enums.MemberRole;
-import org.cotato.csquiz.api.recruitment.dto.RequestRecruitmentNotificationRequest;
 import org.cotato.csquiz.domain.recruitment.service.RecruitmentInformationService;
 import org.cotato.csquiz.domain.recruitment.service.RecruitmentNotificationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,7 +43,7 @@ public class RecruitmentController {
     public ResponseEntity<Void> changeRecruitmentInfo(@RequestBody @Valid ChangeRecruitmentInfoRequest request) {
         recruitmentInformationService.changeRecruitmentInfo(request.isOpened(), request.startDate(), request.endDate(),
                 request.recruitmentUrl());
-      return ResponseEntity.noContent().build();
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/notification")
@@ -51,5 +52,12 @@ public class RecruitmentController {
             @RequestBody @Valid RequestRecruitmentNotificationRequest request) {
         recruitmentNotificationService.requestRecruitmentNotification(request.email(), request.policyCheck());
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "모집 알림 신청 결과 확인 API")
+    @RoleAuthority(MemberRole.ADMIN)
+    @GetMapping("/notifications/logs")
+    public ResponseEntity<RecruitmentNotificationLogsResponse> findNotificationLogs() {
+        return ResponseEntity.ok().body(recruitmentNotificationService.findNotificationLogs());
     }
 }
