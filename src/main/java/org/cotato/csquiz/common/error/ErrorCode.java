@@ -130,6 +130,7 @@ public enum ErrorCode {
     DISCORD_BUTTON_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S-012", "디스코드 버튼 이벤트 ID를 찾지 못했습니다."),
     EMAIL_SEND_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S-013", "이메일 전송에 실패했습니다."),
     FILE_GENERATION_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S-014", "엑셀 파일 생성에 실패했습니다."),
+    EVENT_TYPE_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "S-015", "이벤트 처리 중 에러 발생"),
     ;
 
     private final HttpStatus httpStatus;

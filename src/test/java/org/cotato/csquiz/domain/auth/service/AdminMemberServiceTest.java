@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
+import org.cotato.csquiz.common.event.CotatoEventPublisher;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.enums.MemberPosition;
 import org.cotato.csquiz.domain.auth.enums.MemberRole;
@@ -39,7 +40,7 @@ class AdminMemberServiceTest {
     private MemberRepository memberRepository;
 
     @Mock
-    private EmailNotificationService emailNotificationService;
+    private CotatoEventPublisher cotatoEventPublisher;
 
     @Test
     void 부원_승인_요청() {
