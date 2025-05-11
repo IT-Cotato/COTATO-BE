@@ -144,7 +144,6 @@ public class AuthService {
         String verificationMessage = getVerificationMessageBody(verificationCode);
 
         emailSender.sendEmail(request.email(), verificationMessage, EmailConstants.SIGNUP_SUBJECT);
-
     }
 
     public FindPasswordResponse verifyPasswordCode(String email, String code) {
