@@ -5,9 +5,6 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-/**
- * AWS SES 및 S3 관련 공통 설정을 관리하는 Properties 클래스
- */
 @Getter
 @Setter
 @Component
