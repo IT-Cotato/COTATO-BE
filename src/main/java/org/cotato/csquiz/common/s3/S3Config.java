@@ -22,7 +22,7 @@ public class S3Config {
         BasicAWSCredentials credentials = new BasicAWSCredentials(awsProperties.getAccessKey(),
                 awsProperties.getSecretKey());
         return (AmazonS3Client) AmazonS3ClientBuilder.standard()
-                .withRegion(awsProperties.getRegionStatic())
+                .withRegion(awsProperties.getRegion())
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
                 .build();
     }

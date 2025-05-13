@@ -25,7 +25,7 @@ public class AwsSesConfig {
 
         return AmazonSimpleEmailServiceClientBuilder.standard()
                 .withCredentials(awsStaticCredentialsProvider)
-                .withRegion(awsProperties.getRegionStatic())
+                .withRegion(awsProperties.getRegion())
                 .build();
     }
 }

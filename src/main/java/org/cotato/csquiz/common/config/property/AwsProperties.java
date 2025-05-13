@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "cloud.aws")
 public class AwsProperties {
 
-    private String regionStatic;
+    private String region;
     private Credentials credentials = new Credentials();
     private Ses ses = new Ses();
 
