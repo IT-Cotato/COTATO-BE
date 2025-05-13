@@ -49,6 +49,7 @@ jobs:
           cloud.aws.s3.bucket: ${{ secrets.S3_BUCKET_NAME }}
           cloud.aws.credentials.accessKey: ${{ secrets.S3_ACCESS_KEY }}
           cloud.aws.credentials.secretKey: ${{ secrets.S3_ACCESS_PASSWORD }}
+          cloud.aws.ses.emailAddress: ${{ secrets.Main_SES_EMAIL_ADDRESS }}
           aes.secret.key: ${{ secrets.AES_SECRET_KEY }}
           aes.secret.salt: ${{ secrets.AES_SECRET_SALT }}
           spring.mail.username: ${{ secrets.SENDER_EMAIL }}
