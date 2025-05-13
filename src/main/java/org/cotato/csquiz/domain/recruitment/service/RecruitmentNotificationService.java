@@ -95,12 +95,12 @@ public class RecruitmentNotificationService {
     private void saveEmailLogs(List<RecruitmentNotificationRequester> requesters,
                                List<NotificationResult> results,
                                RecruitmentNotification notification) {
-        Map<Long, RecruitmentNotificationRequester> valueByNotificationRequesterId = requesters.stream()
+        Map<Long, RecruitmentNotificationRequester> requesterById = requesters.stream()
                 .collect(Collectors.toMap(RecruitmentNotificationRequester::getId, Function.identity()));
 
         List<RecruitmentNotificationEmailLog> logs = results.stream()
                 .map(notificationResult -> RecruitmentNotificationEmailLog.of(
-                        valueByNotificationRequesterId.get(notificationResult.requestId()),
+                        requesterById.get(notificationResult.requestId()),
                         notification,
                         notificationResult.success()
                 ))
