@@ -59,6 +59,7 @@ jobs:
           profile-image.default-folder: ${{ secrets.DEFAULT_PROFILE_IMAGE_FOLDER }}
           profile-image.default-file: ${{ secrets.DEFAULT_PROFILE_IMAGE_FILE }}
           profile-image.default-url: ${{ secrets.DEFAULT_PROFILE_IMAGE_URL }}
+          cotato.base-url: ${{ secrets.TEST_HOMEPAGE_URL }}
 
 
       # [2] 실행 권한 부여
