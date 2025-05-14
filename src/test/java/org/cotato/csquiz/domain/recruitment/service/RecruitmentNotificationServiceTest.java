@@ -2,17 +2,30 @@ package org.cotato.csquiz.domain.recruitment.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
+import org.cotato.csquiz.domain.auth.entity.Member;
+import org.cotato.csquiz.domain.recruitment.email.EmailContent;
+import org.cotato.csquiz.domain.recruitment.email.RecruitmentEmailFactory;
 import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotificationRequester;
 import org.cotato.csquiz.domain.recruitment.enums.SendStatus;
+import org.cotato.csquiz.domain.recruitment.repository.RecruitmentNotificationEmailLogJdbcRepository;
+import org.cotato.csquiz.domain.recruitment.repository.RecruitmentNotificationRepository;
 import org.cotato.csquiz.domain.recruitment.repository.RecruitmentNotificationRequesterRepository;
 import org.cotato.csquiz.domain.recruitment.service.component.RecruitmentNotificationRequesterReader;
+import org.cotato.csquiz.domain.recruitment.service.component.RecruitmentNotificationSender;
+import org.cotato.csquiz.domain.recruitment.service.component.dto.NotificationResult;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,6 +43,18 @@ class RecruitmentNotificationServiceTest {
 
     @Mock
     private RecruitmentNotificationRequesterRepository recruitmentNotificationRequesterRepository;
+
+    @Mock
+    private RecruitmentNotificationSender recruitmentNotificationSender;
+
+    @Mock
+    private RecruitmentNotificationRepository recruitmentNotificationRepository;
+
+    @Mock
+    private RecruitmentNotificationEmailLogJdbcRepository recruitmentNotificationEmailLogJdbcRepository;
+
+    @Mock
+    private RecruitmentEmailFactory recruitmentEmailFactory;
 
     private final String EMAIL = "user@example.com";
 
@@ -82,5 +107,38 @@ class RecruitmentNotificationServiceTest {
                                 && r.getSendStatus() == SendStatus.NOT_SENT
                 )
         );
+    }
+
+    @Test
+    void 전체_성공_상태업데이트_및_로그저장() {
+        // given
+        RecruitmentNotificationRequester req1 = mock(RecruitmentNotificationRequester.class);
+        when(req1.getId()).thenReturn(1L);
+        RecruitmentNotificationRequester req2 = mock(RecruitmentNotificationRequester.class);
+        when(req2.getId()).thenReturn(2L);
+
+        when(recruitmentNotificationRequesterReader.findAllNotSentOrFailEmails())
+                .thenReturn(List.of(req1, req2));
+
+        EmailContent content = new EmailContent("이메일 제목", "body");
+        when(recruitmentEmailFactory.getRecruitmentEmailContent(anyInt()))
+                .thenReturn(content);
+
+        when(recruitmentNotificationSender.sendNotificationAsync(req1, content))
+                .thenReturn(CompletableFuture.completedFuture(new NotificationResult(1L, true)));
+        when(recruitmentNotificationSender.sendNotificationAsync(req2, content))
+                .thenReturn(CompletableFuture.completedFuture(new NotificationResult(2L, false)));
+
+        // when
+        recruitmentNotificationService.sendRecruitmentNotificationMail(13, mock(Member.class));
+
+        // then
+        verify(recruitmentNotificationRepository)
+                .save(any());
+        verify(recruitmentNotificationRequesterRepository)
+                .updateSendStatusByIds(SendStatus.SUCCESS, List.of(1L));
+        verify(recruitmentNotificationRequesterRepository)
+                .updateSendStatusByIds(SendStatus.FAIL, List.of(2L));
+        verify(recruitmentNotificationEmailLogJdbcRepository).saveAllWithBatch(anyList());
     }
 }
