@@ -63,13 +63,13 @@ public class RecruitmentNotificationService {
         Map<Long, List<RecruitmentNotificationEmailLog>> logsByNotificationId = recruitmentNotificationEmailLogReader.groupByNotificationIds(
                 top5Notification);
 
-        List<RecruitmentNotificationLogResponse> dto = top5Notification.stream()
+        List<RecruitmentNotificationLogResponse> responses = top5Notification.stream()
                 .map(notification -> RecruitmentNotificationLogResponse.of(
                         notification,
                         logsByNotificationId.getOrDefault(notification.getId(), List.of())
                 ))
                 .toList();
-        return RecruitmentNotificationLogsResponse.of(dto);
+        return RecruitmentNotificationLogsResponse.of(responses);
     }
 
     @Transactional(readOnly = true)
