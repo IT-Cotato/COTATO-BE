@@ -25,8 +25,7 @@ public class RecruitmentNotificationEmailLogReader {
 
         return recruitmentNotificationEmailLogRepository.findAllByNotificationIdIn(notificationIds).stream()
                 .collect(Collectors.groupingBy(
-                        log -> log.getNotification().getId(),
-                        Collectors.toList()
+                        log -> log.getNotification().getId()
                 ));
     }
 }
