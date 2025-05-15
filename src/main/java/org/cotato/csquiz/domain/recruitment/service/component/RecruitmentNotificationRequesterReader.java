@@ -23,4 +23,9 @@ public class RecruitmentNotificationRequesterReader {
         return recruitmentNotificationRequesterRepository.findAllBySendStatusIn(
                 List.of(SendStatus.NOT_SENT, SendStatus.FAIL));
     }
+
+    public long countPendingNotification() {
+        return recruitmentNotificationRequesterRepository.countAllBySendStatusIn(
+                List.of(SendStatus.FAIL, SendStatus.NOT_SENT));
+    }
 }
