@@ -49,6 +49,7 @@ jobs:
           cloud.aws.s3.bucket: ${{ secrets.S3_BUCKET_NAME }}
           cloud.aws.credentials.accessKey: ${{ secrets.S3_ACCESS_KEY }}
           cloud.aws.credentials.secretKey: ${{ secrets.S3_ACCESS_PASSWORD }}
+          cloud.aws.ses.emailAddress: ${{ secrets.MAIN_SES_EMAIL_ADDRESS }}
           aes.secret.key: ${{ secrets.AES_SECRET_KEY }}
           aes.secret.salt: ${{ secrets.AES_SECRET_SALT }}
           spring.mail.username: ${{ secrets.SENDER_EMAIL }}
@@ -57,6 +58,7 @@ jobs:
           profile-image.default-folder: ${{ secrets.DEFAULT_PROFILE_IMAGE_FOLDER }}
           profile-image.default-file: ${{ secrets.DEFAULT_PROFILE_IMAGE_FILE }}
           profile-image.default-url: ${{ secrets.DEFAULT_PROFILE_IMAGE_URL }}
+          cotato.base-url: ${{ secrets.HOMEPAGE_URL }}
 
       # [2] 실행 권한 부여
       - name: Grant permission for gradlew

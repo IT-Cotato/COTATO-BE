@@ -13,7 +13,6 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PWD}
 
-
 springdoc:
   swagger-ui:
     enabled: false
