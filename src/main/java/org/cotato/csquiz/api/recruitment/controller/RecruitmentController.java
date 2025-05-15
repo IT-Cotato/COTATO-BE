@@ -7,8 +7,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.recruitment.dto.ChangeRecruitmentInfoRequest;
 import org.cotato.csquiz.api.recruitment.dto.RecruitmentInfoResponse;
-import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationPendingResponse;
+import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationLogsResponse;
 import org.cotato.csquiz.api.recruitment.dto.RequestRecruitmentNotificationRequest;
+import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationPendingResponse;
 import org.cotato.csquiz.api.recruitment.dto.RequestNotificationRequest;
 import org.cotato.csquiz.common.role.RoleAuthority;
 import org.cotato.csquiz.domain.auth.entity.Member;
@@ -62,6 +63,13 @@ public class RecruitmentController {
             @RequestBody @Valid RequestRecruitmentNotificationRequest request) {
         recruitmentNotificationService.requestRecruitmentNotification(request.email(), request.policyCheck());
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "모집 알림 신청 결과 확인 API")
+    @RoleAuthority(MemberRole.ADMIN)
+    @GetMapping("/notifications/logs")
+    public ResponseEntity<RecruitmentNotificationLogsResponse> findNotificationLogs() {
+        return ResponseEntity.ok().body(recruitmentNotificationService.findNotificationLogs());
     }
 
     @Operation(summary = "모집 알림 전송 API")
