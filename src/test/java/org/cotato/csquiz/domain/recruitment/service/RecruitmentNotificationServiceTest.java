@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationPendingResponse;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.auth.entity.Member;
@@ -57,6 +58,22 @@ class RecruitmentNotificationServiceTest {
     private RecruitmentEmailFactory recruitmentEmailFactory;
 
     private final String EMAIL = "user@example.com";
+
+    @Test
+    void 보류된_알림_개수_조회() {
+        // given
+        long pendingCount = 5L;
+        when(recruitmentNotificationRequesterReader.countPendingNotification())
+                .thenReturn(pendingCount);
+
+        // when
+        RecruitmentNotificationPendingResponse response =
+                recruitmentNotificationService.countPendingNotification();
+
+        // then
+        assertEquals(pendingCount, response.notificationCount());
+        verify(recruitmentNotificationRequesterReader).countPendingNotification();
+    }
 
     @Test
     void policyChecked가_false이면_예외발생() {
