@@ -48,4 +48,8 @@ public class RecruitmentNotification extends BaseTimeEntity {
                 member
         );
     }
+
+    public String getSenderName() {
+        return sender.getName();
+    }
 }
