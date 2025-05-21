@@ -1,12 +1,15 @@
 package org.cotato.csquiz.domain.education.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +19,6 @@ import org.cotato.csquiz.api.quiz.dto.AllQuizzesResponse;
 import org.cotato.csquiz.api.quiz.dto.ChoiceResponse;
 import org.cotato.csquiz.api.quiz.dto.CreateChoiceRequest;
 import org.cotato.csquiz.api.quiz.dto.CreateMultipleQuizRequest;
-import org.cotato.csquiz.api.quiz.dto.CreateQuizzesRequest;
 import org.cotato.csquiz.api.quiz.dto.CreateShortAnswerRequest;
 import org.cotato.csquiz.api.quiz.dto.CreateShortQuizRequest;
 import org.cotato.csquiz.api.quiz.dto.CsAdminQuizResponse;
@@ -25,7 +27,6 @@ import org.cotato.csquiz.api.quiz.dto.MultipleQuizResponse;
 import org.cotato.csquiz.api.quiz.dto.QuizInfoInCsQuizResponse;
 import org.cotato.csquiz.api.quiz.dto.QuizResponse;
 import org.cotato.csquiz.api.quiz.dto.QuizResultInfo;
-import org.cotato.csquiz.api.quiz.dto.ShortAnswerResponse;
 import org.cotato.csquiz.api.quiz.dto.ShortQuizResponse;
 import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.common.error.ErrorCode;
@@ -44,11 +45,15 @@ import org.cotato.csquiz.domain.education.entity.ShortAnswer;
 import org.cotato.csquiz.domain.education.entity.ShortQuiz;
 import org.cotato.csquiz.domain.education.enums.ChoiceCorrect;
 import org.cotato.csquiz.domain.education.enums.EducationStatus;
+import org.cotato.csquiz.domain.education.enums.QuizType;
 import org.cotato.csquiz.domain.education.repository.ChoiceRepository;
-import org.cotato.csquiz.domain.education.repository.EducationRepository;
 import org.cotato.csquiz.domain.education.repository.QuizRepository;
 import org.cotato.csquiz.domain.education.repository.ScorerRepository;
 import org.cotato.csquiz.domain.education.repository.ShortAnswerRepository;
+import org.cotato.csquiz.domain.education.service.component.ChoiceReader;
+import org.cotato.csquiz.domain.education.service.component.EducationReader;
+import org.cotato.csquiz.domain.education.service.component.QuizReader;
+import org.cotato.csquiz.domain.education.service.component.ShortAnswerReader;
 import org.cotato.csquiz.domain.education.util.AnswerUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,36 +66,41 @@ public class QuizService {
     private static final String QUIZ_BUCKET_DIRECTORY = "quiz";
     private static final int RANDOM_DELAY_TIME_BOUNDARY = 7;
     private final MemberService memberService;
-    private final EducationRepository educationRepository;
+    private final EducationReader educationReader;
+    private final QuizReader quizReader;
     private final QuizRepository quizRepository;
     private final ScorerRepository scorerRepository;
     private final ShortAnswerRepository shortAnswerRepository;
+    private final ShortAnswerReader shortAnswerReader;
     private final ChoiceRepository choiceRepository;
+    private final ChoiceReader choiceReader;
     private final QuizAnswerRedisRepository quizAnswerRedisRepository;
     private final S3Uploader s3Uploader;
 
     @Transactional
-    public void createQuizzes(Long educationId, CreateQuizzesRequest request) throws ImageException {
-        Education findEducation = findEducationById(educationId);
-        checkQuizBefore(findEducation);
+    public void createQuizzes(final Long educationId,
+                              final List<CreateMultipleQuizRequest> multipleQuizRequests,
+                              final List<CreateShortQuizRequest> shortQuizRequests) throws ImageException {
+        Education education = educationReader.getById(educationId);
+        checkQuizBefore(education);
 
-        log.info("등록할 교육 회차 : {}회차", findEducation.getNumber());
+        log.info("등록할 교육 회차 : {}회차", education.getNumber());
         List<Integer> quizNumbers = Stream.concat(
-                request.getMultiples().stream()
+                multipleQuizRequests.stream()
                         .map(CreateMultipleQuizRequest::getNumber),
-                request.getShortQuizzes().stream()
+                shortQuizRequests.stream()
                         .map(CreateShortQuizRequest::getNumber)
         ).toList();
 
         checkQuizNumbersDistinct(quizNumbers);
 
-        deleteAllQuizByEducation(educationId);
+        deleteAllQuizByEducation(education);
 
-        for (CreateShortQuizRequest shortQuizRequest : request.getShortQuizzes()) {
-            createShortQuiz(findEducation, shortQuizRequest);
+        for (CreateShortQuizRequest shortQuizRequest : shortQuizRequests) {
+            createShortQuiz(education, shortQuizRequest);
         }
-        for (CreateMultipleQuizRequest multipleQuizRequest : request.getMultiples()) {
-            createMultipleQuiz(findEducation, multipleQuizRequest);
+        for (CreateMultipleQuizRequest multipleQuizRequest : multipleQuizRequests) {
+            createMultipleQuiz(education, multipleQuizRequest);
         }
     }
 
@@ -107,8 +117,8 @@ public class QuizService {
         }
     }
 
-    private void deleteAllQuizByEducation(Long educationId) {
-        List<Quiz> quizzes = quizRepository.findAllByEducationId(educationId);
+    private void deleteAllQuizByEducation(Education education) {
+        List<Quiz> quizzes = quizReader.getAllByEducation(education);
         List<Long> quizIds = quizzes.stream()
                 .map(Quiz::getId)
                 .toList();
@@ -173,7 +183,7 @@ public class QuizService {
         validateChoiceNumbers(choiceNumbers);
 
         List<Choice> choices = request.getChoices().stream()
-                .map(requestDto -> Choice.of(requestDto, createdMultipleQuiz))
+                .map(requestDto -> Choice.of(requestDto.getNumber(), requestDto.getContent(), requestDto.getIsAnswer(), createdMultipleQuiz))
                 .toList();
         choiceRepository.saveAll(choices);
         log.info("객관식 선지 생성 : {}개", choices.size());
@@ -188,9 +198,8 @@ public class QuizService {
 
     @Transactional
     public List<QuizResultInfo> createQuizResults(Long educationId) {
-        List<Quiz> quizzes = quizRepository.findAllByEducationId(educationId);
-
-        return quizzes.stream()
+        Education education = educationReader.getById(educationId);
+        return quizReader.getAllByEducation(education).stream()
                 .map(this::createQuizResultInfo)
                 .toList();
     }
@@ -206,45 +215,34 @@ public class QuizService {
         return QuizResultInfo.noScorer(quiz);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public AllQuizzesResponse findAllQuizzesForEducationTeam(Long educationId) {
-        List<Quiz> quizzes = quizRepository.findAllByEducationId(educationId);
+        Education education = educationReader.getById(educationId);
 
-        List<MultipleQuizResponse> multiples = quizzes.stream()
-                .filter(quiz -> quiz instanceof MultipleQuiz)
-                .map(this::toMultipleQuizResponse)
+        Map<QuizType, List<Quiz>> quizzesByType = quizReader.getAllByEducation(education).stream()
+                .collect(Collectors.groupingBy(Quiz::getQuizType, () -> new EnumMap<>(QuizType.class), Collectors.toList()));
+
+        List<MultipleQuiz> multipleQuizzes = quizzesByType.getOrDefault(QuizType.MULTIPLE_QUIZ, List.of()).stream().map(quiz -> (MultipleQuiz) quiz).toList();
+        List<MultipleQuizResponse> multipleQuizResponses = choiceReader.getChoicesByMultipleQuizzes(multipleQuizzes).entrySet().stream()
+                .map(entry -> MultipleQuizResponse.of(entry.getKey(), entry.getValue()))
                 .toList();
-        List<ShortQuizResponse> shortQuizzes = quizzes.stream()
-                .filter(quiz -> quiz instanceof ShortQuiz)
-                .map(this::toShortQuizResponse)
+
+        List<ShortQuiz> shortQuizzes = quizzesByType.getOrDefault(QuizType.SHORT_QUIZ, List.of()).stream().map(quiz -> (ShortQuiz) quiz).toList();
+        List<ShortQuizResponse> shortQuizResponses = shortAnswerReader.getAnswersByShortQuizzes(shortQuizzes).entrySet().stream()
+                .map(entry -> ShortQuizResponse.of(entry.getKey(), entry.getValue()))
                 .toList();
 
         return AllQuizzesResponse.builder()
-                .multiples(multiples)
-                .shortQuizzes(shortQuizzes)
+                .multiples(multipleQuizResponses)
+                .shortQuizzes(shortQuizResponses)
                 .build();
     }
 
-    private MultipleQuizResponse toMultipleQuizResponse(Quiz quiz) {
-        List<ChoiceResponse> choiceResponses = choiceRepository.findAllByMultipleQuiz((MultipleQuiz) quiz).stream()
-                .map(ChoiceResponse::forEducation)
-                .toList();
-        return MultipleQuizResponse.from(quiz, choiceResponses);
-    }
+    @Transactional(readOnly = true)
+    public AllQuizzesInCsQuizResponse findAllQuizzesForAdminCsQuiz(final Long educationId) {
+        Education education = educationReader.getById(educationId);
 
-    private ShortQuizResponse toShortQuizResponse(Quiz quiz) {
-        List<ShortAnswerResponse> shortAnswerResponses = shortAnswerRepository.findAllByShortQuiz((ShortQuiz) quiz)
-                .stream()
-                .map(ShortAnswerResponse::from)
-                .toList();
-        return ShortQuizResponse.from(quiz, shortAnswerResponses);
-    }
-
-    @Transactional
-    public AllQuizzesInCsQuizResponse findAllQuizzesForAdminCsQuiz(Long educationId) {
-        List<Quiz> quizzes = quizRepository.findAllByEducationId(educationId);
-
-        List<CsAdminQuizResponse> responses = quizzes.stream()
+        List<CsAdminQuizResponse> responses = quizReader.getAllByEducation(education).stream()
                 .map(CsAdminQuizResponse::from)
                 .toList();
 
@@ -252,24 +250,24 @@ public class QuizService {
     }
 
     @Transactional
-    public QuizResponse findOneQuizForMember(Long quizId) {
-        Quiz findQuiz = findQuizById(quizId);
+    public QuizResponse getQuizById(final Long quizId) {
+        Quiz quiz = quizReader.getById(quizId);
 
-        if (findQuiz instanceof MultipleQuiz) {
-            List<ChoiceResponse> choiceResponses = choiceRepository.findAllByMultipleQuiz((MultipleQuiz) findQuiz)
+        if (quiz instanceof MultipleQuiz) {
+            List<ChoiceResponse> choiceResponses = choiceRepository.findAllByMultipleQuiz((MultipleQuiz) quiz)
                     .stream()
                     .map(ChoiceResponse::forMember)
                     .toList();
 
-            return FindMultipleQuizResponse.from(findQuiz, choiceResponses);
+            return FindMultipleQuizResponse.from(quiz, choiceResponses);
         }
 
-        return QuizResponse.from((ShortQuiz) findQuiz);
+        return QuizResponse.from((ShortQuiz) quiz);
     }
 
     @Transactional
     public QuizInfoInCsQuizResponse findQuizForAdminCsQuiz(Long quizId) {
-        Quiz quiz = findQuizById(quizId);
+        Quiz quiz = quizReader.getById(quizId);
         List<String> answers = getAnswerList(quiz);
 
         return QuizInfoInCsQuizResponse.from(quiz, answers);
@@ -299,7 +297,7 @@ public class QuizService {
 
     @Transactional
     public void addAdditionalAnswer(AddAdditionalAnswerRequest request) {
-        Quiz quiz = findQuizById(request.quizId());
+        Quiz quiz = quizReader.getById(request.quizId());
         String processedAnswer = AnswerUtil.processAnswer(request.answer());
         if (quiz instanceof ShortQuiz) {
             addShortAnswer((ShortQuiz) quiz, processedAnswer);
@@ -334,16 +332,6 @@ public class QuizService {
         } catch (NumberFormatException e) {
             throw new AppException(ErrorCode.INVALID_ANSWER);
         }
-    }
-
-    private Quiz findQuizById(Long quizId) {
-        return quizRepository.findById(quizId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 퀴즈를 찾을 수 없습니다."));
-    }
-
-    private Education findEducationById(Long educationId) {
-        return educationRepository.findById(educationId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 교육 id:" + educationId + " 찾다가 에러 발생했습니다."));
     }
 
     private int generateRandomTime() {
