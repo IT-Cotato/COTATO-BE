@@ -6,6 +6,7 @@ import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.common.event.CotatoEventPublisher;
 import org.cotato.csquiz.common.event.EmailSendEvent;
+import org.cotato.csquiz.common.event.EmailSendEventDto;
 import org.cotato.csquiz.common.event.EventType;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.entity.RefusedMember;
@@ -45,9 +46,10 @@ public class AdminMemberService {
         member.updatePosition(position);
         memberRepository.save(member);
 
+        EmailSendEventDto dto = EmailSendEventDto.builder().member(member).build();
         eventPublisher.publishEvent(EmailSendEvent.builder()
                 .type(EventType.APPROVE_MEMBER)
-                .data(member)
+                .data(dto)
                 .build());
     }
 
@@ -59,9 +61,10 @@ public class AdminMemberService {
         memberRepository.save(member);
         addRefusedMember(member);
 
+        EmailSendEventDto dto = EmailSendEventDto.builder().member(member).build();
         eventPublisher.publishEvent(EmailSendEvent.builder()
                 .type(EventType.REJECT_MEMBER)
-                .data(member)
+                .data(dto)
                 .build());
     }
 
