@@ -104,4 +104,11 @@ public class Quiz extends BaseTimeEntity {
         }
         return QuizType.SHORT_QUIZ;
     }
+
+    public String getImageUrl() {
+        if (s3Info != null) {
+            return s3Info.getUrl();
+        }
+        return null;
+    }
 }
