@@ -1,10 +1,16 @@
 package org.cotato.csquiz.common.event;
 
-import org.cotato.csquiz.domain.auth.entity.Member;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public class EmailSendEvent extends CotatoEvent<Member> {
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class EmailSendEvent implements CotatoEvent {
 
-    public EmailSendEvent(EventType type, Member data) {
-        super(type, data);
-    }
+	private EventType type;
+	private EmailSendEventDto data;
 }
