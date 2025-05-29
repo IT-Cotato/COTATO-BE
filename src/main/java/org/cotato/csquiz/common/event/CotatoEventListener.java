@@ -3,6 +3,7 @@ package org.cotato.csquiz.common.event;
 import lombok.RequiredArgsConstructor;
  import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
+import org.cotato.csquiz.domain.auth.event.EmailSendEvent;
 import org.cotato.csquiz.domain.auth.service.EmailNotificationService;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;

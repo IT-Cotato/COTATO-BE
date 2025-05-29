@@ -1,4 +1,4 @@
-package org.cotato.csquiz.common.event;
+package org.cotato.csquiz.domain.auth.event;
 
 import lombok.Builder;
 import org.cotato.csquiz.domain.auth.entity.Member;

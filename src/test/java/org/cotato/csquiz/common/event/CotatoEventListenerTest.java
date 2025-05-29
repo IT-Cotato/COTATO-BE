@@ -6,6 +6,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import org.cotato.csquiz.domain.auth.entity.Member;
+import org.cotato.csquiz.domain.auth.event.EmailSendEvent;
+import org.cotato.csquiz.domain.auth.event.EmailSendEventDto;
 import org.cotato.csquiz.domain.auth.service.EmailNotificationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
