@@ -6,6 +6,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import org.cotato.csquiz.domain.auth.entity.Member;
+import org.cotato.csquiz.domain.auth.event.EmailSendEvent;
+import org.cotato.csquiz.domain.auth.event.EmailSendEventDto;
 import org.cotato.csquiz.domain.auth.service.EmailNotificationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,7 +30,10 @@ class CotatoEventListenerTest {
     void whenApproveMember_then_sendSignUpApprovedToEmail_호출() {
         // given
         Member member = mock(Member.class);
-        EmailSendEvent event = new EmailSendEvent(EventType.APPROVE_MEMBER, member);
+        EmailSendEventDto dto = EmailSendEventDto.builder()
+                .member(member)
+                .build();
+        EmailSendEvent event = new EmailSendEvent(EventType.APPROVE_MEMBER, dto);
 
         // when
         cotatoEventListener.handleEmailSentEvent(event);
@@ -43,7 +48,10 @@ class CotatoEventListenerTest {
     void whenRejectMember_then_sendSignupRejectionToEmail_호출() {
         // given
         Member member = mock(Member.class);
-        EmailSendEvent event = new EmailSendEvent(EventType.REJECT_MEMBER, member);
+        EmailSendEventDto dto = EmailSendEventDto.builder()
+                .member(member)
+                .build();
+        EmailSendEvent event = new EmailSendEvent(EventType.REJECT_MEMBER, dto);
 
         // when
         cotatoEventListener.handleEmailSentEvent(event);

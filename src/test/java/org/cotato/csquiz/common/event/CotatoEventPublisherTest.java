@@ -1,6 +1,7 @@
 package org.cotato.csquiz.common.event;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.DisplayName;
@@ -24,10 +25,7 @@ class CotatoEventPublisherTest {
     @DisplayName("이벤트 발행 테스트")
     void publishEvent() {
         // given
-        CotatoEvent<String> event = CotatoEvent.<String>builder()
-                .type(EventType.APPROVE_MEMBER)
-                .data("test")
-                .build();
+        CotatoEvent event = mock(CotatoEvent.class);
 
         // when
         cotatoEventPublisher.publishEvent(event);
