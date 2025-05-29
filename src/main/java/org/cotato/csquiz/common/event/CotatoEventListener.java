@@ -17,8 +17,8 @@ public class CotatoEventListener {
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void handleEmailSentEvent(EmailSendEvent event) {
         switch (event.getType()) {
-            case APPROVE_MEMBER -> emailNotificationService.sendSignUpApprovedToEmail(event.getData());
-            case REJECT_MEMBER -> emailNotificationService.sendSignupRejectionToEmail(event.getData());
+            case APPROVE_MEMBER -> emailNotificationService.sendSignUpApprovedToEmail(event.getData().member());
+            case REJECT_MEMBER -> emailNotificationService.sendSignupRejectionToEmail(event.getData().member());
             default -> throw new AppException(ErrorCode.EVENT_TYPE_EXCEPTION);
         }
     }
