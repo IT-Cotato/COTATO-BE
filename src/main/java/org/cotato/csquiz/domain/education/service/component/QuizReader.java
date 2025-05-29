@@ -23,6 +23,12 @@ public class QuizReader {
     private final DiscordQuizRedisRepository discordQuizRedisRepository;
 
     @Transactional(readOnly = true)
+    public Quiz getById(final Long id) {
+        return quizRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("해당 퀴즈가 존재하지 않습니다."));
+    }
+
+    @Transactional(readOnly = true)
     public Quiz getRandomDiscordQuiz() {
         List<Education> finishedEducations = educationReader.getAllByStatus(EducationStatus.FINISHED);
 
@@ -39,5 +45,10 @@ public class QuizReader {
         discordQuizRedisRepository.save(quiz.getId());
 
         return quiz;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Quiz> getAllByEducation(Education education) {
+        return quizRepository.findAllByEducationId(education.getId());
     }
 }

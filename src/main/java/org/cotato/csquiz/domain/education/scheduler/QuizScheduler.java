@@ -2,8 +2,9 @@ package org.cotato.csquiz.domain.education.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.cotato.csquiz.domain.education.entity.MultipleQuiz;
 import org.cotato.csquiz.domain.education.entity.Quiz;
-import org.cotato.csquiz.domain.education.service.ChoiceService;
+import org.cotato.csquiz.domain.education.service.component.ChoiceReader;
 import org.cotato.csquiz.domain.education.service.component.DiscordConnector;
 import org.cotato.csquiz.domain.education.service.component.QuizReader;
 import org.cotato.csquiz.domain.education.service.dto.RandomQuizResponse;
@@ -19,7 +20,7 @@ public class QuizScheduler {
 
     private final DiscordConnector discordConnector;
     private final QuizReader quizReader;
-    private final ChoiceService choiceService;
+    private final ChoiceReader choiceReader;
 
     @Transactional(readOnly = true)
     @Scheduled(cron = "0 0 14 * * ?")
@@ -28,7 +29,7 @@ public class QuizScheduler {
         RandomQuizResponse randomQuiz = RandomQuizResponse.from(quiz);
 
         discordConnector.sendMessageToTextChannel(DiscordUtil.getMultipleQuizEmbeds(randomQuiz),
-                DiscordUtil.getButtons(choiceService.findAllChoices(randomQuiz.id())));
+                DiscordUtil.getButtons(choiceReader.getChoicesByMultipleQuiz((MultipleQuiz) quiz)));
         log.info("[디스코드 채널 문제 전송 완료: {}]", randomQuiz.id());
     }
 }

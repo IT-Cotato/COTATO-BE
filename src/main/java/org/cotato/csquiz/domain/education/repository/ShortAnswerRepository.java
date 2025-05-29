@@ -1,5 +1,6 @@
 package org.cotato.csquiz.domain.education.repository;
 
+import io.netty.resolver.dns.DnsServerAddresses;
 import org.cotato.csquiz.domain.education.entity.ShortAnswer;
 import org.cotato.csquiz.domain.education.entity.ShortQuiz;
 import java.util.List;
@@ -19,4 +20,6 @@ public interface ShortAnswerRepository extends JpaRepository<ShortAnswer, Long> 
     @Modifying
     @Query("delete from ShortAnswer s where s.shortQuiz.id in :quizIds")
     void deleteAllByQuizIdsInQuery(@Param("quizIds") List<Long> quizIds);
+
+    List<ShortAnswer> findAllByShortQuizIdIn(List<Long> shortQuizIds);
 }
