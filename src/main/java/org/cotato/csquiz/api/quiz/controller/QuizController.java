@@ -1,5 +1,8 @@
 package org.cotato.csquiz.api.quiz.controller;
 
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
+
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -35,23 +38,23 @@ public class QuizController {
     private final QuizService quizService;
 
     @RoleAuthority(MemberRole.MANAGER)
-    @PostMapping(value = "/adds", consumes = "multipart/form-data")
+    @PostMapping(value = "/adds", consumes = MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> addAllQuizzes(@ModelAttribute CreateQuizzesRequest request,
                                               @RequestParam("educationId") Long educationId) throws ImageException {
-        quizService.createQuizzes(educationId, request);
+        quizService.createQuizzes(educationId, request.getMultiples(), request.getShortQuizzes());
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @Operation(summary = "모든 퀴즈 문제 조회 API")
     @GetMapping("/all")
-    public ResponseEntity<AllQuizzesResponse> findAllQuizzesForEducationTeam(
-            @RequestParam("educationId") Long educationId) {
+    public ResponseEntity<AllQuizzesResponse> findAllQuizzesForEducationTeam(@RequestParam("educationId") Long educationId) {
         return ResponseEntity.ok(quizService.findAllQuizzesForEducationTeam(educationId));
     }
 
     @GetMapping("/{quizId}")
     public ResponseEntity<QuizResponse> findOneQuizForMember(@PathVariable("quizId") Long quizId) {
-        return ResponseEntity.ok().body(quizService.findOneQuizForMember(quizId));
+        return ResponseEntity.ok().body(quizService.getQuizById(quizId));
     }
 
     @RoleAuthority(MemberRole.MANAGER)
