@@ -1,6 +1,5 @@
 package org.cotato.csquiz.domain.generation.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -10,14 +9,14 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.attendance.dto.AttendanceDeadLineDto;
-import org.cotato.csquiz.api.session.dto.AddSessionRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionResponse;
 import org.cotato.csquiz.api.session.dto.SessionListResponse;
 import org.cotato.csquiz.api.session.dto.SessionWithAttendanceResponse;
 import org.cotato.csquiz.api.session.dto.UpdateSessionRequest;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
-import org.cotato.csquiz.common.error.exception.ImageException;
+import org.cotato.csquiz.common.event.CotatoEventPublisher;
+import org.cotato.csquiz.common.event.EventType;
 import org.cotato.csquiz.domain.attendance.embedded.Location;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
@@ -30,7 +29,8 @@ import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.domain.generation.entity.SessionImage;
 import org.cotato.csquiz.domain.generation.enums.SessionType;
-import org.cotato.csquiz.domain.generation.repository.GenerationRepository;
+import org.cotato.csquiz.domain.generation.event.SessionImageEvent;
+import org.cotato.csquiz.domain.generation.event.SessionImageEventDto;
 import org.cotato.csquiz.domain.generation.repository.SessionImageRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
 import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
@@ -40,22 +40,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
-@Slf4j
 public class SessionService {
 
     private final SessionRepository sessionRepository;
-//    private final GenerationRepository generationRepository;
     private final GenerationReader generationReader;
     private final SessionImageRepository sessionImageRepository;
     private final AttendanceService attendanceService;
-    private final SessionImageService sessionImageService;
     private final AttendanceRepository attendanceRepository;
     private final AttendanceRecordReader attendanceRecordReader;
     private final SessionReader sessionReader;
     private final AttendanceReader attendanceReader;
+    private final CotatoEventPublisher cotatoEventPublisher;
 
     @Transactional
     public AddSessionResponse addSession(final Long generationId,
@@ -63,7 +61,7 @@ public class SessionService {
                                          final SessionDto sessionDto,
                                          final LocalDateTime attendanceDeadLine,
                                          final LocalDateTime lateDeadLine,
-                                         final Location location) throws ImageException {
+                                         final Location location) {
         Generation generation = generationReader.findById(generationId);
 
         int sessionNumber = calculateLastSessionNumber(generation);
@@ -80,15 +78,13 @@ public class SessionService {
 
         sessionRepository.save(session);
 
-        if (images != null && !images.isEmpty()) {
-            sessionImageService.addSessionImages(images, session);
-        }
+        SessionImageEventDto sessionImageEventDto = SessionImageEventDto.builder().images(images).session(session).build();
+        SessionImageEvent sessionImageEvent = SessionImageEvent.builder().type(EventType.SESSION_IMAGE_UPDATE)
+                .data(sessionImageEventDto).build();
+        cotatoEventPublisher.publishEvent(sessionImageEvent);
 
         if (session.getSessionType().isCreateAttendance()) {
-            if (isAttendanceDeadLineNotExist(attendanceDeadLine, lateDeadLine)) {
-                throw new AppException(ErrorCode.INVALID_ATTEND_DEADLINE);
-            }
-            attendanceService.createAttendance(session, location,attendanceDeadLine, lateDeadLine);
+            attendanceService.createAttendance(session, location, attendanceDeadLine, lateDeadLine);
         }
 
         return AddSessionResponse.from(session);
