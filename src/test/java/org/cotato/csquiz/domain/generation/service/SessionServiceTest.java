@@ -32,6 +32,7 @@ import org.cotato.csquiz.domain.generation.enums.DevTalk;
 import org.cotato.csquiz.domain.generation.enums.ItIssue;
 import org.cotato.csquiz.domain.generation.enums.Networking;
 import org.cotato.csquiz.domain.generation.enums.SessionType;
+import org.cotato.csquiz.domain.generation.event.AttendanceEvent;
 import org.cotato.csquiz.domain.generation.event.SessionImageEvent;
 import org.cotato.csquiz.domain.generation.repository.SessionImageRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
@@ -100,7 +101,7 @@ class SessionServiceTest {
         // then
         verify(sessionRepository).save(any());
         verify(cotatoEventPublisher).publishEvent(any(SessionImageEvent.class));
-        verify(attendanceService).createAttendance(any(Session.class), any(Location.class), any(LocalDateTime.class), any(LocalDateTime.class));
+        verify(cotatoEventPublisher).publishEvent(any(AttendanceEvent.class));
     }
 
     @Test
@@ -144,11 +145,11 @@ class SessionServiceTest {
     void 출결_기록이_존재하지_않으면_수정_가능() {
         //given
         final Long sessionId = 1L;
-        LocalDateTime oldSessionDateTime = LocalDateTime.of(2025, 2, 1, 10, 0);
         LocalDateTime newSessionDateTime = LocalDateTime.of(2025, 2, 2, 10, 0); // 변경된 날짜
 
         UpdateSessionRequest request = mockOnlineUpdateSessionRequest(sessionId, newSessionDateTime);
-        Session session = mockSession(sessionId, oldSessionDateTime);
+        Session session = mock(Session.class);
+        when(session.getId()).thenReturn(sessionId);
         Attendance attendance = mockAttendance();
 
         when(sessionReader.findByIdWithPessimisticXLock(sessionId)).thenReturn(session);
