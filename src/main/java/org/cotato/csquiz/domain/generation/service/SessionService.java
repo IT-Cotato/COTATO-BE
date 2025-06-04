@@ -29,12 +29,14 @@ import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.domain.generation.entity.SessionImage;
 import org.cotato.csquiz.domain.generation.enums.SessionType;
+import org.cotato.csquiz.domain.generation.event.AttendanceEvent;
 import org.cotato.csquiz.domain.generation.event.SessionImageEvent;
 import org.cotato.csquiz.domain.generation.event.SessionImageEventDto;
 import org.cotato.csquiz.domain.generation.repository.SessionImageRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
 import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
 import org.cotato.csquiz.domain.generation.service.component.SessionReader;
+import org.cotato.csquiz.domain.generation.event.AttendanceEventDto;
 import org.cotato.csquiz.domain.generation.service.dto.SessionDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,7 +50,6 @@ public class SessionService {
     private final SessionRepository sessionRepository;
     private final GenerationReader generationReader;
     private final SessionImageRepository sessionImageRepository;
-    private final AttendanceService attendanceService;
     private final AttendanceRepository attendanceRepository;
     private final AttendanceRecordReader attendanceRecordReader;
     private final SessionReader sessionReader;
@@ -83,9 +84,11 @@ public class SessionService {
                 .data(sessionImageEventDto).build();
         cotatoEventPublisher.publishEvent(sessionImageEvent);
 
-        if (session.getSessionType().isCreateAttendance()) {
-            attendanceService.createAttendance(session, location, attendanceDeadLine, lateDeadLine);
-        }
+        AttendanceEventDto attendanceEventDto = AttendanceEventDto.builder().session(session).location(location)
+                .attendanceDeadLine(attendanceDeadLine).lateDeadLine(lateDeadLine).build();
+        AttendanceEvent attendanceEvent = AttendanceEvent.builder().type(EventType.ATTENDANCE_CREATE).data(attendanceEventDto)
+                .build();
+        cotatoEventPublisher.publishEvent(attendanceEvent);
 
         return AddSessionResponse.from(session);
     }
