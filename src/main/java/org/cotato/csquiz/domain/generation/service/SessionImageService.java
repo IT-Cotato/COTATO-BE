@@ -39,8 +39,13 @@ public class SessionImageService {
     private final SessionRepository sessionRepository;
     private final S3Uploader s3Uploader;
 
-    @Transactional
+    @Transactional(rollbackFor = ImageException.class)
     public void addSessionImages(List<MultipartFile> images, Session session) throws ImageException {
+        if (images == null || images.isEmpty()) {
+            log.info("세션 이미지가 없습니다. 세션 ID: {}", session.getId());
+            return;
+        }
+
         AtomicInteger index = new AtomicInteger(0);
 
         List<SessionImage> sessionImages = new ArrayList<>();
