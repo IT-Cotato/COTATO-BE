@@ -32,7 +32,7 @@ public record AddSessionRequest(
         String roadNameAddress,
 
         @Schema(description = "세션 날짜 및 시작 시간")
-        @NotNull
+        @NotNull(message = "세션 날짜 및 시작 시간은 필수입니다.")
         LocalDateTime sessionDateTime,
 
         @Schema(description = "대면 출결 진행 여부")
@@ -43,10 +43,12 @@ public record AddSessionRequest(
 
         @Schema(example = "2024-11-11T19:10:00", description = "출석 마감 시간, 해당 시간 이후 지각  처리")
         @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+        @NotNull(message = "출석 마감 시간은 필수입니다.")
         LocalDateTime attendanceDeadLine,
 
         @Schema(example = "2024-11-11T19:20:00", description = "지각 마감 시간, 해당 시간 이후 결석 처리")
         @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+        @NotNull(message = "지각 마감 시간은 필수입니다.")
         LocalDateTime lateDeadLine,
 
         ItIssue itIssue,
