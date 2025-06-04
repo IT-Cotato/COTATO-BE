@@ -5,8 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.common.error.exception.ImageException;
+import org.cotato.csquiz.domain.attendance.service.AttendanceService;
 import org.cotato.csquiz.domain.auth.event.EmailSendEvent;
 import org.cotato.csquiz.domain.auth.service.EmailNotificationService;
+import org.cotato.csquiz.domain.generation.event.AttendanceEvent;
+import org.cotato.csquiz.domain.generation.event.AttendanceEventDto;
 import org.cotato.csquiz.domain.generation.event.SessionImageEvent;
 import org.cotato.csquiz.domain.generation.service.SessionImageService;
 import org.springframework.context.event.EventListener;
@@ -23,6 +26,8 @@ public class CotatoEventListener {
 
     private final SessionImageService sessionImageService;
 
+    private final AttendanceService attendanceService;
+
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void handleEmailSentEvent(EmailSendEvent event) {
         log.info("Handling email send event: {}", event.getType());
@@ -37,7 +42,21 @@ public class CotatoEventListener {
     public void handleSessionImageUpdateEvent(SessionImageEvent event) throws ImageException {
         log.info("Handling session image update event: {}", event.getType());
         switch (event.getType()) {
-            case SESSION_IMAGE_UPDATE -> sessionImageService.addSessionImages(event.getData().getImages(), event.getData().getSession());
+            case SESSION_IMAGE_UPDATE ->
+                    sessionImageService.addSessionImages(event.getData().getImages(), event.getData().getSession());
+            default -> throw new AppException(ErrorCode.EVENT_TYPE_EXCEPTION);
+        }
+    }
+
+    @EventListener
+    public void handleAttendanceEvent(AttendanceEvent event) {
+        log.info("Handling attendance event: {}", event.getType());
+        switch (event.getType()) {
+            case ATTENDANCE_CREATE -> {
+                AttendanceEventDto data = event.getData();
+                attendanceService.createAttendance(data.getSession(), data.getLocation(), data.getAttendanceDeadLine(),
+                        data.getLateDeadLine());
+            }
             default -> throw new AppException(ErrorCode.EVENT_TYPE_EXCEPTION);
         }
     }
