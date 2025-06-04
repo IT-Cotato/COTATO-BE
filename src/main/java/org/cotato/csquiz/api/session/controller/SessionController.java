@@ -59,8 +59,7 @@ public class SessionController {
     @Operation(summary = "Session 추가 API")
     @RoleAuthority(MemberRole.ADMIN)
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<AddSessionResponse> addSession(@ModelAttribute @Valid AddSessionRequest request)
-            throws ImageException {
+    public ResponseEntity<AddSessionResponse> addSession(@ModelAttribute @Valid AddSessionRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(sessionService.addSession(request.generationId(),
                 request.images(), request.toSession(), request.attendanceDeadLine(), request.lateDeadLine(), request.toLocation()));
     }
