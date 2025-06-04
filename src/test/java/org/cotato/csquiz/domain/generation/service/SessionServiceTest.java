@@ -1,11 +1,13 @@
 package org.cotato.csquiz.domain.generation.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import jakarta.persistence.criteria.CriteriaBuilder.In;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -15,9 +17,11 @@ import org.cotato.csquiz.api.session.dto.SessionListResponse;
 import org.cotato.csquiz.api.session.dto.UpdateSessionRequest;
 import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.common.error.exception.AppException;
+import org.cotato.csquiz.common.event.CotatoEventPublisher;
 import org.cotato.csquiz.domain.attendance.embedded.Location;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
+import org.cotato.csquiz.domain.attendance.service.AttendanceService;
 import org.cotato.csquiz.domain.attendance.service.component.AttendanceReader;
 import org.cotato.csquiz.domain.attendance.service.component.AttendanceRecordReader;
 import org.cotato.csquiz.domain.generation.entity.Generation;
@@ -27,18 +31,23 @@ import org.cotato.csquiz.domain.generation.enums.CSEducation;
 import org.cotato.csquiz.domain.generation.enums.DevTalk;
 import org.cotato.csquiz.domain.generation.enums.ItIssue;
 import org.cotato.csquiz.domain.generation.enums.Networking;
-import org.cotato.csquiz.domain.generation.repository.GenerationRepository;
+import org.cotato.csquiz.domain.generation.enums.SessionType;
+import org.cotato.csquiz.domain.generation.event.SessionImageEvent;
 import org.cotato.csquiz.domain.generation.repository.SessionImageRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
+import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
 import org.cotato.csquiz.domain.generation.service.component.SessionReader;
+import org.cotato.csquiz.domain.generation.service.dto.SessionDto;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.multipart.MultipartFile;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 class SessionServiceTest {
     @Mock
     private SessionReader sessionReader;
@@ -56,13 +65,43 @@ class SessionServiceTest {
     private AttendanceRecordReader attendanceRecordReader;
 
     @Mock
-    private GenerationRepository generationRepository;
+    private GenerationReader generationReader;
 
     @Mock
     private SessionImageRepository sessionImageRepository;
 
+    @Mock
+    private CotatoEventPublisher cotatoEventPublisher;
+
+    @Mock
+    private AttendanceService attendanceService;
+
     @InjectMocks
     private SessionService sessionService;
+
+    @Test
+    @DisplayName("세션 생성 성공 테스트")
+    void createSessionSuccess() {
+        // given
+        final Long generationId = 1L;
+        final List<MultipartFile> images = List.of(mock(MultipartFile.class));
+        final SessionDto sessionDto = SessionDto.builder().type(SessionType.ALL).build();
+        final LocalDateTime attendanceDeadLine = LocalDateTime.now().plusDays(1);
+        final LocalDateTime lateDeadline = LocalDateTime.now().plusDays(2);
+        final Location location = Location.location(0.0, 0.0);
+
+        Generation generation = mock(Generation.class);
+
+        when(generationReader.findById(generationId)).thenReturn(generation);
+
+        // when
+        sessionService.addSession(generationId, images, sessionDto, attendanceDeadLine, lateDeadline, location);
+
+        // then
+        verify(sessionRepository).save(any());
+        verify(cotatoEventPublisher).publishEvent(any(SessionImageEvent.class));
+        verify(attendanceService).createAttendance(any(Session.class), any(Location.class), any(LocalDateTime.class), any(LocalDateTime.class));
+    }
 
     @Test
     void 세션_날짜_수정시_출결_기록이_존재하면_예외() {
@@ -104,7 +143,7 @@ class SessionServiceTest {
     @Test
     void 출결_기록이_존재하지_않으면_수정_가능() {
         //given
-        Long sessionId = 1L;
+        final Long sessionId = 1L;
         LocalDateTime oldSessionDateTime = LocalDateTime.of(2025, 2, 1, 10, 0);
         LocalDateTime newSessionDateTime = LocalDateTime.of(2025, 2, 2, 10, 0); // 변경된 날짜
 
@@ -131,7 +170,7 @@ class SessionServiceTest {
         Long generationId = 1L;
         Generation generation = mock(Generation.class);
         Session session = mock(Session.class);
-        when(generationRepository.findById(generationId)).thenReturn(Optional.of(generation));
+        when(generationReader.findById(generationId)).thenReturn(generation);
         when(sessionRepository.findAllByGeneration(generation)).thenReturn(List.of((session)));
 
         SessionImage image1 = SessionImage.builder()
@@ -173,7 +212,7 @@ class SessionServiceTest {
         Long generationId = 1L;
         Generation generation = mock(Generation.class);
         Session session = mock(Session.class);
-        when(generationRepository.findById(generationId)).thenReturn(Optional.of(generation));
+        when(generationReader.findById(generationId)).thenReturn(generation);
         when(sessionRepository.findAllByGeneration(generation)).thenReturn(List.of(session));
 
         when(sessionImageRepository.findAllBySessionIn(List.of(session))).thenReturn(List.of());
