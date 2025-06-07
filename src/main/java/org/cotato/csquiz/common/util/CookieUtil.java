@@ -1,4 +1,4 @@
-package org.cotato.csquiz.domain.auth.util;
+package org.cotato.csquiz.common.util;
 
 import static org.cotato.csquiz.domain.auth.constant.TokenConstants.REFRESH_TOKEN;
 

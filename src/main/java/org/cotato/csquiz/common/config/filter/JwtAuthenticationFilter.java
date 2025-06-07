@@ -14,7 +14,7 @@ import org.cotato.csquiz.common.config.jwt.RefreshTokenRepository;
 import org.cotato.csquiz.common.config.jwt.Token;
 import org.cotato.csquiz.common.error.exception.FilterAuthenticationException;
 import org.cotato.csquiz.domain.auth.entity.Member;
-import org.cotato.csquiz.domain.auth.util.CookieUtil;
+import org.cotato.csquiz.common.util.CookieUtil;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
