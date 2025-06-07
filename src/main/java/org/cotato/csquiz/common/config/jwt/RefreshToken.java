@@ -1,9 +1,9 @@
 package org.cotato.csquiz.common.config.jwt;
 
-import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
 @NoArgsConstructor
