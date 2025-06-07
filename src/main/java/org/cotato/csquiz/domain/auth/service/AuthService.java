@@ -35,7 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AuthService {
 
@@ -74,7 +73,6 @@ public class AuthService {
         return JoinResponse.from(newMember);
     }
 
-    @Transactional
     public ReissueResponse reissue(String refreshToken, HttpServletResponse response) {
         if (jwtTokenProvider.isExpired(refreshToken) || blackListRepository.existsById(refreshToken)) {
             log.warn("블랙리스트에 존재하는 토큰: {}", blackListRepository.existsById(refreshToken));
@@ -106,7 +104,6 @@ public class AuthService {
         return ReissueResponse.from(token.getAccessToken());
     }
 
-    @Transactional
     public void logout(LogoutRequest request, String refreshToken, HttpServletResponse response) {
         Long memberId = jwtTokenProvider.getMemberId(refreshToken);
         RefreshToken existRefreshToken = refreshTokenRepository.findById(memberId)
