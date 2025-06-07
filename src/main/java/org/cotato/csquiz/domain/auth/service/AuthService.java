@@ -35,7 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AuthService {
 
@@ -55,9 +54,6 @@ public class AuthService {
     private final EncryptService encryptService;
     private final EmailSender emailSender;
 
-    @Value("${jwt.refresh.expiration}")
-    private int refreshTokenAge;
-
     @Transactional
     public JoinResponse createMember(final JoinRequest request) {
         validateService.checkDuplicateEmail(request.email());
@@ -74,16 +70,16 @@ public class AuthService {
         return JoinResponse.from(newMember);
     }
 
-    @Transactional
-    public ReissueResponse reissue(String refreshToken, HttpServletResponse response) {
+    public Token reissue(final String refreshToken) {
         if (jwtTokenProvider.isExpired(refreshToken) || blackListRepository.existsById(refreshToken)) {
             log.warn("블랙리스트에 존재하는 토큰: {}", blackListRepository.existsById(refreshToken));
             throw new AppException(ErrorCode.REISSUE_FAIL);
         }
-        Long memberId = jwtTokenProvider.getMemberId(refreshToken);
-        Member member = memberReader.findById(memberId);
 
-        RefreshToken findToken = refreshTokenRepository.findById(memberId)
+        Member member = jwtTokenProvider.getMember(refreshToken)
+                .orElseThrow(() -> new EntityNotFoundException("해당 리프레시 토큰을 가진 회원을 찾을 수 없습니다."));
+
+        RefreshToken findToken = refreshTokenRepository.findById(member.getId())
                 .orElseThrow(() -> new AppException(ErrorCode.REFRESH_TOKEN_NOT_EXIST));
         log.info("[브라우저에서 들어온 쿠키] == [DB에 저장된 토큰], {}", refreshToken.equals(findToken.getRefreshToken()));
 
@@ -91,22 +87,16 @@ public class AuthService {
             log.warn("[쿠키로 들어온 토큰과 DB의 토큰이 일치하지 않음.]");
             throw new AppException(ErrorCode.REFRESH_TOKEN_NOT_EXIST);
         }
+
         jwtTokenProvider.setBlackList(refreshToken);
+
         Token token = jwtTokenProvider.createToken(member);
         findToken.updateRefreshToken(token.getRefreshToken());
         refreshTokenRepository.save(findToken);
 
-        Cookie refreshCookie = new Cookie(REFRESH_TOKEN, token.getRefreshToken());
-        refreshCookie.setMaxAge(refreshTokenAge / 1000);
-        log.info("[리프레시 쿠키 발급, 발급시간 : {}]", refreshTokenAge / 1000);
-        refreshCookie.setPath("/");
-        refreshCookie.setHttpOnly(true);
-        refreshCookie.setSecure(true);
-        response.addCookie(refreshCookie);
-        return ReissueResponse.from(token.getAccessToken());
+        return token;
     }
 
-    @Transactional
     public void logout(LogoutRequest request, String refreshToken, HttpServletResponse response) {
         Long memberId = jwtTokenProvider.getMemberId(refreshToken);
         RefreshToken existRefreshToken = refreshTokenRepository.findById(memberId)

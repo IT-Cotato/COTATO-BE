@@ -1,9 +1,12 @@
 package org.cotato.csquiz.common.config.jwt;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import java.util.Optional;
 import org.cotato.csquiz.domain.auth.constant.TokenConstants;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
@@ -70,5 +73,24 @@ class JwtTokenProviderTest {
         assertEquals(TokenConstants.REFRESH_TOKEN, refreshClaims.get("type", String.class));
         long refreshDuration = refreshClaims.getExpiration().getTime() - refreshClaims.getIssuedAt().getTime();
         assertEquals(REFRESH_EXPIRATION, refreshDuration);
+    }
+
+    @Test
+    @DisplayName("토큰에서 멤버 조회")
+    void getMember_ShouldReturnMemberFromAccessToken() {
+        // given
+        final Long memberId = 42L;
+        Member member = Member.defaultMember("email", "pwd","name", "010");
+        ReflectionTestUtils.setField(member, "id", memberId);
+        Token token = jwtTokenProvider.createToken(member);
+
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+
+        // when
+        Member foundMember = jwtTokenProvider.getMember(token.getAccessToken())
+                .orElseThrow(() -> new RuntimeException("Member not found"));
+
+        // then
+        assertEquals(memberId, foundMember.getId());
     }
 }
