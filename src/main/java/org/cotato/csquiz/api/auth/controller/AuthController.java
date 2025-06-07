@@ -14,6 +14,7 @@ import org.cotato.csquiz.api.auth.dto.LogoutRequest;
 import org.cotato.csquiz.api.auth.dto.ReissueResponse;
 import org.cotato.csquiz.api.auth.dto.SendEmailRequest;
 import org.cotato.csquiz.api.member.dto.MemberEmailResponse;
+import org.cotato.csquiz.common.config.jwt.Token;
 import org.cotato.csquiz.domain.auth.service.AuthService;
 import org.cotato.csquiz.common.util.CookieUtil;
 import org.springframework.http.HttpStatus;
@@ -44,14 +45,14 @@ public class AuthController {
     @PostMapping("/reissue")
     public ResponseEntity<ReissueResponse> tokenReissue(@CookieValue(name = "refreshToken") String refreshToken,
                                                         HttpServletResponse response) {
-        ReissueResponse reissueResponse = authService.reissue(refreshToken);
+        Token token = authService.reissue(refreshToken);
 
-        response.setHeader("Authorization", "Bearer " + reissueResponse.accessToken());
+        response.setHeader("Authorization", "Bearer " + token.getAccessToken());
 
-        Cookie cookie = CookieUtil.createRefreshCookie(reissueResponse.refreshToken());
+        Cookie cookie = CookieUtil.createRefreshCookie(token.getRefreshToken());
         response.addCookie(cookie);
 
-        return ResponseEntity.ok().body(reissueResponse);
+        return ResponseEntity.ok().body(ReissueResponse.from(token));
     }
 
     @PostMapping("/logout")

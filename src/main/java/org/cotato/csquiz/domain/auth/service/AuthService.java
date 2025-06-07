@@ -70,7 +70,7 @@ public class AuthService {
         return JoinResponse.from(newMember);
     }
 
-    public ReissueResponse reissue(final String refreshToken) {
+    public Token reissue(final String refreshToken) {
         if (jwtTokenProvider.isExpired(refreshToken) || blackListRepository.existsById(refreshToken)) {
             log.warn("블랙리스트에 존재하는 토큰: {}", blackListRepository.existsById(refreshToken));
             throw new AppException(ErrorCode.REISSUE_FAIL);
@@ -94,7 +94,7 @@ public class AuthService {
         findToken.updateRefreshToken(token.getRefreshToken());
         refreshTokenRepository.save(findToken);
 
-        return ReissueResponse.from(token);
+        return token;
     }
 
     public void logout(LogoutRequest request, String refreshToken, HttpServletResponse response) {
