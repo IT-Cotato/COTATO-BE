@@ -58,7 +58,7 @@ public class AttendanceService {
             log.info("Session type {} does not support attendance creation", session.getSessionType());
             return;
         }
-        if (Objects.isNull(attendanceDeadline) || Objects.isNull(lateDeadline)) {
+        if (attendanceDeadline == null || lateDeadline == null) {
             throw new AppException(ErrorCode.INVALID_ATTEND_DEADLINE);
         }
 
