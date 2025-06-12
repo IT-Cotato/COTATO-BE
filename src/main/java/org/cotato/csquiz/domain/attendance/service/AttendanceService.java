@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.attendance.dto.AttendanceResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceTimeResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceWithSessionResponse;
@@ -30,6 +31,7 @@ import org.cotato.csquiz.domain.generation.service.component.SessionReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AttendanceService {
@@ -51,6 +53,14 @@ public class AttendanceService {
     @Transactional
     public void createAttendance(Session session, Location location, LocalDateTime attendanceDeadline,
                                  LocalDateTime lateDeadline) {
+        if (!session.getSessionType().isCreateAttendance()) {
+            log.info("Session type {} does not support attendance creation", session.getSessionType());
+            return;
+        }
+        if (attendanceDeadline == null || lateDeadline == null) {
+            throw new AppException(ErrorCode.INVALID_ATTEND_DEADLINE);
+        }
+
         AttendanceUtil.validateAttendanceTime(session.getSessionDateTime(), attendanceDeadline, lateDeadline);
         if (session.hasOfflineSession()) {
             checkLocation(location);
