@@ -1,6 +1,5 @@
 package org.cotato.csquiz.domain.generation.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -10,18 +9,17 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.attendance.dto.AttendanceDeadLineDto;
-import org.cotato.csquiz.api.session.dto.AddSessionRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionResponse;
 import org.cotato.csquiz.api.session.dto.SessionListResponse;
 import org.cotato.csquiz.api.session.dto.SessionWithAttendanceResponse;
 import org.cotato.csquiz.api.session.dto.UpdateSessionRequest;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
-import org.cotato.csquiz.common.error.exception.ImageException;
+import org.cotato.csquiz.common.event.CotatoEventPublisher;
+import org.cotato.csquiz.common.event.EventType;
 import org.cotato.csquiz.domain.attendance.embedded.Location;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
-import org.cotato.csquiz.domain.attendance.service.AttendanceService;
 import org.cotato.csquiz.domain.attendance.service.component.AttendanceReader;
 import org.cotato.csquiz.domain.attendance.service.component.AttendanceRecordReader;
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
@@ -30,70 +28,68 @@ import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.domain.generation.entity.SessionImage;
 import org.cotato.csquiz.domain.generation.enums.SessionType;
-import org.cotato.csquiz.domain.generation.repository.GenerationRepository;
+import org.cotato.csquiz.domain.generation.event.AttendanceEvent;
+import org.cotato.csquiz.domain.generation.event.AttendanceEventDto;
+import org.cotato.csquiz.domain.generation.event.SessionImageEvent;
+import org.cotato.csquiz.domain.generation.event.SessionImageEventDto;
 import org.cotato.csquiz.domain.generation.repository.SessionImageRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
+import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
 import org.cotato.csquiz.domain.generation.service.component.SessionReader;
+import org.cotato.csquiz.domain.generation.service.dto.SessionDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
-@Slf4j
 public class SessionService {
 
     private final SessionRepository sessionRepository;
-    private final GenerationRepository generationRepository;
+    private final GenerationReader generationReader;
     private final SessionImageRepository sessionImageRepository;
-    private final AttendanceService attendanceService;
-    private final SessionImageService sessionImageService;
     private final AttendanceRepository attendanceRepository;
     private final AttendanceRecordReader attendanceRecordReader;
     private final SessionReader sessionReader;
     private final AttendanceReader attendanceReader;
+    private final CotatoEventPublisher cotatoEventPublisher;
 
     @Transactional
-    public AddSessionResponse addSession(AddSessionRequest request) throws ImageException {
-        Generation findGeneration = generationRepository.findById(request.generationId())
-                .orElseThrow(() -> new EntityNotFoundException("해당 기수를 찾을 수 없습니다."));
+    public AddSessionResponse addSession(final Long generationId,
+                                         final List<MultipartFile> images,
+                                         final SessionDto sessionDto,
+                                         final LocalDateTime attendanceDeadLine,
+                                         final LocalDateTime lateDeadLine,
+                                         final Location location) {
+        Generation generation = generationReader.findById(generationId);
 
-        int sessionNumber = calculateLastSessionNumber(findGeneration);
-        log.info("해당 기수에 추가된 마지막 세션 : {}", sessionNumber);
-
-        SessionType sessionType = SessionType.getSessionType(request.isOffline(), request.isOnline());
+        int sessionNumber = calculateLastSessionNumber(generation);
         Session session = Session.builder()
+                .generation(generation)
                 .number(sessionNumber + 1)
-                .description(request.description())
-                .generation(findGeneration)
-                .title(request.title())
-                .roadNameAddress(request.roadNameAddress())
-                .placeName(request.placeName())
-                .sessionType(sessionType)
-                .sessionDateTime(request.sessionDateTime())
-                .sessionContents(SessionContents.builder()
-                        .csEducation(request.csEducation())
-                        .devTalk(request.devTalk())
-                        .itIssue(request.itIssue())
-                        .networking(request.networking())
-                        .build())
+                .title(sessionDto.title())
+                .description(sessionDto.description())
+                .placeName(sessionDto.placeName())
+                .roadNameAddress(sessionDto.roadNameAddress())
+                .sessionContents(sessionDto.sessionContents())
+                .sessionType(sessionDto.type())
                 .build();
-        Session savedSession = sessionRepository.save(session);
-        log.info("세션 생성 완료");
 
-        if (request.images() != null && !request.images().isEmpty()) {
-            sessionImageService.addSessionImages(request.images(), savedSession);
-        }
+        sessionRepository.save(session);
 
-        if (sessionType.isCreateAttendance()) {
-            if (isAttendanceDeadLineNotExist(request.attendanceDeadLine(), request.lateDeadLine())) {
-                throw new AppException(ErrorCode.INVALID_ATTEND_DEADLINE);
-            }
-            attendanceService.createAttendance(session, Location.location(request.latitude(), request.longitude()),
-                    request.attendanceDeadLine(), request.lateDeadLine());
-        }
+        SessionImageEventDto sessionImageEventDto = SessionImageEventDto.builder().images(images).session(session).build();
+        SessionImageEvent sessionImageEvent = SessionImageEvent.builder().type(EventType.SESSION_IMAGE_UPDATE)
+                .data(sessionImageEventDto).build();
+        cotatoEventPublisher.publishEvent(sessionImageEvent);
 
-        return AddSessionResponse.from(savedSession);
+        AttendanceEventDto attendanceEventDto = AttendanceEventDto.builder().session(session).location(location)
+                .attendanceDeadLine(attendanceDeadLine).lateDeadLine(lateDeadLine).build();
+        AttendanceEvent attendanceEvent = AttendanceEvent.builder().type(EventType.ATTENDANCE_CREATE).data(attendanceEventDto)
+                .build();
+        cotatoEventPublisher.publishEvent(attendanceEvent);
+
+        return AddSessionResponse.from(session);
     }
 
     private int calculateLastSessionNumber(Generation generation) {
@@ -164,8 +160,7 @@ public class SessionService {
     }
 
     public List<SessionListResponse> findSessionsByGenerationId(Long generationId) {
-        Generation generation = generationRepository.findById(generationId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 기수를 찾을 수 없습니다."));
+        Generation generation = generationReader.findById(generationId);
 
         List<Session> sessions = sessionRepository.findAllByGeneration(generation);
 
