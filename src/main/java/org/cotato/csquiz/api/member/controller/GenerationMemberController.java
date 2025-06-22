@@ -1,6 +1,8 @@
 package org.cotato.csquiz.api.member.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -45,11 +47,18 @@ public class GenerationMemberController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "기수별 활동 멤버 역할 수정")
+    @Operation(
+            summary = "기수별 활동 멤버 역할 수정",
+            description = "지정된 기수 멤버의 역할을 수정합니다.",
+            operationId = "updateGenerationMemberRole",
+            parameters = {
+                    @Parameter(name = "generationMemberId", description = "기수별 활동 멤버 ID", required = true, in = ParameterIn.PATH),
+            }
+    )
     @RoleAuthority(MemberRole.ADMIN)
     @PatchMapping("/{generationMemberId}/role")
     public ResponseEntity<Void> updateGenerationMemberRole(@PathVariable("generationMemberId") Long generationMemberId,
-            @RequestBody @Valid UpdateGenerationMemberRoleRequest request) {
+                                                           @RequestBody @Valid UpdateGenerationMemberRoleRequest request) {
         generationMemberService.updateGenerationMemberRole(generationMemberId, request.role());
         return ResponseEntity.noContent().build();
     }
@@ -57,7 +66,8 @@ public class GenerationMemberController {
     @Operation(summary = "기수별 활동 멤버 삭제")
     @RoleAuthority(MemberRole.ADMIN)
     @DeleteMapping
-    public ResponseEntity<Void> deleteGenerationMember(@RequestParam(name = "generationMemberId") Long generationMemberId) {
+    public ResponseEntity<Void> deleteGenerationMember(
+            @RequestParam(name = "generationMemberId") Long generationMemberId) {
         generationMemberService.deleteGenerationMember(generationMemberId);
         return ResponseEntity.noContent().build();
     }
