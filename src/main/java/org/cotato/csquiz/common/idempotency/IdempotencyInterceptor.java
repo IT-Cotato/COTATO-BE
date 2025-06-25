@@ -61,7 +61,6 @@ public class IdempotencyInterceptor implements HandlerInterceptor {
         if (idempotencyKey == null) {
             return;
         }
-        ObjectMapper objectMapper = new ObjectMapper();
 
         final ContentCachingResponseWrapper responseWrapper = (ContentCachingResponseWrapper) response;
 
