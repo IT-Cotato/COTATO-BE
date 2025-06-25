@@ -19,7 +19,10 @@ import org.springframework.web.util.ContentCachingResponseWrapper;
 public class IdempotencyInterceptor implements HandlerInterceptor {
 
     private static final String IDEMPOTENCY_HEADER = "Idempotency-Key";
+
     private final IdempotencyRedisRepository idempotencyRedisRepository;
+
+    private final ObjectMapper objectMapper;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
@@ -28,7 +31,6 @@ public class IdempotencyInterceptor implements HandlerInterceptor {
         if (idempotencyKey == null) {
             return true;
         }
-        ObjectMapper objectMapper = new ObjectMapper();
 
         if (idempotencyRedisRepository.hasSucceedResult(idempotencyKey)) {
             response.getWriter()
