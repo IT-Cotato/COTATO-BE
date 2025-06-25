@@ -20,7 +20,7 @@ public class RecruitmentNotificationSender {
     @Async("emailSendThreadPoolExecutor")
     public CompletableFuture<NotificationResult> sendNotificationAsync(final RecruitmentNotificationRequester requester,
                                                                        final EmailContent emailContent) {
-        return sendEmailAsync(requester, emailContent)
+        return sendEmailAsync(requester.getEmail(), emailContent)
                 .thenApply(v -> NotificationResult.of(requester.getId(), true))
                 .exceptionally(e -> {
                     log.info("메일 전송 실패 email: {} exception: {}", requester.getEmail(), e.getMessage());
@@ -28,11 +28,12 @@ public class RecruitmentNotificationSender {
                 });
     }
 
-    private CompletableFuture<Void> sendEmailAsync(final RecruitmentNotificationRequester requester,
-                                                   final EmailContent emailContent) {
+    @Async("emailSendThreadPoolExecutor")
+    public CompletableFuture<Void> sendEmailAsync(final String email,
+                                                  final EmailContent emailContent) {
         return CompletableFuture.runAsync(() ->
                 sesEmailSender.sendRawMessageBody(
-                        requester.getEmail(),
+                        email,
                         emailContent.htmlBody(),
                         emailContent.subject()
                 ));
