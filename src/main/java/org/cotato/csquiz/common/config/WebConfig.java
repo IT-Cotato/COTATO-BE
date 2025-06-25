@@ -1,6 +1,7 @@
 package org.cotato.csquiz.common.config;
 
 import lombok.RequiredArgsConstructor;
+import org.cotato.csquiz.common.idempotency.IdempotencyInterceptor;
 import org.cotato.csquiz.common.idempotency.IdempotencyRedisRepository;
 import org.cotato.csquiz.common.role.RoleInterceptor;
 import org.springframework.context.annotation.Configuration;
@@ -19,8 +20,8 @@ public class WebConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**")
                 .excludePathPatterns("/swagger-ui/**")
                 .order(1);
-//        registry.addInterceptor(new IdempotencyInterceptor(idempotencyRedisRepository))
-//                .addPathPatterns("/v1/api/record/reply")
-//                .order(1);
+        registry.addInterceptor(new IdempotencyInterceptor(idempotencyRedisRepository))
+                .addPathPatterns("/v1/api/record/reply")
+                .order(1);
     }
 }
