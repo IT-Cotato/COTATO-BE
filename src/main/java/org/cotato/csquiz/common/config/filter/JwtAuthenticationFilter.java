@@ -5,8 +5,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.common.config.auth.PrincipalDetails;
@@ -16,6 +14,7 @@ import org.cotato.csquiz.common.config.jwt.RefreshTokenRepository;
 import org.cotato.csquiz.common.config.jwt.Token;
 import org.cotato.csquiz.common.error.exception.FilterAuthenticationException;
 import org.cotato.csquiz.domain.auth.entity.Member;
+import org.cotato.csquiz.common.util.CookieUtil;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,7 +24,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-    private static final int REFRESH_TOKEN_AGE = 259200;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -61,13 +59,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         refreshToken.updateRefreshToken(token.getRefreshToken());
         refreshTokenRepository.save(refreshToken);
 
-        Cookie cookie = new Cookie("refreshToken", token.getRefreshToken());
-        cookie.setPath("/");
-        ZonedDateTime seoulTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
-        ZonedDateTime expirationTime = seoulTime.plusSeconds(REFRESH_TOKEN_AGE);
-        cookie.setMaxAge((int) (expirationTime.toEpochSecond() - seoulTime.toEpochSecond()));
-        cookie.setSecure(true);
-        cookie.setHttpOnly(true);
+        Cookie cookie = CookieUtil.createRefreshCookie(token.getRefreshToken());
+
         response.addCookie(cookie);
         log.info("로그인 성공, JWT 토큰 생성");
     }
