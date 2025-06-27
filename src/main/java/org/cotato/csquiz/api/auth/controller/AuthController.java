@@ -2,6 +2,7 @@ package org.cotato.csquiz.api.auth.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +14,9 @@ import org.cotato.csquiz.api.auth.dto.LogoutRequest;
 import org.cotato.csquiz.api.auth.dto.ReissueResponse;
 import org.cotato.csquiz.api.auth.dto.SendEmailRequest;
 import org.cotato.csquiz.api.member.dto.MemberEmailResponse;
+import org.cotato.csquiz.common.config.jwt.Token;
 import org.cotato.csquiz.domain.auth.service.AuthService;
+import org.cotato.csquiz.common.util.CookieUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -42,7 +45,14 @@ public class AuthController {
     @PostMapping("/reissue")
     public ResponseEntity<ReissueResponse> tokenReissue(@CookieValue(name = "refreshToken") String refreshToken,
                                                         HttpServletResponse response) {
-        return ResponseEntity.ok().body(authService.reissue(refreshToken, response));
+        Token token = authService.reissue(refreshToken);
+
+        response.setHeader("Authorization", "Bearer " + token.getAccessToken());
+
+        Cookie cookie = CookieUtil.createRefreshCookie(token.getRefreshToken());
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok().body(ReissueResponse.from(token));
     }
 
     @PostMapping("/logout")

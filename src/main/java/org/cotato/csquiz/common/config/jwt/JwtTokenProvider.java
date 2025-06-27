@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import java.util.Date;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.common.error.exception.FilterAuthenticationException;
 import org.cotato.csquiz.common.error.exception.InterceptorException;
@@ -145,5 +146,10 @@ public class JwtTokenProvider {
     public Member getMemberByToken(String token) {
         Long memberId = getMemberId(token);
         return memberRepository.findById(memberId).orElseThrow(() -> new FilterAuthenticationException("존재하지 않는 회원입니다."));
+    }
+
+    public Optional<Member> getMember(final String token) {
+        Long memberId = getMemberId(token);
+        return memberRepository.findById(memberId);
     }
 }
