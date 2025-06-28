@@ -44,7 +44,6 @@ public class IdempotencyRedisRepository {
     public boolean isProcessing(String idempotencyKey) {
         String key = KEY_PREFIX + idempotencyKey;
         IdempotencyResponse response = (IdempotencyResponse) redisTemplate.opsForValue().get(key);
-        log.info("[처리 중]");
         if (response == null) {
             return false;
         }

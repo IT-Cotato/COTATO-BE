@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.cotato.csquiz.api.record.dto.RecordResponse;
 import org.cotato.csquiz.api.record.dto.RecordsAndScorerResponse;
 import org.cotato.csquiz.api.record.dto.RegradeRequest;
-import org.cotato.csquiz.api.record.dto.ReplyRequest;
 import org.cotato.csquiz.api.record.dto.ReplyResponse;
 import org.cotato.csquiz.api.record.dto.ScorerResponse;
 import org.cotato.csquiz.api.socket.dto.QuizSocketRequest;
@@ -28,6 +27,7 @@ import org.cotato.csquiz.domain.education.facade.RedissonScorerFacade;
 import org.cotato.csquiz.domain.education.repository.QuizRepository;
 import org.cotato.csquiz.domain.education.repository.RecordRepository;
 import org.cotato.csquiz.domain.education.repository.ScorerRepository;
+import org.cotato.csquiz.domain.education.service.component.QuizReader;
 import org.cotato.csquiz.domain.education.util.AnswerUtil;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
@@ -50,31 +50,33 @@ public class RecordService {
     private final TicketCountRedisRepository ticketCountRedisRepository;
     private final GenerationMemberAuthValidator generationMemberAuthValidator;
     private final GenerationReader generationReader;
+    private final QuizReader quizReader;
 
 
     @Transactional
-    public ReplyResponse replyToQuiz(ReplyRequest request, final Member member) {
-        Quiz findQuiz = findQuizById(request.quizId());
-        Generation generation = generationReader.findById(findQuiz.getEducation().getGenerationId());
+    public ReplyResponse replyToQuiz(final Long quizId, final List<String> inputs, final Member member) {
+        final Long ticketNumber = ticketCountRedisRepository.increment(quizId);
+        Quiz quiz = quizReader.getById(quizId);
+
+        Generation generation = generationReader.findById(quiz.getEducation().getGenerationId());
+
         generationMemberAuthValidator.checkGenerationPermission(member, generation);
-        checkQuizStart(findQuiz);
+        checkQuizStart(quiz);
 
-        Long ticketNumber = ticketCountRedisRepository.increment(findQuiz.getId());
-
-        checkMemberAlreadyCorrect(findQuiz, member);
-        List<String> inputs = request.inputs().stream()
+        checkMemberAlreadyCorrect(quiz, member);
+        List<String> processedInputs = inputs.stream()
                 .map(AnswerUtil::processAnswer)
                 .sorted()
                 .toList();
 
-        boolean isCorrect = quizAnswerRedisRepository.isCorrect(findQuiz, inputs);
+        boolean isCorrect = quizAnswerRedisRepository.isCorrect(quiz, inputs);
 
-        String reply = String.join(INPUT_DELIMITER, inputs);
-        Record createdRecord = Record.of(reply, isCorrect, member, findQuiz, ticketNumber);
+        String reply = String.join(INPUT_DELIMITER, processedInputs);
+        Record createdRecord = Record.of(reply, isCorrect, member, quiz, ticketNumber);
 
-        if (isCorrect) {
-            redissonScorerFacade.checkAndThenUpdateScorer(createdRecord);
-        }
+       if (isCorrect) {
+           redissonScorerFacade.checkAndThenUpdateScorer(createdRecord);
+       }
 
         recordRepository.save(createdRecord);
         return ReplyResponse.from(isCorrect);
@@ -87,7 +89,7 @@ public class RecordService {
     }
 
     private void checkMemberAlreadyCorrect(Quiz findQuiz, Member findMember) {
-        if (recordRepository.findByQuizAndMemberIdAndIsCorrect(findQuiz, findMember.getId(), true).isPresent()) {
+        if (recordRepository.existsByQuizAndMemberIdAndIsCorrect(findQuiz, findMember.getId(), true)) {
             log.warn("이미 해당 문제에 정답 제출한 사용자입니다.");
             log.warn("문제 번호: {}, 제출한 멤버: {}", findQuiz.getNumber(), findMember.getName());
             throw new AppException(ErrorCode.ALREADY_REPLY_CORRECT);
