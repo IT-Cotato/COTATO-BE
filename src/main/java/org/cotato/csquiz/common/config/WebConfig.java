@@ -20,7 +20,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(roleInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns("/swagger-ui/**")
-                .order(1);
+                .order(2);
         registry.addInterceptor(idempotencyInterceptor)
                 .addPathPatterns("/v1/api/record/reply")
                 .order(1);
