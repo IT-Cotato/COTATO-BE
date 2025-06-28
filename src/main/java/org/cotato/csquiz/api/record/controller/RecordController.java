@@ -1,11 +1,8 @@
 package org.cotato.csquiz.api.record.controller;
 
-import javax.naming.NoPermissionException;
-
 import jakarta.validation.Valid;
+import javax.naming.NoPermissionException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import org.cotato.csquiz.api.record.dto.RecordsAndScorerResponse;
 import org.cotato.csquiz.api.record.dto.RegradeRequest;
 import org.cotato.csquiz.api.record.dto.ReplyRequest;
@@ -23,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Slf4j
 @RestController
 @RequestMapping("/v1/api/record")
 @RequiredArgsConstructor
@@ -42,14 +38,12 @@ public class RecordController {
 	@RoleAuthority(MemberRole.MANAGER)
 	@GetMapping("/all")
 	public ResponseEntity<RecordsAndScorerResponse> findRecordsAndScorerByQuiz(@RequestParam("quizId") Long quizId) {
-		log.info("문제에 답한 기록 반환 컨트롤러, 문제 pk: {}", quizId);
 		return ResponseEntity.ok().body(recordService.findRecordsAndScorer(quizId));
 	}
 
 	@RoleAuthority(MemberRole.MANAGER)
 	@PostMapping("/regrade")
 	public ResponseEntity<Void> regradeQuiz(@RequestBody @Valid RegradeRequest request) {
-		log.info("[재채점 컨트롤러] 새로운 정답: {}", request.newAnswer());
 		recordService.regradeRecords(request);
 		return ResponseEntity.noContent().build();
 	}
