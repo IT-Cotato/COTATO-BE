@@ -1,5 +1,6 @@
 package org.cotato.csquiz.common.idempotency;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
@@ -65,7 +66,7 @@ class IdempotencyInterceptorTest {
         boolean result = interceptor.preHandle(request, response, new Object());
 
         // Then
-        assertTrue(!result);
+        assertFalse(result);
         verify(response).getWriter();
         verify(writer).write("\"Success Response\"");
         verify(idempotencyRedisRepository).hasSucceedResult(idempotencyKey);
@@ -87,7 +88,7 @@ class IdempotencyInterceptorTest {
         boolean result = interceptor.preHandle(request, response, new Object());
 
         // Then
-        assertTrue(!result);
+        assertFalse(result);
         verify(response).setStatus(HttpServletResponse.SC_CONFLICT);
         verify(response).setContentType("application/json; charset=UTF-8");
         verify(writer).write(anyString());
