@@ -70,6 +70,7 @@ public class SessionService {
                 .title(sessionDto.title())
                 .description(sessionDto.description())
                 .placeName(sessionDto.placeName())
+                .sessionDateTime(sessionDto.sessionDateTime())
                 .roadNameAddress(sessionDto.roadNameAddress())
                 .sessionContents(sessionDto.sessionContents())
                 .sessionType(sessionDto.type())

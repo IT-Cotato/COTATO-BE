@@ -96,10 +96,19 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(NoPermissionException.class)
-    public ResponseEntity<ErrorResponse> handleNoPermissionException(NoPermissionException e, HttpServletRequest request){
+    public ResponseEntity<ErrorResponse> handleNoPermissionException(NoPermissionException e,
+                                                                     HttpServletRequest request) {
         log.error("No Permission Error occurred");
         log.error("Error Method and Path {}, {}", request.getMethod(), request.getRequestURI());
         ErrorResponse errorResponse = ErrorResponse.of(request, ErrorCode.NO_PERMISSION_EXCEPTION, e.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleException(Exception e, HttpServletRequest request) {
+        log.error("Unhandled Exception 발생: {}", e.getMessage());
+        log.error("에러가 발생한 지점 {}, {}", request.getMethod(), request.getRequestURI());
+        ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR, request);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 }
