@@ -116,6 +116,7 @@ public enum ErrorCode {
     RECRUITMENT_INFO_COUNT_INVALID(HttpStatus.CONFLICT, "RE-302", "모집 정보 갯수가 없거나 2개 이상힙니디."),
 
     // 500 오류 -> 서버측에서 처리가 실패한 부분들
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S-000", "예상치 못한 서버 내부 에러 발생"),
     WEBSOCKET_SEND_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "S-001", "소캣 메세지 전송 실패"),
     IMAGE_PROCESSING_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S-002", "이미지 처리에 실패했습니다."),
     IMAGE_DELETE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S-003", "s3 이미지 삭제처리를 실패했습니다"),
