@@ -17,7 +17,6 @@ public class RecruitmentNotificationSender {
 
     private final SesEmailSender sesEmailSender;
 
-    @Async("emailSendThreadPoolExecutor")
     public CompletableFuture<NotificationResult> sendNotificationAsync(final RecruitmentNotificationRequester requester,
                                                                        final EmailContent emailContent) {
         return sendEmailAsync(requester.getEmail(), emailContent)
