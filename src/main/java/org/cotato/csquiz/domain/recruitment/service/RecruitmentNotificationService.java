@@ -11,11 +11,11 @@ import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationLogsResponse
 import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationPendingResponse;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
-import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotification;
-import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotificationEmailLog;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.recruitment.email.EmailContent;
 import org.cotato.csquiz.domain.recruitment.email.RecruitmentEmailFactory;
+import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotification;
+import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotificationEmailLog;
 import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotificationRequester;
 import org.cotato.csquiz.domain.recruitment.enums.SendStatus;
 import org.cotato.csquiz.domain.recruitment.repository.RecruitmentNotificationEmailLogJdbcRepository;
@@ -50,6 +50,9 @@ public class RecruitmentNotificationService {
         if (recruitmentNotificationRequesterReader.existsByEmailAndSendStatus(recruitEmail, SendStatus.NOT_SENT)) {
             throw new AppException(ErrorCode.ALREADY_REQUEST_NOTIFICATION);
         }
+
+        EmailContent content = recruitmentEmailFactory.getRequestSuccessEmailContent();
+        recruitmentNotificationSender.sendEmailAsync(recruitEmail, content);
 
         recruitmentNotificationRequesterRepository.save(
                 RecruitmentNotificationRequester.of(recruitEmail, isPolicyChecked)
