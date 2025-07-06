@@ -11,13 +11,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationPendingResponse;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationLogResponse;
 import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationLogsResponse;
+import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationPendingResponse;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.auth.entity.Member;
@@ -123,15 +123,21 @@ class RecruitmentNotificationServiceTest {
     void 모집_알림_신청시_저장() {
         // given
         boolean isPolicyChecked = true;
+        EmailContent mockContent = new EmailContent("제목", "body");
         when(recruitmentNotificationRequesterReader
                 .existsByEmailAndSendStatus(EMAIL, SendStatus.NOT_SENT))
                 .thenReturn(false);
+
+        when(recruitmentEmailFactory.getRequestSuccessEmailContent())
+                .thenReturn(mockContent);
 
         // when
         recruitmentNotificationService.requestRecruitmentNotification(EMAIL, isPolicyChecked);
 
         // then
         verify(recruitmentNotificationRequesterReader).existsByEmailAndSendStatus(EMAIL, SendStatus.NOT_SENT);
+        verify(recruitmentEmailFactory).getRequestSuccessEmailContent();
+        verify(recruitmentNotificationSender).sendEmailAsync(EMAIL, mockContent);
         verify(recruitmentNotificationRequesterRepository).save(
                 argThat((RecruitmentNotificationRequester r) ->
                         EMAIL.equals(r.getEmail())
