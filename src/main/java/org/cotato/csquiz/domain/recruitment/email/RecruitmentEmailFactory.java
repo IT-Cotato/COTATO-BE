@@ -100,4 +100,11 @@ public class RecruitmentEmailFactory {
 
         return new EmailContent(subject, htmlBody);
     }
+
+    public EmailContent getRequestSuccessEmailContent() {
+        String subject = "[코테이토] 모집 알림 신청이 정상적으로 완료되었습니다.";
+        String htmlBody = "모집 알림 신청이 정상적으로 완료되었습니다.";
+
+        return new EmailContent(subject, htmlBody);
+    }
 }
