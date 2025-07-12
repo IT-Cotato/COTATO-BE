@@ -4,6 +4,10 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
+import org.cotato.csquiz.common.event.CotatoEventPublisher;
+import org.cotato.csquiz.domain.auth.event.EmailSendEvent;
+import org.cotato.csquiz.domain.auth.event.EmailSendEventDto;
+import org.cotato.csquiz.common.event.EventType;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.entity.RefusedMember;
 import org.cotato.csquiz.domain.auth.enums.MemberPosition;
@@ -23,9 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AdminMemberService {
 
+    private final CotatoEventPublisher eventPublisher;
     private final MemberRepository memberRepository;
     private final RefusedMemberRepository refusedMemberRepository;
-    private final EmailNotificationService emailNotificationService;
     private final GenerationReader generationReader;
     private final MemberReader memberReader;
 
@@ -42,8 +46,11 @@ public class AdminMemberService {
         member.updatePosition(position);
         memberRepository.save(member);
 
-        // Todo: Event로 대체
-        emailNotificationService.sendSignUpApprovedToEmail(member);
+        EmailSendEventDto dto = EmailSendEventDto.builder().member(member).build();
+        eventPublisher.publishEvent(EmailSendEvent.builder()
+                .type(EventType.APPROVE_MEMBER)
+                .data(dto)
+                .build());
     }
 
     @Transactional
@@ -54,7 +61,11 @@ public class AdminMemberService {
         memberRepository.save(member);
         addRefusedMember(member);
 
-        emailNotificationService.sendSignupRejectionToEmail(member);
+        EmailSendEventDto dto = EmailSendEventDto.builder().member(member).build();
+        eventPublisher.publishEvent(EmailSendEvent.builder()
+                .type(EventType.REJECT_MEMBER)
+                .data(dto)
+                .build());
     }
 
     private void checkMemberStatus(final Member member, final MemberStatus status) {
@@ -77,7 +88,7 @@ public class AdminMemberService {
     public void updateToRetireMembers(final List<Long> memberIds) {
         List<Member> members = memberReader.findAllByIdsInWithValidation(memberIds);
 
-        if (members.stream().anyMatch(member -> member.getStatus() != MemberStatus.APPROVED)){
+        if (members.stream().anyMatch(member -> member.getStatus() != MemberStatus.APPROVED)) {
             throw new AppException(ErrorCode.ROLE_IS_NOT_MATCH);
         }
         if (members.stream().anyMatch(member -> member.getRole() == MemberRole.DEV)) {

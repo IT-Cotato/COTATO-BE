@@ -49,11 +49,11 @@ public class Choice extends BaseTimeEntity {
         this.multipleQuiz = multipleQuiz;
     }
 
-    public static Choice of(CreateChoiceRequest request, MultipleQuiz multipleQuiz) {
+    public static Choice of(Integer choiceNumber, String content, ChoiceCorrect choiceCorrect, MultipleQuiz multipleQuiz) {
         return new Choice(
-                request.getNumber(),
-                request.getContent(),
-                request.getIsAnswer(),
+                choiceNumber,
+                content,
+                choiceCorrect,
                 multipleQuiz
         );
     }
