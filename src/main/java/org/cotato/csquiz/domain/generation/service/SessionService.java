@@ -165,13 +165,13 @@ public class SessionService {
 
         List<Session> sessions = sessionRepository.findAllByGeneration(generation);
 
-        Map<Session, List<SessionImage>> imagesGroupBySession = sessionImageRepository.findAllBySessionIn(sessions)
+        Map<Long, List<SessionImage>> imagesGroupBySession = sessionImageRepository.findAllBySessionIn(sessions)
                 .stream()
                 .sorted(Comparator.comparing(SessionImage::getOrder))
-                .collect(Collectors.groupingBy(SessionImage::getSession));
+                .collect(Collectors.groupingBy(sessionImage -> sessionImage.getSession().getId()));
 
         return sessions.stream()
-                .map(session -> SessionListResponse.of(session, imagesGroupBySession.getOrDefault(session, List.of())))
+                .map(session -> SessionListResponse.of(session, imagesGroupBySession.getOrDefault(session.getId(), List.of())))
                 .toList();
     }
 

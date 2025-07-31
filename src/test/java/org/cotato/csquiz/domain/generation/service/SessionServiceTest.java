@@ -208,6 +208,41 @@ class SessionServiceTest {
     }
 
     @Test
+    void findSessionsByGenerationIdSuccess() {
+        // given
+        Long generationId = 1L;
+        Generation generation = mock(Generation.class);
+        Session session = mock(Session.class);
+        when(generation.getId()).thenReturn(generationId);
+        when(session.getId()).thenReturn(1L);
+        when(session.getGeneration()).thenReturn(generation);
+
+        SessionImage image1 = SessionImage.builder()
+                .session(session)
+                .order(1)
+                .s3Info(new S3Info("url1", "fileName1", "folderName1"))
+                .build();
+        SessionImage image2 = SessionImage.builder()
+                .session(session)
+                .order(2)
+                .s3Info(new S3Info("url2", "fileName2", "folderName2"))
+                .build();
+
+        when(generationReader.findById(generationId)).thenReturn(generation);
+        when(sessionRepository.findAllByGeneration(generation)).thenReturn(List.of(session));
+        when(sessionImageRepository.findAllBySessionIn(List.of(session))).thenReturn(List.of(image1, image2));
+
+        // when
+        List<SessionListResponse> responses = sessionService.findSessionsByGenerationId(generationId);
+
+        // then
+        assertEquals(1, responses.size());
+        assertEquals(2, responses.get(0).imageInfos().size());
+        assertEquals(1, responses.get(0).imageInfos().get(0).order());
+        assertEquals(2, responses.get(0).imageInfos().get(1).order());
+    }
+
+    @Test
     void 세션에_이미지가_없으면_빈_리스트를_반환하는지_확인() {
         // given
         Long generationId = 1L;
