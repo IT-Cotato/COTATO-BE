@@ -1,6 +1,8 @@
 package org.cotato.csquiz.common.config;
 
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.cotato.csquiz.common.config.property.CotatoProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -9,15 +11,21 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 @Configuration
+@RequiredArgsConstructor
 public class CorsConfig {
+
+    private final CotatoProperties cotatoProperties;
 
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowCredentials(true);
-        config.addAllowedOrigin("https://www.cotato.kr");
-        config.addAllowedOrigin("https://qa.beta.cotato.kr");
+
+        for (String baseUrl : cotatoProperties.getBaseUrls()) {
+            config.addAllowedOrigin(baseUrl);
+        }
+
         config.addAllowedOrigin("http://localhost:3000");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
