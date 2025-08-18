@@ -1,0 +1,4 @@
+cotato:
+  base-url:
+    - "https://qa.beta.cotato.kr"
+    - "https://www.qa.beta.cotato.kr"
