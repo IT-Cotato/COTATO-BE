@@ -19,6 +19,9 @@ spring:
     username: ${TEST_DB_USERNAME}
     password: ${TEST_DB_PWD}
 
+  config:
+    import: classpath:variable/variable-stage.yml
+
 springdoc:
   swagger-ui:
     enabled: true
