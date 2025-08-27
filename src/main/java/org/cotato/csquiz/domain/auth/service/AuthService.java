@@ -11,7 +11,6 @@ import org.cotato.csquiz.api.auth.dto.FindPasswordResponse;
 import org.cotato.csquiz.api.auth.dto.JoinRequest;
 import org.cotato.csquiz.api.auth.dto.JoinResponse;
 import org.cotato.csquiz.api.auth.dto.LogoutRequest;
-import org.cotato.csquiz.api.auth.dto.ReissueResponse;
 import org.cotato.csquiz.api.auth.dto.SendEmailRequest;
 import org.cotato.csquiz.api.member.dto.MemberEmailResponse;
 import org.cotato.csquiz.common.config.jwt.BlackListRepository;
@@ -23,12 +22,12 @@ import org.cotato.csquiz.common.email.EmailSender;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.domain.auth.constant.EmailConstants;
+import org.cotato.csquiz.domain.auth.constant.TokenConstants;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.enums.EmailType;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
 import org.cotato.csquiz.domain.auth.service.component.EmailCodeManager;
 import org.cotato.csquiz.domain.auth.service.component.MemberReader;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,7 +39,6 @@ public class AuthService {
 
     private static final String EMAIL_DELIMITER = "@";
     private static final int EXPOSED_LENGTH = 4;
-    private static final String REFRESH_TOKEN = "refreshToken";
 
     private final PolicyService policyService;
     private final MemberReader memberReader;
@@ -103,8 +101,9 @@ public class AuthService {
                 .orElseThrow(() -> new AppException(ErrorCode.REFRESH_TOKEN_NOT_EXIST));
         jwtTokenProvider.setBlackList(refreshToken);
         log.info("[로그아웃 된 리프레시 토큰 블랙리스트 처리]");
+
         refreshTokenRepository.delete(existRefreshToken);
-        Cookie deleteCookie = new Cookie(REFRESH_TOKEN, null);
+        Cookie deleteCookie = new Cookie(TokenConstants.REFRESH_TOKEN, null);
         deleteCookie.setMaxAge(0);
         deleteCookie.setPath("/");
         deleteCookie.setSecure(true);

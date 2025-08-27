@@ -15,6 +15,7 @@ import org.cotato.csquiz.api.auth.dto.ReissueResponse;
 import org.cotato.csquiz.api.auth.dto.SendEmailRequest;
 import org.cotato.csquiz.api.member.dto.MemberEmailResponse;
 import org.cotato.csquiz.common.config.jwt.Token;
+import org.cotato.csquiz.domain.auth.constant.TokenConstants;
 import org.cotato.csquiz.domain.auth.service.AuthService;
 import org.cotato.csquiz.common.util.CookieUtil;
 import org.springframework.http.HttpStatus;
@@ -43,7 +44,7 @@ public class AuthController {
     }
 
     @PostMapping("/reissue")
-    public ResponseEntity<ReissueResponse> tokenReissue(@CookieValue(name = "refreshToken") String refreshToken,
+    public ResponseEntity<ReissueResponse> tokenReissue(@CookieValue(name = TokenConstants.REFRESH_TOKEN) String refreshToken,
                                                         HttpServletResponse response) {
         Token token = authService.reissue(refreshToken);
 
