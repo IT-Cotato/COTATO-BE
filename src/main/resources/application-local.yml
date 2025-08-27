@@ -19,6 +19,9 @@ spring:
         format_sql: true
     show-sql: true
 
+  config:
+    import: classpath:variable/variable-local.yml
+
 springdoc:
   swagger-ui:
     enabled: true
