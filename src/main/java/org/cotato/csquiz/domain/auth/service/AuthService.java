@@ -95,22 +95,16 @@ public class AuthService {
         return token;
     }
 
-    public void logout(LogoutRequest request, String refreshToken, HttpServletResponse response) {
+    public void logout(final String accessToken, final String refreshToken) {
         Long memberId = jwtTokenProvider.getMemberId(refreshToken);
         RefreshToken existRefreshToken = refreshTokenRepository.findById(memberId)
                 .orElseThrow(() -> new AppException(ErrorCode.REFRESH_TOKEN_NOT_EXIST));
+
         jwtTokenProvider.setBlackList(refreshToken);
-        log.info("[로그아웃 된 리프레시 토큰 블랙리스트 처리]");
 
         refreshTokenRepository.delete(existRefreshToken);
-        Cookie deleteCookie = new Cookie(TokenConstants.REFRESH_TOKEN, null);
-        deleteCookie.setMaxAge(0);
-        deleteCookie.setPath("/");
-        deleteCookie.setSecure(true);
-        deleteCookie.setHttpOnly(true);
-        response.addCookie(deleteCookie);
-        jwtTokenProvider.setBlackList(request.accessToken());
-        log.info("[로그아웃 된 액세스 토큰 블랙리스트 처리]");
+
+        jwtTokenProvider.setBlackList(accessToken);
     }
 
     public void sendSignUpEmail(SendEmailRequest request) {

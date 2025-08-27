@@ -45,7 +45,7 @@ public class AuthController {
 
     @PostMapping("/reissue")
     public ResponseEntity<ReissueResponse> tokenReissue(@CookieValue(name = TokenConstants.REFRESH_TOKEN) String refreshToken,
-                                                        HttpServletResponse response) {
+            HttpServletResponse response) {
         Token token = authService.reissue(refreshToken);
 
         response.setHeader("Authorization", "Bearer " + token.getAccessToken());
@@ -59,7 +59,11 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@CookieValue(name = "refreshToken") String refreshToken,
                                        @RequestBody @Valid LogoutRequest request, HttpServletResponse response) {
-        authService.logout(request, refreshToken, response);
+        authService.logout(request.accessToken(), refreshToken);
+
+        Cookie deleteCookie = CookieUtil.getEmptyRefreshCookie();
+        response.addCookie(deleteCookie);
+
         return ResponseEntity.noContent().build();
     }
 
