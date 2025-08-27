@@ -22,4 +22,13 @@ public final class CookieUtil {
 
         return refreshCookie;
     }
+
+    public static Cookie getEmptyRefreshCookie() {
+        Cookie cookie = new Cookie(REFRESH_TOKEN, null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        cookie.setSecure(true);
+        cookie.setHttpOnly(true);
+        return cookie;
+    }
 }
