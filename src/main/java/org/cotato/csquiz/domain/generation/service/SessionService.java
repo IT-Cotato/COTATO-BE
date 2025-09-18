@@ -32,6 +32,7 @@ import org.cotato.csquiz.domain.generation.event.AttendanceEvent;
 import org.cotato.csquiz.domain.generation.event.AttendanceEventDto;
 import org.cotato.csquiz.domain.generation.event.SessionImageEvent;
 import org.cotato.csquiz.domain.generation.event.SessionImageEventDto;
+import org.cotato.csquiz.domain.generation.repository.AttendanceNotificationRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionImageRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
 import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
@@ -54,6 +55,7 @@ public class SessionService {
     private final SessionReader sessionReader;
     private final AttendanceReader attendanceReader;
     private final CotatoEventPublisher cotatoEventPublisher;
+    private final AttendanceNotificationRepository attendanceNotificationRepository;
 
     @Transactional
     public AddSessionResponse addSession(final Long generationId,
@@ -79,14 +81,16 @@ public class SessionService {
 
         sessionRepository.save(session);
 
-        SessionImageEventDto sessionImageEventDto = SessionImageEventDto.builder().images(images).session(session).build();
+        SessionImageEventDto sessionImageEventDto = SessionImageEventDto.builder().images(images).session(session)
+                .build();
         SessionImageEvent sessionImageEvent = SessionImageEvent.builder().type(EventType.SESSION_IMAGE_UPDATE)
                 .data(sessionImageEventDto).build();
         cotatoEventPublisher.publishEvent(sessionImageEvent);
 
         AttendanceEventDto attendanceEventDto = AttendanceEventDto.builder().session(session).location(location)
                 .attendanceDeadLine(attendanceDeadLine).lateDeadLine(lateDeadLine).build();
-        AttendanceEvent attendanceEvent = AttendanceEvent.builder().type(EventType.ATTENDANCE_CREATE).data(attendanceEventDto)
+        AttendanceEvent attendanceEvent = AttendanceEvent.builder().type(EventType.ATTENDANCE_CREATE)
+                .data(attendanceEventDto)
                 .build();
         cotatoEventPublisher.publishEvent(attendanceEvent);
 
@@ -130,7 +134,8 @@ public class SessionService {
 
         if (!sessionType.isCreateAttendance() && maybeAttendance.isPresent()) {
             Attendance attendance = maybeAttendance.get();
-            attendanceRepository.deleteById(attendance.getId());
+            attendanceNotificationRepository.deleteByAttendance(attendance);
+            attendanceRepository.delete(attendance);
             return;
         }
 
@@ -171,7 +176,8 @@ public class SessionService {
                 .collect(Collectors.groupingBy(sessionImage -> sessionImage.getSession().getId()));
 
         return sessions.stream()
-                .map(session -> SessionListResponse.of(session, imagesGroupBySession.getOrDefault(session.getId(), List.of())))
+                .map(session -> SessionListResponse.of(session,
+                        imagesGroupBySession.getOrDefault(session.getId(), List.of())))
                 .toList();
     }
 
