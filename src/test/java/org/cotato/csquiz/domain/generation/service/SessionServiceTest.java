@@ -288,7 +288,7 @@ class SessionServiceTest {
         sessionService.updateSession(request);
 
         // then
-        verify(attendanceNotificationRepository).deleteAllByAttendance(attendance);
+        verify(attendanceNotificationRepository).deleteByAttendance(attendance);
         verify(attendanceRepository).delete(attendance);
     }
 
@@ -311,7 +311,7 @@ class SessionServiceTest {
         sessionService.updateSession(request);
 
         // then
-        verify(attendanceNotificationRepository, Mockito.never()).deleteAllByAttendance(attendance);
+        verify(attendanceNotificationRepository, Mockito.never()).deleteByAttendance(attendance);
         verify(attendanceRepository, Mockito.never()).delete(attendance);
         verify(attendanceRepository).save(any(Attendance.class));
     }
