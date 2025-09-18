@@ -34,6 +34,7 @@ import org.cotato.csquiz.domain.generation.enums.Networking;
 import org.cotato.csquiz.domain.generation.enums.SessionType;
 import org.cotato.csquiz.domain.generation.event.AttendanceEvent;
 import org.cotato.csquiz.domain.generation.event.SessionImageEvent;
+import org.cotato.csquiz.domain.generation.repository.AttendanceNotificationRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionImageRepository;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
 import org.cotato.csquiz.domain.generation.service.component.GenerationReader;
@@ -76,6 +77,9 @@ class SessionServiceTest {
 
     @Mock
     private AttendanceService attendanceService;
+
+    @Mock
+    private AttendanceNotificationRepository attendanceNotificationRepository;
 
     @InjectMocks
     private SessionService sessionService;
@@ -265,6 +269,53 @@ class SessionServiceTest {
         assertTrue(responses.get(0).imageInfos().isEmpty());
     }
 
+    @Test
+    @DisplayName("출석 삭제시 출석 알림도 함께 삭제되는지 테스트")
+    void 출석_삭제시_출석_알림도_함께_삭제() {
+        // given
+        Long sessionId = 1L;
+        LocalDateTime sessionDateTime = LocalDateTime.of(2025, 2, 2, 10, 0);
+
+        UpdateSessionRequest request = mockNoAttendUpdateSessionRequest(sessionId, sessionDateTime);
+        Session session = mockSessionWithId(sessionId);
+        Attendance attendance = mockAttendance();
+
+        when(sessionReader.findByIdWithPessimisticXLock(sessionId)).thenReturn(session);
+        when(attendanceReader.findBySessionIdWithPessimisticXLock(sessionId)).thenReturn(Optional.of(attendance));
+        when(attendanceRecordReader.isAttendanceRecordExist(attendance)).thenReturn(false);
+
+        // when
+        sessionService.updateSession(request);
+
+        // then
+        verify(attendanceNotificationRepository).deleteByAttendance(attendance);
+        verify(attendanceRepository).delete(attendance);
+    }
+
+    @Test
+    @DisplayName("출석이 유지되는 경우 출석 알림은 삭제되지 않는지 테스트")
+    void 출석이_유지되는_경우_출석_알림은_삭제되지_않음() {
+        // given
+        Long sessionId = 1L;
+        LocalDateTime sessionDateTime = LocalDateTime.of(2025, 2, 2, 10, 0);
+
+        UpdateSessionRequest request = mockOnlineUpdateSessionRequest(sessionId, sessionDateTime);
+        Session session = mockSessionWithId(sessionId);
+        Attendance attendance = mockAttendance();
+
+        when(sessionReader.findByIdWithPessimisticXLock(sessionId)).thenReturn(session);
+        when(attendanceReader.findBySessionIdWithPessimisticXLock(sessionId)).thenReturn(Optional.of(attendance));
+        when(attendanceRecordReader.isAttendanceRecordExist(attendance)).thenReturn(false);
+
+        // when
+        sessionService.updateSession(request);
+
+        // then
+        verify(attendanceNotificationRepository, Mockito.never()).deleteByAttendance(attendance);
+        verify(attendanceRepository, Mockito.never()).delete(attendance);
+        verify(attendanceRepository).save(any(Attendance.class));
+    }
+
     private UpdateSessionRequest mockOnlineUpdateSessionRequest(Long sessionId, LocalDateTime sessionDateTime) {
         return new UpdateSessionRequest(sessionId, "New Title", "New Description",
                 sessionDateTime, "New Place", "도로 명 주소",
@@ -288,6 +339,12 @@ class SessionServiceTest {
         Session session = mock(Session.class);
         when(session.getId()).thenReturn(sessionId);
         when(session.getSessionDateTime()).thenReturn(sessionDateTime);
+        return session;
+    }
+
+    private Session mockSessionWithId(Long sessionId) {
+        Session session = mock(Session.class);
+        when(session.getId()).thenReturn(sessionId);
         return session;
     }
 
