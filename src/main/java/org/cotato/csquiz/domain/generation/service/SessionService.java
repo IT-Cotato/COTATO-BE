@@ -134,7 +134,7 @@ public class SessionService {
 
         if (!sessionType.isCreateAttendance() && maybeAttendance.isPresent()) {
             Attendance attendance = maybeAttendance.get();
-            attendanceNotificationRepository.deleteAllByAttendance(attendance);
+            attendanceNotificationRepository.deleteByAttendance(attendance);
             attendanceRepository.delete(attendance);
             return;
         }

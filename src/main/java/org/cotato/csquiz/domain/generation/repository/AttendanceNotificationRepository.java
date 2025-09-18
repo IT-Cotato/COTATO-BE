@@ -10,5 +10,5 @@ public interface AttendanceNotificationRepository extends JpaRepository<Attendan
     @Query("SELECT an FROM AttendanceNotification an JOIN FETCH an.attendance WHERE an.done = false")
     List<AttendanceNotification> findAllByDoneFalse();
 
-    void deleteAllByAttendance(Attendance attendance);
+    void deleteByAttendance(Attendance attendance);
 }
