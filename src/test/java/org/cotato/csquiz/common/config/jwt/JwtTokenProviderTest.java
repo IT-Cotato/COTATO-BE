@@ -1,12 +1,10 @@
 package org.cotato.csquiz.common.config.jwt;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import java.util.Optional;
+
 import org.cotato.csquiz.domain.auth.constant.TokenConstants;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.repository.MemberRepository;
@@ -19,78 +17,80 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+
 @ExtendWith(MockitoExtension.class)
 class JwtTokenProviderTest {
 
-    private static final String SECRET = "testSecretKey";
+	private static final String SECRET = "testSecretKey";
 
-    private static final long ACCESS_EXPIRATION = 1_000_000L;
+	private static final long ACCESS_EXPIRATION = 1_000_000L;
 
-    private static final long REFRESH_EXPIRATION = 2_000_000L;
+	private static final long REFRESH_EXPIRATION = 2_000_000L;
 
-    @InjectMocks
-    private JwtTokenProvider jwtTokenProvider;
+	@InjectMocks
+	private JwtTokenProvider jwtTokenProvider;
 
-    @Mock
-    private BlackListRepository blackListRepository;
+	@Mock
+	private BlackListRepository blackListRepository;
 
-    @Mock
-    private MemberRepository memberRepository;
+	@Mock
+	private MemberRepository memberRepository;
 
+	@BeforeEach
+	void setUp() {
+		ReflectionTestUtils.setField(jwtTokenProvider, "secretKey", SECRET);
+		ReflectionTestUtils.setField(jwtTokenProvider, "accessExpiration", ACCESS_EXPIRATION);
+		ReflectionTestUtils.setField(jwtTokenProvider, "refreshExpiration", REFRESH_EXPIRATION);
+	}
 
-    @BeforeEach
-    void setUp() {
-        ReflectionTestUtils.setField(jwtTokenProvider, "secretKey", SECRET);
-        ReflectionTestUtils.setField(jwtTokenProvider, "accessExpiration", ACCESS_EXPIRATION);
-        ReflectionTestUtils.setField(jwtTokenProvider, "refreshExpiration", REFRESH_EXPIRATION);
-    }
+	@Test
+	@DisplayName("JWT 토큰 생성 검증")
+	void createToken_ShouldGenerateValidAccessAndRefreshTokens() {
+		// given
+		Member member = Member.defaultMember("email", "pwd", "name", "010");
+		ReflectionTestUtils.setField(member, "id", 42L);
 
-    @Test
-    @DisplayName("JWT 토큰 생성 검증")
-    void createToken_ShouldGenerateValidAccessAndRefreshTokens() {
-        // given
-        Member member = Member.defaultMember("email", "pwd","name", "010");
-        ReflectionTestUtils.setField(member, "id", 42L);
+		// when
+		Token token = jwtTokenProvider.createToken(member);
 
-        // when
-        Token token = jwtTokenProvider.createToken(member);
+		// then
+		Claims accessClaims = Jwts.parser()
+			.setSigningKey(SECRET)
+			.parseClaimsJws(token.getAccessToken())
+			.getBody();
+		assertEquals(42L, accessClaims.get("id", Long.class));
+		assertEquals(TokenConstants.ACCESS_TOKEN, accessClaims.get("type", String.class));
+		long accessDuration = accessClaims.getExpiration().getTime() - accessClaims.getIssuedAt().getTime();
+		assertEquals(ACCESS_EXPIRATION, accessDuration);
 
-        // then
-        Claims accessClaims = Jwts.parser()
-                .setSigningKey(SECRET)
-                .parseClaimsJws(token.getAccessToken())
-                .getBody();
-        assertEquals(42L, accessClaims.get("id", Long.class));
-        assertEquals(TokenConstants.ACCESS_TOKEN, accessClaims.get("type", String.class));
-        long accessDuration = accessClaims.getExpiration().getTime() - accessClaims.getIssuedAt().getTime();
-        assertEquals(ACCESS_EXPIRATION, accessDuration);
+		Claims refreshClaims = Jwts.parser()
+			.setSigningKey(SECRET)
+			.parseClaimsJws(token.getRefreshToken())
+			.getBody();
+		assertEquals(42L, refreshClaims.get("id", Long.class));
+		assertEquals(TokenConstants.REFRESH_TOKEN, refreshClaims.get("type", String.class));
+		long refreshDuration = refreshClaims.getExpiration().getTime() - refreshClaims.getIssuedAt().getTime();
+		assertEquals(REFRESH_EXPIRATION, refreshDuration);
+	}
 
-        Claims refreshClaims = Jwts.parser()
-                .setSigningKey(SECRET)
-                .parseClaimsJws(token.getRefreshToken())
-                .getBody();
-        assertEquals(42L, refreshClaims.get("id", Long.class));
-        assertEquals(TokenConstants.REFRESH_TOKEN, refreshClaims.get("type", String.class));
-        long refreshDuration = refreshClaims.getExpiration().getTime() - refreshClaims.getIssuedAt().getTime();
-        assertEquals(REFRESH_EXPIRATION, refreshDuration);
-    }
+	@Test
+	@DisplayName("토큰에서 멤버 조회")
+	void getMember_ShouldReturnMemberFromAccessToken() {
+		// given
+		final Long memberId = 42L;
+		Member member = Member.defaultMember("email", "pwd", "name", "010");
+		ReflectionTestUtils.setField(member, "id", memberId);
+		Token token = jwtTokenProvider.createToken(member);
 
-    @Test
-    @DisplayName("토큰에서 멤버 조회")
-    void getMember_ShouldReturnMemberFromAccessToken() {
-        // given
-        final Long memberId = 42L;
-        Member member = Member.defaultMember("email", "pwd","name", "010");
-        ReflectionTestUtils.setField(member, "id", memberId);
-        Token token = jwtTokenProvider.createToken(member);
+		when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
 
-        when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+		// when
+		Member foundMember = jwtTokenProvider.getMember(token.getAccessToken())
+			.orElseThrow(() -> new RuntimeException("Member not found"));
 
-        // when
-        Member foundMember = jwtTokenProvider.getMember(token.getAccessToken())
-                .orElseThrow(() -> new RuntimeException("Member not found"));
-
-        // then
-        assertEquals(memberId, foundMember.getId());
-    }
+		// then
+		assertEquals(memberId, foundMember.getId());
+	}
 }
