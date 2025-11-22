@@ -20,5 +20,8 @@ jobs:
         run: chmod +x ./gradlew
         shell: bash
 
+      - name: Run CheckStyle
+        run: ./gradlew checkstyleMain checkstyleTest
+
       - name: Build with Gradle Wrapper
         run: ./gradlew build
