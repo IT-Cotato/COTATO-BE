@@ -1,12 +1,8 @@
 package org.cotato.csquiz.domain.generation.service.component;
 
-import jakarta.persistence.EntityNotFoundException;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-
-import lombok.RequiredArgsConstructor;
 
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.generation.entity.Generation;
@@ -14,6 +10,9 @@ import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.domain.generation.repository.SessionRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor

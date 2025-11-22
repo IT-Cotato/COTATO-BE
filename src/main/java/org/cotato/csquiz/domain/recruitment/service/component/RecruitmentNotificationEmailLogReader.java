@@ -4,13 +4,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import lombok.RequiredArgsConstructor;
-
 import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotification;
 import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotificationEmailLog;
 import org.cotato.csquiz.domain.recruitment.repository.RecruitmentNotificationEmailLogRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor

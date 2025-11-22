@@ -2,13 +2,13 @@ package org.cotato.csquiz.domain.recruitment.service.component;
 
 import java.util.List;
 
-import lombok.RequiredArgsConstructor;
-
 import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotificationRequester;
 import org.cotato.csquiz.domain.recruitment.enums.SendStatus;
 import org.cotato.csquiz.domain.recruitment.repository.RecruitmentNotificationRequesterRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor

@@ -1,5 +1,11 @@
 package org.cotato.csquiz.domain.generation.entity;
 
+import org.cotato.csquiz.common.entity.BaseTimeEntity;
+import org.cotato.csquiz.domain.auth.entity.Member;
+import org.cotato.csquiz.domain.generation.enums.GenerationMemberRole;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,12 +19,6 @@ import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import org.cotato.csquiz.common.entity.BaseTimeEntity;
-import org.cotato.csquiz.domain.auth.entity.Member;
-import org.cotato.csquiz.domain.generation.enums.GenerationMemberRole;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.DynamicInsert;
 
 @Entity
 @Getter

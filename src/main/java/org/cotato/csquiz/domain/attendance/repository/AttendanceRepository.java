@@ -1,7 +1,5 @@
 package org.cotato.csquiz.domain.attendance.repository;
 
-import jakarta.persistence.LockModeType;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +10,8 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.LockModeType;
 
 public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
 	@Query("select a from Attendance a where a.sessionId in :sessionIds")

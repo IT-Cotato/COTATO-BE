@@ -6,8 +6,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import lombok.RequiredArgsConstructor;
-
 import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationLogResponse;
 import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationLogsResponse;
 import org.cotato.csquiz.api.recruitment.dto.RecruitmentNotificationPendingResponse;
@@ -30,6 +28,8 @@ import org.cotato.csquiz.domain.recruitment.service.component.RecruitmentNotific
 import org.cotato.csquiz.domain.recruitment.service.component.dto.NotificationResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor

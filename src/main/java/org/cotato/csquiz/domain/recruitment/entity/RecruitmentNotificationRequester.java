@@ -1,5 +1,10 @@
 package org.cotato.csquiz.domain.recruitment.entity;
 
+import java.time.LocalDateTime;
+
+import org.cotato.csquiz.common.entity.BaseTimeEntity;
+import org.cotato.csquiz.domain.recruitment.enums.SendStatus;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -7,15 +12,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-
-import java.time.LocalDateTime;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import org.cotato.csquiz.common.entity.BaseTimeEntity;
-import org.cotato.csquiz.domain.recruitment.enums.SendStatus;
 
 @Entity
 @Getter

@@ -1,17 +1,15 @@
 package org.cotato.csquiz.domain.generation.service.component;
 
-import io.netty.resolver.dns.DnsServerAddresses;
-import jakarta.persistence.EntityNotFoundException;
-
 import java.time.LocalDate;
 import java.util.List;
-
-import lombok.RequiredArgsConstructor;
 
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.repository.GenerationRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor

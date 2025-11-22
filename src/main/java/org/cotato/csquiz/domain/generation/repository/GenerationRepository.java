@@ -1,8 +1,8 @@
 package org.cotato.csquiz.domain.generation.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.time.LocalDate;
 
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.springframework.data.jpa.repository.JpaRepository;

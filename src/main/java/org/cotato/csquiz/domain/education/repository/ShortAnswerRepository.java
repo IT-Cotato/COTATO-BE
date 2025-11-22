@@ -1,13 +1,10 @@
 package org.cotato.csquiz.domain.education.repository;
 
-import io.netty.resolver.dns.DnsServerAddresses;
-
-import org.cotato.csquiz.domain.education.entity.ShortAnswer;
-import org.cotato.csquiz.domain.education.entity.ShortQuiz;
-
 import java.util.List;
 import java.util.Optional;
 
+import org.cotato.csquiz.domain.education.entity.ShortAnswer;
+import org.cotato.csquiz.domain.education.entity.ShortQuiz;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

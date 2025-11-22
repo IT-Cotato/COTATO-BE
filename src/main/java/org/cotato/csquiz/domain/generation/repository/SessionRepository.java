@@ -1,19 +1,19 @@
 package org.cotato.csquiz.domain.generation.repository;
 
-import jakarta.persistence.LockModeType;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import org.cotato.csquiz.domain.generation.enums.CSEducation;
 import org.cotato.csquiz.domain.generation.entity.Generation;
 import org.cotato.csquiz.domain.generation.entity.Session;
+import org.cotato.csquiz.domain.generation.enums.CSEducation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.LockModeType;
 
 public interface SessionRepository extends JpaRepository<Session, Long> {
 	List<Session> findAllByGeneration(Generation generation);

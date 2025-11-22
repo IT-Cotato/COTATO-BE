@@ -1,9 +1,8 @@
 package org.cotato.csquiz.domain.generation.embedded;
 
-import jakarta.persistence.Embeddable;
-
 import java.time.LocalDate;
 
+import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

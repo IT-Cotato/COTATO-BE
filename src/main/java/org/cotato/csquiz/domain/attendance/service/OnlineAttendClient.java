@@ -1,9 +1,5 @@
 package org.cotato.csquiz.domain.attendance.service;
 
-import java.time.LocalDateTime;
-
-import lombok.RequiredArgsConstructor;
-
 import org.cotato.csquiz.api.attendance.dto.AttendResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceParams;
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
@@ -14,6 +10,8 @@ import org.cotato.csquiz.domain.attendance.repository.AttendanceRecordRepository
 import org.cotato.csquiz.domain.attendance.util.AttendanceUtil;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.springframework.stereotype.Component;
+
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor

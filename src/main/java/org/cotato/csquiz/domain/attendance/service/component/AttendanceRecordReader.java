@@ -3,14 +3,14 @@ package org.cotato.csquiz.domain.attendance.service.component;
 import java.util.List;
 import java.util.Optional;
 
-import lombok.RequiredArgsConstructor;
-
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.entity.AttendanceRecord;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRecordRepository;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
 
 @Component
 @Transactional(readOnly = true)

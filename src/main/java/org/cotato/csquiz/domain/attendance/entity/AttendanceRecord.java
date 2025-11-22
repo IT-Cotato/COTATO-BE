@@ -1,5 +1,11 @@
 package org.cotato.csquiz.domain.attendance.entity;
 
+import java.time.LocalDateTime;
+
+import org.cotato.csquiz.common.entity.BaseTimeEntity;
+import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
+import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,16 +16,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-
-import java.time.LocalDateTime;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import org.cotato.csquiz.common.entity.BaseTimeEntity;
-import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
-import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
 
 @Table(name = "attendance_record",
 	indexes = {@Index(name = "member_id_index", columnList = "member_id")},

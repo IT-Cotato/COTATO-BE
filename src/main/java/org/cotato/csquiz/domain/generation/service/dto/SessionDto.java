@@ -2,10 +2,10 @@ package org.cotato.csquiz.domain.generation.service.dto;
 
 import java.time.LocalDateTime;
 
-import lombok.Builder;
-
 import org.cotato.csquiz.domain.generation.embedded.SessionContents;
 import org.cotato.csquiz.domain.generation.enums.SessionType;
+
+import lombok.Builder;
 
 @Builder
 public record SessionDto(

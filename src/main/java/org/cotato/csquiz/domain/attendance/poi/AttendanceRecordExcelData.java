@@ -3,11 +3,6 @@ package org.cotato.csquiz.domain.attendance.poi;
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import org.cotato.csquiz.common.poi.CellData;
 import org.cotato.csquiz.common.poi.ExcelColumnName;
 import org.cotato.csquiz.common.poi.ExcelData;
@@ -16,6 +11,11 @@ import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 import org.cotato.csquiz.domain.attendance.vo.AttendRecordStatics;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.generation.entity.Session;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder

@@ -1,5 +1,7 @@
 package org.cotato.csquiz.domain.generation.entity;
 
+import org.cotato.csquiz.domain.attendance.entity.Attendance;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -12,8 +14,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import org.cotato.csquiz.domain.attendance.entity.Attendance;
 
 @Entity
 @Getter

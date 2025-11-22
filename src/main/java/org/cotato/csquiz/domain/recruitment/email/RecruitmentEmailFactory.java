@@ -1,9 +1,9 @@
 package org.cotato.csquiz.domain.recruitment.email;
 
-import lombok.RequiredArgsConstructor;
-
 import org.cotato.csquiz.common.config.property.CotatoProperties;
 import org.springframework.stereotype.Component;
+
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor

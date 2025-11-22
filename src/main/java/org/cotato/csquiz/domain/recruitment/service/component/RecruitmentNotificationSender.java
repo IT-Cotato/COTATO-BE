@@ -2,15 +2,15 @@ package org.cotato.csquiz.domain.recruitment.service.component;
 
 import java.util.concurrent.CompletableFuture;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import org.cotato.csquiz.common.email.SesEmailSender;
 import org.cotato.csquiz.domain.recruitment.email.EmailContent;
 import org.cotato.csquiz.domain.recruitment.entity.RecruitmentNotificationRequester;
 import org.cotato.csquiz.domain.recruitment.service.component.dto.NotificationResult;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component

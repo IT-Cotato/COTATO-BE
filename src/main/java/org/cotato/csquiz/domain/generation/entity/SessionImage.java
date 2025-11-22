@@ -1,6 +1,9 @@
 package org.cotato.csquiz.domain.generation.entity;
 
-import static jakarta.persistence.FetchType.LAZY;
+import static jakarta.persistence.FetchType.*;
+
+import org.cotato.csquiz.common.entity.BaseTimeEntity;
+import org.cotato.csquiz.common.entity.S3Info;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
@@ -16,9 +19,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import org.cotato.csquiz.common.entity.BaseTimeEntity;
-import org.cotato.csquiz.common.entity.S3Info;
 
 @Entity
 @Getter

@@ -1,13 +1,10 @@
 package org.cotato.csquiz.domain.generation.service;
 
-import static org.cotato.csquiz.common.util.FileUtil.convert;
-import static org.cotato.csquiz.common.util.FileUtil.convertToWebp;
+import static org.cotato.csquiz.common.util.FileUtil.*;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import lombok.RequiredArgsConstructor;
 
 import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.common.error.ErrorCode;
@@ -20,6 +17,8 @@ import org.cotato.csquiz.domain.generation.repository.ProjectImageRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor

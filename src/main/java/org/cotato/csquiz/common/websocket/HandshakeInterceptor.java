@@ -1,25 +1,23 @@
 package org.cotato.csquiz.common.websocket;
 
-import org.cotato.csquiz.common.config.jwt.JwtTokenProvider;
-import org.cotato.csquiz.domain.auth.enums.MemberRole;
-import org.cotato.csquiz.common.error.exception.InterceptorException;
-import org.cotato.csquiz.common.error.exception.InterceptorRoleException;
-
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureException;
-
 import java.util.Map;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
+import org.cotato.csquiz.common.config.jwt.JwtTokenProvider;
+import org.cotato.csquiz.common.error.exception.InterceptorException;
+import org.cotato.csquiz.common.error.exception.InterceptorRoleException;
+import org.cotato.csquiz.domain.auth.enums.MemberRole;
 import org.cotato.csquiz.domain.auth.enums.MemberRoleGroup;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
+
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
 @Slf4j

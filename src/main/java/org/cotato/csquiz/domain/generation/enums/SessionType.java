@@ -1,10 +1,10 @@
 package org.cotato.csquiz.domain.generation.enums;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor

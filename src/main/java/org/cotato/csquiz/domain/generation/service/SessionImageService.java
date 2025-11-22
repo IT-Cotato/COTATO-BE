@@ -1,7 +1,5 @@
 package org.cotato.csquiz.domain.generation.service;
 
-import jakarta.persistence.EntityNotFoundException;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -11,19 +9,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import org.cotato.csquiz.api.session.dto.AddSessionImageRequest;
 import org.cotato.csquiz.api.session.dto.AddSessionImageResponse;
 import org.cotato.csquiz.api.session.dto.DeleteSessionImageRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionImageOrderInfoRequest;
 import org.cotato.csquiz.api.session.dto.UpdateSessionImageOrderRequest;
-import org.cotato.csquiz.common.s3.S3Uploader;
 import org.cotato.csquiz.common.entity.S3Info;
 import org.cotato.csquiz.common.error.ErrorCode;
 import org.cotato.csquiz.common.error.exception.AppException;
 import org.cotato.csquiz.common.error.exception.ImageException;
+import org.cotato.csquiz.common.s3.S3Uploader;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.cotato.csquiz.domain.generation.entity.SessionImage;
 import org.cotato.csquiz.domain.generation.repository.SessionImageRepository;
@@ -31,6 +26,10 @@ import org.cotato.csquiz.domain.generation.repository.SessionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor

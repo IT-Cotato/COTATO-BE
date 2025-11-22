@@ -1,17 +1,16 @@
 package org.cotato.csquiz.domain.attendance.service.component;
 
-import jakarta.persistence.EntityNotFoundException;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-
-import lombok.RequiredArgsConstructor;
 
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRepository;
 import org.cotato.csquiz.domain.generation.entity.Session;
 import org.springframework.stereotype.Component;
+
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor

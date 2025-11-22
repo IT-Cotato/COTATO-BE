@@ -1,5 +1,7 @@
 package org.cotato.csquiz.domain.generation.entity;
 
+import org.cotato.csquiz.common.entity.BaseTimeEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,8 +11,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import org.cotato.csquiz.common.entity.BaseTimeEntity;
 
 @Entity
 @Getter

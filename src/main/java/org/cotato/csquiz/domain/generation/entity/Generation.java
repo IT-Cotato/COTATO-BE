@@ -1,5 +1,8 @@
 package org.cotato.csquiz.domain.generation.entity;
 
+import org.cotato.csquiz.common.entity.BaseTimeEntity;
+import org.cotato.csquiz.domain.generation.embedded.Period;
+
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
@@ -12,9 +15,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import org.cotato.csquiz.common.entity.BaseTimeEntity;
-import org.cotato.csquiz.domain.generation.embedded.Period;
 
 @Entity
 @Getter

@@ -2,8 +2,6 @@ package org.cotato.csquiz.common.idempotency;
 
 import lombok.AllArgsConstructor;
 
-import org.cotato.csquiz.common.error.ErrorCode;
-
 @AllArgsConstructor
 public enum ProcessStatus {
 

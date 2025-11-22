@@ -1,5 +1,9 @@
 package org.cotato.csquiz.domain.generation.entity;
 
+import org.cotato.csquiz.common.entity.BaseTimeEntity;
+import org.cotato.csquiz.common.entity.S3Info;
+import org.cotato.csquiz.domain.generation.enums.ProjectImageType;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -11,10 +15,6 @@ import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import org.cotato.csquiz.common.entity.BaseTimeEntity;
-import org.cotato.csquiz.common.entity.S3Info;
-import org.cotato.csquiz.domain.generation.enums.ProjectImageType;
 
 @Entity
 @Getter
