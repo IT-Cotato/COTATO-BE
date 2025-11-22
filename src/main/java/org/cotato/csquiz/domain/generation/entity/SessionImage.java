@@ -16,6 +16,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 import org.cotato.csquiz.common.entity.BaseTimeEntity;
 import org.cotato.csquiz.common.entity.S3Info;
 
@@ -24,40 +25,40 @@ import org.cotato.csquiz.common.entity.S3Info;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SessionImage extends BaseTimeEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "session_image_id")
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "session_image_id")
+	private Long id;
 
-    @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "folderName", column = @Column(nullable = false)),
-            @AttributeOverride(name = "fileName", column = @Column(nullable = false)),
-            @AttributeOverride(name = "url", column = @Column(nullable = false))
-    })
-    private S3Info s3Info;
+	@Embedded
+	@AttributeOverrides({
+		@AttributeOverride(name = "folderName", column = @Column(nullable = false)),
+		@AttributeOverride(name = "fileName", column = @Column(nullable = false)),
+		@AttributeOverride(name = "url", column = @Column(nullable = false))
+	})
+	private S3Info s3Info;
 
-    @Column(name = "session_image_order", nullable = false)
-    private Integer order;
+	@Column(name = "session_image_order", nullable = false)
+	private Integer order;
 
-    @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "session_id")
-    private Session session;
+	@ManyToOne(fetch = LAZY)
+	@JoinColumn(name = "session_id")
+	private Session session;
 
-    @Builder
-    public SessionImage(Session session, Integer order, S3Info s3Info) {
-        this.session = session;
-        this.order = order;
-        this.s3Info = s3Info;
-    }
+	@Builder
+	public SessionImage(Session session, Integer order, S3Info s3Info) {
+		this.session = session;
+		this.order = order;
+		this.s3Info = s3Info;
+	}
 
-    public void updateOrder(Integer order) {
-        this.order = order;
-    }
+	public void updateOrder(Integer order) {
+		this.order = order;
+	}
 
-    public void decreaseOrder() {
-        if (order > 0) {
-            order--;
-        }
-    }
+	public void decreaseOrder() {
+		if (order > 0) {
+			order--;
+		}
+	}
 }

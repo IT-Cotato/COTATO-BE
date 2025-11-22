@@ -1,8 +1,10 @@
 package org.cotato.csquiz.domain.attendance.service;
 
 import java.time.LocalDateTime;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.cotato.csquiz.api.attendance.dto.AttendResponse;
 import org.cotato.csquiz.api.attendance.dto.AttendanceParams;
 import org.cotato.csquiz.api.attendance.dto.OfflineAttendanceRequest;
@@ -23,43 +25,44 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class OfflineAttendClient implements AttendClient {
 
-    @Value("${location.distance}")
-    private Double standardDistance;
-    private final AttendanceRecordRepository attendanceRecordRepository;
+	@Value("${location.distance}")
+	private Double standardDistance;
+	private final AttendanceRecordRepository attendanceRecordRepository;
 
-    @Override
-    public AttendanceType attendanceType() {
-        return AttendanceType.OFFLINE;
-    }
+	@Override
+	public AttendanceType attendanceType() {
+		return AttendanceType.OFFLINE;
+	}
 
-    @Override
-    public AttendResponse request(AttendanceParams params, Session session, Long memberId, Attendance attendance) {
-        OfflineAttendanceRequest request = (OfflineAttendanceRequest) params;
+	@Override
+	public AttendResponse request(AttendanceParams params, Session session, Long memberId, Attendance attendance) {
+		OfflineAttendanceRequest request = (OfflineAttendanceRequest)params;
 
-        AttendanceResult attendanceResult = AttendanceUtil.calculateAttendanceStatus(session, attendance, params.requestTime(),attendanceType());
+		AttendanceResult attendanceResult = AttendanceUtil.calculateAttendanceStatus(session, attendance,
+			params.requestTime(), attendanceType());
 
-        log.info("[출결 위치 로그: 위도 {}, 경도 {}]", request.getLocation().getLatitude(), request.getLocation().getLongitude());
-        Double accuracy = attendance.getLocation().calculateAccuracy(request.getLocation());
-        validateAccuracy(accuracy);
+		log.info("[출결 위치 로그: 위도 {}, 경도 {}]", request.getLocation().getLatitude(), request.getLocation().getLongitude());
+		Double accuracy = attendance.getLocation().calculateAccuracy(request.getLocation());
+		validateAccuracy(accuracy);
 
-        AttendanceRecord attendanceRecord = attendanceRecordRepository.findByMemberIdAndAttendanceId(memberId,
-                        request.getAttendanceId())
-                .orElseGet(() -> AttendanceRecord.offlineRecord(attendance, memberId, accuracy, attendanceResult,
-                        request.getRequestTime()));
+		AttendanceRecord attendanceRecord = attendanceRecordRepository.findByMemberIdAndAttendanceId(memberId,
+				request.getAttendanceId())
+			.orElseGet(() -> AttendanceRecord.offlineRecord(attendance, memberId, accuracy, attendanceResult,
+				request.getRequestTime()));
 
-        attendanceRecord.updateAttendanceType(request.attendanceType());
-        attendanceRecord.updateAttendanceResult(request.attendanceResult());
-        attendanceRecord.updateLocationAccuracy(accuracy);
+		attendanceRecord.updateAttendanceType(request.attendanceType());
+		attendanceRecord.updateAttendanceResult(request.attendanceResult());
+		attendanceRecord.updateLocationAccuracy(accuracy);
 
-        attendanceRecordRepository.save(attendanceRecord);
+		attendanceRecordRepository.save(attendanceRecord);
 
-        return AttendResponse.from(attendanceResult);
-    }
+		return AttendResponse.from(attendanceResult);
+	}
 
-    private void validateAccuracy(Double accuracy) {
-        log.info("[위치 정확도] : {}", accuracy);
-        if (accuracy >= standardDistance) {
-            throw new AppException(ErrorCode.OFFLINE_ATTEND_FAIL);
-        }
-    }
+	private void validateAccuracy(Double accuracy) {
+		log.info("[위치 정확도] : {}", accuracy);
+		if (accuracy >= standardDistance) {
+			throw new AppException(ErrorCode.OFFLINE_ATTEND_FAIL);
+		}
+	}
 }

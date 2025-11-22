@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class CreateShortAnswerRequest {
-    private String answer;
+	private String answer;
 }

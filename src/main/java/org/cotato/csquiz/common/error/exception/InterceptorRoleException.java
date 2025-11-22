@@ -6,5 +6,5 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class InterceptorRoleException extends RuntimeException {
-    private String errorMessage;
+	private String errorMessage;
 }

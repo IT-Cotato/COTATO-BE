@@ -13,6 +13,7 @@ import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 import org.cotato.csquiz.common.entity.BaseTimeEntity;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.generation.enums.GenerationMemberRole;
@@ -25,39 +26,39 @@ import org.hibernate.annotations.DynamicInsert;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class GenerationMember extends BaseTimeEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "generation_member_id")
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "generation_member_id")
+	private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "generation_id", nullable = false)
-    private Generation generation;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "generation_id", nullable = false)
+	private Generation generation;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "member_id", nullable = false)
+	private Member member;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role")
-    @ColumnDefault(value = "'MEMBER'")
-    private GenerationMemberRole role = GenerationMemberRole.MEMBER;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "role")
+	@ColumnDefault(value = "'MEMBER'")
+	private GenerationMemberRole role = GenerationMemberRole.MEMBER;
 
-    private GenerationMember(Generation generation, Member member, GenerationMemberRole role) {
-        this.generation = generation;
-        this.member = member;
-        this.role = role;
-    }
+	private GenerationMember(Generation generation, Member member, GenerationMemberRole role) {
+		this.generation = generation;
+		this.member = member;
+		this.role = role;
+	}
 
-    public static GenerationMember of(Generation generation, Member member) {
-        return new GenerationMember(generation, member, GenerationMemberRole.MEMBER);
-    }
+	public static GenerationMember of(Generation generation, Member member) {
+		return new GenerationMember(generation, member, GenerationMemberRole.MEMBER);
+	}
 
-    public void updateMemberRole(GenerationMemberRole role) {
-        this.role = role;
-    }
+	public void updateMemberRole(GenerationMemberRole role) {
+		this.role = role;
+	}
 
-    public String getMemberName() {
-        return member.getName();
-    }
+	public String getMemberName() {
+		return member.getName();
+	}
 }

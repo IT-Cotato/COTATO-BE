@@ -7,7 +7,7 @@ import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
 import org.cotato.csquiz.domain.generation.entity.Session;
 
 public interface AttendClient {
-    AttendanceType attendanceType();
+	AttendanceType attendanceType();
 
-    AttendResponse request(AttendanceParams params, Session session, Long memberId, Attendance attendance);
+	AttendResponse request(AttendanceParams params, Session session, Long memberId, Attendance attendance);
 }

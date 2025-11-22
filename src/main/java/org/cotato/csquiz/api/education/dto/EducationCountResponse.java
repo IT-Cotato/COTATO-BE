@@ -6,9 +6,9 @@ import lombok.Builder;
 
 @Builder
 public record EducationCountResponse(
-        @Schema(description = "전체 교육 수", requiredMode = RequiredMode.REQUIRED)
-        Long educationCount,
-        @Schema(description = "전체 퀴즈 수", requiredMode = RequiredMode.REQUIRED)
-        Long quizCount
+	@Schema(description = "전체 교육 수", requiredMode = RequiredMode.REQUIRED)
+	Long educationCount,
+	@Schema(description = "전체 퀴즈 수", requiredMode = RequiredMode.REQUIRED)
+	Long quizCount
 ) {
 }

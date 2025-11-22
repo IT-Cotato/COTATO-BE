@@ -1,10 +1,11 @@
 package org.cotato.csquiz.api.member.dto;
 
-import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
+import jakarta.validation.constraints.NotNull;
+
 public record UpdateActiveMemberToOldMemberRequest(
-        @NotNull
-        List<Long> memberIds
+	@NotNull
+	List<Long> memberIds
 ) {
 }

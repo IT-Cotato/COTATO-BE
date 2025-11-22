@@ -9,19 +9,19 @@ import org.springframework.security.crypto.encrypt.AesBytesEncryptor;
 @Configuration
 public class EncodeConfig {
 
-    @Value("${aes.secret.key}")
-    String aesKey;
+	@Value("${aes.secret.key}")
+	String aesKey;
 
-    @Value("${aes.secret.salt}")
-    String salt;
+	@Value("${aes.secret.salt}")
+	String salt;
 
-    @Bean
-    public BCryptPasswordEncoder encoder() {
-        return new BCryptPasswordEncoder();
-    }
+	@Bean
+	public BCryptPasswordEncoder encoder() {
+		return new BCryptPasswordEncoder();
+	}
 
-    @Bean
-    public AesBytesEncryptor encryptor() {
-        return new AesBytesEncryptor(aesKey, salt);
-    }
+	@Bean
+	public AesBytesEncryptor encryptor() {
+		return new AesBytesEncryptor(aesKey, salt);
+	}
 }

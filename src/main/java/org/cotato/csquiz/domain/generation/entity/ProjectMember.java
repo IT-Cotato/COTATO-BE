@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 import org.cotato.csquiz.common.entity.BaseTimeEntity;
 import org.cotato.csquiz.domain.auth.enums.MemberPosition;
 
@@ -19,29 +20,29 @@ import org.cotato.csquiz.domain.auth.enums.MemberPosition;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProjectMember extends BaseTimeEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "project_member_id")
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "project_member_id")
+	private Long id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "position")
-    private MemberPosition memberPosition;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "position")
+	private MemberPosition memberPosition;
 
-    @Column(name = "name")
-    private String name;
+	@Column(name = "name")
+	private String name;
 
-    @Column(name = "project_id", nullable = false)
-    private Long projectId;
+	@Column(name = "project_id", nullable = false)
+	private Long projectId;
 
-    @Builder
-    public ProjectMember(MemberPosition memberPosition, String name, Long projectId) {
-        this.memberPosition = memberPosition;
-        this.name = name;
-        this.projectId = projectId;
-    }
+	@Builder
+	public ProjectMember(MemberPosition memberPosition, String name, Long projectId) {
+		this.memberPosition = memberPosition;
+		this.name = name;
+		this.projectId = projectId;
+	}
 
-    public static ProjectMember of(MemberPosition memberPosition, String name, Project project) {
-        return new ProjectMember(memberPosition, name, project.getId());
-    }
+	public static ProjectMember of(MemberPosition memberPosition, String name, Project project) {
+		return new ProjectMember(memberPosition, name, project.getId());
+	}
 }

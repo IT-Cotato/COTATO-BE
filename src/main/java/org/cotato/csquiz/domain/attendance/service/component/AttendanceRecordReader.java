@@ -2,7 +2,9 @@ package org.cotato.csquiz.domain.attendance.service.component;
 
 import java.util.List;
 import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
+
 import org.cotato.csquiz.domain.attendance.entity.Attendance;
 import org.cotato.csquiz.domain.attendance.entity.AttendanceRecord;
 import org.cotato.csquiz.domain.attendance.repository.AttendanceRecordRepository;
@@ -15,18 +17,18 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AttendanceRecordReader {
 
-    private final AttendanceRecordRepository attendanceRecordRepository;
+	private final AttendanceRecordRepository attendanceRecordRepository;
 
-    public List<AttendanceRecord> getAllByAttendances(final List<Attendance> attendances) {
-        List<Long> attendanceIds = attendances.stream().map(Attendance::getId).toList();
-        return attendanceRecordRepository.findAllByAttendanceIdsInQuery(attendanceIds);
-    }
+	public List<AttendanceRecord> getAllByAttendances(final List<Attendance> attendances) {
+		List<Long> attendanceIds = attendances.stream().map(Attendance::getId).toList();
+		return attendanceRecordRepository.findAllByAttendanceIdsInQuery(attendanceIds);
+	}
 
-    public boolean isAttendanceRecordExist(final Attendance attendance) {
-        return attendanceRecordRepository.existsByAttendanceId(attendance.getId());
-    }
+	public boolean isAttendanceRecordExist(final Attendance attendance) {
+		return attendanceRecordRepository.existsByAttendanceId(attendance.getId());
+	}
 
-    public Optional<AttendanceRecord> getByAttendanceAndMember(Attendance attendance, Member member) {
-        return attendanceRecordRepository.findByMemberIdAndAttendanceId(member.getId(), attendance.getId());
-    }
+	public Optional<AttendanceRecord> getByAttendanceAndMember(Attendance attendance, Member member) {
+		return attendanceRecordRepository.findByMemberIdAndAttendanceId(member.getId(), attendance.getId());
+	}
 }

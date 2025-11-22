@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 import org.cotato.csquiz.common.entity.BaseTimeEntity;
 
 @Entity
@@ -16,37 +17,37 @@ import org.cotato.csquiz.common.entity.BaseTimeEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Project extends BaseTimeEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "project_id")
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "project_id")
+	private Long id;
 
-    @Column(name = "project_name")
-    private String name;
+	@Column(name = "project_name")
+	private String name;
 
-    @Column(name = "project_introduction")
-    private String introduction;
+	@Column(name = "project_introduction")
+	private String introduction;
 
-    @Column(name = "github_url")
-    private String githubUrl;
+	@Column(name = "github_url")
+	private String githubUrl;
 
-    @Column(name = "behance_url")
-    private String behanceUrl;
+	@Column(name = "behance_url")
+	private String behanceUrl;
 
-    @Column(name = "project_url")
-    private String projectUrl;
+	@Column(name = "project_url")
+	private String projectUrl;
 
-    @Column(name = "generation_id", nullable = false)
-    private Long generationId;
+	@Column(name = "generation_id", nullable = false)
+	private Long generationId;
 
-    @Builder
-    public Project(String name, String introduction, String githubUrl, String behanceUrl, String projectUrl,
-                   Long generationId) {
-        this.name = name;
-        this.introduction = introduction;
-        this.githubUrl = githubUrl;
-        this.behanceUrl = behanceUrl;
-        this.projectUrl = projectUrl;
-        this.generationId = generationId;
-    }
+	@Builder
+	public Project(String name, String introduction, String githubUrl, String behanceUrl, String projectUrl,
+		Long generationId) {
+		this.name = name;
+		this.introduction = introduction;
+		this.githubUrl = githubUrl;
+		this.behanceUrl = behanceUrl;
+		this.projectUrl = projectUrl;
+		this.generationId = generationId;
+	}
 }

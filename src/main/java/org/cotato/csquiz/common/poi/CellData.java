@@ -9,5 +9,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class CellData {
 
-    private String value;
+	private String value;
 }

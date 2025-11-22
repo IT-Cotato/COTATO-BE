@@ -1,6 +1,9 @@
 package org.cotato.csquiz.domain.education.entity;
 
-import static jakarta.persistence.FetchType.LAZY;
+import static jakarta.persistence.FetchType.*;
+
+import org.cotato.csquiz.common.entity.BaseTimeEntity;
+import org.cotato.csquiz.domain.auth.entity.Member;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,48 +15,46 @@ import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.cotato.csquiz.domain.auth.entity.Member;
-import org.cotato.csquiz.common.entity.BaseTimeEntity;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Record extends BaseTimeEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "record_id")
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "record_id")
+	private Long id;
 
-    @Column(name = "record_reply")
-    private String reply;
+	@Column(name = "record_reply")
+	private String reply;
 
-    @Column(name = "ticket_number", nullable = false)
-    private Long ticketNumber;
+	@Column(name = "ticket_number", nullable = false)
+	private Long ticketNumber;
 
-    @Column(name = "record_is_correct")
-    private Boolean isCorrect;
+	@Column(name = "record_is_correct")
+	private Boolean isCorrect;
 
-    @Column(name = "member_id", nullable = false)
-    private Long memberId;
+	@Column(name = "member_id", nullable = false)
+	private Long memberId;
 
-    @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "quiz_id")
-    private Quiz quiz;
+	@ManyToOne(fetch = LAZY)
+	@JoinColumn(name = "quiz_id")
+	private Quiz quiz;
 
-    private Record(String reply, Boolean isCorrect, Member member, Quiz quiz, Long ticketNumber) {
-        this.reply = reply;
-        this.isCorrect = isCorrect;
-        this.memberId = member.getId();
-        this.quiz = quiz;
-        this.ticketNumber = ticketNumber;
-    }
+	private Record(String reply, Boolean isCorrect, Member member, Quiz quiz, Long ticketNumber) {
+		this.reply = reply;
+		this.isCorrect = isCorrect;
+		this.memberId = member.getId();
+		this.quiz = quiz;
+		this.ticketNumber = ticketNumber;
+	}
 
-    public static Record of(String reply, Boolean isCorrect, Member member, Quiz quiz, Long ticketNumber) {
-        return new Record(reply, isCorrect, member, quiz, ticketNumber);
-    }
+	public static Record of(String reply, Boolean isCorrect, Member member, Quiz quiz, Long ticketNumber) {
+		return new Record(reply, isCorrect, member, quiz, ticketNumber);
+	}
 
-    public void updateCorrect(boolean isCorrect) {
-        this.isCorrect = isCorrect;
-    }
+	public void updateCorrect(boolean isCorrect) {
+		this.isCorrect = isCorrect;
+	}
 }

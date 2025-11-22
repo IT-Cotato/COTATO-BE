@@ -4,7 +4,7 @@ import org.cotato.csquiz.domain.generation.enums.ProjectImageType;
 import org.springframework.web.multipart.MultipartFile;
 
 public record ProjectImageRequest(
-        ProjectImageType imageType,
-        MultipartFile image
+	ProjectImageType imageType,
+	MultipartFile image
 ) {
 }
