@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.0.12'
     id 'io.spring.dependency-management' version '1.1.3'
+    id 'checkstyle'
 }
 
 group = 'cotato'
@@ -85,4 +86,25 @@ tasks.named('test') {
 
 jar {
     enabled = false
+}
+
+
+// CheckStyle 설정 (Naver Coding Convention)
+checkstyle {
+    toolVersion = '10.12.4'
+    configFile = file('config/checkstyle/checkstyle.xml')
+    configProperties = [
+            'suppressionFile': 'config/checkstyle/suppressions.xml'
+    ]
+    ignoreFailures = false
+    maxWarnings = 0
+    maxErrors = 0
+}
+
+checkstyleMain {
+    source = 'src/main/java'
+}
+
+checkstyleTest {
+    source = 'src/test/java'
 }
