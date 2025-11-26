@@ -1,14 +1,9 @@
 package org.cotato.csquiz.common.event;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.List;
+
 import org.cotato.csquiz.common.error.exception.ImageException;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.event.EmailSendEvent;
@@ -29,70 +24,70 @@ import org.springframework.web.multipart.MultipartFile;
 @ExtendWith(MockitoExtension.class)
 class CotatoEventListenerTest {
 
-    @InjectMocks
-    private CotatoEventListener cotatoEventListener;
+	@InjectMocks
+	private CotatoEventListener cotatoEventListener;
 
-    @Mock
-    private EmailNotificationService emailNotificationService;
+	@Mock
+	private EmailNotificationService emailNotificationService;
 
-    @Mock
-    private SessionImageService sessionImageService;
+	@Mock
+	private SessionImageService sessionImageService;
 
-    @Test
-    @DisplayName("부원 가입 거절 시 이메일 발송 테스트")
-    void whenApproveMember_then_sendSignUpApprovedToEmail_호출() {
-        // given
-        Member member = mock(Member.class);
-        EmailSendEventDto dto = EmailSendEventDto.builder()
-                .member(member)
-                .build();
-        EmailSendEvent event = new EmailSendEvent(EventType.APPROVE_MEMBER, dto);
+	@Test
+	@DisplayName("부원 가입 거절 시 이메일 발송 테스트")
+	void whenApproveMember_then_sendSignUpApprovedToEmail() {
+		// given
+		Member member = mock(Member.class);
+		EmailSendEventDto dto = EmailSendEventDto.builder()
+			.member(member)
+			.build();
+		EmailSendEvent event = new EmailSendEvent(EventType.APPROVE_MEMBER, dto);
 
-        // when
-        cotatoEventListener.handleEmailSentEvent(event);
+		// when
+		cotatoEventListener.handleEmailSentEvent(event);
 
-        // then
-        verify(emailNotificationService, times(1))
-                .sendSignUpApprovedToEmail(member);
-        verifyNoMoreInteractions(emailNotificationService);
-    }
+		// then
+		verify(emailNotificationService, times(1))
+			.sendSignUpApprovedToEmail(member);
+		verifyNoMoreInteractions(emailNotificationService);
+	}
 
-    @Test
-    void whenRejectMember_then_sendSignupRejectionToEmail_호출() {
-        // given
-        Member member = mock(Member.class);
-        EmailSendEventDto dto = EmailSendEventDto.builder()
-                .member(member)
-                .build();
-        EmailSendEvent event = new EmailSendEvent(EventType.REJECT_MEMBER, dto);
+	@Test
+	void whenRejectMember_then_sendSignupRejectionToEmail() {
+		// given
+		Member member = mock(Member.class);
+		EmailSendEventDto dto = EmailSendEventDto.builder()
+			.member(member)
+			.build();
+		EmailSendEvent event = new EmailSendEvent(EventType.REJECT_MEMBER, dto);
 
-        // when
-        cotatoEventListener.handleEmailSentEvent(event);
+		// when
+		cotatoEventListener.handleEmailSentEvent(event);
 
-        // then
-        verify(emailNotificationService, times(1))
-                .sendSignupRejectionToEmail(member);
-        verifyNoMoreInteractions(emailNotificationService);
-    }
+		// then
+		verify(emailNotificationService, times(1))
+			.sendSignupRejectionToEmail(member);
+		verifyNoMoreInteractions(emailNotificationService);
+	}
 
-    @Test
-    @DisplayName("세션 이미지 수정 이벤트 발행")
-    void whenSessionImageUpdate_then_addSessionImages_호출() throws ImageException {
-        // given
-        SessionImageEventDto dto = mock(SessionImageEventDto.class);
-        Session session = mock(Session.class);
-        List<MultipartFile> images = List.of(mock(MultipartFile.class), mock(MultipartFile.class));
-        when(dto.getSession()).thenReturn(session);
-        when(dto.getImages()).thenReturn(images);
+	@Test
+	@DisplayName("세션 이미지 수정 이벤트 발행")
+	void whenSessionImageUpdate_then_addSessionImages() throws ImageException {
+		// given
+		SessionImageEventDto dto = mock(SessionImageEventDto.class);
+		Session session = mock(Session.class);
+		List<MultipartFile> images = List.of(mock(MultipartFile.class), mock(MultipartFile.class));
+		when(dto.getSession()).thenReturn(session);
+		when(dto.getImages()).thenReturn(images);
 
-        SessionImageEvent event = new SessionImageEvent(EventType.SESSION_IMAGE_UPDATE, dto);
+		SessionImageEvent event = new SessionImageEvent(EventType.SESSION_IMAGE_UPDATE, dto);
 
-        // when
-        cotatoEventListener.handleSessionImageUpdateEvent(event);
+		// when
+		cotatoEventListener.handleSessionImageUpdateEvent(event);
 
-        // then
-        verify(sessionImageService).addSessionImages(images, session);
-        verify(dto, times(1)).getImages();
-        verify(dto, times(1)).getSession();
-    }
+		// then
+		verify(sessionImageService).addSessionImages(images, session);
+		verify(dto, times(1)).getImages();
+		verify(dto, times(1)).getSession();
+	}
 }

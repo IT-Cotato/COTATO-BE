@@ -7,5 +7,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class FilterAuthenticationException extends RuntimeException {
 
-    private String message;
+	private String message;
 }

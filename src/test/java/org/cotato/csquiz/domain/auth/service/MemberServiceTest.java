@@ -1,16 +1,12 @@
 package org.cotato.csquiz.domain.auth.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
 import org.cotato.csquiz.api.member.dto.MemberResponse;
 import org.cotato.csquiz.api.member.dto.ProfileLinkRequest;
 import org.cotato.csquiz.common.entity.S3Info;
@@ -27,7 +23,6 @@ import org.cotato.csquiz.domain.auth.repository.MemberRepository;
 import org.cotato.csquiz.domain.auth.repository.ProfileLinkRepository;
 import org.cotato.csquiz.domain.auth.service.component.MemberLeavingRequestReader;
 import org.cotato.csquiz.domain.auth.service.component.MemberReader;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -45,182 +40,183 @@ import org.springframework.web.multipart.MultipartFile;
 @ExtendWith(SpringExtension.class)
 class MemberServiceTest {
 
-    @InjectMocks
-    private MemberService memberService;
+	@InjectMocks
+	private MemberService memberService;
 
-    @Mock
-    private EncryptService encryptService;
+	@Mock
+	private EncryptService encryptService;
 
-    @Mock
-    private MemberLeavingRequestReader memberLeavingRequestReader;
+	@Mock
+	private MemberLeavingRequestReader memberLeavingRequestReader;
 
-    @Mock
-    private MemberReader memberReader;
+	@Mock
+	private MemberReader memberReader;
 
-    @Mock
-    private MemberRepository memberRepository;
+	@Mock
+	private MemberRepository memberRepository;
 
-    @Mock
-    private S3Uploader s3Uploader;
+	@Mock
+	private S3Uploader s3Uploader;
 
-    @Mock
-    private ProfileLinkRepository profileLinkRepository;
+	@Mock
+	private ProfileLinkRepository profileLinkRepository;
 
-    @Test
-    void 부원_활성화_요청() {
-        // given
-        Member member = Member.defaultMember("email", "password", "name", null);
-        member.updateStatus(MemberStatus.INACTIVE);
-        MemberLeavingRequest leavingRequest = MemberLeavingRequest.of(member, LocalDateTime.now());
+	@Test
+	void whenActivateMember_thenStatusChangedToApproved() {
+		// given
+		Member member = Member.defaultMember("email", "password", "name", null);
+		member.updateStatus(MemberStatus.INACTIVE);
+		MemberLeavingRequest leavingRequest = MemberLeavingRequest.of(member, LocalDateTime.now());
 
-        when(memberLeavingRequestReader.getLeavingRequestByMember(member))
-                .thenReturn(leavingRequest);
-        when(memberReader.findById(member.getId()))
-                .thenReturn(member);
+		when(memberLeavingRequestReader.getLeavingRequestByMember(member))
+			.thenReturn(leavingRequest);
+		when(memberReader.findById(member.getId()))
+			.thenReturn(member);
 
-        // when
-        memberService.activateMember(member.getId());
+		// when
+		memberService.activateMember(member.getId());
 
-        // then
-        assertEquals(MemberStatus.APPROVED, member.getStatus());
-        assertEquals(true, leavingRequest.isReactivated());
-    }
+		// then
+		assertEquals(MemberStatus.APPROVED, member.getStatus());
+		assertEquals(true, leavingRequest.isReactivated());
+	}
 
-    @Test
-    void 비활성화_상태가_아니면_활성화가_불가능하다() {
-        // given
-        Member member = Member.defaultMember("email", "password", "name", null);
-        member.updateStatus(MemberStatus.APPROVED);
-        MemberLeavingRequest leavingRequest = MemberLeavingRequest.of(member, LocalDateTime.now());
+	@Test
+	void whenMemberIsNotInactive_thenActivationFails() {
+		// given
+		Member member = Member.defaultMember("email", "password", "name", null);
+		member.updateStatus(MemberStatus.APPROVED);
+		MemberLeavingRequest leavingRequest = MemberLeavingRequest.of(member, LocalDateTime.now());
 
-        when(memberLeavingRequestReader.getLeavingRequestByMember(member))
-                .thenReturn(leavingRequest);
-        when(memberReader.findById(member.getId()))
-                .thenReturn(member);
+		when(memberLeavingRequestReader.getLeavingRequestByMember(member))
+			.thenReturn(leavingRequest);
+		when(memberReader.findById(member.getId()))
+			.thenReturn(member);
 
-        // when, then
-        assertThrows(AppException.class, () -> memberService.activateMember(member.getId()));
-    }
+		// when, then
+		assertThrows(AppException.class, () -> memberService.activateMember(member.getId()));
+	}
 
-    @Test
-    void 승인된_부원_목록_조회() {
-        // given
-        Member member1 = Member.defaultMember("email1", "password1", "name1", "1");
-        Member member2 = Member.defaultMember("email2", "password2", "name2", "2");
-        member1.updateStatus(MemberStatus.APPROVED);
-        member2.updateStatus(MemberStatus.APPROVED);
+	@Test
+	void whenGetMembersByStatus_thenReturnApprovedMembers() {
+		// given
+		Member member1 = Member.defaultMember("email1", "password1", "name1", "1");
+		Member member2 = Member.defaultMember("email2", "password2", "name2", "2");
+		member1.updateStatus(MemberStatus.APPROVED);
+		member2.updateStatus(MemberStatus.APPROVED);
 
-        PageImpl<Member> members = new PageImpl<>(List.of(member1, member2));
-        when(memberRepository.findAllByStatus(eq(MemberStatus.APPROVED), any(Pageable.class))).thenReturn(members);
+		PageImpl<Member> members = new PageImpl<>(List.of(member1, member2));
+		when(memberRepository.findAllByStatus(eq(MemberStatus.APPROVED), any(Pageable.class))).thenReturn(members);
 
-        when(encryptService.decryptPhoneNumber(any())).thenReturn("01012345678");
+		when(encryptService.decryptPhoneNumber(any())).thenReturn("01012345678");
 
-        // when
-        var approvedMembers = memberService.getMembersByStatus(MemberStatus.APPROVED, Pageable.ofSize(2));
+		// when
+		var approvedMembers = memberService.getMembersByStatus(MemberStatus.APPROVED, Pageable.ofSize(2));
 
-        // then
-        assertEquals(2, approvedMembers.getNumberOfElements());
-        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
-        verify(memberRepository).findAllByStatus(eq(MemberStatus.APPROVED), pageableCaptor.capture());
-        Pageable capturedPageable = pageableCaptor.getValue();
+		// then
+		assertEquals(2, approvedMembers.getNumberOfElements());
+		ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+		verify(memberRepository).findAllByStatus(eq(MemberStatus.APPROVED), pageableCaptor.capture());
+		Pageable capturedPageable = pageableCaptor.getValue();
 
-        Sort expectedSort = Sort.by(
-                Sort.Order.desc("passedGenerationNumber"),
-                Sort.Order.asc("name")
-        );
-        assertEquals(expectedSort, capturedPageable.getSort());
-    }
+		Sort expectedSort = Sort.by(
+			Sort.Order.desc("passedGenerationNumber"),
+			Sort.Order.asc("name")
+		);
+		assertEquals(expectedSort, capturedPageable.getSort());
+	}
 
-    @Test
-    void 프로필_정보_업데이트() throws ImageException {
-        //given
-        Member member = getDefaultMember();
-        String introduction = "새로운 소개";
-        String university = "새로운 대학교";
-        List<ProfileLinkRequest> profileLinkRequests = List.of(
-                new ProfileLinkRequest(UrlType.GITHUB, "https://github.com/user"));
-        MockMultipartFile profileImage = new MockMultipartFile("image", "image.jpg", "image/jpeg", new byte[10]);
+	@Test
+	void whenUpdateMemberProfileInfo_thenProfileUpdated() throws ImageException {
+		//given
+		Member member = getDefaultMember();
+		String introduction = "새로운 소개";
+		String university = "새로운 대학교";
+		List<ProfileLinkRequest> profileLinkRequests = List.of(
+			new ProfileLinkRequest(UrlType.GITHUB, "https://github.com/user"));
+		MockMultipartFile profileImage = new MockMultipartFile("image", "image.jpg", "image/jpeg", new byte[10]);
 
-        S3Info newS3Info = S3Info.builder()
-                .url("new URL")
-                .fileName("new file")
-                .folderName("new folder")
-                .build();
-        when(s3Uploader.uploadFiles((MultipartFile) any(), any())).
-                thenReturn(newS3Info);
+		S3Info newS3Info = S3Info.builder()
+			.url("new URL")
+			.fileName("new file")
+			.folderName("new folder")
+			.build();
+		when(s3Uploader.uploadFiles((MultipartFile)any(), any()))
+			.thenReturn(newS3Info);
 
-        //when
-        memberService.updateMemberProfileInfo(member, introduction, university, profileLinkRequests,
-                ImageUpdateStatus.UPDATE, profileImage);
+		//when
+		memberService.updateMemberProfileInfo(member, introduction, university, profileLinkRequests,
+			ImageUpdateStatus.UPDATE, profileImage);
 
-        //then
-        assertEquals(member.getIntroduction(), introduction);
-        assertEquals(member.getUniversity(), university);
-        assertEquals(member.getProfileImage(), newS3Info);
-    }
+		//then
+		assertEquals(member.getIntroduction(), introduction);
+		assertEquals(member.getUniversity(), university);
+		assertEquals(member.getProfileImage(), newS3Info);
+	}
 
-    @Test
-    void 프로필_이미지_없으면_예외발생() {
-        // given
-        Member member = getDefaultMember();
+	@Test
+	void whenProfileImageIsNull_thenThrowException() {
+		// given
+		Member member = getDefaultMember();
 
-        // when, then
-        assertThrows(AppException.class, () ->
-                memberService.updateMemberProfileInfo(member, null, null, null, ImageUpdateStatus.UPDATE, null)
-        );
-    }
+		// when, then
+		assertThrows(AppException.class, () ->
+			memberService.updateMemberProfileInfo(member, null, null, null, ImageUpdateStatus.UPDATE, null)
+		);
+	}
 
-    @Test
-    void 프로필_변경시_값이_없으면_기존_값이_유지된다() throws ImageException {
-        //given
-        Member member = getDefaultMember();
-        String introduction = "새로운 소개";
+	@Test
+	void whenUpdateProfileWithNullValues_thenKeepExistingValues() throws ImageException {
+		//given
+		Member member = getDefaultMember();
+		String introduction = "새로운 소개";
 
-        //when
-        memberService.updateMemberProfileInfo(member, introduction, null, null,
-                ImageUpdateStatus.KEEP, null);
+		//when
+		memberService.updateMemberProfileInfo(member, introduction, null, null,
+			ImageUpdateStatus.KEEP, null);
 
-        //then
-        assertEquals(member.getIntroduction(), introduction);
-        assertEquals(member.getUniversity(), "before");
-        assertNotNull(member.getProfileImage());
-    }
+		//then
+		assertEquals(member.getIntroduction(), introduction);
+		assertEquals(member.getUniversity(), "before");
+		assertNotNull(member.getProfileImage());
+	}
 
-    private Member getDefaultMember() {
-        Member member = Member.defaultMember("email", "password", "name", null);
-        member.updateStatus(MemberStatus.APPROVED);
-        member.updateIntroduction("before");
-        member.updateUniversity("before");
-        member.updateProfileImage(new S3Info("url", "file", "folder"));
-        return member;
-    }
+	private Member getDefaultMember() {
+		Member member = Member.defaultMember("email", "password", "name", null);
+		member.updateStatus(MemberStatus.APPROVED);
+		member.updateIntroduction("before");
+		member.updateUniversity("before");
+		member.updateProfileImage(new S3Info("url", "file", "folder"));
+		return member;
+	}
 
-    @Test
-    void OM검색_페이징_반환() {
-        // given
-        Pageable pageable = PageRequest.of(0, 1);
-        Member member1 = Member.defaultMember("email1", "password1", "name1", "1");
-        Member member2 = Member.defaultMember("email2", "password2", "name2", "2");
-        member1.updateStatus(MemberStatus.RETIRED);
-        member2.updateStatus(MemberStatus.RETIRED);
-        member1.updatePassedGenerationNumber(1);
-        member1.updatePosition(MemberPosition.BE);
-        member2.updatePassedGenerationNumber(1);
-        member2.updatePosition(MemberPosition.BE);
+	@Test
+	void whenSearchOM_thenReturnPagedResults() {
+		// given
+		Pageable pageable = PageRequest.of(0, 1);
+		Member member1 = Member.defaultMember("email1", "password1", "name1", "1");
+		Member member2 = Member.defaultMember("email2", "password2", "name2", "2");
+		member1.updateStatus(MemberStatus.RETIRED);
+		member2.updateStatus(MemberStatus.RETIRED);
+		member1.updatePassedGenerationNumber(1);
+		member1.updatePosition(MemberPosition.BE);
+		member2.updatePassedGenerationNumber(1);
+		member2.updatePosition(MemberPosition.BE);
 
-        Page<Member> memberPage = new PageImpl<>(List.of(member1, member2), pageable, 1);
+		Page<Member> memberPage = new PageImpl<>(List.of(member1, member2), pageable, 1);
 
-        // When: Repository의 메서드를 stub 처리함
-        when(memberRepository.findAllWithFiltersPageable(1, MemberPosition.BE, MemberStatus.RETIRED, null, pageable))
-                .thenReturn(memberPage);
-        when(encryptService.decryptPhoneNumber(any())).thenReturn("01012345678");
+		// When: Repository의 메서드를 stub 처리함
+		when(memberRepository.findAllWithFiltersPageable(1, MemberPosition.BE, MemberStatus.RETIRED, null, pageable))
+			.thenReturn(memberPage);
+		when(encryptService.decryptPhoneNumber(any())).thenReturn("01012345678");
 
-        Page<MemberResponse> result = memberService.getMembersByName(1, MemberPosition.BE, null, MemberStatus.RETIRED, pageable);
+		Page<MemberResponse> result = memberService.getMembersByName(1, MemberPosition.BE, null, MemberStatus.RETIRED,
+			pageable);
 
-        // Then: 결과 검증
-        assertNotNull(result);
-        assertEquals(1, result.getTotalElements());
-        MemberResponse response = result.getContent().get(0);
-        assertEquals("name1", response.name());
-    }
+		// Then: 결과 검증
+		assertNotNull(result);
+		assertEquals(1, result.getTotalElements());
+		MemberResponse response = result.getContent().get(0);
+		assertEquals("name1", response.name());
+	}
 }

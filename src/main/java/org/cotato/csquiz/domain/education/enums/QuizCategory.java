@@ -4,15 +4,14 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public enum QuizCategory {
-    NETWORK("네트워크"),
-    DB("데이터 베이스"),
-    OS("운영 체제"),
-    OOP("객체지향"),
-    WEB("웹"),
-    SECURITY("보안"),
-    PL("프로그래밍 언어"),
-    OTHER("기타"),
-    ;
+	NETWORK("네트워크"),
+	DB("데이터 베이스"),
+	OS("운영 체제"),
+	OOP("객체지향"),
+	WEB("웹"),
+	SECURITY("보안"),
+	PL("프로그래밍 언어"),
+	OTHER("기타");
 
-    private final String description;
+	private final String description;
 }

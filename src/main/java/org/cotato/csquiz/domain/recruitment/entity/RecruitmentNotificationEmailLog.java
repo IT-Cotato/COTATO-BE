@@ -1,5 +1,7 @@
 package org.cotato.csquiz.domain.recruitment.entity;
 
+import org.cotato.csquiz.common.entity.BaseTimeEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -11,38 +13,37 @@ import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.cotato.csquiz.common.entity.BaseTimeEntity;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RecruitmentNotificationEmailLog extends BaseTimeEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "log_id")
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "log_id")
+	private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "receiver_id", nullable = false)
-    private RecruitmentNotificationRequester receiver;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "receiver_id", nullable = false)
+	private RecruitmentNotificationRequester receiver;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "notification_id", nullable = false)
-    private RecruitmentNotification notification;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "notification_id", nullable = false)
+	private RecruitmentNotification notification;
 
-    @Column(name = "send_success")
-    private Boolean sendSuccess;
+	@Column(name = "send_success")
+	private Boolean sendSuccess;
 
-    private RecruitmentNotificationEmailLog(RecruitmentNotificationRequester receiver,
-                                            RecruitmentNotification notification, boolean sendSuccess) {
-        this.receiver = receiver;
-        this.notification = notification;
-        this.sendSuccess = sendSuccess;
-    }
+	private RecruitmentNotificationEmailLog(RecruitmentNotificationRequester receiver,
+		RecruitmentNotification notification, boolean sendSuccess) {
+		this.receiver = receiver;
+		this.notification = notification;
+		this.sendSuccess = sendSuccess;
+	}
 
-    public static RecruitmentNotificationEmailLog of(RecruitmentNotificationRequester receiver,
-                                                     RecruitmentNotification notification, boolean sendSuccess) {
-        return new RecruitmentNotificationEmailLog(receiver, notification, sendSuccess);
-    }
+	public static RecruitmentNotificationEmailLog of(RecruitmentNotificationRequester receiver,
+		RecruitmentNotification notification, boolean sendSuccess) {
+		return new RecruitmentNotificationEmailLog(receiver, notification, sendSuccess);
+	}
 }

@@ -12,22 +12,22 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Location {
 
-    @NotNull
-    private Double latitude;
-    @NotNull
-    private Double longitude;
-    
-    @Builder
-    private Location(Double latitude, Double longitude) {
-        this.latitude = latitude;
-        this.longitude = longitude;
-    }
+	@NotNull
+	private Double latitude;
+	@NotNull
+	private Double longitude;
 
-    public static Location location(Double latitude, Double longitude){
-        return new Location(latitude, longitude);
-    }
+	@Builder
+	private Location(Double latitude, Double longitude) {
+		this.latitude = latitude;
+		this.longitude = longitude;
+	}
 
-    public Double calculateAccuracy(Location location) {
-        return Math.pow(this.latitude - location.latitude, 2) + Math.pow(this.longitude - location.longitude, 2);
-    }
+	public static Location location(Double latitude, Double longitude) {
+		return new Location(latitude, longitude);
+	}
+
+	public Double calculateAccuracy(Location location) {
+		return Math.pow(this.latitude - location.latitude, 2) + Math.pow(this.longitude - location.longitude, 2);
+	}
 }

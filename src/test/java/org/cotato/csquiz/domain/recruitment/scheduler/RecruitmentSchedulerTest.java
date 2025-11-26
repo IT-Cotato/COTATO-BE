@@ -1,17 +1,15 @@
 package org.cotato.csquiz.domain.recruitment.scheduler;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.concurrent.ScheduledFuture;
+
 import org.cotato.csquiz.common.util.TimeUtil;
 import org.cotato.csquiz.domain.recruitment.entity.RecruitmentInformation;
 import org.cotato.csquiz.domain.recruitment.service.component.RecruitmentInformationReader;
@@ -27,80 +25,80 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 class RecruitmentSchedulerTest {
 
-    @Mock
-    private TaskScheduler taskScheduler;
+	@Mock
+	private TaskScheduler taskScheduler;
 
-    @Mock
-    private RecruitmentInformationReader recruitmentInformationReader;
+	@Mock
+	private RecruitmentInformationReader recruitmentInformationReader;
 
-    @Mock
-    private ScheduledFuture<?> mockFuture;
+	@Mock
+	private ScheduledFuture<?> mockFuture;
 
-    @InjectMocks
-    private RecruitmentScheduler scheduler;
+	@InjectMocks
+	private RecruitmentScheduler scheduler;
 
-    private final LocalDate sampleEndDate = LocalDate.of(2025, 4, 25);
+	private final LocalDate sampleEndDate = LocalDate.of(2025, 4, 25);
 
-    @BeforeEach
-    void setUp() {
-        doReturn(mockFuture)
-                .when(taskScheduler)
-                .schedule(any(Runnable.class), any(Instant.class));
-    }
+	@BeforeEach
+	void setUp() {
+		doReturn(mockFuture)
+			.when(taskScheduler)
+			.schedule(any(Runnable.class), any(Instant.class));
+	}
 
-    @Test
-    void cancelCloseRecruitmentScheduler_호출시_스케줄이_취소되어야_한다() {
-        // given: 스케줄이 등록된 상태
-        scheduler.registerCloseRecruitmentScheduler(sampleEndDate);
+	@Test
+	void whenCancelCloseRecruitmentScheduler_thenScheduleCancelled() {
+		// given: 스케줄이 등록된 상태
+		scheduler.registerCloseRecruitmentScheduler(sampleEndDate);
 
-        // when
-        scheduler.cancelCloseRecruitmentScheduler();
+		// when
+		scheduler.cancelCloseRecruitmentScheduler();
 
-        // then
-        verify(mockFuture).cancel(false);
-    }
+		// then
+		verify(mockFuture).cancel(false);
+	}
 
-    @Test
-    void 스케줄_등록_성공() {
-        // when
-        scheduler.registerCloseRecruitmentScheduler(sampleEndDate);
+	@Test
+	void whenRegisterCloseRecruitmentScheduler_thenScheduleRegistered() {
+		// when
+		scheduler.registerCloseRecruitmentScheduler(sampleEndDate);
 
-        // then
-        // 기대: sampleEndDate의 한국시간 자정 Instant
-        LocalDateTime expectedLdt = LocalDateTime.of(sampleEndDate.plusDays(1), LocalTime.MIDNIGHT);
-        Instant expectedInstant = TimeUtil.getSeoulZoneTime(expectedLdt).toInstant();
+		// then
+		// 기대: sampleEndDate의 한국시간 자정 Instant
+		LocalDateTime expectedLdt = LocalDateTime.of(sampleEndDate.plusDays(1), LocalTime.MIDNIGHT);
+		Instant expectedInstant = TimeUtil.getSeoulZoneTime(expectedLdt).toInstant();
 
-        // TaskScheduler.schedule 호출 시 Instant 캡처
-        ArgumentCaptor<Instant> instantCaptor = ArgumentCaptor.forClass(Instant.class);
-        verify(taskScheduler).schedule(any(Runnable.class), instantCaptor.capture());
+		// TaskScheduler.schedule 호출 시 Instant 캡처
+		ArgumentCaptor<Instant> instantCaptor = ArgumentCaptor.forClass(Instant.class);
+		verify(taskScheduler).schedule(any(Runnable.class), instantCaptor.capture());
 
-        Instant actualInstant = instantCaptor.getValue();
-        assertEquals(expectedInstant, actualInstant,
-                "스케줄러에 등록된 Instant가 sampleEndDate의 한국시간 자정이어야 한다");
-    }
+		Instant actualInstant = instantCaptor.getValue();
+		assertEquals(expectedInstant, actualInstant,
+			"스케줄러에 등록된 Instant가 sampleEndDate의 한국시간 자정이어야 한다");
+	}
 
-    @Test
-    void restoreScheduler_열린_모집정보가_있으면_스케줄등록() {
-        // given
-        RecruitmentInformation openedInfo = mock(RecruitmentInformation.class);
-        when(openedInfo.isOpened()).thenReturn(true);
-        when(openedInfo.getEndDate()).thenReturn(sampleEndDate);
-        when(recruitmentInformationReader.findRecruitmentInformation())
-                .thenReturn(openedInfo);
+	@Test
+	void whenRestoreSchedulerWithOpenedRecruitment_thenScheduleRegistered() {
+		// given
+		RecruitmentInformation openedInfo = mock(RecruitmentInformation.class);
+		when(openedInfo.isOpened()).thenReturn(true);
+		when(openedInfo.getEndDate()).thenReturn(sampleEndDate);
+		when(recruitmentInformationReader.findRecruitmentInformation())
+			.thenReturn(openedInfo);
 
-        // when
-        scheduler.restoreScheduler();
+		// when
+		scheduler.restoreScheduler();
 
-        // then: Instant 캡처
-        ArgumentCaptor<Instant> instantCaptor = ArgumentCaptor.forClass(Instant.class);
-        verify(taskScheduler).schedule(any(Runnable.class), instantCaptor.capture());
-        Instant scheduledInstant = instantCaptor.getValue();
+		// then: Instant 캡처
+		ArgumentCaptor<Instant> instantCaptor = ArgumentCaptor.forClass(Instant.class);
+		verify(taskScheduler).schedule(any(Runnable.class), instantCaptor.capture());
+		Instant scheduledInstant = instantCaptor.getValue();
 
-        LocalDateTime expectedLdt = LocalDateTime.of(sampleEndDate.plusDays(1), LocalTime.MIDNIGHT);
-        Instant expectedInstant = TimeUtil.getSeoulZoneTime(expectedLdt).toInstant();
+		LocalDateTime expectedLdt = LocalDateTime.of(sampleEndDate.plusDays(1), LocalTime.MIDNIGHT);
+		Instant expectedInstant = TimeUtil.getSeoulZoneTime(expectedLdt).toInstant();
 
-        assertEquals(expectedInstant, scheduledInstant,
-                "스케줄러에 등록된 시간이 sampleEndDate 다음날 00:00:00이어야 한다");
-    }
+		assertEquals(expectedInstant, scheduledInstant,
+			"스케줄러에 등록된 시간이 sampleEndDate 다음날 00:00:00이어야 한다");
+	}
 
 }

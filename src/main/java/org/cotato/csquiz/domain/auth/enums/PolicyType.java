@@ -7,9 +7,8 @@ import lombok.Getter;
 @Getter
 public enum PolicyType {
 
-    ESSENTIAL("필수 선택 정책"),
-    OPTIONAL("선택적인 정책");
+	ESSENTIAL("필수 선택 정책"),
+	OPTIONAL("선택적인 정책");
 
-
-    private final String description;
+	private final String description;
 }

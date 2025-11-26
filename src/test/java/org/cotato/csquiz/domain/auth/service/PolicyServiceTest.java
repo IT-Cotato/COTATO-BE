@@ -1,9 +1,10 @@
 package org.cotato.csquiz.domain.auth.service;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.List;
+
 import org.cotato.csquiz.api.policy.dto.FindMemberPolicyResponse;
 import org.cotato.csquiz.domain.auth.entity.Member;
 import org.cotato.csquiz.domain.auth.entity.Policy;
@@ -20,28 +21,28 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 class PolicyServiceTest {
 
-    @InjectMocks
-    private PolicyService policyService;
+	@InjectMocks
+	private PolicyService policyService;
 
-    @Mock
-    private PolicyReader policyReader;
+	@Mock
+	private PolicyReader policyReader;
 
-    @Mock
-    private MemberPolicyRepository memberPolicyRepository;
+	@Mock
+	private MemberPolicyRepository memberPolicyRepository;
 
-    @Test
-    void 체크하지_않은_정책_조회() {
-        // given
-        Member member = Member.defaultMember("test", "test", "test", "test");
-        Policy policy = Policy.builder().policyType(PolicyType.ESSENTIAL).build();
-        when(memberPolicyRepository.findAllByMemberId(member.getId())).thenReturn(List.of());
-        when(policyReader.getPoliciesByCategory(PolicyCategory.PERSONAL_INFORMATION)).thenReturn(List.of(policy));
+	@Test
+	void whenFindUncheckedPolicies_thenReturnUncheckedPolicies() {
+		// given
+		Member member = Member.defaultMember("test", "test", "test", "test");
+		Policy policy = Policy.builder().policyType(PolicyType.ESSENTIAL).build();
+		when(memberPolicyRepository.findAllByMemberId(member.getId())).thenReturn(List.of());
+		when(policyReader.getPoliciesByCategory(PolicyCategory.PERSONAL_INFORMATION)).thenReturn(List.of(policy));
 
-        // when
-        FindMemberPolicyResponse unCheckedPolicies = policyService.findUnCheckedPolicies(member,
-                PolicyCategory.PERSONAL_INFORMATION);
+		// when
+		FindMemberPolicyResponse unCheckedPolicies = policyService.findUnCheckedPolicies(member,
+			PolicyCategory.PERSONAL_INFORMATION);
 
-        // then
-        assertEquals(1, unCheckedPolicies.essentialPolicies().size());
-    }
+		// then
+		assertEquals(1, unCheckedPolicies.essentialPolicies().size());
+	}
 }

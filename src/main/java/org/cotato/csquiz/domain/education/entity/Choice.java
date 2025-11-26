@@ -1,10 +1,10 @@
 package org.cotato.csquiz.domain.education.entity;
 
-import static jakarta.persistence.FetchType.LAZY;
+import static jakarta.persistence.FetchType.*;
 
-import org.cotato.csquiz.api.quiz.dto.CreateChoiceRequest;
-import org.cotato.csquiz.domain.education.enums.ChoiceCorrect;
 import org.cotato.csquiz.common.entity.BaseTimeEntity;
+import org.cotato.csquiz.domain.education.enums.ChoiceCorrect;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -23,42 +23,43 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Choice extends BaseTimeEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "choice_id")
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "choice_id")
+	private Long id;
 
-    @Column(name = "choice_number")
-    private Integer choiceNumber;
+	@Column(name = "choice_number")
+	private Integer choiceNumber;
 
-    @Column(name = "choice_content")
-    private String content;
+	@Column(name = "choice_content")
+	private String content;
 
-    @Column(name = "choice_correct")
-    @Enumerated(EnumType.STRING)
-    private ChoiceCorrect isCorrect;
+	@Column(name = "choice_correct")
+	@Enumerated(EnumType.STRING)
+	private ChoiceCorrect isCorrect;
 
-    @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "quiz_id")
-    private MultipleQuiz multipleQuiz;
+	@ManyToOne(fetch = LAZY)
+	@JoinColumn(name = "quiz_id")
+	private MultipleQuiz multipleQuiz;
 
-    private Choice(Integer choiceNumber, String content, ChoiceCorrect isCorrect, MultipleQuiz multipleQuiz) {
-        this.choiceNumber = choiceNumber;
-        this.content = content;
-        this.isCorrect = isCorrect;
-        this.multipleQuiz = multipleQuiz;
-    }
+	private Choice(Integer choiceNumber, String content, ChoiceCorrect isCorrect, MultipleQuiz multipleQuiz) {
+		this.choiceNumber = choiceNumber;
+		this.content = content;
+		this.isCorrect = isCorrect;
+		this.multipleQuiz = multipleQuiz;
+	}
 
-    public static Choice of(Integer choiceNumber, String content, ChoiceCorrect choiceCorrect, MultipleQuiz multipleQuiz) {
-        return new Choice(
-                choiceNumber,
-                content,
-                choiceCorrect,
-                multipleQuiz
-        );
-    }
+	public static Choice of(Integer choiceNumber, String content, ChoiceCorrect choiceCorrect,
+		MultipleQuiz multipleQuiz) {
+		return new Choice(
+			choiceNumber,
+			content,
+			choiceCorrect,
+			multipleQuiz
+		);
+	}
 
-    public void updateCorrect(ChoiceCorrect choiceCorrect) {
-        this.isCorrect = choiceCorrect;
-    }
+	public void updateCorrect(ChoiceCorrect choiceCorrect) {
+		this.isCorrect = choiceCorrect;
+	}
 }

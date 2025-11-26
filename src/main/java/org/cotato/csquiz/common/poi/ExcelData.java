@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface ExcelData {
 
-    List<CellData> headers();
+	List<CellData> headers();
 
-    List<CellData> datas();
+	List<CellData> datas();
 }

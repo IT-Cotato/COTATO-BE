@@ -10,14 +10,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class S3Info {
-    private String folderName;
-    private String fileName;
-    private String url;
+	private String folderName;
+	private String fileName;
+	private String url;
 
-    @Builder
-    public S3Info(String url, String fileName, String folderName) {
-        this.url = url;
-        this.fileName = fileName;
-        this.folderName = folderName;
-    }
+	@Builder
+	public S3Info(String url, String fileName, String folderName) {
+		this.url = url;
+		this.fileName = fileName;
+		this.folderName = folderName;
+	}
 }

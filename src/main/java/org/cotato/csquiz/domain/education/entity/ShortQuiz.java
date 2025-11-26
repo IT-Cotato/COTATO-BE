@@ -1,14 +1,13 @@
 package org.cotato.csquiz.domain.education.entity;
 
+import org.cotato.csquiz.common.entity.S3Info;
+import org.hibernate.annotations.DynamicInsert;
+
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
-import org.cotato.csquiz.common.entity.S3Info;
-import org.cotato.csquiz.domain.education.entity.Education;
-import org.cotato.csquiz.domain.education.entity.Quiz;
-import org.hibernate.annotations.DynamicInsert;
 
 @Entity
 @DynamicInsert
@@ -16,8 +15,8 @@ import org.hibernate.annotations.DynamicInsert;
 @DiscriminatorValue(value = "ShortQuiz")
 public class ShortQuiz extends Quiz {
 
-    @Builder
-    public ShortQuiz(Integer number, String question, S3Info s3Info, Education education, int appearSecond) {
-        super(number, question, s3Info, education, appearSecond);
-    }
+	@Builder
+	public ShortQuiz(Integer number, String question, S3Info s3Info, Education education, int appearSecond) {
+		super(number, question, s3Info, education, appearSecond);
+	}
 }

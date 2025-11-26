@@ -1,8 +1,7 @@
 package org.cotato.csquiz.api.record.controller;
 
-import jakarta.validation.Valid;
 import javax.naming.NoPermissionException;
-import lombok.RequiredArgsConstructor;
+
 import org.cotato.csquiz.api.record.dto.RecordsAndScorerResponse;
 import org.cotato.csquiz.api.record.dto.RegradeRequest;
 import org.cotato.csquiz.api.record.dto.ReplyRequest;
@@ -20,6 +19,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+
 @RestController
 @RequestMapping("/v1/api/record")
 @RequiredArgsConstructor
@@ -28,7 +30,8 @@ public class RecordController {
 	private final RecordService recordService;
 
 	@PostMapping("/reply")
-	public ResponseEntity<ReplyResponse> replyToQuiz(@AuthenticationPrincipal Member member, @RequestBody @Valid ReplyRequest request) throws NoPermissionException {
+	public ResponseEntity<ReplyResponse> replyToQuiz(@AuthenticationPrincipal Member member,
+		@RequestBody @Valid ReplyRequest request) throws NoPermissionException {
 		if (!member.getId().equals(request.memberId())) {
 			throw new NoPermissionException("해당 문제에 답할 권한이 없습니다.");
 		}

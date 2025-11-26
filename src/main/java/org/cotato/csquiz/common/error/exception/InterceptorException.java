@@ -7,5 +7,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class InterceptorException extends RuntimeException {
 
-    private String errorMessage;
+	private String errorMessage;
 }

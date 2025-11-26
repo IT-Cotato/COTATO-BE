@@ -1,16 +1,17 @@
 package org.cotato.csquiz.api.attendance.dto;
 
 import java.time.LocalDateTime;
+
 import org.cotato.csquiz.domain.attendance.enums.AttendanceResult;
 import org.cotato.csquiz.domain.attendance.enums.AttendanceType;
 
 public interface AttendanceParams {
 
-    AttendanceType attendanceType();
+	AttendanceType attendanceType();
 
-    AttendanceResult attendanceResult();
+	AttendanceResult attendanceResult();
 
-    Long attendanceId();
+	Long attendanceId();
 
-    LocalDateTime requestTime();
+	LocalDateTime requestTime();
 }

@@ -7,10 +7,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum AttendanceType {
 
-    OFFLINE("대면 출석"),
-    ONLINE("비대면 출석"),
-    NO_ATTEND("출결 미 입력")
-    ;
+	OFFLINE("대면 출석"),
+	ONLINE("비대면 출석"),
+	NO_ATTEND("출결 미 입력");
 
-    private final String description;
+	private final String description;
 }

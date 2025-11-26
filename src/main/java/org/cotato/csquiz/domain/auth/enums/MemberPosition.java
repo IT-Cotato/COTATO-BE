@@ -6,11 +6,11 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum MemberPosition {
-    NONE("NONE"),
-    BE("Back-end"),
-    FE("Front-end"),
-    DESIGN("Design"),
-    PM("Product-Manager");
+	NONE("NONE"),
+	BE("Back-end"),
+	FE("Front-end"),
+	DESIGN("Design"),
+	PM("Product-Manager");
 
-    private final String fullName;
+	private final String fullName;
 }
