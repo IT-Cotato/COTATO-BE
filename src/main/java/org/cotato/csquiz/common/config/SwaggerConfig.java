@@ -12,14 +12,14 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 
 @OpenAPIDefinition(
-	info = @Info(title = "COTATO 프로젝트 API 명세서"
-		, description = "api 명세서", version = "v1")
+	info = @Info(title = "COTATO 프로젝트 API 명세서",
+		description = "api 명세서", version = "v1")
 )
 @Configuration
 public class SwaggerConfig {
 
 	@Bean
-	public OpenAPI customOpenAPI() {
+	public OpenAPI customOpenApi() {
 		return new OpenAPI()
 			.addServersItem(new Server().url("https://api.stage.cotato.kr").description("Staging Server"))
 			.addServersItem(new Server().url("http://localhost:8080").description("개발자 로컬 서버"))

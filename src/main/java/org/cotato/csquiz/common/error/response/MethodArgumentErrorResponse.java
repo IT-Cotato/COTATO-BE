@@ -15,7 +15,7 @@ public record MethodArgumentErrorResponse(
 	String code,
 	String message,
 	String method,
-	String requestURI,
+	String requestUri,
 	List<FieldErrorResponse> errors
 ) {
 

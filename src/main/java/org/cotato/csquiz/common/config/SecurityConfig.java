@@ -79,7 +79,7 @@ public class SecurityConfig {
 				.requestMatchers(new AntPathRequestMatcher(SESSION_PATH, HttpMethod.GET.name())).permitAll()
 				.requestMatchers(WHITE_LIST).permitAll()
 				.anyRequest().authenticated()
-			);
+		);
 		return http.build();
 	}
 }

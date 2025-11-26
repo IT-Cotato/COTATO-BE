@@ -15,7 +15,8 @@ public final class EmailConstants {
 	public static final String MESSAGE_SUFFIX = ""
 		+ "</strong></p>"
 		+ "<br>"
-		+ "<h3 style=\"color: #336699; font-family: 'Arial', sans-serif; font-size: 18px;\">10분 안에 입력 부탁드립니다. 감사합니다!</h3>"
+		+ "<h3 style=\"color: #336699; font-family: 'Arial', sans-serif; font-size: 18px;\">"
+		+ "10분 안에 입력 부탁드립니다. 감사합니다!</h3>"
 		+ "</div>"
 		+ "</div>";
 	public static final String MEMBER_NAME_SUFFIX = "%s님의 ";

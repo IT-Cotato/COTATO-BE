@@ -34,10 +34,10 @@ public interface QuizRepository extends JpaRepository<Quiz, Long> {
 
 	@Query("""
 		SELECT q
-		  FROM Quiz q
-		 WHERE q.education   IN :educations
-		   AND TYPE(q)       = MultipleQuiz
-		   AND LENGTH(q.question) <= :maxLength
+		FROM Quiz q
+		WHERE q.education   IN :educations
+		AND TYPE(q)       = MultipleQuiz
+		AND LENGTH(q.question) <= :maxLength
 		""")
 	List<Quiz> findMultipleQuizzesByEducationInAndQuestionLengthLE(@Param("educations") List<Education> educations,
 		@Param("maxLength") int maxLength);

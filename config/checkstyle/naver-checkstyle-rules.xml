@@ -30,7 +30,6 @@ The following rules in the Naver coding convention cannot be checked by this con
         <property name="message" value="[newline-lf] Line must end with LF, not CRLF"/>
     </module>
 
-
     <!-- [newline-eof] -->
     <module name="NewlineAtEndOfFile">
         <property name="lineSeparator" value="lf"/>
@@ -69,7 +68,6 @@ The following rules in the Naver coding convention cannot be checked by this con
             <message key="name.invalidPattern"
                      value="[package-lowercase] Package name ''{0}'' must match pattern ''{1}''."/>
         </module>
-
 
         <!-- [class-interface-lower-camelcase] -->
         <module name="TypeName">
@@ -198,6 +196,7 @@ The following rules in the Naver coding convention cannot be checked by this con
             <message key="line.previous"
                      value="[braces-knr-style] ''{0}'' at column {1} should be on the previous line."/>
         </module>
+
         <module name="RightCurly">
             <property name="option" value="alone"/>
             <property name="tokens"
@@ -256,12 +255,14 @@ The following rules in the Naver coding convention cannot be checked by this con
             <message key="line.previous"
                      value="[line-wrapping-position] ''{0}'' should be on the previous line."/>
         </module>
+
         <module name="SeparatorWrap">
             <property name="tokens" value="DOT"/>
             <property name="option" value="NL"/>
             <message key="line.new"
                      value="[line-wrapping-position] ''{0}'' should be on a new line."/>
         </module>
+
         <module name="OperatorWrap">
             <property name="option" value="NL"/>
             <property name="tokens"

@@ -8,7 +8,7 @@ public record ErrorResponse(
 	String code,
 	String message,
 	String method,
-	String requestURI
+	String requestUri
 ) {
 
 	public static ErrorResponse of(ErrorCode errorCode, HttpServletRequest request) {

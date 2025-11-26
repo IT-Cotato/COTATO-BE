@@ -33,20 +33,20 @@ import lombok.extern.slf4j.Slf4j;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
 	@ExceptionHandler(AppException.class)
-	public ResponseEntity<ErrorResponse> handleAppCustomException(AppException e, HttpServletRequest request) {
-		log.error("AppException 발생: {}", e.getErrorCode().getMessage());
+	public ResponseEntity<ErrorResponse> handleAppCustomException(AppException exception, HttpServletRequest request) {
+		log.error("AppException 발생: {}", exception.getErrorCode().getMessage());
 		log.error("에러가 발생한 지점 {}, {}", request.getMethod(), request.getRequestURI());
-		ErrorResponse errorResponse = ErrorResponse.of(e.getErrorCode(), request);
-		return ResponseEntity.status(e.getErrorCode().getHttpStatus())
+		ErrorResponse errorResponse = ErrorResponse.of(exception.getErrorCode(), request);
+		return ResponseEntity.status(exception.getErrorCode().getHttpStatus())
 			.body(errorResponse);
 	}
 
 	@ExceptionHandler(ImageException.class)
-	public ResponseEntity<ErrorResponse> handleImageException(ImageException e, HttpServletRequest request) {
-		log.error("이미지 처리 실패 예외 발생: {}", e.getErrorCode().getMessage());
+	public ResponseEntity<ErrorResponse> handleImageException(ImageException exception, HttpServletRequest request) {
+		log.error("이미지 처리 실패 예외 발생: {}", exception.getErrorCode().getMessage());
 		log.error("에러가 발생한 지점 {}, {}", request.getMethod(), request.getRequestURI());
-		ErrorResponse errorResponse = ErrorResponse.of(e.getErrorCode(), request);
-		return ResponseEntity.status(e.getErrorCode().getHttpStatus())
+		ErrorResponse errorResponse = ErrorResponse.of(exception.getErrorCode(), request);
+		return ResponseEntity.status(exception.getErrorCode().getHttpStatus())
 			.body(errorResponse);
 	}
 
@@ -56,7 +56,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		WebRequest request) {
 		ServletWebRequest servletWebRequest = (ServletWebRequest)request;
 		HttpServletRequest httpServletRequest = servletWebRequest.getRequest();
-		String requestURI = httpServletRequest.getRequestURI();
+		String requestUri = httpServletRequest.getRequestURI();
 
 		List<FieldErrorResponse> fieldErrorResponses = ex.getBindingResult().getFieldErrors().stream()
 			.map(FieldErrorResponse::of)
@@ -67,7 +67,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 			.toList();
 
 		log.error("[Method Argument Not Valid Execption 발생]: {}", errorFields);
-		log.error("에러가 발생한 지점 {}, {}", httpServletRequest.getMethod(), requestURI);
+		log.error("에러가 발생한 지점 {}, {}", httpServletRequest.getMethod(), requestUri);
 
 		MethodArgumentErrorResponse errorResponse = MethodArgumentErrorResponse.of(
 			ErrorCode.INVALID_INPUT, httpServletRequest, fieldErrorResponses);
@@ -75,42 +75,44 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 	}
 
 	@ExceptionHandler(EntityNotFoundException.class)
-	public ResponseEntity<ErrorResponse> handleEntityNotFoundException(EntityNotFoundException e,
+	public ResponseEntity<ErrorResponse> handleEntityNotFoundException(EntityNotFoundException exception,
 		HttpServletRequest request) {
-		log.error("Entity Not Found Exception 발생: {}", e.getMessage());
+		log.error("Entity Not Found Exception 발생: {}", exception.getMessage());
 		log.error("에러가 발생한 지점 {}, {}", request.getMethod(), request.getRequestURI());
 		ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.ENTITY_NOT_FOUND, request);
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
 	}
 
 	@ExceptionHandler(SQLException.class)
-	public ResponseEntity<ErrorResponse> handleSQLException(SQLException e, HttpServletRequest request) {
-		log.error("발생한 에러: {}", e.getErrorCode());
+	public ResponseEntity<ErrorResponse> handleSqlException(SQLException exception, HttpServletRequest request) {
+		log.error("발생한 에러: {}", exception.getErrorCode());
 		log.error("에러가 발생한 지점 {}, {}", request.getMethod(), request.getRequestURI());
 		ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.INTERNAL_SQL_ERROR, request);
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
 	}
 
 	@ExceptionHandler(AmazonS3Exception.class)
-	public ResponseEntity<ErrorResponse> handleAmazonS3Exception(AmazonS3Exception e, HttpServletRequest request) {
-		log.error("발생한 에러: {}", e.getErrorCode());
+	public ResponseEntity<ErrorResponse> handleAmazonS3Exception(AmazonS3Exception exception,
+		HttpServletRequest request) {
+		log.error("발생한 에러: {}", exception.getErrorCode());
 		log.error("에러가 발생한 지점 {}, {}", request.getMethod(), request.getRequestURI());
 		ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.IMAGE_PROCESSING_FAIL, request);
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
 	}
 
 	@ExceptionHandler(NoPermissionException.class)
-	public ResponseEntity<ErrorResponse> handleNoPermissionException(NoPermissionException e,
+	public ResponseEntity<ErrorResponse> handleNoPermissionException(NoPermissionException exception,
 		HttpServletRequest request) {
 		log.error("No Permission Error occurred");
 		log.error("Error Method and Path {}, {}", request.getMethod(), request.getRequestURI());
-		ErrorResponse errorResponse = ErrorResponse.of(request, ErrorCode.NO_PERMISSION_EXCEPTION, e.getMessage());
+		ErrorResponse errorResponse = ErrorResponse.of(request, ErrorCode.NO_PERMISSION_EXCEPTION,
+			exception.getMessage());
 		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
 	}
 
 	@ExceptionHandler(Exception.class)
-	public ResponseEntity<ErrorResponse> handleException(Exception e, HttpServletRequest request) {
-		log.error("Unhandled Exception 발생: {}", e.getMessage());
+	public ResponseEntity<ErrorResponse> handleException(Exception exception, HttpServletRequest request) {
+		log.error("Unhandled Exception 발생: {}", exception.getMessage());
 		log.error("에러가 발생한 지점 {}, {}", request.getMethod(), request.getRequestURI());
 		ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR, request);
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);

@@ -1,6 +1,6 @@
 package org.cotato.csquiz.domain.education.util;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.List;
 
 import org.cotato.csquiz.api.quiz.dto.ChoiceResponse;

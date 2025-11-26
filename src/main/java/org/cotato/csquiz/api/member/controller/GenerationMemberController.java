@@ -53,7 +53,8 @@ public class GenerationMemberController {
 		description = "지정된 기수 멤버의 역할을 수정합니다.",
 		operationId = "updateGenerationMemberRole",
 		parameters = {
-			@Parameter(name = "generationMemberId", description = "기수별 활동 멤버 ID", required = true, in = ParameterIn.PATH),
+			@Parameter(name = "generationMemberId", description = "기수별 활동 멤버 ID",
+				required = true, in = ParameterIn.PATH),
 		}
 	)
 	@RoleAuthority(MemberRole.ADMIN)

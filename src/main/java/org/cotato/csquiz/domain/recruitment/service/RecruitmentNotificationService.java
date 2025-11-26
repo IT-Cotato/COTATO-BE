@@ -65,8 +65,8 @@ public class RecruitmentNotificationService {
 	public RecruitmentNotificationLogsResponse findNotificationLogs() {
 		List<RecruitmentNotification> top5Notification = recruitmentNotificationReader.findTop5LatestNotifications();
 
-		Map<Long, List<RecruitmentNotificationEmailLog>> logsByNotificationId = recruitmentNotificationEmailLogReader.groupByNotificationIds(
-			top5Notification);
+		Map<Long, List<RecruitmentNotificationEmailLog>> logsByNotificationId =
+			recruitmentNotificationEmailLogReader.groupByNotificationIds(top5Notification);
 
 		List<RecruitmentNotificationLogResponse> responses = top5Notification.stream()
 			.map(notification -> RecruitmentNotificationLogResponse.of(
@@ -86,7 +86,8 @@ public class RecruitmentNotificationService {
 	@Transactional
 	public void sendRecruitmentNotificationMail(final int generationNumber, final Member member) {
 		//보내야 하는 메일 목록 반환
-		List<RecruitmentNotificationRequester> allNotSentOrFailRequester = recruitmentNotificationRequesterReader.findAllNotSentOrFailEmails();
+		List<RecruitmentNotificationRequester> allNotSentOrFailRequester =
+			recruitmentNotificationRequesterReader.findAllNotSentOrFailEmails();
 
 		//notification 객체 생성
 		RecruitmentNotification recruitmentNotification = recruitmentNotificationRepository.save(

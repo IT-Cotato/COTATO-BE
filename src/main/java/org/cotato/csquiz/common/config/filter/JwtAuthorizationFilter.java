@@ -74,7 +74,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 	protected boolean shouldNotFilter(HttpServletRequest request) {
 		String path = request.getRequestURI();
 		log.info("요청 경로 및 메서드: {}, {}", path, request.getMethod());
-		return isAuthPath(request.getRequestURI()) || isRecruitmentNotificationPath(request.getRequestURI())
+		return isAuthPath(path) || isRecruitmentNotificationPath(path)
 			|| isWhiteList(request);
 	}
 
@@ -84,13 +84,13 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 			&& Arrays.stream(WHITE_LIST).anyMatch(pattern -> pathMatcher.match(pattern, request.getRequestURI()));
 	}
 
-	private boolean isAuthPath(String requestURI) {
+	private boolean isAuthPath(String requestUri) {
 		AntPathMatcher pathMatcher = new AntPathMatcher();
-		return pathMatcher.match(AUTH_PATH, requestURI) || pathMatcher.match(LOGIN_PATH, requestURI);
+		return pathMatcher.match(AUTH_PATH, requestUri) || pathMatcher.match(LOGIN_PATH, requestUri);
 	}
 
-	private boolean isRecruitmentNotificationPath(String requestURI) {
+	private boolean isRecruitmentNotificationPath(String requestUri) {
 		AntPathMatcher pathMatcher = new AntPathMatcher();
-		return pathMatcher.match(RECRUITMENT_NOTIFICATION_PATH, requestURI);
+		return pathMatcher.match(RECRUITMENT_NOTIFICATION_PATH, requestUri);
 	}
 }

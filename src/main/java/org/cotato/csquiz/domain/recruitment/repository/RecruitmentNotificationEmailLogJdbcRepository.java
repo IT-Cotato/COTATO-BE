@@ -24,7 +24,7 @@ public class RecruitmentNotificationEmailLogJdbcRepository {
 	public void saveAllWithBatch(List<RecruitmentNotificationEmailLog> logs) {
 
 		// language=MySQL
-		final String SQL = "INSERT INTO recruitment_notification_email_log "
+		final String sql = "INSERT INTO recruitment_notification_email_log "
 			+ "(receiver_id, notification_id, send_success, created_at, modified_at) "
 			+ "VALUES (?, ?, ?, now(), now())";
 
@@ -32,10 +32,10 @@ public class RecruitmentNotificationEmailLogJdbcRepository {
 			int end = Math.min(start + BATCH_SIZE, logs.size());
 			List<RecruitmentNotificationEmailLog> chunk = logs.subList(start, end);
 
-			jdbcTemplate.batchUpdate(SQL, new BatchPreparedStatementSetter() {
+			jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
 				@Override
-				public void setValues(PreparedStatement ps, int i) throws SQLException {
-					var log = chunk.get(i);
+				public void setValues(PreparedStatement ps, int index) throws SQLException {
+					var log = chunk.get(index);
 					ps.setLong(1, log.getReceiver().getId());
 					ps.setLong(2, log.getNotification().getId());
 					ps.setBoolean(3, log.getSendSuccess());

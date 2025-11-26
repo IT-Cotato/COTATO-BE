@@ -87,7 +87,8 @@ public class AttendanceRecordService {
 		Map<Long, Member> memberById = memberReader.findAllGenerationMember(session.getGeneration()).stream()
 			.collect(Collectors.toMap(Member::getId, Function.identity()));
 
-		Map<Long, AttendanceResult> attendanceResultByMemberId = attendanceRecordRepository.findAllByAttendanceIdAndMemberIdIn(
+		Map<Long, AttendanceResult> attendanceResultByMemberId =
+			attendanceRecordRepository.findAllByAttendanceIdAndMemberIdIn(
 				attendance.getId(), memberById.keySet().stream().toList()).stream()
 			.collect(Collectors.toMap(AttendanceRecord::getMemberId, AttendanceRecord::getAttendanceResult));
 
@@ -139,7 +140,8 @@ public class AttendanceRecordService {
 			.map(Attendance::getId)
 			.toList();
 
-		Map<Long, AttendanceRecord> attendanceRecordMap = attendanceRecordRepository.findAllByAttendanceIdsInQueryAndMemberId(
+		Map<Long, AttendanceRecord> attendanceRecordMap =
+			attendanceRecordRepository.findAllByAttendanceIdsInQueryAndMemberId(
 				attendanceIds, member.getId()).stream()
 			.collect(Collectors.toUnmodifiableMap(AttendanceRecord::getAttendanceId, Function.identity()));
 

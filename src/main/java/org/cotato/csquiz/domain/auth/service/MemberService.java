@@ -163,9 +163,9 @@ public class MemberService {
 	}
 
 	private boolean isDefaultImage(S3Info profileImage) {
-		return profileImage.getFolderName().equals(defaultProfileImageFolder) &&
-			profileImage.getFileName().equals(defaultProfileImageFile) &&
-			profileImage.getUrl().equals(defaultProfileImageUrl);
+		return profileImage.getFolderName().equals(defaultProfileImageFolder)
+			&& profileImage.getFileName().equals(defaultProfileImageFile)
+			&& profileImage.getUrl().equals(defaultProfileImageUrl);
 	}
 
 	private void updateProfileImage(final Member member, final MultipartFile profileImage,
