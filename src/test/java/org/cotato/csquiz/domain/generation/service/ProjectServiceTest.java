@@ -39,7 +39,7 @@ class ProjectServiceTest {
 	private ProjectImageRepository projectImageRepository;
 
 	@Test
-	public void 프로젝트_목록_최신순_정렬() {
+	public void whenGetAllProjectSummaries_thenReturnSortedByLatest() {
 		// given
 		Generation generation1 = spy(Generation.builder().number(100).build());
 		Generation generation2 = spy(Generation.builder().number(200).build());

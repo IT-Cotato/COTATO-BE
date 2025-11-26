@@ -31,7 +31,7 @@ class PolicyServiceTest {
 	private MemberPolicyRepository memberPolicyRepository;
 
 	@Test
-	void 체크하지_않은_정책_조회() {
+	void whenFindUncheckedPolicies_thenReturnUncheckedPolicies() {
 		// given
 		Member member = Member.defaultMember("test", "test", "test", "test");
 		Policy policy = Policy.builder().policyType(PolicyType.ESSENTIAL).build();

@@ -62,7 +62,7 @@ class MemberServiceTest {
 	private ProfileLinkRepository profileLinkRepository;
 
 	@Test
-	void 부원_활성화_요청() {
+	void whenActivateMember_thenStatusChangedToApproved() {
 		// given
 		Member member = Member.defaultMember("email", "password", "name", null);
 		member.updateStatus(MemberStatus.INACTIVE);
@@ -82,7 +82,7 @@ class MemberServiceTest {
 	}
 
 	@Test
-	void 비활성화_상태가_아니면_활성화가_불가능하다() {
+	void whenMemberIsNotInactive_thenActivationFails() {
 		// given
 		Member member = Member.defaultMember("email", "password", "name", null);
 		member.updateStatus(MemberStatus.APPROVED);
@@ -98,7 +98,7 @@ class MemberServiceTest {
 	}
 
 	@Test
-	void 승인된_부원_목록_조회() {
+	void whenGetMembersByStatus_thenReturnApprovedMembers() {
 		// given
 		Member member1 = Member.defaultMember("email1", "password1", "name1", "1");
 		Member member2 = Member.defaultMember("email2", "password2", "name2", "2");
@@ -127,7 +127,7 @@ class MemberServiceTest {
 	}
 
 	@Test
-	void 프로필_정보_업데이트() throws ImageException {
+	void whenUpdateMemberProfileInfo_thenProfileUpdated() throws ImageException {
 		//given
 		Member member = getDefaultMember();
 		String introduction = "새로운 소개";
@@ -141,8 +141,8 @@ class MemberServiceTest {
 			.fileName("new file")
 			.folderName("new folder")
 			.build();
-		when(s3Uploader.uploadFiles((MultipartFile)any(), any())).
-			thenReturn(newS3Info);
+		when(s3Uploader.uploadFiles((MultipartFile)any(), any()))
+			.thenReturn(newS3Info);
 
 		//when
 		memberService.updateMemberProfileInfo(member, introduction, university, profileLinkRequests,
@@ -155,7 +155,7 @@ class MemberServiceTest {
 	}
 
 	@Test
-	void 프로필_이미지_없으면_예외발생() {
+	void whenProfileImageIsNull_thenThrowException() {
 		// given
 		Member member = getDefaultMember();
 
@@ -166,7 +166,7 @@ class MemberServiceTest {
 	}
 
 	@Test
-	void 프로필_변경시_값이_없으면_기존_값이_유지된다() throws ImageException {
+	void whenUpdateProfileWithNullValues_thenKeepExistingValues() throws ImageException {
 		//given
 		Member member = getDefaultMember();
 		String introduction = "새로운 소개";
@@ -191,7 +191,7 @@ class MemberServiceTest {
 	}
 
 	@Test
-	void OM검색_페이징_반환() {
+	void whenSearchOM_thenReturnPagedResults() {
 		// given
 		Pageable pageable = PageRequest.of(0, 1);
 		Member member1 = Member.defaultMember("email1", "password1", "name1", "1");

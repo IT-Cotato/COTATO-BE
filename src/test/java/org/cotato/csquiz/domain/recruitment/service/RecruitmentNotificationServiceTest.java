@@ -65,10 +65,10 @@ class RecruitmentNotificationServiceTest {
 	@Mock
 	private RecruitmentNotificationEmailLogReader emailLogReader;
 
-	private final String EMAIL = "user@example.com";
+	private final String email = "user@example.com";
 
 	@Test
-	void 보류된_알림_개수_조회() {
+	void whenCountPendingNotification_thenReturnPendingCount() {
 		// given
 		long pendingCount = 5L;
 		when(recruitmentNotificationRequesterReader.countPendingNotification())
@@ -84,64 +84,64 @@ class RecruitmentNotificationServiceTest {
 	}
 
 	@Test
-	void policyChecked가_false이면_예외발생() {
+	void whenPolicyCheckedIsFalse_thenThrowException() {
 		// given
 		boolean isPolicyChecked = false;
 
 		// when & then
 		AppException ex = assertThrows(AppException.class,
-			() -> recruitmentNotificationService.requestRecruitmentNotification(EMAIL, isPolicyChecked));
+			() -> recruitmentNotificationService.requestRecruitmentNotification(email, isPolicyChecked));
 		assertEquals(ErrorCode.SHOULD_AGREE_POLICY, ex.getErrorCode());
 
 		verifyNoInteractions(recruitmentNotificationRequesterRepository);
 	}
 
 	@Test
-	void 이미_같은_이메일이_신청되면_예외발생() {
+	void whenSameEmailAlreadyRequested_thenThrowException() {
 		// given
 		boolean isPolicyChecked = true;
 		when(recruitmentNotificationRequesterReader
-			.existsByEmailAndSendStatus(EMAIL, SendStatus.NOT_SENT))
+			.existsByEmailAndSendStatus(email, SendStatus.NOT_SENT))
 			.thenReturn(true);
 
 		// when & then
 		AppException ex = assertThrows(AppException.class,
-			() -> recruitmentNotificationService.requestRecruitmentNotification(EMAIL, isPolicyChecked));
+			() -> recruitmentNotificationService.requestRecruitmentNotification(email, isPolicyChecked));
 		assertEquals(ErrorCode.ALREADY_REQUEST_NOTIFICATION, ex.getErrorCode());
 
-		verify(recruitmentNotificationRequesterReader).existsByEmailAndSendStatus(EMAIL, SendStatus.NOT_SENT);
+		verify(recruitmentNotificationRequesterReader).existsByEmailAndSendStatus(email, SendStatus.NOT_SENT);
 		verifyNoInteractions(recruitmentNotificationRequesterRepository);
 	}
 
 	@Test
-	void 모집_알림_신청시_저장() {
+	void whenRequestRecruitmentNotification_thenSave() {
 		// given
 		boolean isPolicyChecked = true;
 		EmailContent mockContent = new EmailContent("제목", "body");
 		when(recruitmentNotificationRequesterReader
-			.existsByEmailAndSendStatus(EMAIL, SendStatus.NOT_SENT))
+			.existsByEmailAndSendStatus(email, SendStatus.NOT_SENT))
 			.thenReturn(false);
 
 		when(recruitmentEmailFactory.getRequestSuccessEmailContent())
 			.thenReturn(mockContent);
 
 		// when
-		recruitmentNotificationService.requestRecruitmentNotification(EMAIL, isPolicyChecked);
+		recruitmentNotificationService.requestRecruitmentNotification(email, isPolicyChecked);
 
 		// then
-		verify(recruitmentNotificationRequesterReader).existsByEmailAndSendStatus(EMAIL, SendStatus.NOT_SENT);
+		verify(recruitmentNotificationRequesterReader).existsByEmailAndSendStatus(email, SendStatus.NOT_SENT);
 		verify(recruitmentEmailFactory).getRequestSuccessEmailContent();
-		verify(recruitmentNotificationSender).sendEmailAsync(EMAIL, mockContent);
+		verify(recruitmentNotificationSender).sendEmailAsync(email, mockContent);
 		verify(recruitmentNotificationRequesterRepository).save(
 			argThat((RecruitmentNotificationRequester r) ->
-				EMAIL.equals(r.getEmail())
+				email.equals(r.getEmail())
 					&& r.getSendStatus() == SendStatus.NOT_SENT
 			)
 		);
 	}
 
 	@Test
-	void 모집_전송_기록_반환() {
+	void whenFindNotificationLogs_thenReturnLogs() {
 		// given
 		RecruitmentNotification notification = mock(RecruitmentNotification.class);
 		LocalDateTime now = LocalDateTime.of(2025, 5, 8, 12, 0);
@@ -180,7 +180,7 @@ class RecruitmentNotificationServiceTest {
 	}
 
 	@Test
-	void 전체_성공_상태업데이트_및_로그저장() {
+	void whenSendRecruitmentNotificationMail_thenUpdateStatusAndSaveLogs() {
 		// given
 		RecruitmentNotificationRequester req1 = mock(RecruitmentNotificationRequester.class);
 		when(req1.getId()).thenReturn(1L);

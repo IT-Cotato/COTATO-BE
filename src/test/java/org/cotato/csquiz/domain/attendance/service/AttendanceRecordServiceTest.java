@@ -47,7 +47,7 @@ class AttendanceRecordServiceTest {
 	private AttendanceRecordRepository attendanceRecordRepository;
 
 	@Test
-	void 세션_타입에_맞는_출결_기록_변경() {
+	void whenUpdateAttendanceRecordWithMatchingSessionType_thenSuccess() {
 		// given
 		Session session = Session.builder().sessionType(SessionType.OFFLINE).build();
 		Attendance attendance = Attendance.builder().session(session).build();
@@ -67,7 +67,7 @@ class AttendanceRecordServiceTest {
 	}
 
 	@Test
-	void 세션_타입에_맞지_않는_출결_기록_변경() {
+	void whenUpdateAttendanceRecordWithNonMatchingSessionType_thenThrowException() {
 		// given
 		Session session = Session.builder().sessionType(SessionType.ONLINE).build();
 		Attendance attendance = Attendance.builder().session(session).build();
@@ -86,7 +86,7 @@ class AttendanceRecordServiceTest {
 	}
 
 	@Test
-	void 출결_기록은_결석_또는_지각으로_변경_가능() {
+	void whenUpdateAttendanceRecordToAbsentOrLate_thenSuccess() {
 		// given
 		Session session = Session.builder().sessionType(SessionType.OFFLINE).build();
 		Attendance attendance = Attendance.builder().session(session).build();

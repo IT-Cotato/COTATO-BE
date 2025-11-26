@@ -106,7 +106,7 @@ class SessionServiceTest {
 	}
 
 	@Test
-	void 세션_날짜_수정시_출결_기록이_존재하면_예외() {
+	void whenUpdateSessionDateWithExistingAttendanceRecord_thenThrowException() {
 		//given
 		Long sessionId = 1L;
 		LocalDateTime oldSessionDateTime = LocalDateTime.of(2025, 2, 1, 10, 0);
@@ -125,7 +125,7 @@ class SessionServiceTest {
 	}
 
 	@Test
-	void 출석_삭제시_출결_기록이_존재하면_예외() {
+	void whenDeleteAttendanceWithExistingAttendanceRecord_thenThrowException() {
 		//given
 		Long sessionId = 1L;
 		LocalDateTime sessionDateTime = LocalDateTime.of(2025, 2, 2, 10, 0); //변경X 날짜
@@ -143,7 +143,7 @@ class SessionServiceTest {
 	}
 
 	@Test
-	void 출결_기록이_존재하지_않으면_수정_가능() {
+	void whenNoAttendanceRecordExists_thenUpdatePossible() {
 		//given
 		final Long sessionId = 1L;
 		LocalDateTime newSessionDateTime = LocalDateTime.of(2025, 2, 2, 10, 0); // 변경된 날짜
@@ -167,7 +167,7 @@ class SessionServiceTest {
 	}
 
 	@Test
-	void 세션_목록_반환시_세션_이미지가_순서대로_정렬된다() {
+	void whenFindSessionsByGenerationId_thenSessionImagesAreSorted() {
 		// given
 		Long generationId = 1L;
 		Generation generation = mock(Generation.class);
@@ -244,7 +244,7 @@ class SessionServiceTest {
 	}
 
 	@Test
-	void 세션에_이미지가_없으면_빈_리스트를_반환하는지_확인() {
+	void whenSessionHasNoImages_thenReturnEmptyList() {
 		// given
 		Long generationId = 1L;
 		Generation generation = mock(Generation.class);
@@ -268,7 +268,7 @@ class SessionServiceTest {
 
 	@Test
 	@DisplayName("출석 삭제시 출석 알림도 함께 삭제되는지 테스트")
-	void 출석_삭제시_출석_알림도_함께_삭제() {
+	void whenDeleteAttendance_thenDeleteAttendanceNotification() {
 		// given
 		Long sessionId = 1L;
 		LocalDateTime sessionDateTime = LocalDateTime.of(2025, 2, 2, 10, 0);
@@ -291,7 +291,7 @@ class SessionServiceTest {
 
 	@Test
 	@DisplayName("출석이 유지되는 경우 출석 알림은 삭제되지 않는지 테스트")
-	void 출석이_유지되는_경우_출석_알림은_삭제되지_않음() {
+	void whenAttendanceIsKept_thenAttendanceNotificationIsNotDeleted() {
 		// given
 		Long sessionId = 1L;
 		LocalDateTime sessionDateTime = LocalDateTime.of(2025, 2, 2, 10, 0);

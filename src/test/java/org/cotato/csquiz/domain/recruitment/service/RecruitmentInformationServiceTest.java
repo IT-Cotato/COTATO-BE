@@ -49,7 +49,7 @@ class RecruitmentInformationServiceTest {
 	}
 
 	@Test
-	void 모집이_열려있으면_정보를_반환한다() {
+	void whenRecruitmentIsOpened_thenReturnInfo() {
 		//given
 		Period period = Period.of(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 6, 1));
 		String url = "http://example.com";
@@ -72,7 +72,7 @@ class RecruitmentInformationServiceTest {
 	}
 
 	@Test
-	void 모집이_닫혀있으면_정보를_반환한다() {
+	void whenRecruitmentIsClosed_thenReturnInfo() {
 		//given
 		Period period = Period.of(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 6, 1));
 		String url = "http://example.com";
@@ -94,7 +94,7 @@ class RecruitmentInformationServiceTest {
 	}
 
 	@Test
-	void 모집정보_닫기_시_스케줄_취소_및_정보_닫힘() {
+	void whenCloseRecruitmentInfo_thenCancelScheduleAndCloseInfo() {
 		// given
 		Period initial = Period.of(
 			LocalDate.of(2025, 1, 1),
@@ -120,7 +120,7 @@ class RecruitmentInformationServiceTest {
 	}
 
 	@Test
-	void 모집정보_열기_유효한_파라미터_일때_스케줄_등록_및_정보_업데이트() {
+	void whenOpenRecruitmentInfoWithValidParams_thenRegisterScheduleAndUpdateInfo() {
 		// given
 		Period initial = Period.of(
 			LocalDate.of(2025, 1, 1),
@@ -155,7 +155,7 @@ class RecruitmentInformationServiceTest {
 	}
 
 	@Test
-	void 모집정보_열기_종료일이_시작일_이전_이면_예외_및_스케줄_호출_없음() {
+	void whenOpenRecruitmentInfoWithEndDateBeforeStartDate_thenThrowException() {
 		// given
 		RecruitmentInformation info = RecruitmentInformation.builder()
 			.period(Period.of(

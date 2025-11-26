@@ -42,7 +42,7 @@ class AdminMemberServiceTest {
 	private CotatoEventPublisher cotatoEventPublisher;
 
 	@Test
-	void 부원_승인_요청() {
+	void whenApproveApplicant_thenStatusChangedToApproved() {
 		// given
 		Member member = Member.defaultMember("boysoeng@naver.com", "password", "name", "phoneNumber");
 		member.updateStatus(MemberStatus.REQUESTED);
@@ -62,7 +62,7 @@ class AdminMemberServiceTest {
 	}
 
 	@Test
-	void 부원_승인요청_실패() {
+	void whenApproveApplicantWithInvalidStatus_thenThrowException() {
 		// given
 		Member member = Member.defaultMember("boysoeng@naver.com", "password", "name", "phoneNumber");
 		member.updateStatus(MemberStatus.INACTIVE);
@@ -78,7 +78,7 @@ class AdminMemberServiceTest {
 	}
 
 	@Test
-	void 부원_역할_변경() {
+	void whenUpdateMemberRole_thenRoleChanged() {
 		// given
 		Member member = Member.defaultMember("email", "pwd", "dd", "");
 		member.updateRole(MemberRole.MEMBER);
@@ -92,7 +92,7 @@ class AdminMemberServiceTest {
 	}
 
 	@Test
-	void 부원을_OM전환() {
+	void whenUpdateToRetireMembers_thenStatusChangedToRetired() {
 		// given
 		Member member1 = Member.defaultMember("email", "pwd", "dd", "1");
 		Member member2 = Member.defaultMember("email2", "pwd", "dd2", "2");
@@ -110,7 +110,7 @@ class AdminMemberServiceTest {
 	}
 
 	@Test
-	void 개발팀은_OM으로_전환하지_않는다() {
+	void whenUpdateDevTeamToRetired_thenThrowException() {
 		// given
 		Member devTeam = Member.defaultMember("email", "pwd", "dd", "1");
 		devTeam.updateRole(MemberRole.DEV);
@@ -126,7 +126,7 @@ class AdminMemberServiceTest {
 	}
 
 	@Test
-	void 활동_부원이_아닌_경우_OM전환_에러() {
+	void whenUpdateNonActiveMemberToRetired_thenThrowException() {
 		// given
 		Member member1 = Member.defaultMember("email", "pwd", "dd", "1");
 		Member member2 = Member.defaultMember("email2", "pwd", "dd2", "2");
@@ -140,7 +140,7 @@ class AdminMemberServiceTest {
 	}
 
 	@Test
-	void OM을_일반_부원으로_전환() {
+	void whenUpdateToApprovedMember_thenStatusChangedToApproved() {
 		// given
 		Member member = Member.defaultMember("email", "pwd", "dd", "1");
 		member.updateStatus(MemberStatus.RETIRED);

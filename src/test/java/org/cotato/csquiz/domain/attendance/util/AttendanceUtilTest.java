@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 class AttendanceUtilTest {
 
 	@Test
-	void 날짜가_다르면_출석이_닫혀있다() {
+	void whenDateIsDifferent_thenAttendanceIsClosed() {
 		//given
 		Attendance attendance = Attendance.builder()
 			.attendanceDeadLine(LocalDateTime.now())
@@ -37,7 +37,7 @@ class AttendanceUtilTest {
 	}
 
 	@Test
-	void 기준시간_전이면_출석이_닫혀있다() {
+	void whenBeforeBaseTime_thenAttendanceIsClosed() {
 		//given
 		LocalDateTime attendanceDeadLine = LocalDateTime.of(2024, Month.AUGUST, 9, 19, 10, 0);
 		Session session = Session.builder()
@@ -60,7 +60,7 @@ class AttendanceUtilTest {
 	}
 
 	@Test
-	void 지각마감이_세션시작보다_빠를_수_없다() {
+	void whenLateDeadlineIsBeforeSessionStart_thenThrowException() {
 		//given
 		LocalDateTime sessionStartTime = LocalDateTime.of(LocalDate.now(), LocalTime.of(15, 0));
 		LocalDateTime attendDeadline = LocalDateTime.of(LocalDate.now(), LocalTime.of(15, 40));
@@ -75,7 +75,7 @@ class AttendanceUtilTest {
 
 	@DisplayName(value = "지각마감이 출석보다 빠르면 예외를 발생한다.")
 	@Test
-	void 지각마감보다_출석마감이_빠르다() {
+	void whenLateDeadlineIsBeforeAttendanceDeadline_thenThrowException() {
 		//given
 		LocalDateTime sessionStartTime = LocalDateTime.of(LocalDate.now(), LocalTime.of(15, 0));
 		LocalDateTime attendDeadline = LocalDateTime.of(LocalDate.now(), LocalTime.of(15, 40));

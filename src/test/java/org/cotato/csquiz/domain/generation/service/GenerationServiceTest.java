@@ -41,7 +41,7 @@ class GenerationServiceTest {
 	}
 
 	@Test
-	void 현재_날짜에_기수가_존재할_경우_현재_기수_반환() {
+	void whenGenerationExistsForCurrentDate_thenReturnCurrentGeneration() {
 		// given: 기수 데이터 설정
 		Generation currentGeneration = Generation.builder()
 			.number(2)
@@ -59,7 +59,7 @@ class GenerationServiceTest {
 	}
 
 	@Test
-	void 현재_날짜에_기수가_존재하지_않을_경우_이전_기수_반환() {
+	void whenGenerationDoesNotExistForCurrentDate_thenReturnPreviousGeneration() {
 		// given
 		Generation previousGeneration = Generation.builder()
 			.number(2)
@@ -79,7 +79,7 @@ class GenerationServiceTest {
 	}
 
 	@Test
-	void 이전_기수가_없을_경우_예외_발생() {
+	void whenPreviousGenerationDoesNotExist_thenThrowException() {
 		// when: 이전 기수가 존재하지 않을 경우
 		when(generationRepository.findByCurrentDate(any(LocalDate.class))).thenReturn(Optional.empty());
 		when(generationRepository.findPreviousGenerationByCurrentDate(any(LocalDate.class))).thenReturn(
@@ -94,7 +94,7 @@ class GenerationServiceTest {
 	}
 
 	@Test
-	void 기수_추가시_시작_날짜가_종료_날짜_이전이면_예외발생() {
+	void whenAddGenerationWithStartDateBeforeEndDate_thenThrowException() {
 		// given
 		LocalDate startDate = LocalDate.of(2025, 6, 1);
 		LocalDate endDate = LocalDate.of(2025, 5, 1);
@@ -107,7 +107,7 @@ class GenerationServiceTest {
 	}
 
 	@Test
-	void 기수_추가시_기존_데이터와_기간이_겹치면_예외발생() {
+	void whenAddGenerationWithOverlappingPeriod_thenThrowException() {
 		// given
 		LocalDate startDate = LocalDate.of(2025, 6, 1);
 		LocalDate endDate = LocalDate.of(2025, 9, 1);
@@ -124,7 +124,7 @@ class GenerationServiceTest {
 	}
 
 	@Test
-	void 새로운_기수를_정상적으로_추가할_수_있다() {
+	void whenAddNewGeneration_thenSuccess() {
 		// given
 		LocalDate startDate = LocalDate.of(2025, 6, 1);
 		LocalDate endDate = LocalDate.of(2025, 9, 1);
@@ -155,7 +155,7 @@ class GenerationServiceTest {
 	}
 
 	@Test
-	void 기수_기간_수정시_기존_데이터와_기간이_겹치면_예외발생() {
+	void whenChangeGenerationPeriodWithOverlappingPeriod_thenThrowException() {
 		// given
 		Long generationId = 1L;
 		LocalDate startDate = LocalDate.of(2025, 6, 1);
@@ -177,7 +177,7 @@ class GenerationServiceTest {
 	}
 
 	@Test
-	void 기수_기간을_정상적으로_변경할_수_있다() {
+	void whenChangeGenerationPeriod_thenSuccess() {
 		// given
 		Long generationId = 1L;
 		LocalDate startDate = LocalDate.of(2025, 6, 1);
@@ -201,7 +201,7 @@ class GenerationServiceTest {
 	}
 
 	@Test
-	void 기수_목록_조회() {
+	void whenFindGenerations_thenReturnGenerations() {
 		// given
 		Generation generation1 = Generation.builder().number(3)
 			.period(Period.of(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 5, 1)))

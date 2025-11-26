@@ -47,7 +47,7 @@ class RecruitmentSchedulerTest {
 	}
 
 	@Test
-	void cancelCloseRecruitmentScheduler_호출시_스케줄이_취소되어야_한다() {
+	void whenCancelCloseRecruitmentScheduler_thenScheduleCancelled() {
 		// given: 스케줄이 등록된 상태
 		scheduler.registerCloseRecruitmentScheduler(sampleEndDate);
 
@@ -59,7 +59,7 @@ class RecruitmentSchedulerTest {
 	}
 
 	@Test
-	void 스케줄_등록_성공() {
+	void whenRegisterCloseRecruitmentScheduler_thenScheduleRegistered() {
 		// when
 		scheduler.registerCloseRecruitmentScheduler(sampleEndDate);
 
@@ -78,7 +78,7 @@ class RecruitmentSchedulerTest {
 	}
 
 	@Test
-	void restoreScheduler_열린_모집정보가_있으면_스케줄등록() {
+	void whenRestoreSchedulerWithOpenedRecruitment_thenScheduleRegistered() {
 		// given
 		RecruitmentInformation openedInfo = mock(RecruitmentInformation.class);
 		when(openedInfo.isOpened()).thenReturn(true);

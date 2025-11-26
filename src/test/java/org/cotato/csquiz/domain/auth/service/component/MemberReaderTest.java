@@ -25,19 +25,19 @@ class MemberReaderTest {
 	private GenerationMemberRepository generationMemberRepository;
 
 	@Test
-	void 특정_기수_멤버_조회() {
+	void whenFindAllGenerationMember_thenReturnMembers() {
 		//
 		Generation generation = Generation.builder()
 			.number(9)
 			.build();
 
-		Member 신유승 = Member.defaultMember("youth@email.com", "password", "신유승", null);
+		Member member1 = Member.defaultMember("youth@email.com", "password", "신유승", null);
 
-		Member 남기훈 = Member.defaultMember("gikhoon@email.com", "password", "남기훈", null);
+		Member member2 = Member.defaultMember("gikhoon@email.com", "password", "남기훈", null);
 
 		List<GenerationMember> generationMembers = List.of(
-			GenerationMember.of(generation, 신유승),
-			GenerationMember.of(generation, 남기훈)
+			GenerationMember.of(generation, member1),
+			GenerationMember.of(generation, member2)
 		);
 
 		// when

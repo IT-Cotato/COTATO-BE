@@ -35,7 +35,7 @@ class CotatoEventListenerTest {
 
 	@Test
 	@DisplayName("부원 가입 거절 시 이메일 발송 테스트")
-	void whenApproveMember_then_sendSignUpApprovedToEmail_호출() {
+	void whenApproveMember_then_sendSignUpApprovedToEmail() {
 		// given
 		Member member = mock(Member.class);
 		EmailSendEventDto dto = EmailSendEventDto.builder()
@@ -53,7 +53,7 @@ class CotatoEventListenerTest {
 	}
 
 	@Test
-	void whenRejectMember_then_sendSignupRejectionToEmail_호출() {
+	void whenRejectMember_then_sendSignupRejectionToEmail() {
 		// given
 		Member member = mock(Member.class);
 		EmailSendEventDto dto = EmailSendEventDto.builder()
@@ -72,7 +72,7 @@ class CotatoEventListenerTest {
 
 	@Test
 	@DisplayName("세션 이미지 수정 이벤트 발행")
-	void whenSessionImageUpdate_then_addSessionImages_호출() throws ImageException {
+	void whenSessionImageUpdate_then_addSessionImages() throws ImageException {
 		// given
 		SessionImageEventDto dto = mock(SessionImageEventDto.class);
 		Session session = mock(Session.class);
