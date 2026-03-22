@@ -101,6 +101,8 @@ jobs:
             docker run -d \
               --name cotato-be \
               --restart unless-stopped \
+              --memory=1536m \
+              --memory-swap=1536m \
               -p 8088:8080 \
               ${{ secrets.DOCKERHUB_USERNAME }}/cotato-be:latest
             docker image prune -f
