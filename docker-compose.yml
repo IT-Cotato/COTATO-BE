@@ -1,0 +1,43 @@
+name: cotato-be
+
+services:
+  app:
+    image: ${DOCKER_IMAGE}
+    container_name: cotato-be-app
+    restart: unless-stopped
+    ports:
+      - "8088:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      redis:
+        condition: service_healthy
+    mem_limit: 1536m
+    networks:
+      - cotato-be-network
+
+  redis:
+    image: redis:8.2.2-alpine
+    container_name: cotato-be-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--save", "60", "1", "--loglevel", "warning"]
+    volumes:
+      - cotato-be-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    networks:
+      - cotato-be-network
+
+networks:
+  cotato-be-network:
+    name: cotato-be-network
+    driver: bridge
+
+volumes:
+  cotato-be-redis-data:
+    name: cotato-be-redis-data
